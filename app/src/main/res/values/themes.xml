@@ -6,19 +6,39 @@
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/white</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" >@color/white</item>
+        <item name="android:statusBarColor">@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
         <!-- Customize your theme here. -->
+        <item name="android:windowAnimationStyle">@style/CustomActivityAnimation</item>
     </style>
     <!-- Splash Screen Theme. -->
     <style name="Theme.AppSplash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/gray</item>
+        <item name="windowSplashScreenBackground">@color/white</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_icon_round</item>
-        <item name="windowSplashScreenAnimationDuration">1000</item>
+        <item name="windowSplashScreenAnimationDuration">800</item>
         <item name="postSplashScreenTheme">@style/Theme.FoodMapApp</item>
         <!-- Status bar and Nav bar configs -->
-        <item name="android:statusBarColor" >@color/gray</item>
-        <item name="android:navigationBarColor">@color/gray</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:navigationBarColor">@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
+    </style>
+    <!--  Slide animation  -->
+    <style name="CustomActivityAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_in_right</item>
+        <item name="android:activityOpenExitAnimation">@anim/slide_out_left</item>
+        <item name="android:activityCloseEnterAnimation">@anim/slide_in_left</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_out_right</item>
+    </style>
+    <!-- Bottom Sheet Dialog Style -->
+    <style name="BottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:animationDuration">@android:integer/config_longAnimTime</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+    </style>
+
+    <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
     </style>
 </resources>

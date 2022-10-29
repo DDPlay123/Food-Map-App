@@ -2,8 +2,6 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
-    id 'kotlin-parcelize'
-    id 'dagger.hilt.android.plugin'
     id 'androidx.navigation.safeargs.kotlin'
 }
 
@@ -87,7 +85,6 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.2'
     // Splash Screen (起始畫面 API)
     implementation 'androidx.core:core-splashscreen:1.0.0'
-    // Dagger hilt (類似於Koin) (https://dagger.dev/hilt/gradle-setup)
-    implementation 'com.google.dagger:hilt-android:2.44'
-    kapt 'com.google.dagger:hilt-compiler:2.44'
+    // Koin (Dependency injection, DI)
+    implementation "io.insert-koin:koin-android:3.2.0"
 }
