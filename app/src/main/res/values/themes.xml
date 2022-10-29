@@ -10,4 +10,15 @@
         <item name="android:windowLightStatusBar">true</item>
         <!-- Customize your theme here. -->
     </style>
+    <!-- Splash Screen Theme. -->
+    <style name="Theme.AppSplash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/gray</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_icon_round</item>
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+        <item name="postSplashScreenTheme">@style/Theme.FoodMapApp</item>
+        <!-- Status bar and Nav bar configs -->
+        <item name="android:statusBarColor" >@color/gray</item>
+        <item name="android:navigationBarColor">@color/gray</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
 </resources>
