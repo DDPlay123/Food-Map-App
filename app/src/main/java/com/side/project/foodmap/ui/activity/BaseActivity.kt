@@ -1,16 +1,51 @@
 package com.side.project.foodmap.ui.activity
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.side.project.foodmap.databinding.DialogPromptBinding
+import com.side.project.foodmap.ui.other.DialogManager
+import com.side.project.foodmap.ui.other.NetworkConnection
+import org.koin.android.ext.android.inject
 
 abstract class BaseActivity : AppCompatActivity() {
     lateinit var mActivity: BaseActivity
+    lateinit var dialog: DialogManager
+    private val networkConnection: NetworkConnection by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mActivity = this
+        dialog = DialogManager.instance(mActivity)
+
+        networkConnection.observe(this) { isConnect ->
+            if (!isConnect) {
+                val binding = DialogPromptBinding.inflate(layoutInflater)
+                dialog.cancelAllDialog()
+                dialog.showCenterDialog(false, binding, false).let {
+                    binding.run {
+                        titleText = "網路連線不穩定"
+                        subTitleText = "請重新確認您的網路連線狀況。"
+                        tvCancel.visibility = View.GONE
+                        tvConfirm.setOnClickListener { dialog.cancelCenterDialog() }
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (grantResults.isNotEmpty() && requestCode == 1) {
+            if (grantResults[0] == PackageManager.PERMISSION_DENIED) finish()
+        }
     }
 
     override fun onTrimMemory(level: Int) {

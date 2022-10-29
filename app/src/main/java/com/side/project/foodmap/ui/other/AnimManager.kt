@@ -1,4 +1,4 @@
-package com.side.project.foodmap.util
+package com.side.project.foodmap.ui.other
 
 import android.content.Context
 import android.view.animation.Animation

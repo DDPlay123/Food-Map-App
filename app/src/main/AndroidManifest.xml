@@ -3,7 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.side.project.foodmap">
 
+    <!-- 網路狀態 -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- GPS定位 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:name=".util.AppConfig"
@@ -18,17 +22,33 @@
         android:theme="@style/Theme.FoodMapApp"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
+        <!--若目標版本在 API 28 或以上需要額外設定 Apache-->
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+        <!--此處要放入在 Google API Console 取得的 API 金鑰-->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_api_key" />
+
         <activity
             android:name=".ui.activity.MainActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".ui.activity.launch.LoginActivity"
             android:exported="false"
-            android:windowSoftInputMode="stateVisible|adjustResize" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateVisible|adjustResize"
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".ui.activity.launch.SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppSplash">
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppSplash"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

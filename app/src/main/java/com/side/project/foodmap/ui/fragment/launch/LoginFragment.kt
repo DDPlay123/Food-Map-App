@@ -15,7 +15,7 @@ import com.side.project.foodmap.databinding.FragmentLoginBinding
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.ui.activity.MainActivity
 import com.side.project.foodmap.ui.viewModel.LoginViewModel
-import com.side.project.foodmap.util.AnimManager
+import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.util.Resource
 import com.side.project.foodmap.util.logE
 import org.koin.android.ext.android.inject

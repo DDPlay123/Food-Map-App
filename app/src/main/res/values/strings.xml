@@ -11,8 +11,15 @@
     <string name="hint_login_success">登入成功</string>
     <string name="hint_login_error">發生一些錯誤</string>
 
+    <!--  頁面名稱  -->
+    <string name="page_home">首頁</string>
+    <string name="page_favorite">最愛</string>
+    <string name="page_maps">地圖</string>
+
     <!--  一般單詞  -->
     <string name="text_next">下一步</string>
     <string name="text_start">開始</string>
     <string name="text_anonymity">匿名登入</string>
+    <string name="text_confirm">確定</string>
+    <string name="text_cancel">取消</string>
 </resources>

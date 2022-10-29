@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'androidx.navigation.safeargs.kotlin'
     id 'com.google.gms.google-services'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 android {
@@ -20,9 +21,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            resValue "string", "google_maps_api_key", "AIzaSyCjiBEW-QZiPg7nsVonBdSySMrrsLMGwqA"
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            resValue "string", "google_maps_api_key", "AIzaSyCjiBEW-QZiPg7nsVonBdSySMrrsLMGwqA"
         }
     }
 
@@ -93,4 +98,6 @@ dependencies {
     implementation 'androidx.core:core-splashscreen:1.0.0'
     // Koin (Dependency injection, DI)
     implementation "io.insert-koin:koin-android:3.2.0"
+    // Google Map
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
 }

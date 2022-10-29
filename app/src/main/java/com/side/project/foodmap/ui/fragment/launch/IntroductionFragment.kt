@@ -9,7 +9,7 @@ import android.view.animation.Animation
 import androidx.navigation.fragment.findNavController
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.FragmentIntroductionBinding
-import com.side.project.foodmap.util.AnimManager
+import com.side.project.foodmap.ui.other.AnimManager
 import org.koin.android.ext.android.inject
 
 class IntroductionFragment : Fragment() {
