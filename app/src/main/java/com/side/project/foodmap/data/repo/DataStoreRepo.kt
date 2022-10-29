@@ -1,0 +1,81 @@
+package com.side.project.foodmap.data.repo
+
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import com.side.project.foodmap.util.Constants.USERS_PREFERENCE
+import com.side.project.foodmap.util.Constants.USER_IS_LOGIN
+import com.side.project.foodmap.util.Constants.USER_NAME
+import com.side.project.foodmap.util.Constants.USER_PICTURE
+import com.side.project.foodmap.util.Constants.USER_UID
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import org.koin.core.component.KoinComponent
+
+interface DataStoreRepo {
+    suspend fun putUserUID(UID: String)
+    suspend fun getUserUID(): String
+    suspend fun putUserName(name: String)
+    suspend fun getUserName(): String
+    suspend fun putUserPicture(picture: String)
+    suspend fun getUserPicture(): String
+    suspend fun putUserIsLogin(isLogin: Boolean)
+    suspend fun getUserIsLogin(): Boolean
+    suspend fun clearData()
+}
+
+class DataStoreRepoImpl(private val context: Context) : DataStoreRepo, KoinComponent {
+    private val Context.userInfo: DataStore<Preferences> by preferencesDataStore(name = USERS_PREFERENCE)
+
+    override suspend fun putUserUID(UID: String) {
+        context.userInfo.edit {
+            it[stringPreferencesKey(USER_UID)] = UID
+        }
+    }
+
+    override suspend fun getUserUID(): String =
+        context.userInfo.data.map {
+            it[stringPreferencesKey(USER_UID)] ?: ""
+        }.first()
+
+    override suspend fun putUserName(name: String) {
+        context.userInfo.edit {
+            it[stringPreferencesKey(USER_NAME)] = name
+        }
+    }
+
+    override suspend fun getUserName(): String =
+        context.userInfo.data.map {
+            it[stringPreferencesKey(USER_NAME)] ?: ""
+        }.first()
+
+    override suspend fun putUserPicture(picture: String) {
+        context.userInfo.edit {
+            it[stringPreferencesKey(USER_PICTURE)] = picture
+        }
+    }
+
+    override suspend fun getUserPicture(): String =
+        context.userInfo.data.map {
+            it[stringPreferencesKey(USER_PICTURE)] ?: ""
+        }.first()
+
+    override suspend fun putUserIsLogin(isLogin: Boolean) {
+        context.userInfo.edit {
+            it[booleanPreferencesKey(USER_IS_LOGIN)] = isLogin
+        }
+    }
+
+    override suspend fun getUserIsLogin(): Boolean =
+        context.userInfo.data.map {
+            it[booleanPreferencesKey(USER_IS_LOGIN)] ?: false
+        }.first()
+
+    override suspend fun clearData() {
+        context.userInfo.edit { it.clear() }
+    }
+}

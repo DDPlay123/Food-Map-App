@@ -6,10 +6,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.lifecycleScope
+import com.side.project.foodmap.ui.viewModel.LoginViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
     private lateinit var splashScreen: SplashScreen
+    private val viewModel: LoginViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,6 +23,17 @@ class SplashActivity : AppCompatActivity() {
         splashScreen = installSplashScreen()
         // Jump
         splashScreen.setKeepOnScreenCondition { true }
-        startActivity(Intent(applicationContext, LoginActivity::class.java))
+
+        doInitialize()
+        viewModel.getUserIsLogin()
+    }
+
+    private fun doInitialize() {
+        viewModel.userIsLogin.observe(this) { isLogin ->
+            if (isLogin)
+                startActivity(Intent(this, MainActivity::class.java))
+            else
+                startActivity(Intent(this, LoginActivity::class.java))
+        }
     }
 }
