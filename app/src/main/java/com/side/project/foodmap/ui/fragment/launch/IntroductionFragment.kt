@@ -1,4 +1,4 @@
-package com.side.project.foodmap.ui.fragment
+package com.side.project.foodmap.ui.fragment.launch
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

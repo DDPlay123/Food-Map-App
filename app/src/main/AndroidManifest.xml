@@ -22,11 +22,11 @@
             android:name=".ui.activity.MainActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.LoginActivity"
+            android:name=".ui.activity.launch.LoginActivity"
             android:exported="false"
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
-            android:name=".ui.activity.SplashActivity"
+            android:name=".ui.activity.launch.SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.AppSplash">
             <intent-filter>

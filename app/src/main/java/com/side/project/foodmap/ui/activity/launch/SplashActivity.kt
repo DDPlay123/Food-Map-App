@@ -1,4 +1,4 @@
-package com.side.project.foodmap.ui.activity
+package com.side.project.foodmap.ui.activity.launch
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -6,8 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.lifecycleScope
+import com.side.project.foodmap.ui.activity.MainActivity
 import com.side.project.foodmap.ui.viewModel.LoginViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 

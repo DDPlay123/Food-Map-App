@@ -1,4 +1,4 @@
-package com.side.project.foodmap.ui.activity
+package com.side.project.foodmap.ui.activity.launch
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

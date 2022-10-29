@@ -6,7 +6,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.fragment.IntroductionFragment">
+        tools:context=".ui.fragment.launch.IntroductionFragment">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/imgIcon"

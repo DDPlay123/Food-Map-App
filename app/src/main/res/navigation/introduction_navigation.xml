@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/introductionFragment"
-        android:name="com.side.project.foodmap.ui.fragment.IntroductionFragment"
+        android:name="com.side.project.foodmap.ui.fragment.launch.IntroductionFragment"
         android:label="IntroductionFragment"
         tools:layout="@layout/fragment_introduction">
         <action
@@ -20,7 +20,7 @@
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.side.project.foodmap.ui.fragment.LoginFragment"
+        android:name="com.side.project.foodmap.ui.fragment.launch.LoginFragment"
         android:label="LoginFragment"
         tools:layout="@layout/fragment_login">
         <action

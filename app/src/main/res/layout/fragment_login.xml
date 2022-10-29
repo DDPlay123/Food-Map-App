@@ -10,7 +10,7 @@
         android:fillViewport="true"
         android:overScrollMode="never"
         android:scrollbars="none"
-        tools:context=".ui.fragment.LoginFragment">
+        tools:context=".ui.fragment.launch.LoginFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
