@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.ui.other.DialogManager
 import com.side.project.foodmap.ui.other.NetworkConnection
@@ -16,19 +17,29 @@ abstract class BaseActivity : AppCompatActivity() {
     lateinit var dialog: DialogManager
     private val networkConnection: NetworkConnection by inject()
 
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (level <= TRIM_MEMORY_BACKGROUND)
+            System.gc()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mActivity = this
         dialog = DialogManager.instance(mActivity)
 
+        checkNetWork()
+    }
+
+    private fun checkNetWork() {
         networkConnection.observe(this) { isConnect ->
             if (!isConnect) {
                 val binding = DialogPromptBinding.inflate(layoutInflater)
                 dialog.cancelAllDialog()
                 dialog.showCenterDialog(false, binding, false).let {
                     binding.run {
-                        titleText = "網路連線不穩定"
-                        subTitleText = "請重新確認您的網路連線狀況。"
+                        titleText = getString(R.string.hint_internet_error_title)
+                        subTitleText = getString(R.string.hint_internet_error_subtitle)
                         tvCancel.visibility = View.GONE
                         tvConfirm.setOnClickListener { dialog.cancelCenterDialog() }
                     }
@@ -46,12 +57,6 @@ abstract class BaseActivity : AppCompatActivity() {
         if (grantResults.isNotEmpty() && requestCode == 1) {
             if (grantResults[0] == PackageManager.PERMISSION_DENIED) finish()
         }
-    }
-
-    override fun onTrimMemory(level: Int) {
-        super.onTrimMemory(level)
-        if (level <= TRIM_MEMORY_BACKGROUND)
-            System.gc()
     }
 
     private val receiveResult =

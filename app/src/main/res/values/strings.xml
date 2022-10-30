@@ -10,6 +10,8 @@
     <string name="hint_please_enter_name">請輸入您的名字!!!</string>
     <string name="hint_login_success">登入成功</string>
     <string name="hint_login_error">發生一些錯誤</string>
+    <string name="hint_internet_error_title">網路連線不穩定</string>
+    <string name="hint_internet_error_subtitle">請重新確認您的網路連線狀況</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>
