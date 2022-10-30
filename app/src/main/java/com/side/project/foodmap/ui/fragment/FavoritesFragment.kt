@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.FragmentFavoritesBinding
 
 class FavoritesFragment : BaseFragment() {

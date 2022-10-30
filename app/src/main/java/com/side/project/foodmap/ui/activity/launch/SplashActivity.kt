@@ -20,7 +20,6 @@ class SplashActivity : AppCompatActivity() {
         // Enable support for Splash Screen API for
         // proper Android 12+ support
         splashScreen = installSplashScreen()
-        // Jump
         splashScreen.setKeepOnScreenCondition { true }
 
         doInitialize()

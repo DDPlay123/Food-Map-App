@@ -5,7 +5,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import com.side.project.foodmap.R
 
-class AnimManager(private val context: Context) {
+class AnimManager(context: Context) {
     val smallToLarge: Animation = AnimationUtils.loadAnimation(context, R.anim.small_to_large)
     val largeToSmall: Animation = AnimationUtils.loadAnimation(context, R.anim.large_to_small)
     val largeToHide: Animation = AnimationUtils.loadAnimation(context, R.anim.large_to_hide)
