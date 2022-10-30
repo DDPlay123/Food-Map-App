@@ -11,6 +11,8 @@ import com.side.project.foodmap.util.Constants.USERS_PREFERENCE
 import com.side.project.foodmap.util.Constants.USER_IS_LOGIN
 import com.side.project.foodmap.util.Constants.USER_NAME
 import com.side.project.foodmap.util.Constants.USER_PICTURE
+import com.side.project.foodmap.util.Constants.USER_TDX_TOKEN
+import com.side.project.foodmap.util.Constants.USER_TDX_TOKEN_UPDATE
 import com.side.project.foodmap.util.Constants.USER_UID
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -19,6 +21,10 @@ import org.koin.core.component.KoinComponent
 interface DataStoreRepo {
     suspend fun putUserUID(UID: String)
     suspend fun getUserUID(): String
+    suspend fun putTdxToken(token: String)
+    suspend fun getTdxToken(): String
+    suspend fun putTdxTokenUpdate(date: String)
+    suspend fun getTdxTokenUpdate(): String
     suspend fun putUserName(name: String)
     suspend fun getUserName(): String
     suspend fun putUserPicture(picture: String)
@@ -40,6 +46,28 @@ class DataStoreRepoImpl(private val context: Context) : DataStoreRepo, KoinCompo
     override suspend fun getUserUID(): String =
         context.userInfo.data.map {
             it[stringPreferencesKey(USER_UID)] ?: ""
+        }.first()
+
+    override suspend fun putTdxToken(token: String) {
+        context.userInfo.edit {
+            it[stringPreferencesKey(USER_TDX_TOKEN)] = token
+        }
+    }
+
+    override suspend fun getTdxToken(): String =
+        context.userInfo.data.map {
+            it[stringPreferencesKey(USER_TDX_TOKEN)] ?: "2020/12/31"
+        }.first()
+
+    override suspend fun putTdxTokenUpdate(date: String) {
+        context.userInfo.edit {
+            it[stringPreferencesKey(USER_TDX_TOKEN_UPDATE)] = date
+        }
+    }
+
+    override suspend fun getTdxTokenUpdate(): String =
+        context.userInfo.data.map {
+            it[stringPreferencesKey(USER_TDX_TOKEN_UPDATE)] ?: ""
         }.first()
 
     override suspend fun putUserName(name: String) {

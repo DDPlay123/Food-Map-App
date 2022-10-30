@@ -79,6 +79,7 @@ dependencies {
     // Retrofit & Gson (https://square.github.io/retrofit/)
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation "com.squareup.okhttp3:logging-interceptor:4.8.0" // 用於攔截API
     // Jitpack Room
     def room_version = "2.4.3"
     implementation("androidx.room:room-runtime:$room_version")
@@ -92,8 +93,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
     // Navigation component
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.2'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.5.2'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
     // Splash Screen (起始畫面 API)
     implementation 'androidx.core:core-splashscreen:1.0.0'
     // Koin (Dependency injection, DI)

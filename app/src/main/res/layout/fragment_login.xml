@@ -73,6 +73,7 @@
                 android:layout_height="@dimen/_40sdp"
                 android:hint="@string/hint_enter_name"
                 android:inputType="text"
+                android:imeOptions="actionDone"
                 app:layout_constraintBottom_toTopOf="@id/btnStart"
                 app:layout_constraintEnd_toEndOf="@id/btnStart"
                 app:layout_constraintStart_toStartOf="@id/btnStart"

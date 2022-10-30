@@ -11,8 +11,11 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.side.project.foodmap.R
+import com.side.project.foodmap.databinding.FragmentMapsBinding
 
 class MapsFragment : BaseFragment() {
+    private var _binding: FragmentMapsBinding? = null
+    private val binding get() = _binding!!
 
     private val callback = OnMapReadyCallback { googleMap ->
         /**
@@ -33,8 +36,14 @@ class MapsFragment : BaseFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_maps, container, false)
+    ): View {
+        _binding = FragmentMapsBinding.inflate(inflater)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

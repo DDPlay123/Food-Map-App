@@ -20,6 +20,14 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     val userUID: LiveData<String>
         get() = _userUID
 
+    private val _userTdxToken = MutableLiveData<String>()
+    val userTdxToken: LiveData<String>
+        get() = _userTdxToken
+
+    private val _userTdxTokenUpdate = MutableLiveData<String>()
+    val userTdxTokenUpdate: LiveData<String>
+        get() = _userTdxTokenUpdate
+
     private val _userName = MutableLiveData<String>()
     val userName: LiveData<String>
         get() = _userName
@@ -41,6 +49,22 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
 
     fun getUserUID() = viewModelScope.launch(Dispatchers.Default) {
         _userUID.postValue(dataStoreRepo.getUserUID())
+    }
+
+    fun putUserTdxToken(token: String) = viewModelScope.launch(Dispatchers.Default) {
+        dataStoreRepo.putTdxToken(token)
+    }
+
+    fun getUserTdxToken() = viewModelScope.launch(Dispatchers.Default) {
+        _userTdxToken.postValue(dataStoreRepo.getTdxToken())
+    }
+
+    fun putUserTdxTokenUpdate(date: String) = viewModelScope.launch(Dispatchers.Default) {
+        dataStoreRepo.putTdxTokenUpdate(date)
+    }
+
+    fun getUserTdxTokenUpdate() = viewModelScope.launch(Dispatchers.Default) {
+        _userTdxTokenUpdate.postValue(dataStoreRepo.getTdxTokenUpdate())
     }
 
     fun putUserName(name: String) = viewModelScope.launch(Dispatchers.Default) {
