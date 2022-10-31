@@ -16,4 +16,9 @@
         android:icon="@drawable/ic_favorite"
         android:title="@string/page_favorite" />
 
+    <item
+        android:id="@+id/profilesFragment"
+        android:icon="@drawable/ic_profiles"
+        android:title="@string/page_profiles" />
+
 </menu>

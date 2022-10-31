@@ -20,4 +20,9 @@
         android:name="com.side.project.foodmap.ui.fragment.FavoritesFragment"
         android:label="fragment_favorites"
         tools:layout="@layout/fragment_favorites" />
+    <fragment
+        android:id="@+id/profilesFragment"
+        android:name="com.side.project.foodmap.ui.fragment.ProfilesFragment"
+        android:label="ProfilesFragment"
+        tools:layout="@layout/fragment_profiles"/>
 </navigation>

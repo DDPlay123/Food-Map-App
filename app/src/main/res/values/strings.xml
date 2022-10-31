@@ -17,6 +17,7 @@
     <string name="page_home">首頁</string>
     <string name="page_favorite">最愛</string>
     <string name="page_maps">地圖</string>
+    <string name="page_profiles">個人資料</string>
 
     <!--  一般單詞  -->
     <string name="text_next">下一步</string>
