@@ -32,7 +32,7 @@ class HomeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        checkTdxToken()
+//        checkTdxToken() // 暫時棄用 TDX API
     }
 
     private fun checkTdxToken() {
