@@ -1,6 +1,6 @@
 package com.side.project.foodmap.network
 
-import com.side.project.foodmap.util.logE
+import com.side.project.foodmap.util.Method.logE
 import okhttp3.*
 import okio.Buffer
 import okio.BufferedSource

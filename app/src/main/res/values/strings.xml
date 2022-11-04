@@ -41,6 +41,8 @@
     <string name="hint_search_now">開始搜尋</string>
     <string name="hint_select_region">請選擇地區</string>
     <string name="hint_near_region">附近的餐廳</string>
+    <string name="hint_not_location_permission">請開啟定位權限</string>
+    <string name="hint_not_provider_gps">目前無可用的定位</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>

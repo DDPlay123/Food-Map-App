@@ -2,6 +2,18 @@ package com.side.project.foodmap.util
 
 object Constants {
     /**
+     * Permission
+     */
+    const val PERMISSION_CAMERA = android.Manifest.permission.CAMERA
+    const val PERMISSION_FINE_LOCATION =  android.Manifest.permission.ACCESS_FINE_LOCATION
+    const val PERMISSION_COARSE_LOCATION =  android.Manifest.permission.ACCESS_COARSE_LOCATION
+
+    /**
+     * Permission Code
+     */
+    const val PERMISSION_CODE = 1001
+
+    /**
      * Firebase
      */
     const val USER_COLLECTION = "User"

@@ -8,7 +8,7 @@ import com.side.project.foodmap.data.remote.tdx.TdxTokenReq
 import com.side.project.foodmap.data.remote.tdx.TdxTokenRes
 import com.side.project.foodmap.data.repo.DataStoreRepo
 import com.side.project.foodmap.network.ApiClient
-import com.side.project.foodmap.util.logE
+import com.side.project.foodmap.util.Method.logE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent

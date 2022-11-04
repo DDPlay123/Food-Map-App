@@ -16,8 +16,8 @@ import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.ui.activity.MainActivity
 import com.side.project.foodmap.ui.viewModel.LoginViewModel
 import com.side.project.foodmap.ui.other.AnimManager
+import com.side.project.foodmap.util.Method.logE
 import com.side.project.foodmap.util.Resource
-import com.side.project.foodmap.util.logE
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
