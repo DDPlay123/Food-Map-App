@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
-import androidx.fragment.app.viewModels
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.local.User
@@ -19,19 +19,20 @@ import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.util.Resource
 import com.side.project.foodmap.util.logE
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel by viewModels<LoginViewModel>()
+    private val viewModel: LoginViewModel by viewModel()
     private val animManager: AnimManager by inject()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentLoginBinding.inflate(inflater)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_login, container, false)
         return binding.root
     }
 

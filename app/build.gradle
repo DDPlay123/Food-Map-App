@@ -88,6 +88,8 @@ dependencies {
     implementation("androidx.room:room-ktx:$room_version")
     // DataStore
     implementation "androidx.datastore:datastore-preferences:1.0.0"
+    // WorkManager
+    implementation "androidx.work:work-runtime-ktx:2.7.1"
     // ViewModel
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
@@ -97,8 +99,10 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
     // Splash Screen (起始畫面 API)
     implementation 'androidx.core:core-splashscreen:1.0.0'
-    // Koin (Dependency injection, DI)
-    implementation "io.insert-koin:koin-android:3.2.0"
+    // Koin (Dependency injection, DI) (https://insert-koin.io/)
+    def koin_android_version= "3.3.0"
+    implementation "io.insert-koin:koin-android:$koin_android_version"
+    implementation "io.insert-koin:koin-androidx-workmanager:$koin_android_version"
     // Google Map
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
 }

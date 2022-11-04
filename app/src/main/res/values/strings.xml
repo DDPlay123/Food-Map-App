@@ -1,7 +1,33 @@
 <resources>
     <string name="app_name">台灣美食地圖</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!--  文字陣列  -->
+    <string-array name="search_type">
+        <item>附近的餐廳</item>
+        <item>基隆市</item>
+        <item>台北市</item>
+        <item>新北市</item>
+        <item>桃園縣</item>
+        <item>新竹市</item>
+        <item>新竹縣</item>
+        <item>苗栗縣</item>
+        <item>台中市</item>
+        <item>彰化縣</item>
+        <item>南投縣</item>
+        <item>雲林縣</item>
+        <item>嘉義市</item>
+        <item>嘉義縣</item>
+        <item>台南市</item>
+        <item>高雄市</item>
+        <item>屏東縣</item>
+        <item>台東縣</item>
+        <item>花蓮縣</item>
+        <item>宜蘭縣</item>
+        <item>澎湖縣</item>
+        <item>金門縣</item>
+        <item>連江縣</item>
+    </string-array>
+
     <!--  提示文字  -->
     <string name="hint_introduction">不知道要吃甚麼嗎？</string>
     <string name="hint_login">讓我們開始吧！</string>
@@ -11,7 +37,10 @@
     <string name="hint_login_success">登入成功</string>
     <string name="hint_login_error">發生一些錯誤</string>
     <string name="hint_internet_error_title">網路連線不穩定</string>
-    <string name="hint_internet_error_subtitle">請重新確認您的網路連線狀況</string>
+    <string name="hint_internet_error_subtitle">請重新確認您的網路連線狀況。</string>
+    <string name="hint_search_now">開始搜尋</string>
+    <string name="hint_select_region">請選擇地區</string>
+    <string name="hint_near_region">附近的餐廳</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>

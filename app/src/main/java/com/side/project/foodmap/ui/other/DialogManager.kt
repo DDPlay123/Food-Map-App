@@ -7,7 +7,7 @@ import android.content.res.Resources
 import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
-import androidx.viewbinding.ViewBinding
+import androidx.databinding.ViewDataBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.side.project.foodmap.R
@@ -25,7 +25,7 @@ class DialogManager(private val activity: Activity) {
     private var loadingDialog: Dialog? = null
     private var bottomDialog: BottomSheetDialog? = null
 
-    fun showCenterDialog(cancelable: Boolean, view: ViewBinding, keyboard: Boolean): ViewBinding {
+    fun showCenterDialog(cancelable: Boolean, view: ViewDataBinding, keyboard: Boolean): ViewDataBinding {
         cancelCenterDialog()
         dialog = AlertDialog.Builder(activity).create()
         dialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
@@ -41,7 +41,7 @@ class DialogManager(private val activity: Activity) {
         return view
     }
 
-    fun showBottomDialog(view: ViewBinding, isFullExpand: Boolean, bias: Int = 0): ViewBinding {
+    fun showBottomDialog(view: ViewDataBinding, isFullExpand: Boolean, bias: Int = 0): ViewDataBinding {
         cancelBottomDialog()
         bottomDialog = BottomSheetDialog(activity, R.style.BottomSheetDialogTheme)
         bottomDialog?.show()

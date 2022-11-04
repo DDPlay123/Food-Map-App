@@ -38,9 +38,11 @@ abstract class BaseActivity : AppCompatActivity() {
                 dialog.cancelAllDialog()
                 dialog.showCenterDialog(false, binding, false).let {
                     binding.run {
+                        showIcon = true
+                        hideCancel = true
+                        imgPromptIcon.setImageResource(R.drawable.ic_wifi_off)
                         titleText = getString(R.string.hint_internet_error_title)
                         subTitleText = getString(R.string.hint_internet_error_subtitle)
-                        tvCancel.visibility = View.GONE
                         tvConfirm.setOnClickListener { dialog.cancelCenterDialog() }
                     }
                 }

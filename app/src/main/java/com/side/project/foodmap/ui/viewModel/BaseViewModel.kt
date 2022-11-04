@@ -35,6 +35,10 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     val userTdxTokenUpdate: LiveData<String>
         get() = _userTdxTokenUpdate
 
+    private val _userRegion = MutableLiveData<String>()
+    val userRegion: LiveData<String>
+        get() = _userRegion
+
     private val _userName = MutableLiveData<String>()
     val userName: LiveData<String>
         get() = _userName
@@ -52,49 +56,64 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
      */
     fun putUserUID(UID: String) = viewModelScope.launch(Dispatchers.Default) {
         dataStoreRepo.putUserUID(UID)
+        getUserUIDFromDataStore()
     }
 
-    fun getUserUID() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserUIDFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
         _userUID.postValue(dataStoreRepo.getUserUID())
     }
 
     fun putUserTdxToken(token: String) = viewModelScope.launch(Dispatchers.Default) {
         dataStoreRepo.putTdxToken(token)
+        getUserTdxTokenFromDataStore()
     }
 
-    fun getUserTdxToken() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserTdxTokenFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
         _userTdxToken.postValue(dataStoreRepo.getTdxToken())
     }
 
     fun putUserTdxTokenUpdate(date: String) = viewModelScope.launch(Dispatchers.Default) {
         dataStoreRepo.putTdxTokenUpdate(date)
+        getUserTdxTokenUpdate()
     }
 
     fun getUserTdxTokenUpdate() = viewModelScope.launch(Dispatchers.Default) {
         _userTdxTokenUpdate.postValue(dataStoreRepo.getTdxTokenUpdate())
     }
 
-    fun putUserName(name: String) = viewModelScope.launch(Dispatchers.Default) {
-        dataStoreRepo.putUserName(name)
+    fun putUserRegion(region: String) = viewModelScope.launch(Dispatchers.Default) {
+        dataStoreRepo.putUserRegion(region)
+        getUserRegionFromDataStore()
     }
 
-    fun getUserName() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserRegionFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
+        _userRegion.postValue(dataStoreRepo.getUserRegion())
+    }
+
+    fun putUserName(name: String) = viewModelScope.launch(Dispatchers.Default) {
+        dataStoreRepo.putUserName(name)
+        getUserNameFromDataStore()
+    }
+
+    fun getUserNameFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
         _userName.postValue(dataStoreRepo.getUserName())
     }
 
     fun putUserPicture(picture: String) = viewModelScope.launch(Dispatchers.Default) {
         dataStoreRepo.putUserPicture(picture)
+        getUserPictureFromDataStore()
     }
 
-    fun getUserPicture() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserPictureFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
         _userPicture.postValue(dataStoreRepo.getUserPicture())
     }
 
     fun putUserIsLogin(isLogin: Boolean) = viewModelScope.launch(Dispatchers.Default) {
         dataStoreRepo.putUserIsLogin(isLogin)
+        getUserIsLoginFromDataStore()
     }
 
-    fun getUserIsLogin() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserIsLoginFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
         _userIsLogin.postValue(dataStoreRepo.getUserIsLogin())
     }
 

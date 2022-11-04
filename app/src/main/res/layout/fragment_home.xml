@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
+        <variable
+            name="VM"
+            type="com.side.project.foodmap.ui.viewModel.HomeViewModel" />
 
     </data>
 
@@ -11,11 +16,93 @@
         android:layout_height="match_parent"
         tools:context=".ui.fragment.HomeFragment">
 
-        <!-- TODO: Update blank fragment layout -->
-        <TextView
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/homeHeader"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/hello_blank_fragment" />
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_24sdp"
+            android:layout_marginTop="@dimen/_15sdp"
+            android:layout_marginEnd="@dimen/_15sdp"
+            android:orientation="horizontal"
+            app:showDividers="middle"
+            app:divider="@drawable/divider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/searchBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/search_box_background">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_thin"
+                    android:paddingStart="@dimen/_20sdp"
+                    android:paddingTop="@dimen/_10sdp"
+                    android:paddingEnd="0dp"
+                    android:paddingBottom="@dimen/_10sdp"
+                    android:singleLine="true"
+                    android:text="@string/hint_search_now"
+                    android:textColor="#919394"
+                    android:textSize="@dimen/_15ssp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:layout_marginEnd="@dimen/_20sdp"
+                    android:src="@drawable/ic_search"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgCameraSearch"
+                android:layout_width="@dimen/_40sdp"
+                android:layout_height="match_parent"
+                android:background="@drawable/search_box_background"
+                android:backgroundTint="@color/support"
+                android:padding="@dimen/_10sdp"
+                android:src="@drawable/ic_camera" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgSoundSearch"
+                android:layout_width="@dimen/_40sdp"
+                android:layout_height="match_parent"
+                android:background="@drawable/search_box_background"
+                android:backgroundTint="@color/support"
+                android:padding="@dimen/_10sdp"
+                android:src="@drawable/ic_microphone" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:drawableStart="@drawable/ic_category"
+            android:drawableEnd="@drawable/ic_arrow_down"
+            android:drawablePadding="@dimen/_5sdp"
+            android:drawableTint="@color/accent"
+            android:fontFamily="@font/poppins_thin"
+            android:textColor="@color/black"
+            android:text="@{VM.userRegion}"
+            android:textSize="@dimen/_14ssp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@id/homeHeader"
+            app:layout_constraintTop_toBottomOf="@id/homeHeader"
+            tools:text="附近的餐廳" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

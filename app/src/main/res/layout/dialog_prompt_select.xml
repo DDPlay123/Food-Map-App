@@ -6,15 +6,7 @@
     <data>
 
         <variable
-            name="showIcon"
-            type="Boolean" />
-
-        <variable
             name="titleText"
-            type="String" />
-
-        <variable
-            name="subTitleText"
             type="String" />
 
         <variable
@@ -53,18 +45,6 @@
                 android:layout_gravity="center"
                 android:gravity="center">
 
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/imgPromptIcon"
-                    android:layout_width="@dimen/_24sdp"
-                    android:layout_height="@dimen/_24sdp"
-                    android:layout_marginTop="@dimen/_15sdp"
-                    android:src="@drawable/ic_wifi_off"
-                    android:tint="@color/accent_dark"
-                    android:visibility="@{showIcon ? View.VISIBLE : View.GONE, default=gone}"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvTitle"
                     android:layout_width="0dp"
@@ -81,36 +61,36 @@
                     android:visibility="@{titleText.length() > 0 ? View.VISIBLE : View.GONE, default=gone}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/imgPromptIcon"
+                    app:layout_constraintTop_toTopOf="parent"
                     tools:text="主標題"
                     tools:visibility="visible" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvSubTitle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_light"
-                    android:gravity="start"
-                    android:paddingStart="@dimen/_15sdp"
-                    android:paddingEnd="@dimen/_15sdp"
-                    android:paddingBottom="@dimen/_10sdp"
-                    android:text="@{subTitleText}"
-                    android:textColor="@color/dialog_subtitle"
-                    android:textSize="@dimen/_12ssp"
-                    android:visibility="@{subTitleText.length() > 0 ? View.VISIBLE : View.GONE, default=gone}"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvTitle"
-                    tools:text="子標題"
-                    tools:visibility="visible" />
-
                 <View
-                    android:id="@+id/viewSupport"
+                    android:id="@+id/viewSupportTop"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_1sdp"
+                    android:background="@color/dialog_divider"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvSubTitle" />
+                    app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/listItem"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/viewSupportTop" />
+
+                <View
+                    android:id="@+id/viewSupportBottom"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_1sdp"
+                    android:background="@color/dialog_divider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/listItem" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvCancel"
@@ -124,7 +104,7 @@
                     android:visibility="@{hideCancel ? View.INVISIBLE : View.VISIBLE, default=visible}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/tvConfirm"
-                    app:layout_constraintTop_toBottomOf="@+id/viewSupport" />
+                    app:layout_constraintTop_toBottomOf="@+id/viewSupportBottom" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvConfirm"
@@ -138,7 +118,7 @@
                     android:visibility="@{hideConfirm ? View.INVISIBLE : View.VISIBLE, default=visible}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/viewSupport" />
+                    app:layout_constraintTop_toBottomOf="@+id/viewSupportBottom" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

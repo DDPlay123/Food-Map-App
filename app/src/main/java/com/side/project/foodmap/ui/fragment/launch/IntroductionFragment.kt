@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
+import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.FragmentIntroductionBinding
@@ -22,7 +23,7 @@ class IntroductionFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentIntroductionBinding.inflate(inflater)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_introduction, container, false)
         return binding.root
     }
 

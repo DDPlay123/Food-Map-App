@@ -1,6 +1,7 @@
 package com.side.project.foodmap.ui.activity
 
 import android.os.Bundle
+import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -8,13 +9,11 @@ import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.ActivityMainBinding
 
 class MainActivity : BaseActivity() {
-    private val binding: ActivityMainBinding by lazy {
-        ActivityMainBinding.inflate(layoutInflater)
-    }
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         doInitialize()
     }
