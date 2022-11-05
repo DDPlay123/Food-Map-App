@@ -46,6 +46,11 @@
         <item name="android:windowEnterAnimation">@anim/slide_in_right</item>
         <item name="android:windowExitAnimation">@anim/slide_out_right</item>
     </style>
+    <!--  Loading Dialog Style  -->
+    <style name="LoadingDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/hide_to_large</item>
+        <item name="android:windowExitAnimation">@anim/large_to_hide</item>
+    </style>
     <!--  Primary Button Style -->
     <style name="primaryButtonStyle">
         <item name="android:background">@drawable/primary_background</item>

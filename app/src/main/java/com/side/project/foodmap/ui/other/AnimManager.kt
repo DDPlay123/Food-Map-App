@@ -9,6 +9,7 @@ class AnimManager(context: Context) {
     val smallToLarge: Animation = AnimationUtils.loadAnimation(context, R.anim.small_to_large)
     val largeToSmall: Animation = AnimationUtils.loadAnimation(context, R.anim.large_to_small)
     val largeToHide: Animation = AnimationUtils.loadAnimation(context, R.anim.large_to_hide)
+    val hideToLarge: Animation = AnimationUtils.loadAnimation(context, R.anim.hide_to_large)
 
     val rotateOpen: Animation = AnimationUtils.loadAnimation(context, R.anim.rotate_open)
     val rotateClose: Animation = AnimationUtils.loadAnimation(context, R.anim.rotate_closs)
