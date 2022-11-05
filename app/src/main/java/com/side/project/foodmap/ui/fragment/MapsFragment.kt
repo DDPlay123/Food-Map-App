@@ -28,7 +28,7 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
     }
 
     private fun initLocationService() {
-        locationService = LocationService(requireContext())
+        locationService = LocationService()
         if (!locationService.canGetLocation()) {
             mActivity.displayShortToast(getString(R.string.hint_not_provider_gps))
             return

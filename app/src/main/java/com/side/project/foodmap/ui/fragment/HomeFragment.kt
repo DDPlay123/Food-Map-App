@@ -15,6 +15,7 @@ import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.viewModel.HomeViewModel
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.collections.ArrayList
 
 class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private val viewModel: HomeViewModel by viewModel()
@@ -105,8 +106,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 //        viewModel.getUserTdxTokenUpdate()
 //        viewModel.userTdxTokenUpdate.observe(viewLifecycleOwner) { oldDate ->
 //            val todayDate: String = SimpleDateFormat("yyyy/MM/dd", Locale.TAIWAN).format(Date())
+//            val tdxTokenReq = TdxTokenReq(
+//                appInfo.metaData["tdx_grant_type"].toString(),
+//                appInfo.metaData["tdx_client_id"].toString(),
+//                appInfo.metaData["tdx_client_secret"].toString()
+//            )
 //            if (todayDate > oldDate)
-//                viewModel.updateTdxToken(todayDate)
+//                viewModel.updateTdxToken(todayDate, tdxTokenReq)
 //        }
 //    }
 }

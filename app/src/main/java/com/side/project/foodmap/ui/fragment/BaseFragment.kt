@@ -1,5 +1,6 @@
 package com.side.project.foodmap.ui.fragment
 
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,10 +18,12 @@ open class BaseFragment<T : ViewDataBinding>(@LayoutRes val layoutRes: Int) : Fr
 
     lateinit var mActivity: BaseActivity
     lateinit var dialog: DialogManager
+    lateinit var appInfo: ApplicationInfo
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mActivity = activity as BaseActivity
         dialog = mActivity.dialog
+        appInfo = mActivity.appInfo
         super.onCreate(savedInstanceState)
     }
 

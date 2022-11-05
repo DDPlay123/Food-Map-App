@@ -1,7 +1,7 @@
 package com.side.project.foodmap.service
 
+import android.annotation.SuppressLint
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -17,7 +17,7 @@ import com.side.project.foodmap.util.Constants.PERMISSION_COARSE_LOCATION
 import com.side.project.foodmap.util.Constants.PERMISSION_FINE_LOCATION
 import com.side.project.foodmap.util.Method.logE
 
-class LocationService(val context: Context) : Service(), LocationListenerCompat {
+class LocationService : Service(), LocationListenerCompat {
     companion object {
         // For Some Parameter
         private const val minDistanceM: Float = 5F // 公尺
@@ -63,15 +63,15 @@ class LocationService(val context: Context) : Service(), LocationListenerCompat 
 
     private fun getLocation(): Location? {
         try {
-            locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
+            locationManager = this.getSystemService(LOCATION_SERVICE) as LocationManager
             locationManager?.let {
                 // get GPS status
-                checkGPS = locationManager!!.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                checkGPS = locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER) == true
                 // get Network provider status
-                checkNetwork = locationManager!!.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+                checkNetwork = locationManager?.isProviderEnabled(LocationManager.NETWORK_PROVIDER) == true
 
                 if (!checkGPS && !checkNetwork)
-                    context.displayShortToast(getString(R.string.hint_not_provider_gps))
+                    this.displayShortToast(getString(R.string.hint_not_provider_gps))
                 else {
                     this.canGetLocation = true
 
@@ -79,7 +79,7 @@ class LocationService(val context: Context) : Service(), LocationListenerCompat 
                         checkGPS && checkNetwork -> networkLocation()
                         checkGPS && !checkNetwork -> gpsLocation()
                         !checkGPS && checkNetwork -> networkLocation()
-                        !checkGPS && !checkNetwork -> context.displayShortToast(getString(R.string.hint_not_provider_gps))
+                        !checkGPS && !checkNetwork -> this.displayShortToast(getString(R.string.hint_not_provider_gps))
                     }
                 }
             }
@@ -89,54 +89,58 @@ class LocationService(val context: Context) : Service(), LocationListenerCompat 
         return mLocation
     }
 
+    @SuppressLint("MissingPermission")
     private fun gpsLocation() {
         if (checkGPS) {
             if (ActivityCompat.checkSelfPermission(
-                    context,
+                    this,
                     PERMISSION_FINE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    context,
+                    this,
                     PERMISSION_COARSE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                context.displayShortToast(getString(R.string.hint_not_provider_gps))
+                this.displayShortToast(getString(R.string.hint_not_provider_gps))
+                return
             }
             logE("GPS-Location", "Turn on")
-            locationManager!!.requestLocationUpdates(
+            locationManager?.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
                 minTimeMs,
                 minDistanceM, this
             )
-            mLocation = locationManager!!.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            mLocation = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             mLocation?.let {
-                _latitude.postValue(mLocation!!.latitude)
-                _longitude.postValue(mLocation!!.longitude)
+                _latitude.postValue(mLocation?.latitude)
+                _longitude.postValue(mLocation?.longitude)
             }
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun networkLocation() {
         if (checkNetwork) {
             if (ActivityCompat.checkSelfPermission(
-                    context,
+                    this,
                     PERMISSION_FINE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    context,
+                    this,
                     PERMISSION_COARSE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                context.displayShortToast(getString(R.string.hint_not_provider_gps))
+                this.displayShortToast(getString(R.string.hint_not_provider_gps))
+                return
             }
             logE("Network-Location", "Turn on")
-            locationManager!!.requestLocationUpdates(
+            locationManager?.requestLocationUpdates(
                 LocationManager.NETWORK_PROVIDER,
                 minTimeMs,
                 minDistanceM, this
             )
-            mLocation = locationManager!!.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+            mLocation = locationManager?.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
             mLocation?.let {
-                _latitude.postValue(mLocation!!.latitude)
-                _longitude.postValue(mLocation!!.longitude)
+                _latitude.postValue(mLocation?.latitude)
+                _longitude.postValue(mLocation?.longitude)
             }
         }
     }
@@ -146,17 +150,17 @@ class LocationService(val context: Context) : Service(), LocationListenerCompat 
     fun stopListener() {
         if (locationManager != null) {
             if (ActivityCompat.checkSelfPermission(
-                    context,
+                    this,
                     PERMISSION_FINE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    context,
+                    this,
                     PERMISSION_COARSE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
                 return
             }
             logE("Location-Service", "Turn off")
-            locationManager!!.removeUpdates(this@LocationService)
+            locationManager?.removeUpdates(this@LocationService)
         }
     }
 }

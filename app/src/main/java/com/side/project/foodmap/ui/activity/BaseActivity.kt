@@ -1,6 +1,7 @@
 package com.side.project.foodmap.ui.activity
 
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,6 +15,7 @@ import org.koin.android.ext.android.inject
 abstract class BaseActivity : AppCompatActivity() {
     lateinit var mActivity: BaseActivity
     lateinit var dialog: DialogManager
+    lateinit var appInfo: ApplicationInfo
     private val networkConnection: NetworkConnection by inject()
 
     override fun onTrimMemory(level: Int) {
@@ -26,6 +28,8 @@ abstract class BaseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mActivity = this
         dialog = DialogManager.instance(mActivity)
+        appInfo = applicationContext.packageManager
+            .getApplicationInfo(applicationContext.packageName, PackageManager.GET_META_DATA)
 
         checkNetWork()
     }

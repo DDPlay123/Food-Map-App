@@ -124,12 +124,7 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     /**
      * 呼叫 API
      */
-    fun updateTdxToken(date: String) {
-        val tdxTokenReq = TdxTokenReq(
-            "client_credentials",
-            "B10713048-636f54ff-3e5c-4198",
-            "924d7477-d87d-46c8-b8e3-6f6bc643bcf0"
-        )
+    fun updateTdxToken(date: String, tdxTokenReq: TdxTokenReq) {
         ApiClient.getTdxToken.getToken(tdxTokenReq.grant_type, tdxTokenReq.client_id, tdxTokenReq.client_secret).enqueue(object : Callback<TdxTokenRes> {
             override fun onResponse(call: Call<TdxTokenRes>, response: Response<TdxTokenRes>) {
                 response.body()?.let {
