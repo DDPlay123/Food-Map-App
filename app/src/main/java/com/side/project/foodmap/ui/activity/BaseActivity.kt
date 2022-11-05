@@ -1,9 +1,9 @@
 package com.side.project.foodmap.ui.activity
 
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.side.project.foodmap.R
@@ -15,6 +15,7 @@ import org.koin.android.ext.android.inject
 abstract class BaseActivity : AppCompatActivity() {
     lateinit var mActivity: BaseActivity
     lateinit var dialog: DialogManager
+    lateinit var appInfo: ApplicationInfo
     private val networkConnection: NetworkConnection by inject()
 
     override fun onTrimMemory(level: Int) {
@@ -27,6 +28,8 @@ abstract class BaseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mActivity = this
         dialog = DialogManager.instance(mActivity)
+        appInfo = applicationContext.packageManager
+            .getApplicationInfo(applicationContext.packageName, PackageManager.GET_META_DATA)
 
         checkNetWork()
     }
@@ -38,9 +41,11 @@ abstract class BaseActivity : AppCompatActivity() {
                 dialog.cancelAllDialog()
                 dialog.showCenterDialog(false, binding, false).let {
                     binding.run {
+                        showIcon = true
+                        hideCancel = true
+                        imgPromptIcon.setImageResource(R.drawable.ic_wifi_off)
                         titleText = getString(R.string.hint_internet_error_title)
                         subTitleText = getString(R.string.hint_internet_error_subtitle)
-                        tvCancel.visibility = View.GONE
                         tvConfirm.setOnClickListener { dialog.cancelCenterDialog() }
                     }
                 }

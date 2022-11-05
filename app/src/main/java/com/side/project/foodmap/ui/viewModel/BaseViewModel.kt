@@ -8,7 +8,7 @@ import com.side.project.foodmap.data.remote.tdx.TdxTokenReq
 import com.side.project.foodmap.data.remote.tdx.TdxTokenRes
 import com.side.project.foodmap.data.repo.DataStoreRepo
 import com.side.project.foodmap.network.ApiClient
-import com.side.project.foodmap.util.logE
+import com.side.project.foodmap.util.Method.logE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -35,6 +35,10 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     val userTdxTokenUpdate: LiveData<String>
         get() = _userTdxTokenUpdate
 
+    private val _userRegion = MutableLiveData<String>()
+    val userRegion: LiveData<String>
+        get() = _userRegion
+
     private val _userName = MutableLiveData<String>()
     val userName: LiveData<String>
         get() = _userName
@@ -52,49 +56,64 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
      */
     fun putUserUID(UID: String) = viewModelScope.launch(Dispatchers.Default) {
         dataStoreRepo.putUserUID(UID)
+        getUserUIDFromDataStore()
     }
 
-    fun getUserUID() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserUIDFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
         _userUID.postValue(dataStoreRepo.getUserUID())
     }
 
     fun putUserTdxToken(token: String) = viewModelScope.launch(Dispatchers.Default) {
         dataStoreRepo.putTdxToken(token)
+        getUserTdxTokenFromDataStore()
     }
 
-    fun getUserTdxToken() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserTdxTokenFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
         _userTdxToken.postValue(dataStoreRepo.getTdxToken())
     }
 
     fun putUserTdxTokenUpdate(date: String) = viewModelScope.launch(Dispatchers.Default) {
         dataStoreRepo.putTdxTokenUpdate(date)
+        getUserTdxTokenUpdate()
     }
 
     fun getUserTdxTokenUpdate() = viewModelScope.launch(Dispatchers.Default) {
         _userTdxTokenUpdate.postValue(dataStoreRepo.getTdxTokenUpdate())
     }
 
-    fun putUserName(name: String) = viewModelScope.launch(Dispatchers.Default) {
-        dataStoreRepo.putUserName(name)
+    fun putUserRegion(region: String) = viewModelScope.launch(Dispatchers.Default) {
+        dataStoreRepo.putUserRegion(region)
+        getUserRegionFromDataStore()
     }
 
-    fun getUserName() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserRegionFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
+        _userRegion.postValue(dataStoreRepo.getUserRegion())
+    }
+
+    fun putUserName(name: String) = viewModelScope.launch(Dispatchers.Default) {
+        dataStoreRepo.putUserName(name)
+        getUserNameFromDataStore()
+    }
+
+    fun getUserNameFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
         _userName.postValue(dataStoreRepo.getUserName())
     }
 
     fun putUserPicture(picture: String) = viewModelScope.launch(Dispatchers.Default) {
         dataStoreRepo.putUserPicture(picture)
+        getUserPictureFromDataStore()
     }
 
-    fun getUserPicture() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserPictureFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
         _userPicture.postValue(dataStoreRepo.getUserPicture())
     }
 
     fun putUserIsLogin(isLogin: Boolean) = viewModelScope.launch(Dispatchers.Default) {
         dataStoreRepo.putUserIsLogin(isLogin)
+        getUserIsLoginFromDataStore()
     }
 
-    fun getUserIsLogin() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserIsLoginFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
         _userIsLogin.postValue(dataStoreRepo.getUserIsLogin())
     }
 
@@ -105,12 +124,7 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     /**
      * 呼叫 API
      */
-    fun updateTdxToken(date: String) {
-        val tdxTokenReq = TdxTokenReq(
-            "client_credentials",
-            "B10713048-636f54ff-3e5c-4198",
-            "924d7477-d87d-46c8-b8e3-6f6bc643bcf0"
-        )
+    fun updateTdxToken(date: String, tdxTokenReq: TdxTokenReq) {
         ApiClient.getTdxToken.getToken(tdxTokenReq.grant_type, tdxTokenReq.client_id, tdxTokenReq.client_secret).enqueue(object : Callback<TdxTokenRes> {
             override fun onResponse(call: Call<TdxTokenRes>, response: Response<TdxTokenRes>) {
                 response.body()?.let {

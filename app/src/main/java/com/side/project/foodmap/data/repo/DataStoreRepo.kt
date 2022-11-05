@@ -7,10 +7,12 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.side.project.foodmap.R
 import com.side.project.foodmap.util.Constants.USERS_PREFERENCE
 import com.side.project.foodmap.util.Constants.USER_IS_LOGIN
 import com.side.project.foodmap.util.Constants.USER_NAME
 import com.side.project.foodmap.util.Constants.USER_PICTURE
+import com.side.project.foodmap.util.Constants.USER_REGION
 import com.side.project.foodmap.util.Constants.USER_TDX_TOKEN
 import com.side.project.foodmap.util.Constants.USER_TDX_TOKEN_UPDATE
 import com.side.project.foodmap.util.Constants.USER_UID
@@ -25,6 +27,8 @@ interface DataStoreRepo {
     suspend fun getTdxToken(): String
     suspend fun putTdxTokenUpdate(date: String)
     suspend fun getTdxTokenUpdate(): String
+    suspend fun putUserRegion(region: String)
+    suspend fun getUserRegion(): String
     suspend fun putUserName(name: String)
     suspend fun getUserName(): String
     suspend fun putUserPicture(picture: String)
@@ -68,6 +72,17 @@ class DataStoreRepoImpl(private val context: Context) : DataStoreRepo, KoinCompo
     override suspend fun getTdxTokenUpdate(): String =
         context.userInfo.data.map {
             it[stringPreferencesKey(USER_TDX_TOKEN_UPDATE)] ?: ""
+        }.first()
+
+    override suspend fun putUserRegion(region: String) {
+        context.userInfo.edit {
+            it[stringPreferencesKey(USER_REGION)] = region
+        }
+    }
+
+    override suspend fun getUserRegion(): String =
+        context.userInfo.data.map {
+            it[stringPreferencesKey(USER_REGION)] ?: context.getString(R.string.hint_near_region)
         }.first()
 
     override suspend fun putUserName(name: String) {

@@ -6,12 +6,24 @@
     <data>
 
         <variable
+            name="showIcon"
+            type="Boolean" />
+
+        <variable
             name="titleText"
             type="String" />
 
         <variable
             name="subTitleText"
             type="String" />
+
+        <variable
+            name="hideCancel"
+            type="Boolean" />
+
+        <variable
+            name="hideConfirm"
+            type="Boolean" />
 
         <import type="android.view.View" />
 
@@ -41,12 +53,24 @@
                 android:layout_gravity="center"
                 android:gravity="center">
 
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/imgPromptIcon"
+                    android:layout_width="@dimen/_24sdp"
+                    android:layout_height="@dimen/_24sdp"
+                    android:layout_marginTop="@dimen/_15sdp"
+                    android:src="@drawable/ic_wifi_off"
+                    android:tint="@color/accent_dark"
+                    android:visibility="@{showIcon ? View.VISIBLE : View.GONE, default=gone}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvTitle"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:fontFamily="@font/poppins_thin"
-                    android:gravity="start"
+                    android:gravity="center"
                     android:paddingStart="@dimen/_15sdp"
                     android:paddingTop="@dimen/_15sdp"
                     android:paddingEnd="@dimen/_15sdp"
@@ -57,7 +81,7 @@
                     android:visibility="@{titleText.length() > 0 ? View.VISIBLE : View.GONE, default=gone}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/imgPromptIcon"
                     tools:text="主標題"
                     tools:visibility="visible" />
 
@@ -97,6 +121,7 @@
                     android:text="@string/text_cancel"
                     android:textColor="@color/dialog_text_selector"
                     android:textSize="@dimen/_14ssp"
+                    android:visibility="@{hideCancel ? View.INVISIBLE : View.VISIBLE, default=visible}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/tvConfirm"
                     app:layout_constraintTop_toBottomOf="@+id/viewSupport" />
@@ -110,6 +135,7 @@
                     android:text="@string/text_confirm"
                     android:textColor="@color/dialog_text_selector"
                     android:textSize="@dimen/_14ssp"
+                    android:visibility="@{hideConfirm ? View.INVISIBLE : View.VISIBLE, default=visible}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/viewSupport" />

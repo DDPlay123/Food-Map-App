@@ -4,6 +4,9 @@
     package="com.side.project.foodmap">
 
     <!-- 網路狀態 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- GPS定位 -->
@@ -24,15 +27,35 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
-        <!--若目標版本在 API 28 或以上需要額外設定 Apache-->
+        <!-- Service -->
+        <service
+            android:name=".service.LocationService"
+            android:enabled="true"
+            android:exported="false"/>
+
+        <!-- 若目標版本在 API 28 或以上需要額外設定 Apache -->
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
-        <!--此處要放入在 Google API Console 取得的 API 金鑰-->
+        <!-- 此處要放入在 Google API Console 取得的 API 金鑰 -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_api_key" />
+            android:value="${GOOGLE_KEY}" />
+        <!-- 金鑰 -->
+        <meta-data
+            android:name = "GOOGLE_KEY"
+            android:value = "${GOOGLE_KEY}"/>
+        <meta-data
+            android:name = "tdx_grant_type"
+            android:value = "${tdx_grant_type}"/>
+        <meta-data
+            android:name = "tdx_client_id"
+            android:value = "${tdx_client_id}"/>
+        <meta-data
+            android:name = "tdx_client_secret"
+            android:value = "${tdx_client_secret}"/>
 
+        <!-- Activity -->
         <activity
             android:name=".ui.activity.MainActivity"
             android:exported="false"

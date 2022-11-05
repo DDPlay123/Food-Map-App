@@ -23,7 +23,7 @@ class SplashActivity : AppCompatActivity() {
         splashScreen.setKeepOnScreenCondition { true }
 
         doInitialize()
-        viewModel.getUserIsLogin()
+        viewModel.getUserIsLoginFromDataStore()
     }
 
     private fun doInitialize() {
