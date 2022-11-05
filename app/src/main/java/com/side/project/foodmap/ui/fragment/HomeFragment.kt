@@ -60,16 +60,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
             override fun onAnimationEnd(p0: Animation?) {
                 when (view) {
-                    binding.searchBar -> {
-                        mActivity.displayShortToast("Search")
-                    }
-                    binding.imgCameraSearch -> {
-                        mActivity.displayShortToast("Camera")
-                    }
-                    binding.imgSoundSearch -> {
-                        mActivity.displayShortToast("Sound")
-                    }
-                    binding.tvCategory -> { displayRegionDialog() }
+                    binding.searchBar -> mActivity.displayShortToast("Search")
+                    binding.imgCameraSearch -> mActivity.displayShortToast("Camera")
+                    binding.imgSoundSearch -> mActivity.displayShortToast("Sound")
+                    binding.tvCategory -> displayRegionDialog()
                     else -> {}
                 }
             }
@@ -92,7 +86,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     adapter = regionSelectAdapter
                 }
                 regionSelectAdapter.setRegionList(regionList, regionID)
-                // scroll to top
+                // auto scroll to top
                 val smoothScroller: RecyclerView.SmoothScroller = object : LinearSmoothScroller(context) {
                     override fun getVerticalSnapPreference(): Int = SNAP_TO_START
                 }

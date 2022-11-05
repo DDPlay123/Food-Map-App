@@ -9,6 +9,8 @@ import android.location.LocationManager
 import android.os.IBinder
 import androidx.core.app.ActivityCompat
 import androidx.core.location.LocationListenerCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.side.project.foodmap.R
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.util.Constants.PERMISSION_COARSE_LOCATION
@@ -16,21 +18,28 @@ import com.side.project.foodmap.util.Constants.PERMISSION_FINE_LOCATION
 import com.side.project.foodmap.util.Method.logE
 
 class LocationService(val context: Context) : Service(), LocationListenerCompat {
+    companion object {
+        // For Some Parameter
+        private const val minDistanceM: Float = 5F // 公尺
+        private const val minTimeMs = (1000 * 5 * 1).toLong() // 毫秒
+    }
+
     // For GPS or Network Check
     private var checkGPS = false
     private var checkNetwork = false
     private var canGetLocation = false
 
     // For Location value
-    private var loc: Location? = null
-    private var latitude = 0.00
-    private var longitude = 0.00
-
-    // For Some Parameter
-    private val MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 10F
-    private val MIN_TIME_BW_UPDATES = (1000 * 60 * 1).toLong()
-
     private var locationManager: LocationManager? = null
+    private var mLocation: Location? = null
+
+    private val _latitude = MutableLiveData<Double>()
+    val latitude: LiveData<Double>
+        get() = _latitude
+
+    private val _longitude = MutableLiveData<Double>()
+    val longitude: LiveData<Double>
+        get() = _longitude
 
     init {
         getLocation()
@@ -39,6 +48,17 @@ class LocationService(val context: Context) : Service(), LocationListenerCompat 
     override fun onBind(intent: Intent): IBinder? = null
 
     override fun onLocationChanged(location: Location) {
+        logE("MyLocation", "Lat:${location.latitude}\tLong:${location.longitude}")
+        _latitude.value = location.latitude
+        _longitude.value = location.longitude
+    }
+
+    override fun onProviderEnabled(provider: String) {
+        super.onProviderEnabled(provider)
+    }
+
+    override fun onProviderDisabled(provider: String) {
+        super.onProviderDisabled(provider)
     }
 
     private fun getLocation(): Location? {
@@ -56,17 +76,17 @@ class LocationService(val context: Context) : Service(), LocationListenerCompat 
                     this.canGetLocation = true
 
                     when {
-                        checkGPS && checkNetwork -> { networkLocation() }
-                        checkGPS && !checkNetwork -> { gpsLocation() }
-                        !checkGPS && checkNetwork -> { networkLocation() }
-                        !checkGPS && !checkNetwork -> { context.displayShortToast(getString(R.string.hint_not_provider_gps)) }
+                        checkGPS && checkNetwork -> networkLocation()
+                        checkGPS && !checkNetwork -> gpsLocation()
+                        !checkGPS && checkNetwork -> networkLocation()
+                        !checkGPS && !checkNetwork -> context.displayShortToast(getString(R.string.hint_not_provider_gps))
                     }
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        return loc
+        return mLocation
     }
 
     private fun gpsLocation() {
@@ -84,13 +104,13 @@ class LocationService(val context: Context) : Service(), LocationListenerCompat 
             logE("GPS-Location", "Turn on")
             locationManager!!.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
-                MIN_TIME_BW_UPDATES,
-                MIN_DISTANCE_CHANGE_FOR_UPDATES, this
+                minTimeMs,
+                minDistanceM, this
             )
-            loc = locationManager!!.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-            loc?.let {
-                latitude = loc!!.latitude
-                longitude = loc!!.longitude
+            mLocation = locationManager!!.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            mLocation?.let {
+                _latitude.postValue(mLocation!!.latitude)
+                _longitude.postValue(mLocation!!.longitude)
             }
         }
     }
@@ -110,30 +130,15 @@ class LocationService(val context: Context) : Service(), LocationListenerCompat 
             logE("Network-Location", "Turn on")
             locationManager!!.requestLocationUpdates(
                 LocationManager.NETWORK_PROVIDER,
-                MIN_TIME_BW_UPDATES,
-                MIN_DISTANCE_CHANGE_FOR_UPDATES, this
+                minTimeMs,
+                minDistanceM, this
             )
-            loc =
-                locationManager!!.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-            loc?.let {
-                latitude = loc!!.latitude
-                longitude = loc!!.longitude
+            mLocation = locationManager!!.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+            mLocation?.let {
+                _latitude.postValue(mLocation!!.latitude)
+                _longitude.postValue(mLocation!!.longitude)
             }
         }
-    }
-
-    @JvmName("getLongitude1")
-    fun getLongitude(): Double {
-        if (loc != null)
-            longitude = loc!!.longitude
-        return longitude
-    }
-
-    @JvmName("getLatitude1")
-    fun getLatitude(): Double {
-        if (loc != null)
-            latitude = loc!!.latitude
-        return latitude
     }
 
     fun canGetLocation(): Boolean = canGetLocation
