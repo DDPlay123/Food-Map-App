@@ -34,4 +34,16 @@ object ApiClient {
             .build()
             .create(ApiService::class.java)
     }
+
+    /**
+     * Google Places API
+     */
+    val googlePlaces: ApiService by lazy {
+        Retrofit.Builder()
+            .client(okHttpClient)
+            .baseUrl("https://maps.googleapis.com/maps/api/place/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+    }
 }

@@ -18,12 +18,10 @@ open class BaseFragment<T : ViewDataBinding>(@LayoutRes val layoutRes: Int) : Fr
 
     lateinit var mActivity: BaseActivity
     lateinit var dialog: DialogManager
-    lateinit var appInfo: ApplicationInfo
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mActivity = activity as BaseActivity
         dialog = mActivity.dialog
-        appInfo = mActivity.appInfo
         super.onCreate(savedInstanceState)
     }
 

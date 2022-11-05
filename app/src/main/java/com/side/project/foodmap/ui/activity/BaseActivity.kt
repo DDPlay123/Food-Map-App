@@ -1,7 +1,6 @@
 package com.side.project.foodmap.ui.activity
 
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,12 +9,12 @@ import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.ui.other.DialogManager
 import com.side.project.foodmap.ui.other.NetworkConnection
+import com.side.project.foodmap.util.Constants.PERMISSION_CODE
 import org.koin.android.ext.android.inject
 
 abstract class BaseActivity : AppCompatActivity() {
     lateinit var mActivity: BaseActivity
     lateinit var dialog: DialogManager
-    lateinit var appInfo: ApplicationInfo
     private val networkConnection: NetworkConnection by inject()
 
     override fun onTrimMemory(level: Int) {
@@ -28,8 +27,6 @@ abstract class BaseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mActivity = this
         dialog = DialogManager.instance(mActivity)
-        appInfo = applicationContext.packageManager
-            .getApplicationInfo(applicationContext.packageName, PackageManager.GET_META_DATA)
 
         checkNetWork()
     }
@@ -59,9 +56,9 @@ abstract class BaseActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults.isNotEmpty() && requestCode == 1) {
-            if (grantResults[0] == PackageManager.PERMISSION_DENIED) finish()
-        }
+        if (grantResults.isNotEmpty() && requestCode == PERMISSION_CODE)
+            if (grantResults[0] == PackageManager.PERMISSION_DENIED)
+                finish()
     }
 
     private val receiveResult =

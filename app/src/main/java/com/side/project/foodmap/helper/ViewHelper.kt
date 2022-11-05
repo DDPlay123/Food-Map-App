@@ -8,3 +8,15 @@ fun View.displayErrorShortSnackBar(message: String) =
 
 fun View.displayErrorLongSnackBar(message: String) =
     Snackbar.make(this, "Error：${message}", Snackbar.LENGTH_LONG).show()
+
+fun View.display() {
+    this.visibility = View.VISIBLE
+}
+
+fun View.hidden() {
+    this.visibility = View.INVISIBLE
+}
+
+fun View.gone() {
+    this.visibility = View.GONE
+}

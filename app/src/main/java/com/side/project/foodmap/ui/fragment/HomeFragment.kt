@@ -107,9 +107,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 //        viewModel.userTdxTokenUpdate.observe(viewLifecycleOwner) { oldDate ->
 //            val todayDate: String = SimpleDateFormat("yyyy/MM/dd", Locale.TAIWAN).format(Date())
 //            val tdxTokenReq = TdxTokenReq(
-//                appInfo.metaData["tdx_grant_type"].toString(),
-//                appInfo.metaData["tdx_client_id"].toString(),
-//                appInfo.metaData["tdx_client_secret"].toString()
+//                mActivity.appInfo().metaData["tdx_grant_type"].toString(),
+//                mActivity.appInfo().metaData["tdx_client_id"].toString(),
+//                mActivity.appInfo().metaData["tdx_client_secret"].toString()
 //            )
 //            if (todayDate > oldDate)
 //                viewModel.updateTdxToken(todayDate, tdxTokenReq)
