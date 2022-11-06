@@ -2,6 +2,7 @@ package com.side.project.foodmap.service
 
 import android.annotation.SuppressLint
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -41,8 +42,8 @@ class LocationService : Service(), LocationListenerCompat {
     val longitude: LiveData<Double>
         get() = _longitude
 
-    init {
-        getLocation()
+    fun startListener(context: Context) {
+        getLocation(context)
     }
 
     override fun onBind(intent: Intent): IBinder? = null
@@ -61,9 +62,9 @@ class LocationService : Service(), LocationListenerCompat {
         super.onProviderDisabled(provider)
     }
 
-    private fun getLocation(): Location? {
+    private fun getLocation(mContext: Context): Location? {
         try {
-            locationManager = this.getSystemService(LOCATION_SERVICE) as LocationManager
+            locationManager = mContext.getSystemService(LOCATION_SERVICE) as LocationManager
             locationManager?.let {
                 // get GPS status
                 checkGPS = locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER) == true
@@ -71,15 +72,15 @@ class LocationService : Service(), LocationListenerCompat {
                 checkNetwork = locationManager?.isProviderEnabled(LocationManager.NETWORK_PROVIDER) == true
 
                 if (!checkGPS && !checkNetwork)
-                    this.displayShortToast(getString(R.string.hint_not_provider_gps))
+                    mContext.displayShortToast(getString(R.string.hint_not_provider_gps))
                 else {
                     this.canGetLocation = true
 
                     when {
-                        checkGPS && checkNetwork -> networkLocation()
-                        checkGPS && !checkNetwork -> gpsLocation()
-                        !checkGPS && checkNetwork -> networkLocation()
-                        !checkGPS && !checkNetwork -> this.displayShortToast(getString(R.string.hint_not_provider_gps))
+                        checkGPS && checkNetwork -> networkLocation(mContext)
+                        checkGPS && !checkNetwork -> gpsLocation(mContext)
+                        !checkGPS && checkNetwork -> networkLocation(mContext)
+                        !checkGPS && !checkNetwork -> mContext.displayShortToast(getString(R.string.hint_not_provider_gps))
                     }
                 }
             }
@@ -90,13 +91,13 @@ class LocationService : Service(), LocationListenerCompat {
     }
 
     @SuppressLint("MissingPermission")
-    private fun gpsLocation() {
+    private fun gpsLocation(context: Context) {
         if (checkGPS) {
             if (ActivityCompat.checkSelfPermission(
-                    this,
+                    context,
                     PERMISSION_FINE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    this,
+                    context,
                     PERMISSION_COARSE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
@@ -118,13 +119,13 @@ class LocationService : Service(), LocationListenerCompat {
     }
 
     @SuppressLint("MissingPermission")
-    private fun networkLocation() {
+    private fun networkLocation(context: Context) {
         if (checkNetwork) {
             if (ActivityCompat.checkSelfPermission(
-                    this,
+                    context,
                     PERMISSION_FINE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    this,
+                    context,
                     PERMISSION_COARSE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
@@ -147,13 +148,13 @@ class LocationService : Service(), LocationListenerCompat {
 
     fun canGetLocation(): Boolean = canGetLocation
 
-    fun stopListener() {
+    fun stopListener(context: Context) {
         if (locationManager != null) {
             if (ActivityCompat.checkSelfPermission(
-                    this,
+                    context,
                     PERMISSION_FINE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    this,
+                    context,
                     PERMISSION_COARSE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED
             ) {

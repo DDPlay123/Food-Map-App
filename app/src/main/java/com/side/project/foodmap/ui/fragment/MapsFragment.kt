@@ -29,6 +29,7 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
 
     private fun initLocationService() {
         locationService = LocationService()
+        locationService.startListener(mActivity)
         if (!locationService.canGetLocation()) {
             mActivity.displayShortToast(getString(R.string.hint_not_provider_gps))
             return
@@ -39,7 +40,7 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        locationService.stopListener()
+        locationService.stopListener(mActivity)
     }
 
     private val callback = OnMapReadyCallback { googleMap ->

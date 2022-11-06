@@ -10,6 +10,8 @@ import com.side.project.foodmap.data.repo.DataStoreRepo
 import com.side.project.foodmap.network.ApiClient
 import com.side.project.foodmap.util.Method.logE
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -23,8 +25,8 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     /**
      * 資料流
      */
-    private val _userUID = MutableLiveData<String>()
-    val userUID: LiveData<String>
+    private val _userUID = MutableStateFlow("")
+    val userUID: StateFlow<String>
         get() = _userUID
 
     private val _userTdxToken = MutableLiveData<String>()
@@ -35,16 +37,16 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     val userTdxTokenUpdate: LiveData<String>
         get() = _userTdxTokenUpdate
 
-    private val _userRegion = MutableLiveData<String>()
-    val userRegion: LiveData<String>
+    private val _userRegion = MutableStateFlow("")
+    val userRegion: StateFlow<String>
         get() = _userRegion
 
-    private val _userName = MutableLiveData<String>()
-    val userName: LiveData<String>
+    private val _userName = MutableStateFlow("")
+    val userName: StateFlow<String>
         get() = _userName
 
-    private val _userPicture = MutableLiveData<String>()
-    val userPicture: LiveData<String>
+    private val _userPicture = MutableStateFlow("")
+    val userPicture: StateFlow<String>
         get() = _userPicture
 
     private val _userIsLogin = MutableLiveData<Boolean>()
@@ -60,7 +62,7 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     }
 
     fun getUserUIDFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
-        _userUID.postValue(dataStoreRepo.getUserUID())
+        _userUID.emit(dataStoreRepo.getUserUID())
     }
 
     fun putUserTdxToken(token: String) = viewModelScope.launch(Dispatchers.Default) {
@@ -87,7 +89,7 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     }
 
     fun getUserRegionFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
-        _userRegion.postValue(dataStoreRepo.getUserRegion())
+        _userRegion.emit(dataStoreRepo.getUserRegion())
     }
 
     fun putUserName(name: String) = viewModelScope.launch(Dispatchers.Default) {
@@ -96,7 +98,7 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     }
 
     fun getUserNameFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
-        _userName.postValue(dataStoreRepo.getUserName())
+        _userName.emit(dataStoreRepo.getUserName())
     }
 
     fun putUserPicture(picture: String) = viewModelScope.launch(Dispatchers.Default) {
@@ -105,7 +107,7 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     }
 
     fun getUserPictureFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
-        _userPicture.postValue(dataStoreRepo.getUserPicture())
+        _userPicture.emit(dataStoreRepo.getUserPicture())
     }
 
     fun putUserIsLogin(isLogin: Boolean) = viewModelScope.launch(Dispatchers.Default) {
@@ -124,7 +126,7 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     /**
      * 呼叫 API
      */
-    fun updateTdxToken(date: String, tdxTokenReq: TdxTokenReq) {
+    suspend fun updateTdxToken(date: String, tdxTokenReq: TdxTokenReq) {
         ApiClient.getTdxToken.getToken(tdxTokenReq.grant_type, tdxTokenReq.client_id, tdxTokenReq.client_secret).enqueue(object : Callback<TdxTokenRes> {
             override fun onResponse(call: Call<TdxTokenRes>, response: Response<TdxTokenRes>) {
                 response.body()?.let {

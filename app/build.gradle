@@ -73,8 +73,6 @@ dependencies {
     implementation "io.coil-kt:coil-gif:2.1.0"
     // Loading Button (https://github.com/leandroBorgesFerreira/LoadingButtonAndroid)
     implementation 'br.com.simplepass:loading-button-android:2.2.0'
-    // Rounded ImageView (https://github.com/vinc3m1/RoundedImageView)
-    implementation 'com.makeramen:roundedimageview:2.3.0'
     // Retrofit & Gson (https://square.github.io/retrofit/)
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'

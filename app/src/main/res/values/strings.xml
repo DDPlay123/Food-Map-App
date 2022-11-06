@@ -43,6 +43,9 @@
     <string name="hint_near_region">附近的餐廳</string>
     <string name="hint_not_location_permission">請開啟定位權限</string>
     <string name="hint_not_provider_gps">目前無可用的定位</string>
+    <string name="hint_quick_view">快速瀏覽</string>
+    <string name="hint_view_all">查看全部</string>
+    <string name="hint_error">發生一些錯誤</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>
@@ -57,4 +60,7 @@
     <string name="text_confirm">確定</string>
     <string name="text_cancel">取消</string>
     <string name="text_loading">載入中\.\.\.</string>
+    <string name="text_recommended">推薦</string>
+    <string name="text_open_now">營業中</string>
+    <string name="text_close_now">已打烊</string>
 </resources>

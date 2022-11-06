@@ -1,6 +1,5 @@
 package com.side.project.foodmap.ui.fragment
 
-import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View

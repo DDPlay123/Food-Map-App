@@ -16,7 +16,7 @@ interface ApiService {
     @Headers("Content-Type: application/x-www-form-urlencoded")
     @FormUrlEncoded
     @POST("protocol/openid-connect/token")
-    suspend fun getToken(
+    fun getToken(
         @Field("grant_type") grant_type: String,
         @Field("client_id") client_id: String,
         @Field("client_secret") client_secret: String
@@ -31,7 +31,7 @@ interface ApiService {
      * TDX 全部餐飲資料 (目前無台北資料)
      */
     @GET("v2/Tourism/Restaurant")
-    suspend fun getAllRestaurantByTDX(
+    fun getAllRestaurantByTDX(
         @Header("authorization") token: String
     ): Call<RestaurantList>
 
@@ -39,7 +39,7 @@ interface ApiService {
      * TDX 指定縣市餐飲資料 (目前無台北資料)
      */
     @GET("v2/Tourism/Restaurant/{city}")
-    suspend fun getCityRestaurantByTDX(
+    fun getCityRestaurantByTDX(
         @Header("authorization") token: String,
         @Path("city") city: String
     ): Call<RestaurantList>
@@ -49,7 +49,7 @@ interface ApiService {
      */
     @Headers("Accept-Encoding: identity")
     @GET("autocomplete/json")
-    suspend fun getPlacesAutoComplete(
+    fun getPlacesAutoComplete(
         @Query("input") input: String,
 //        @Query("location") location: String, // Ex: 25.0338,121.5646
         @Query("components") component: String = "country:tw",
@@ -64,7 +64,7 @@ interface ApiService {
      */
     @Headers("Accept-Encoding: identity")
     @GET("nearbysearch/json")
-    suspend fun getPlaceSearch(
+    fun getPlaceSearch(
         @Query("location") location: String, // Ex: 25.0338,121.5646
         @Query("radius") radius: String = "1000", // Ex: 1000 公尺
         @Query("type") type: String = "restaurant",
@@ -74,7 +74,7 @@ interface ApiService {
 
     @Headers("Accept-Encoding: identity")
     @GET("nearbysearch/json")
-    suspend fun getPlaceSearch(
+    fun getPlaceSearch(
         @Query("location") location: String, // Ex: 25.0338,121.5646
         @Query("radius") radius: String = "1000", // Ex: 1000 公尺
         @Query("pagetoken") token: String,
@@ -88,7 +88,7 @@ interface ApiService {
      */
     @Headers("Accept-Encoding: identity")
     @GET("nearbysearch/json")
-    suspend fun getPlaceSearchWithKeyword(
+    fun getPlaceSearchWithKeyword(
         @Query("location") location: String, // Ex: 25.0338,121.5646
         @Query("radius") radius: Long = 1000L, // Ex: 1000 公尺
         @Query("keyword") keyword: String,
@@ -98,7 +98,7 @@ interface ApiService {
 
     @Headers("Accept-Encoding: identity")
     @GET("nearbysearch/json")
-    suspend fun getPlaceSearchWithKeyword(
+    fun getPlaceSearchWithKeyword(
         @Query("location") location: String, // Ex: 25.0338,121.5646
         @Query("radius") radius: Long = 1000L, // Ex: 1000 公尺
         @Query("pagetoken") token: String,
@@ -112,7 +112,7 @@ interface ApiService {
      */
     @Headers("Accept-Encoding: identity")
     @GET("details/json")
-    suspend fun getPlaceDetails(
+    fun getPlaceDetails(
         @Query("place_id") placeID: String,
         @Query("key") key: String
     ): Call<PlacesDetails>
