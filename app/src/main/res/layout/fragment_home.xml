@@ -204,6 +204,8 @@
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
+                    android:text="@{VM.placeSearch.results[0].opening_hours.open_now ? @string/text_open_now : @string/text_close_now}"
+                    android:textColor="@{VM.placeSearch.results[0].opening_hours.open_now ? @color/green : @color/red}"
                     tools:text="已打烊"
                     tools:textColor="@color/red" />
 

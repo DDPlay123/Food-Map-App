@@ -42,6 +42,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private lateinit var regionList: ArrayList<String>
     private var regionID: Int = 0
 
+    private lateinit var quickViewAdapter: QuickViewAdapter
+
     override fun FragmentHomeBinding.initialize() {
         binding.vm = viewModel
         regionList = ArrayList(listOf(*resources.getStringArray(R.array.search_type)))
@@ -96,7 +98,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     is Resource.Success -> {
                         logE("Places Search", "Success")
                         dialog.cancelLoadingDialog()
-                        initQuickView(it.data as PlacesSearch)
                     }
                     is Resource.Error -> {
                         logE("Places Search", "Error:${it.message.toString()}")
@@ -105,6 +106,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     }
                     else -> Unit
                 }
+            }
+        }
+
+        // Quick View
+        initQuickView()
+        lifecycleScope.launchWhenCreated {
+            viewModel.placeSearch.observe(viewLifecycleOwner) { placesSearch ->
+                quickViewAdapter.setData(placesSearch.results as ArrayList<Result>)
             }
         }
     }
@@ -177,8 +186,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         )
     }
 
-    private fun initQuickView(placesSearch: PlacesSearch) {
-        val quickViewAdapter = QuickViewAdapter()
+    private fun initQuickView() {
+        quickViewAdapter = QuickViewAdapter()
         val compositePageTransformer = CompositePageTransformer()
         compositePageTransformer.apply {
             addTransformer(MarginPageTransformer(10))
@@ -194,13 +203,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
             setPageTransformer(compositePageTransformer)
             adapter = quickViewAdapter
-        }
-        quickViewAdapter.setData(placesSearch.results as ArrayList<Result>)
-    }
-
-    private fun initRecommended(placesSearch: PlacesSearch) {
-        binding.run {
-            imgRecommended
         }
     }
 
