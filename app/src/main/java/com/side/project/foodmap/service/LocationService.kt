@@ -112,8 +112,8 @@ class LocationService : Service(), LocationListenerCompat {
             )
             mLocation = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             mLocation?.let {
-                _latitude.postValue(mLocation?.latitude)
-                _longitude.postValue(mLocation?.longitude)
+                _latitude.value = mLocation?.latitude
+                _longitude.value = mLocation?.longitude
             }
         }
     }
@@ -140,8 +140,8 @@ class LocationService : Service(), LocationListenerCompat {
             )
             mLocation = locationManager?.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
             mLocation?.let {
-                _latitude.postValue(mLocation?.latitude)
-                _longitude.postValue(mLocation?.longitude)
+                _latitude.value = mLocation?.latitude
+                _longitude.value = mLocation?.longitude
             }
         }
     }

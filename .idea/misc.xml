@@ -14,6 +14,7 @@
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/divider.xml" value="0.2295" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/ic_camera.xml" value="0.2295" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/ic_home.xml" value="0.2295" />
+        <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/ic_pan_tool_alt.xml" value="0.2295" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/ic_profiles.xml" value="0.2295" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/ic_radio_checked.xml" value="0.2295" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/ic_radio_unchecked.xml" value="0.2295" />
@@ -29,7 +30,7 @@
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/dialog_prompt.xml" value="0.25" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/dialog_prompt_select.xml" value="0.22" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/fragment_favorites.xml" value="0.271484375" />
-        <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/fragment_home.xml" value="0.1" />
+        <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/fragment_home.xml" value="0.25" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/fragment_introduction.xml" value="0.22" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/fragment_login.xml" value="0.25" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/fragment_maps.xml" value="0.271484375" />

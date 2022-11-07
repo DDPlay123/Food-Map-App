@@ -10,19 +10,14 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import com.side.project.foodmap.R
-import com.side.project.foodmap.data.remote.google.placesSearch.PlacesSearch
-import com.side.project.foodmap.data.remote.google.placesSearch.Result
 import com.side.project.foodmap.databinding.DialogPromptSelectBinding
 import com.side.project.foodmap.databinding.FragmentHomeBinding
 import com.side.project.foodmap.helper.appInfo
 import com.side.project.foodmap.helper.displayShortToast
-import com.side.project.foodmap.service.LocationService
 import com.side.project.foodmap.ui.adapter.QuickViewAdapter
 import com.side.project.foodmap.ui.adapter.RegionSelectAdapter
 import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.viewModel.HomeViewModel
-import com.side.project.foodmap.util.Constants.PERMISSION_COARSE_LOCATION
-import com.side.project.foodmap.util.Constants.PERMISSION_FINE_LOCATION
 import com.side.project.foodmap.util.Method.logE
 import com.side.project.foodmap.util.Method.requestPermission
 import com.side.project.foodmap.util.Resource
@@ -35,10 +30,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private val viewModel: HomeViewModel by viewModel()
     private val animManager: AnimManager by inject()
 
-    private lateinit var locationService: LocationService
-    private var myLatitude: Double = DEFAULT_LATITUDE
-    private var myLongitude: Double = DEFAULT_LONGITUDE
-
     private lateinit var regionList: ArrayList<String>
     private var regionID: Int = 0
 
@@ -48,27 +39,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         binding.vm = viewModel
         regionList = ArrayList(listOf(*resources.getStringArray(R.array.search_type)))
 
-        val permission = arrayOf(PERMISSION_FINE_LOCATION, PERMISSION_COARSE_LOCATION)
-        requestPermission(mActivity, *permission)
-        initLocationService()
-
 //        checkTdxToken() // 暫時棄用 TDX API
-    }
-
-    private fun initLocationService() {
-        locationService = LocationService()
-        locationService.startListener(mActivity)
-        if (!locationService.canGetLocation()) {
-            mActivity.displayShortToast(getString(R.string.hint_not_provider_gps))
-            return
-        }
-        locationService.latitude.observe(viewLifecycleOwner) { myLatitude = it }
-        locationService.longitude.observe(viewLifecycleOwner) { myLongitude = it }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        locationService.stopListener(mActivity)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -82,8 +53,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         // 取得使用者區域設定
         lifecycleScope.launchWhenCreated {
             viewModel.userRegion.collect { region ->
-                regionID = regionList.indexOf(region)
-                placesSearch()
+                if (region.contains(getString(R.string.hint_near_region)) && !requestPermission(mActivity, *permission)) {
+                    mActivity.displayShortToast(getString(R.string.hint_not_location_permission))
+                    viewModel.putUserRegion(getString(R.string.text_taipei))
+                    regionID = regionList.indexOf(getString(R.string.text_taipei))
+                    placesSearch()
+                } else {
+                    regionID = regionList.indexOf(region)
+                    placesSearch()
+                }
             }
         }
 
@@ -113,7 +91,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         initQuickView()
         lifecycleScope.launchWhenCreated {
             viewModel.placeSearch.observe(viewLifecycleOwner) { placesSearch ->
-                quickViewAdapter.setData(placesSearch.results as ArrayList<Result>)
+                quickViewAdapter.setData(placesSearch.results)
             }
         }
     }
@@ -157,8 +135,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 hideCancel = true
                 hideConfirm = true
                 listItem.apply {
-                    layoutManager =
-                        LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+                    layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
                     adapter = regionSelectAdapter
                 }
                 regionSelectAdapter.setRegionList(regionList, regionID)
@@ -171,8 +148,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 listItem.layoutManager?.startSmoothScroll(smoothScroller)
                 // listener
                 regionSelectAdapter.onItemClick = { region ->
-                    viewModel.putUserRegion(region)
-                    dialog.cancelCenterDialog()
+                    if (region.contains(getString(R.string.hint_near_region)) && !requestPermission(mActivity, *permission)) {
+                        mActivity.displayShortToast(getString(R.string.hint_not_location_permission))
+                        dialog.cancelCenterDialog()
+                    } else {
+                        viewModel.putUserRegion(region)
+                        dialog.cancelCenterDialog()
+                    }
                 }
             }
         }
@@ -180,8 +162,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
     private fun placesSearch() {
         viewModel.placesSearch(
-            regionList[regionID],
-            "$myLatitude,$myLongitude",
+            regionList[regionID], "$myLatitude,$myLongitude",
             mActivity.appInfo().metaData["GOOGLE_KEY"].toString()
         )
     }
@@ -219,9 +200,4 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 //                viewModel.updateTdxToken(todayDate, tdxTokenReq)
 //        }
 //    }
-
-    companion object {
-        private const val DEFAULT_LATITUDE = 25.043871531367014
-        private const val DEFAULT_LONGITUDE = 121.53453374432904
-    }
 }

@@ -28,15 +28,16 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/g_white"
             android:padding="@dimen/_8sdp">
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/imgPicture"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:scaleType="centerCrop"
+                android:scaleType="fitXY"
                 android:loadImageFromGoogle="@{photoReference}"
-                app:layout_constraintDimensionRatio="H, 2:1.6"
+                app:layout_constraintDimensionRatio="2:1.6"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"

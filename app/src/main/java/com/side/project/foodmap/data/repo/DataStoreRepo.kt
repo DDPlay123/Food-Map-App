@@ -82,7 +82,7 @@ class DataStoreRepoImpl(private val context: Context) : DataStoreRepo, KoinCompo
 
     override suspend fun getUserRegion(): String =
         context.userInfo.data.map {
-            it[stringPreferencesKey(USER_REGION)] ?: context.getString(R.string.hint_near_region)
+            it[stringPreferencesKey(USER_REGION)] ?: context.getString(R.string.text_taipei)
         }.first()
 
     override suspend fun putUserName(name: String) {

@@ -7,8 +7,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.DialogPromptBinding
+import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.ui.other.DialogManager
 import com.side.project.foodmap.ui.other.NetworkConnection
+import com.side.project.foodmap.util.Constants
 import com.side.project.foodmap.util.Constants.PERMISSION_CODE
 import org.koin.android.ext.android.inject
 
@@ -56,9 +58,17 @@ abstract class BaseActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults.isNotEmpty() && requestCode == PERMISSION_CODE)
-            if (grantResults[0] == PackageManager.PERMISSION_DENIED)
-                finish()
+        when (requestCode) {
+            PERMISSION_CODE -> {
+                for (result in grantResults)
+                    if (result != PackageManager.PERMISSION_GRANTED) {
+                        when {
+                            permissions.any { it == Constants.PERMISSION_FINE_LOCATION || it == Constants.PERMISSION_COARSE_LOCATION } ->
+                                displayShortToast(getString(R.string.hint_not_location_permission))
+                        }
+                    }
+            }
+        }
     }
 
     private val receiveResult =

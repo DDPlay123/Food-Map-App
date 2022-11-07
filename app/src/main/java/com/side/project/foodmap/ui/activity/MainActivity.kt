@@ -16,25 +16,6 @@ import com.side.project.foodmap.util.Constants.PERMISSION_FINE_LOCATION
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            PERMISSION_CODE -> {
-                for (result in grantResults)
-                    if (result != PackageManager.PERMISSION_GRANTED) {
-                        when {
-                            permissions.any { it == PERMISSION_FINE_LOCATION || it == PERMISSION_COARSE_LOCATION } ->
-                                displayShortToast(getString(R.string.hint_not_location_permission))
-                        }
-                    }
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)

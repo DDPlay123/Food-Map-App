@@ -1,6 +1,7 @@
 package com.side.project.foodmap.ui.viewModel
 
-import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.side.project.foodmap.data.remote.google.placesSearch.PlacesSearch
 import com.side.project.foodmap.helper.getLocation
@@ -26,8 +27,8 @@ class HomeViewModel : BaseViewModel() {
     val placeSearchState
         get() = _placeSearchState.asSharedFlow()
 
-    private val _placeSearch = MediatorLiveData<PlacesSearch>()
-    val placeSearch
+    private val _placeSearch = MutableLiveData<PlacesSearch>()
+    val placeSearch: LiveData<PlacesSearch>
         get() = _placeSearch
 
     /**

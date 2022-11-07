@@ -126,7 +126,7 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     /**
      * 呼叫 API
      */
-    suspend fun updateTdxToken(date: String, tdxTokenReq: TdxTokenReq) {
+    fun updateTdxToken(date: String, tdxTokenReq: TdxTokenReq) {
         ApiClient.getTdxToken.getToken(tdxTokenReq.grant_type, tdxTokenReq.client_id, tdxTokenReq.client_secret).enqueue(object : Callback<TdxTokenRes> {
             override fun onResponse(call: Call<TdxTokenRes>, response: Response<TdxTokenRes>) {
                 response.body()?.let {
