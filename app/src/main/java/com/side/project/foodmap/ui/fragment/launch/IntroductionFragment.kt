@@ -5,12 +5,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.FragmentIntroductionBinding
+import com.side.project.foodmap.helper.setAnimClick
 import com.side.project.foodmap.ui.other.AnimManager
+import com.side.project.foodmap.ui.other.AnimState
 import org.koin.android.ext.android.inject
 
 class IntroductionFragment : Fragment() {
@@ -42,17 +43,10 @@ class IntroductionFragment : Fragment() {
         binding.run {
             val anim = animManager.smallToLarge
             btnNext.setOnClickListener {
-                it.startAnimation(anim)
-            }
-            anim.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(p0: Animation?) {}
-
-                override fun onAnimationEnd(p0: Animation?) {
+                it.setAnimClick(anim, AnimState.End) {
                     findNavController().navigate(R.id.action_introductionFragment_to_loginFragment)
                 }
-
-                override fun onAnimationRepeat(p0: Animation?) {}
-            })
+            }
         }
     }
 }

@@ -11,6 +11,15 @@ import retrofit2.http.*
 interface ApiService {
 
     /**
+     * API Server
+     */
+//    @Headers("Content-Type: application/json")
+//    @POST("api/restaurant/update")
+//    fun apiRestaurantUpdate(
+//
+//    ): Call<>
+
+    /**
      * TDX Token
      */
     @Headers("Content-Type: application/x-www-form-urlencoded")

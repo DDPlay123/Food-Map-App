@@ -2,7 +2,6 @@ package com.side.project.foodmap.ui.fragment
 
 import android.os.Bundle
 import android.view.View
-import android.view.animation.Animation
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
@@ -14,9 +13,11 @@ import com.side.project.foodmap.databinding.DialogPromptSelectBinding
 import com.side.project.foodmap.databinding.FragmentHomeBinding
 import com.side.project.foodmap.helper.appInfo
 import com.side.project.foodmap.helper.displayShortToast
+import com.side.project.foodmap.helper.setAnimClick
 import com.side.project.foodmap.ui.adapter.QuickViewAdapter
 import com.side.project.foodmap.ui.adapter.RegionSelectAdapter
 import com.side.project.foodmap.ui.other.AnimManager
+import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.HomeViewModel
 import com.side.project.foodmap.util.Method.logE
 import com.side.project.foodmap.util.Method.requestPermission
@@ -97,32 +98,32 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     }
 
     private fun setListener() {
-        binding.run {
-            tvCategory.setOnClickListener(onClickListener)
-            searchBar.setOnClickListener(onClickListener)
-            imgCameraSearch.setOnClickListener(onClickListener)
-            imgSoundSearch.setOnClickListener(onClickListener)
-        }
-    }
-
-    private val onClickListener = View.OnClickListener { view: View ->
         val anim = animManager.smallToLarge
-        view.startAnimation(anim)
-        anim.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationStart(p0: Animation?) {
-                when (view) {
-                    binding.tvCategory -> displayRegionDialog()
-                    binding.searchBar -> mActivity.displayShortToast("Search")
-                    binding.imgCameraSearch -> mActivity.displayShortToast("Camera")
-                    binding.imgSoundSearch -> mActivity.displayShortToast("Sound")
-                    else -> {}
+        binding.run {
+            tvCategory.setOnClickListener {
+                it.setAnimClick(anim, AnimState.Start) {
+                    displayRegionDialog()
                 }
             }
 
-            override fun onAnimationEnd(p0: Animation?) {}
+            searchBar.setOnClickListener {
+                it.setAnimClick(anim, AnimState.Start) {
+                    mActivity.displayShortToast("Search")
+                }
+            }
 
-            override fun onAnimationRepeat(p0: Animation?) {}
-        })
+            imgCameraSearch.setOnClickListener {
+                it.setAnimClick(anim, AnimState.Start) {
+                    mActivity.displayShortToast("Camera")
+                }
+            }
+
+            imgSoundSearch.setOnClickListener {
+                it.setAnimClick(anim, AnimState.Start) {
+                    mActivity.displayShortToast("Sound")
+                }
+            }
+        }
     }
 
     private fun displayRegionDialog() {

@@ -46,6 +46,17 @@
     <string name="hint_quick_view">快速瀏覽</string>
     <string name="hint_view_all">查看全部</string>
     <string name="hint_error">發生一些錯誤</string>
+    <string name="hint_now_register">立即註冊</string>
+    <string name="hint_now_login">立即登入</string>
+    <string name="hint_hello_new">你好，新使用者 ～\n註冊以享用更多服務！</string>
+    <string name="hint_welcome">歡迎您回來！</string>
+    <string name="hint_input_username">輸入使用者名稱</string>
+    <string name="hint_setting_password">設定密碼</string>
+    <string name="hint_input_password">輸入您的密碼</string>
+    <string name="hint_confirm_password">設定密碼</string>
+    <string name="hint_input_password_repeat">確認您的密碼</string>
+    <string name="hint_remember_me">記住我</string>
+    <string name="hint_no_account">"還沒有帳戶嗎？</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>
@@ -64,4 +75,11 @@
     <string name="text_open_now">營業中</string>
     <string name="text_close_now">已打烊</string>
     <string name="text_taipei">台北市</string>
+    <string name="text_login">登入</string>
+    <string name="text_register">註冊</string>
+    <string name="text_username">使用者名稱</string>
+    <string name="text_password">密碼</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -13,9 +13,11 @@ import com.side.project.foodmap.R
 import com.side.project.foodmap.data.local.User
 import com.side.project.foodmap.databinding.FragmentLoginBinding
 import com.side.project.foodmap.helper.displayShortToast
+import com.side.project.foodmap.helper.setAnimClick
 import com.side.project.foodmap.ui.activity.MainActivity
 import com.side.project.foodmap.ui.viewModel.LoginViewModel
 import com.side.project.foodmap.ui.other.AnimManager
+import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.util.Method.logE
 import com.side.project.foodmap.util.Resource
 import org.koin.android.ext.android.inject
@@ -44,83 +46,74 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        doInitialize()
-        setListener()
+//        doInitialize()
+//        setListener()
     }
 
-    private fun doInitialize() {
-        lifecycleScope.launchWhenCreated {
-            viewModel.loginState.collect {
-                when (it) {
-                    is Resource.Loading -> {
-                        logE("Login", "Loading")
-                        binding.btnStart.startAnimation()
-                    }
-                    is Resource.Success -> {
-                        logE("Login", "Success")
-                        binding.btnStart.revertAnimation()
-                        requireActivity().displayShortToast(getString(R.string.hint_login_success))
-                        Intent(requireActivity(), MainActivity::class.java).also { intent ->
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                            startActivity(intent)
-                        }
-                    }
-                    is Resource.Error -> {
-                        logE("Login", "Error:${it.message.toString()}")
-                        binding.btnStart.revertAnimation()
-                        requireActivity().displayShortToast(getString(R.string.hint_login_error))
-                        setEditTextVisibility(true)
-                    }
-                    else -> Unit
-                }
-            }
-        }
-    }
+//    private fun doInitialize() {
+//        lifecycleScope.launchWhenCreated {
+//            viewModel.loginState.collect {
+//                when (it) {
+//                    is Resource.Loading -> {
+//                        logE("Login", "Loading")
+//                        binding.btnStart.startAnimation()
+//                    }
+//                    is Resource.Success -> {
+//                        logE("Login", "Success")
+//                        binding.btnStart.revertAnimation()
+//                        requireActivity().displayShortToast(getString(R.string.hint_login_success))
+//                        Intent(requireActivity(), MainActivity::class.java).also { intent ->
+//                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+//                            startActivity(intent)
+//                        }
+//                    }
+//                    is Resource.Error -> {
+//                        logE("Login", "Error:${it.message.toString()}")
+//                        binding.btnStart.revertAnimation()
+//                        requireActivity().displayShortToast(getString(R.string.hint_login_error))
+//                        setEditTextVisibility(true)
+//                    }
+//                    else -> Unit
+//                }
+//            }
+//        }
+//    }
 
-    private fun setListener() {
-        binding.run {
-            val anim = animManager.smallToLarge
-            btnStart.setOnClickListener {
-                if (edName.text.toString().trim().isEmpty()) {
-                    edName.error = getString(R.string.hint_please_enter_name)
-                    return@setOnClickListener
-                }
-                it.startAnimation(anim)
-            }
-            anim.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(p0: Animation?) {
-                    setEditTextVisibility(false)
-                }
-
-                override fun onAnimationEnd(p0: Animation?) {
-                    val user = User(
-                        edName.text.toString().trim()
-                    )
-                    viewModel.anonymityLogin(user)
-                }
-
-                override fun onAnimationRepeat(p0: Animation?) {}
-            })
-        }
-    }
-
-    private fun setEditTextVisibility(isVisibility: Boolean) {
-        binding.run {
-            if (isVisibility) {
-                edName.visibility = View.VISIBLE
-                return
-            }
-            val anim = animManager.largeToHide
-            edName.startAnimation(anim)
-            anim.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(p0: Animation?) {}
-
-                override fun onAnimationEnd(p0: Animation?) {
-                    edName.visibility = View.GONE
-                }
-
-                override fun onAnimationRepeat(p0: Animation?) {}
-            })
-        }
-    }
+//    private fun setListener() {
+//        binding.run {
+//            val anim = animManager.smallToLarge
+//            btnStart.setOnClickListener {
+//                if (edName.text.toString().trim().isEmpty()) {
+//                    edName.error = getString(R.string.hint_please_enter_name)
+//                    return@setOnClickListener
+//                }
+//
+//                it.setAnimClick(anim, AnimState.Start) {
+//                    setEditTextVisibility(false)
+//                    val user = User(edName.text.toString().trim())
+//                    viewModel.anonymityLogin(user)
+//                }
+//            }
+//        }
+//    }
+//
+//    private fun setEditTextVisibility(isVisibility: Boolean) {
+//        binding.apply {
+//            if (isVisibility) {
+//                edName.visibility = View.VISIBLE
+//                return
+//            }
+//            val anim = animManager.largeToHide
+//            edName.startAnimation(anim)
+//            anim.setAnimationListener(object : Animation.AnimationListener {
+//                override fun onAnimationStart(p0: Animation?) {}
+//
+//                override fun onAnimationEnd(p0: Animation?) {
+//                    edName.visibility = View.GONE
+//                }
+//
+//                override fun onAnimationRepeat(p0: Animation?) {}
+//            })
+//        }
+//    }
 }

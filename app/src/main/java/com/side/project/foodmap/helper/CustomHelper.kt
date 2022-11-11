@@ -1,5 +1,10 @@
 package com.side.project.foodmap.helper
 
+import android.view.View
+import android.view.animation.Animation
+import com.side.project.foodmap.ui.other.AnimState
+import com.side.project.foodmap.util.Method
+
 fun String.getLocation(): Pair<Double, Double> =
     when (this) {
         "基隆市" -> Pair(25.127658594632145, 121.73880131220862)
@@ -26,3 +31,26 @@ fun String.getLocation(): Pair<Double, Double> =
         "連江縣" -> Pair(26.160449323852774, 119.95066870788101)
         else -> Pair(0.00, 0.00)
     }
+
+fun View.setAnimClick(
+    animation: Animation,
+    state: AnimState = AnimState.Start,
+    work: (() -> Unit)
+) {
+    this.let {
+        it.startAnimation(animation)
+        animation.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationStart(p0: Animation?) {
+                if (state == AnimState.Start) work()
+            }
+
+            override fun onAnimationEnd(p0: Animation?) {
+                if (state == AnimState.End) work()
+            }
+
+            override fun onAnimationRepeat(p0: Animation?) {
+                if (state == AnimState.Repeat) work()
+            }
+        })
+    }
+}

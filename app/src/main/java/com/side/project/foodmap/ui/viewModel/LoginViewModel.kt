@@ -4,13 +4,10 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.side.project.foodmap.data.local.User
-import com.side.project.foodmap.util.Constants.USER_COLLECTION
 import com.side.project.foodmap.util.Resource
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.core.component.inject
 
 class LoginViewModel: BaseViewModel() {
@@ -33,7 +30,7 @@ class LoginViewModel: BaseViewModel() {
             .addOnSuccessListener { result ->
                 viewModelScope.launch {
                     result.user?.let {
-                        setUserInfoRemote(it.uid, user)
+                        setUserInfoLocal(it.uid, user)
                     }
                 }
             }.addOnFailureListener { e ->
@@ -46,23 +43,23 @@ class LoginViewModel: BaseViewModel() {
     /**
      * 設定個人資料到 Firestore
      */
-    private fun setUserInfoRemote(userUID: String, user: User) {
-        fireStore.collection(USER_COLLECTION)
-            .document(userUID)
-            .set(user)
-            .addOnSuccessListener {
-                viewModelScope.launch {
-                    _loginState.value = Resource.Success(user)
-                    withContext(Dispatchers.Default) {
-                        setUserInfoLocal(userUID, user)
-                    }
-                }
-            }.addOnFailureListener { e ->
-                viewModelScope.launch {
-                    _loginState.value = Resource.Error(e.message.toString())
-                }
-            }
-    }
+//    private fun setUserInfoRemote(userUID: String, user: User) {
+//        fireStore.collection(USER_COLLECTION)
+//            .document(userUID)
+//            .set(user)
+//            .addOnSuccessListener {
+//                viewModelScope.launch {
+//                    _loginState.value = Resource.Success(user)
+//                    withContext(Dispatchers.Default) {
+//                        setUserInfoLocal(userUID, user)
+//                    }
+//                }
+//            }.addOnFailureListener { e ->
+//                viewModelScope.launch {
+//                    _loginState.value = Resource.Error(e.message.toString())
+//                }
+//            }
+//    }
 
     private fun setUserInfoLocal(userUID: String, user: User) {
         putUserUID(userUID)

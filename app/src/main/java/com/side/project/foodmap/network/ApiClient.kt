@@ -11,6 +11,18 @@ object ApiClient {
     private val okHttpClient: OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(LogInterceptor())
         .build()
+
+    /**
+     * API Server
+     */
+    val getAPI: ApiService by lazy {
+        Retrofit.Builder()
+            .client(okHttpClient)
+            .baseUrl("http://kkhomeserver.ddns.net/")
+            .build()
+            .create(ApiService::class.java)
+    }
+
     /**
      * 取得TDX Token
      */
