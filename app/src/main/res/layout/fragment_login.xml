@@ -45,31 +45,60 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/imgIcon" />
 
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/lottieView"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                app:layout_constraintBottom_toBottomOf="@id/guidelineCenterTop"
-                app:layout_constraintEnd_toEndOf="@id/guidelineRight"
-                app:layout_constraintHorizontal_bias="1.0"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgUserPicture"
+                android:layout_width="@dimen/_70sdp"
+                android:layout_height="@dimen/_70sdp"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:loadUserPicture='@{""}'
                 app:layout_constraintStart_toStartOf="@id/guidelineLeft"
-                app:layout_constraintTop_toTopOf="@id/guidelineTop"
-                app:lottie_autoPlay="true"
-                app:lottie_loop="true"
-                app:lottie_rawRes="@raw/login" />
+                app:layout_constraintTop_toBottomOf="@id/tvTitle"
+                tools:src="@drawable/img_user" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvContent"
-                android:layout_width="0dp"
+                android:id="@+id/tvRegister"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_thin"
-                android:gravity="center"
+                android:text="@string/text_register"
+                android:textColor="@color/g_gray700"
+                android:textSize="@dimen/_18ssp"
+                app:layout_constraintBottom_toBottomOf="@id/imgUserPicture"
+                app:layout_constraintEnd_toEndOf="@id/guidelineRight" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="2dp"
+                android:background="@color/primary"
+                app:layout_constraintEnd_toEndOf="@id/tvLogin"
+                app:layout_constraintStart_toStartOf="@id/tvLogin"
+                app:layout_constraintTop_toBottomOf="@id/tvLogin" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvLogin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/_15sdp"
+                android:fontFamily="@font/poppins_light"
+                android:text="@string/text_login"
+                android:textColor="@color/primary"
+                android:textSize="@dimen/_18ssp"
+                app:layout_constraintBottom_toBottomOf="@id/imgUserPicture"
+                app:layout_constraintEnd_toStartOf="@+id/tvRegister" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvWelcome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_20sdp"
+                android:fontFamily="@font/poppins_thin"
                 android:text="@string/hint_welcome"
                 android:textColor="@color/primary"
                 android:textSize="@dimen/_18ssp"
-                app:layout_constraintEnd_toEndOf="@id/guidelineRight"
                 app:layout_constraintStart_toStartOf="@id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@id/lottieView" />
+                app:layout_constraintTop_toBottomOf="@id/imgUserPicture"
+                tools:text="你好，XXX！" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvUserName"
@@ -83,7 +112,7 @@
                 app:layout_constraintEnd_toEndOf="@id/guidelineRight"
                 app:layout_constraintHorizontal_bias="0"
                 app:layout_constraintStart_toStartOf="@id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@id/tvContent" />
+                app:layout_constraintTop_toBottomOf="@id/tvWelcome" />
 
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/edUsername"
@@ -128,10 +157,10 @@
             <CheckBox
                 android:id="@+id/checkbox"
                 style="@style/checkbox"
-                android:text="@string/hint_remember_me"
-                android:paddingStart="@dimen/_5sdp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_5sdp"
+                android:text="@string/hint_remember_me"
                 app:layout_constraintStart_toStartOf="@id/guidelineLeft"
                 app:layout_constraintTop_toBottomOf="@id/edPassword" />
 
@@ -158,27 +187,29 @@
                 app:spinning_bar_color="@color/white" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvRegisterContent"
+                android:id="@+id/tvRegisterHint"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_5sdp"
-                android:fontFamily="@font/poppins_thin"
                 android:layout_marginEnd="@dimen/_5sdp"
+                android:fontFamily="@font/poppins_thin"
                 android:text="@string/hint_no_account"
-                android:textSize="@dimen/_12ssp"
+                app:layout_constraintHorizontal_bias="1"
                 android:textColor="@color/g_gray500"
-                app:layout_constraintEnd_toStartOf="@id/tvRegister"
+                android:textSize="@dimen/_12ssp"
+                app:layout_constraintEnd_toStartOf="@id/tvRegisterSmall"
+                app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
                 app:layout_constraintTop_toTopOf="@id/guidelineBottom" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvRegister"
+                android:id="@+id/tvRegisterSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_5sdp"
                 android:fontFamily="@font/poppins_thin"
                 android:text="@string/text_register"
-                android:textSize="@dimen/_12ssp"
                 android:textColor="@color/primary"
+                android:textSize="@dimen/_12ssp"
                 app:layout_constraintEnd_toEndOf="@id/guidelineRight"
                 app:layout_constraintTop_toTopOf="@id/guidelineBottom" />
 
@@ -201,7 +232,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.4" />
+                app:layout_constraintGuide_percent="0.3" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guidelineCenter"
