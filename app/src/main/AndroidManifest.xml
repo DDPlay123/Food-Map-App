@@ -15,16 +15,27 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_icon"
+        android:icon="@mipmap/ic_icon_foreground"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@mipmap/ic_icon_round"
+        android:roundIcon="@mipmap/ic_icon_foreground"
         android:supportsRtl="true"
         android:theme="@style/Theme.FoodMapApp"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
         <!-- Service -->
+        <service
+            android:name=".service.MessagingService"
+            android:enabled="true"
+            android:exported="false"
+            android:directBootAware="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <service
             android:name=".service.LocationService"
             android:enabled="true"
@@ -38,6 +49,13 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${GOOGLE_KEY}" />
+        <!-- Firebase Notification Default Setting -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/img_icon" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/accent" />
 
         <!-- 金鑰 -->
         <meta-data

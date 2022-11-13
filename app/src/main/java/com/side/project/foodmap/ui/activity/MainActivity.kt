@@ -1,6 +1,5 @@
 package com.side.project.foodmap.ui.activity
 
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.NavHostFragment
@@ -8,10 +7,6 @@ import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.ActivityMainBinding
-import com.side.project.foodmap.helper.displayShortToast
-import com.side.project.foodmap.util.Constants.PERMISSION_COARSE_LOCATION
-import com.side.project.foodmap.util.Constants.PERMISSION_CODE
-import com.side.project.foodmap.util.Constants.PERMISSION_FINE_LOCATION
 
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -29,5 +24,28 @@ class MainActivity : BaseActivity() {
         val navController = navHostFragment.navController
 
         NavigationUI.setupWithNavController(bottomNavigationView, navController)
+
+        binding.apply {
+            paddingTop = getStatusBarHeight()
+            paddingBottom = getNavigationBarHeight()
+        }
+    }
+
+    private fun getStatusBarHeight(): Int {
+        var result = 0
+        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        if (resourceId > 0)
+            result = resources.getDimensionPixelSize(resourceId)
+
+        return result
+    }
+
+    private fun getNavigationBarHeight(): Int {
+        var result = 0
+        val resourceId: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+        if (resourceId > 0)
+            result = resources.getDimensionPixelSize(resourceId)
+
+        return result
     }
 }

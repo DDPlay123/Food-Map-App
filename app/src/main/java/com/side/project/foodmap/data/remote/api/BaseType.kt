@@ -17,7 +17,7 @@ abstract class BaseRequest {
 
 abstract class BaseResponse {
     val requestTime: String? = null
-    val status: Int = -1
+    val status: Int = -1 // -1:未知錯誤、0:成功響應、1:帳號密碼格式錯誤、2:帳號已註冊、3:帳號不存在、4:accessKey錯誤
     val errMsg: String? = null
     val verify: Boolean? = null
 }

@@ -19,6 +19,7 @@ object ApiClient {
         Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl("http://kkhomeserver.ddns.net/")
+            .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)
     }

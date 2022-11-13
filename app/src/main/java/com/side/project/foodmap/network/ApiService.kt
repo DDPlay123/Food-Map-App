@@ -1,5 +1,7 @@
 package com.side.project.foodmap.network
 
+import com.side.project.foodmap.data.remote.api.restaurant.*
+import com.side.project.foodmap.data.remote.api.user.*
 import com.side.project.foodmap.data.remote.google.placesAutoComplete.AutoComplete
 import com.side.project.foodmap.data.remote.google.placesDetails.PlacesDetails
 import com.side.project.foodmap.data.remote.google.placesSearch.PlacesSearch
@@ -11,14 +13,48 @@ import retrofit2.http.*
 interface ApiService {
 
     /**
-     * API Server
+     * Restaurant API Server
      */
-//    @Headers("Content-Type: application/json")
-//    @POST("api/restaurant/update")
-//    fun apiRestaurantUpdate(
-//
-//    ): Call<>
+    @Headers("Content-Type: application/json")
+    @POST("api/restaurant/update")
+    fun apiRestaurantUpdate(
+        @Body updateReq: UpdateReq
+    ): Call<UpdateRes>
 
+    @Headers("Content-Type: application/json")
+    @POST("api/restaurant/update")
+    fun apiRestaurantNearSearch(
+        @Body nearSearchReq: NearSearchReq
+    ): Call<NearSearchRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/restaurant/update")
+    fun apiRestaurantNameSearch(
+        @Body nameSearchReq: NameSearchReq
+    ): Call<NameSearchRes>
+
+    /**
+     * User API Server
+     */
+    @Headers("Content-Type: application/json")
+    @POST("api/user/login")
+    fun apiUserLogin(
+        @Body loginReq: LoginReq
+    ): Call<LoginRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/register")
+    fun apiUserRegister(
+        @Body registerReq: RegisterReq
+    ): Call<RegisterRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/delete_account")
+    fun apiDeleteAccount(
+        @Body deleteAccountReq: DeleteAccountReq
+    ): Call<DeleteAccountRes>
+
+    /********************** 以下未用到 ************************/
     /**
      * TDX Token
      */

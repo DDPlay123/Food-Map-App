@@ -5,11 +5,12 @@ import com.side.project.foodmap.data.remote.api.BaseResponse
 data class RegisterReq(
     val username: String,
     val password: String,
-    val image: String
+    val userIcon: String,
+    val deviceId: String
 )
 
 data class RegisterRes(
     val result: Result? = null
 ) : BaseResponse() {
-    class Result(val msg: String, val userId: String)
+    data class Result(val msg: String, val userId: String, val accessKey: String)
 }

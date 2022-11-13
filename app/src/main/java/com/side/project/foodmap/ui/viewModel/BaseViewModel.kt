@@ -18,6 +18,14 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     /**
      * 資料流
      */
+    private val _userAccount = MutableStateFlow("")
+    val userAccount: StateFlow<String>
+        get() = _userAccount
+
+    private val _userPassword = MutableStateFlow("")
+    val userPassword: StateFlow<String>
+        get() = _userPassword
+
     private val _accessKey = MutableStateFlow("")
     val accessKey: StateFlow<String>
         get() = _accessKey
@@ -53,6 +61,24 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     /**
      * Datastore Preference Repo
      */
+    fun putUserAccount(account: String) = viewModelScope.launch(Dispatchers.Default) {
+        dataStoreRepo.putAccount(account)
+        getUserAccountFromDataStore()
+    }
+
+    fun getUserAccountFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
+        _userAccount.emit(dataStoreRepo.getAccount())
+    }
+
+    fun putUserPassword(password: String) = viewModelScope.launch(Dispatchers.Default) {
+        dataStoreRepo.putPassword(password)
+        getUserPasswordFromDataStore()
+    }
+
+    fun getUserPasswordFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
+        _userAccount.emit(dataStoreRepo.getPassword())
+    }
+
     fun putAccessKey(accessKey: String) = viewModelScope.launch(Dispatchers.Default) {
         dataStoreRepo.putAccessKey(accessKey)
         getAccessKeyFromDataStore()

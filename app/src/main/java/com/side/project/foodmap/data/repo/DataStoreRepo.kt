@@ -10,9 +10,12 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.side.project.foodmap.R
 import com.side.project.foodmap.util.Constants.USERS_PREFERENCE
 import com.side.project.foodmap.util.Constants.USER_ACCESS_KEY
+import com.side.project.foodmap.util.Constants.USER_ACCOUNT
 import com.side.project.foodmap.util.Constants.USER_IS_LOGIN
 import com.side.project.foodmap.util.Constants.USER_NAME
+import com.side.project.foodmap.util.Constants.USER_PASSWORD
 import com.side.project.foodmap.util.Constants.USER_PICTURE
+import com.side.project.foodmap.util.Constants.USER_PUBLIC_INFO
 import com.side.project.foodmap.util.Constants.USER_REGION
 import com.side.project.foodmap.util.Constants.USER_UID
 import kotlinx.coroutines.flow.first
@@ -20,6 +23,11 @@ import kotlinx.coroutines.flow.map
 import org.koin.core.component.KoinComponent
 
 interface DataStoreRepo {
+    // 記住使用者帳密 (公用的)
+    suspend fun putAccount(account: String)
+    suspend fun getAccount(): String
+    suspend fun putPassword(password: String)
+    suspend fun getPassword(): String
     // API AccessKey
     suspend fun putAccessKey(accessKey: String)
     suspend fun getAccessKey(): String
@@ -38,6 +46,7 @@ interface DataStoreRepo {
     // 使用者是否登入
     suspend fun putUserIsLogin(isLogin: Boolean)
     suspend fun getUserIsLogin(): Boolean
+    // TDX Token
 //    suspend fun putTdxToken(token: String)
 //    suspend fun getTdxToken(): String
 //    suspend fun putTdxTokenUpdate(date: String)
@@ -47,6 +56,29 @@ interface DataStoreRepo {
 
 class DataStoreRepoImpl(private val context: Context) : DataStoreRepo, KoinComponent {
     private val Context.userInfo: DataStore<Preferences> by preferencesDataStore(name = USERS_PREFERENCE)
+    private val Context.userPublicInfo: DataStore<Preferences> by preferencesDataStore(name = USER_PUBLIC_INFO)
+
+    override suspend fun putAccount(account: String) {
+        context.userPublicInfo.edit {
+            it[stringPreferencesKey(USER_ACCOUNT)] = account
+        }
+    }
+
+    override suspend fun getAccount(): String =
+        context.userPublicInfo.data.map {
+            it[stringPreferencesKey(USER_ACCOUNT)] ?: ""
+        }.first()
+
+    override suspend fun putPassword(password: String) {
+        context.userInfo.edit {
+            it[stringPreferencesKey(USER_PASSWORD)] = password
+        }
+    }
+
+    override suspend fun getPassword(): String =
+        context.userInfo.data.map {
+            it[stringPreferencesKey(USER_PASSWORD)] ?: ""
+        }.first()
 
     override suspend fun putAccessKey(accessKey: String) {
         context.userInfo.edit {

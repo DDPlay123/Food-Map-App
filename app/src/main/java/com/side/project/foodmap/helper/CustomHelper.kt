@@ -1,5 +1,7 @@
 package com.side.project.foodmap.helper
 
+import android.text.SpannableStringBuilder
+import android.text.Spanned
 import android.view.View
 import android.view.animation.Animation
 import com.side.project.foodmap.ui.other.AnimState
@@ -53,4 +55,18 @@ fun View.setAnimClick(
             }
         })
     }
+}
+
+inline fun SpannableStringBuilder.withSpan(
+    vararg spans: Any,
+    action: SpannableStringBuilder.() -> Unit
+):
+        SpannableStringBuilder {
+    val from = length
+    action()
+
+    for (span in spans) {
+        setSpan(span, from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    }
+    return this
 }

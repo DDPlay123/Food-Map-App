@@ -57,6 +57,18 @@
     <string name="hint_input_password_repeat">確認您的密碼</string>
     <string name="hint_remember_me">記住我</string>
     <string name="hint_no_account">"還沒有帳戶嗎？</string>
+    <string name="hint_now_start">立即開始</string>
+    <string name="hint_login_register">登入 / 註冊</string>
+    <string name="hint_email_is_empty">Email不能為空</string>
+    <string name="hint_email_wrong_format">錯誤的Email格式</string>
+    <string name="hint_password_is_empty">密碼不能為空</string>
+    <string name="hint_password_less_char">密碼至少要6位數</string>
+    <string name="hint_password_less_alphabet">請至少包含一個英文字母</string>
+    <string name="hint_account_is_empty">帳號不能為空</string>
+    <string name="hint_account_less_char">帳號至少要6位數</string>
+    <string name="hint_account_not_format">帳號必須包含英文及數字</string>
+    <string name="hint_register_prompt_title">查無此帳號</string>
+    <string name="hint_register_prompt_subtitle">請問是否要註冊此帳號？</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>

@@ -8,5 +8,5 @@ class DeleteAccountReq : BaseRequest()
 data class DeleteAccountRes(
     val result: Result? = null
 ) : BaseResponse() {
-    class Result(val msg: String)
+    data class Result(val msg: String)
 }

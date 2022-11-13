@@ -5,7 +5,7 @@ import com.side.project.foodmap.data.remote.api.*
 data class NearSearchReq(
     val latitude: Double,
     val longitude: Double,
-    val radius: Long
+    val radius: Int // 單位:公里
 ) : BaseRequest()
 
 class NearSearchRes(

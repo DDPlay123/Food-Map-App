@@ -1,12 +1,12 @@
 package com.side.project.foodmap.ui.activity.launch
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.ActivityLoginBinding
+import com.side.project.foodmap.ui.activity.BaseActivity
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : BaseActivity() {
     private lateinit var binding: ActivityLoginBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

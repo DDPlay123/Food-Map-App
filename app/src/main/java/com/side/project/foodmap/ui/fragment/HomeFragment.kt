@@ -11,7 +11,6 @@ import androidx.viewpager2.widget.MarginPageTransformer
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.DialogPromptSelectBinding
 import com.side.project.foodmap.databinding.FragmentHomeBinding
-import com.side.project.foodmap.helper.appInfo
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.helper.setAnimClick
 import com.side.project.foodmap.ui.adapter.QuickViewAdapter
@@ -39,8 +38,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     override fun FragmentHomeBinding.initialize() {
         binding.vm = viewModel
         regionList = ArrayList(listOf(*resources.getStringArray(R.array.search_type)))
-
-//        checkTdxToken() // 暫時棄用 TDX API
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -162,10 +159,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     }
 
     private fun placesSearch() {
-        viewModel.placesSearch(
-            regionList[regionID], "$myLatitude,$myLongitude",
-            mActivity.appInfo().metaData["GOOGLE_KEY"].toString()
-        )
+//        viewModel.placesSearch(
+//            regionList[regionID], "$myLatitude,$myLongitude",
+//            mActivity.appInfo().metaData["GOOGLE_KEY"].toString()
+//        )
     }
 
     private fun initQuickView() {
@@ -187,18 +184,4 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             adapter = quickViewAdapter
         }
     }
-
-//    private fun checkTdxToken() {
-//        viewModel.getUserTdxTokenUpdate()
-//        viewModel.userTdxTokenUpdate.observe(viewLifecycleOwner) { oldDate ->
-//            val todayDate: String = SimpleDateFormat("yyyy/MM/dd", Locale.TAIWAN).format(Date())
-//            val tdxTokenReq = TdxTokenReq(
-//                mActivity.appInfo().metaData["tdx_grant_type"].toString(),
-//                mActivity.appInfo().metaData["tdx_client_id"].toString(),
-//                mActivity.appInfo().metaData["tdx_client_secret"].toString()
-//            )
-//            if (todayDate > oldDate)
-//                viewModel.updateTdxToken(todayDate, tdxTokenReq)
-//        }
-//    }
 }

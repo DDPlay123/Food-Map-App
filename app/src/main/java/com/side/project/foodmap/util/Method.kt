@@ -7,14 +7,18 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.util.Log
+import android.util.Patterns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
+import com.google.firebase.messaging.FirebaseMessaging
+import com.side.project.foodmap.R
 import com.side.project.foodmap.util.Constants.PERMISSION_CODE
 import java.io.ByteArrayOutputStream
+import java.lang.Exception
 
 object Method {
     /**
@@ -29,21 +33,20 @@ object Method {
     /**
      * Tools
      */
-    fun showKeyBoard(activity: AppCompatActivity, ed: EditText) {
-        val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(ed, 0)
-    }
-
-    fun hideKeyBoard(activity: AppCompatActivity) {
-        activity.currentFocus?.let {
-            val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(it.windowToken, 0)
+    fun getFcmToken(work: (String) -> Unit) {
+        try {
+            FirebaseMessaging.getInstance().token
+                .addOnSuccessListener { token ->
+                    logE("FCM Token", "Get success.")
+                    work(token)
+                }.addOnFailureListener {
+                    logE("FCM Token", "Get failed.")
+                    work("")
+                }
+        } catch (e: Exception) {
+            logE("FCM Token", "Get crash.")
+            work("")
         }
-    }
-
-    fun hideKeyBoard(context: Context, view: View) {
-        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     fun decodeImage(encodedImage: String?): Bitmap? {
@@ -79,8 +82,48 @@ object Method {
 
     private fun hasPermissions(context: Context, vararg permissions: String): Boolean {
         for (permission in permissions)
-            if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED)
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    permission
+                ) != PackageManager.PERMISSION_GRANTED
+            )
                 return false
         return true
+    }
+
+    /**
+     * Verify register/login
+     * 參考：https://regexr.com/6hpe0
+     */
+    fun validateEmail(email: String): RegisterLoginValidation {
+        if (email.isEmpty())
+            return RegisterLoginValidation.Failed(R.string.hint_email_is_empty)
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches())
+            return RegisterLoginValidation.Failed(R.string.hint_email_wrong_format)
+
+        return RegisterLoginValidation.Success
+    }
+
+    fun validateAccount(account: String): RegisterLoginValidation {
+        if (account.isEmpty())
+            return RegisterLoginValidation.Failed(R.string.hint_account_is_empty)
+        if (account.length < 6)
+            return RegisterLoginValidation.Failed(R.string.hint_account_less_char)
+        if ((!account.matches(Regex(".*[a-z]+.*")) && !account.matches(Regex(".*[A-Z]+.*")))
+            || !account.matches(Regex(".*[0-9]+.*"))
+        ) return RegisterLoginValidation.Failed(R.string.hint_account_not_format)
+
+        return RegisterLoginValidation.Success
+    }
+
+    fun validatePassword(password: String): RegisterLoginValidation {
+        if (password.isEmpty())
+            return RegisterLoginValidation.Failed(R.string.hint_password_is_empty)
+        if (password.length < 6)
+            return RegisterLoginValidation.Failed(R.string.hint_password_less_char)
+        if (!password.matches(Regex(".*[a-z]+.*")) && !password.matches(Regex(".*[A-Z]+.*")))
+            return RegisterLoginValidation.Failed(R.string.hint_password_less_alphabet)
+
+        return RegisterLoginValidation.Success
     }
 }

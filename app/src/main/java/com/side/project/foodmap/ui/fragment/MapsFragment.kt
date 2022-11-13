@@ -19,11 +19,11 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
 
     private val callback = OnMapReadyCallback { googleMap ->
         map = googleMap
-        googleMap.moveCamera(
-            CameraUpdateFactory.newLatLngZoom(
-                LatLng(myLatitude, myLongitude), DEFAULT_ZOOM
-            )
-        )
+//        googleMap.moveCamera(
+//            CameraUpdateFactory.newLatLngZoom(
+//                LatLng(myLatitude, myLongitude), DEFAULT_ZOOM
+//            )
+//        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
