@@ -1,17 +1,12 @@
 package com.side.project.foodmap.ui.viewModel
 
 import androidx.lifecycle.viewModelScope
-import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.user.LoginReq
 import com.side.project.foodmap.data.remote.api.user.LoginRes
 import com.side.project.foodmap.data.remote.api.user.RegisterReq
 import com.side.project.foodmap.data.remote.api.user.RegisterRes
-import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.network.ApiClient.getAPI
-import com.side.project.foodmap.util.Method
-import com.side.project.foodmap.util.RegisterLoginFieldsState
-import com.side.project.foodmap.util.RegisterLoginValidation
-import com.side.project.foodmap.util.Resource
+import com.side.project.foodmap.util.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -46,8 +41,13 @@ class LoginViewModel : BaseViewModel() {
     /**
      * 可呼叫方法
      */
-    fun login(loginReq: LoginReq) {
-        if (checkValidation(loginReq.username, loginReq.password)) {
+    fun login(account: String, password: String, deviceId: String) {
+        val loginReq = LoginReq(
+            username = account,
+            password = AES.encrypt("MMSLAB", password),
+            deviceId = deviceId
+        )
+        if (checkValidation(account, password)) {
             viewModelScope.launch { _loginState.emit(Resource.Loading()) }
             getAPI.apiUserLogin(loginReq).enqueue(object : Callback<LoginRes> {
                 override fun onResponse(call: Call<LoginRes>, response: Response<LoginRes>) {
@@ -55,7 +55,7 @@ class LoginViewModel : BaseViewModel() {
                         response.body()?.let {
                             when (it.status) {
                                 0 -> {
-                                    _loginState.value = Resource.Success(it)
+                                    _loginState.value = Resource.Success(it, loginReq.password)
                                     setUserInfo(it, loginReq.username)
                                 }
                                 3 -> _loginState.value = Resource.Success(it)

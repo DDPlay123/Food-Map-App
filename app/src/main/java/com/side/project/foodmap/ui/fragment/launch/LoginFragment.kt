@@ -79,7 +79,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                             Method.logE("Login", "Success")
                             if (binding.checkbox.isChecked) {
                                 viewModel.putUserAccount(binding.edUsername.text.toString().trim())
-                                viewModel.putUserPassword(binding.edPassword.text.toString().trim())
+                                viewModel.putUserPassword(it.message.toString())
                             }
                             mActivity.start(MainActivity::class.java, true)
                         } else {
@@ -126,11 +126,11 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
             it.setAnimClick(anim, AnimState.End) {
                 if (!requestPermission())
                     return@setAnimClick
-                viewModel.login(LoginReq(
-                    username = binding.edUsername.text.toString().trim(),
+                viewModel.login(
+                    account = binding.edUsername.text.toString().trim(),
                     password = binding.edPassword.text.toString().trim(),
                     deviceId = getDeviceId()
-                ))
+                )
             }
         }
     }

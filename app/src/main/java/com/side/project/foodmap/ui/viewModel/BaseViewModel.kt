@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.side.project.foodmap.data.repo.DataStoreRepo
+import com.side.project.foodmap.util.AES
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -76,7 +77,8 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     }
 
     fun getUserPasswordFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
-        _userAccount.emit(dataStoreRepo.getPassword())
+        val decrypt = AES.decrypt("MMSLAB", dataStoreRepo.getPassword())
+        _userPassword.emit(decrypt)
     }
 
     fun putAccessKey(accessKey: String) = viewModelScope.launch(Dispatchers.Default) {
