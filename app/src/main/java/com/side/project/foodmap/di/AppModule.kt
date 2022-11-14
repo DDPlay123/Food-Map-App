@@ -9,6 +9,7 @@ import com.side.project.foodmap.ui.viewModel.LoginViewModel
 import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.NetworkConnection
 import com.side.project.foodmap.ui.viewModel.HomeViewModel
+import com.side.project.foodmap.ui.viewModel.ProfilesViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -30,4 +31,5 @@ val repoModule = module {
 val viewModel = module {
     viewModel { LoginViewModel() }
     viewModel { HomeViewModel() }
+    viewModel { ProfilesViewModel() }
 }

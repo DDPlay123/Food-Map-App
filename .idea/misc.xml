@@ -4,6 +4,8 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/a7032/.gradle/caches/transforms-3/060b5e3c70cd860efb19b80b764db804/transformed/core-splashscreen-1.0.0/res/drawable/icon_background.xml" value="0.2295" />
+        <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable-hdpi/green_background.xml" value="0.23" />
+        <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable-hdpi/red_background.xml" value="0.23" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable-mdpi/checkbox_selector.xml" value="0.2295" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable-mdpi/ic_microphone.xml" value="0.2295" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable-mdpi/ic_search.xml" value="0.2295" />
@@ -36,7 +38,7 @@
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/fragment_introduction.xml" value="0.22" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/fragment_login.xml" value="0.25" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/fragment_maps.xml" value="0.271484375" />
-        <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/fragment_profiles.xml" value="0.1" />
+        <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/fragment_profiles.xml" value="0.25" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/fragment_register.xml" value="0.22" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/ic_microphone.xml" value="0.271484375" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/item_prompt_select.xml" value="0.270703125" />

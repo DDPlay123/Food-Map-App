@@ -15,31 +15,37 @@ import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.helper.setAnimClick
 import com.side.project.foodmap.ui.adapter.QuickViewAdapter
 import com.side.project.foodmap.ui.adapter.RegionSelectAdapter
-import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.HomeViewModel
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Method.logE
-import com.side.project.foodmap.util.Method.requestPermission
 import com.side.project.foodmap.util.Resource
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.collections.ArrayList
 import kotlin.math.abs
 
 class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private val viewModel: HomeViewModel by viewModel()
-    private val animManager: AnimManager by inject()
 
     private lateinit var regionList: ArrayList<String>
     private var regionID: Int = 0
 
     private lateinit var quickViewAdapter: QuickViewAdapter
 
+    init {
+        Method.getFcmToken { token -> viewModel.putFcmToken(token) }
+    }
+
     override fun FragmentHomeBinding.initialize() {
+        initLocationService()
         binding.vm = viewModel
         regionList = ArrayList(listOf(*resources.getStringArray(R.array.search_type)))
-        Method.getFcmToken { token -> viewModel.putFcmToken(mActivity.getDeviceId(), token) }
+        // Call Data
+        viewModel.getAccessKeyFromDataStore()
+        viewModel.getUserUIDFromDataStore()
+        viewModel.getDeviceId()
+        viewModel.getUserRegionFromDataStore()
+        viewModel.getUserPictureFromDataStore()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -61,9 +67,36 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     is Resource.Success -> {
                         logE("FCM Put", "Success")
                         dialog.cancelLoadingDialog()
+                        viewModel.getUserImage()
                     }
                     is Resource.Error -> {
                         logE("FCM Put", "Error:${it.message.toString()}")
+                        dialog.cancelLoadingDialog()
+                        requireActivity().displayShortToast(getString(R.string.hint_error))
+                        viewModel.getUserImage()
+                    }
+                    else -> Unit
+                }
+            }
+        }
+
+        // 取得使用者照片
+        lifecycleScope.launchWhenCreated {
+            viewModel.getUserImageState.collect {
+                when (it) {
+                    is Resource.Loading -> {
+                        logE("Get User Image", "Loading")
+                        dialog.showLoadingDialog(false)
+                    }
+                    is Resource.Success -> {
+                        logE("Get User Image", "Success")
+                        dialog.cancelLoadingDialog()
+                        it.data?.result?.let { result ->
+                            viewModel.putUserPicture(result.userImage)
+                        }
+                    }
+                    is Resource.Error -> {
+                        logE("Get User Image", "Error:${it.message.toString()}")
                         dialog.cancelLoadingDialog()
                         requireActivity().displayShortToast(getString(R.string.hint_error))
                     }
@@ -75,15 +108,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         // 取得使用者區域設定
         lifecycleScope.launchWhenCreated {
             viewModel.userRegion.collect { region ->
-                if (region.contains(getString(R.string.hint_near_region)) && !requestPermission(mActivity, *permission)) {
-                    mActivity.displayShortToast(getString(R.string.hint_not_location_permission))
-                    viewModel.putUserRegion(getString(R.string.text_taipei))
-                    regionID = regionList.indexOf(getString(R.string.text_taipei))
-                    placesSearch()
-                } else {
-                    regionID = regionList.indexOf(region)
-                    placesSearch()
-                }
+                regionID = regionList.indexOf(region)
+                placesSearch()
             }
         }
 
@@ -170,13 +196,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 listItem.layoutManager?.startSmoothScroll(smoothScroller)
                 // listener
                 regionSelectAdapter.onItemClick = { region ->
-                    if (region.contains(getString(R.string.hint_near_region)) && !requestPermission(mActivity, *permission)) {
-                        mActivity.displayShortToast(getString(R.string.hint_not_location_permission))
-                        dialog.cancelCenterDialog()
-                    } else {
-                        viewModel.putUserRegion(region)
-                        dialog.cancelCenterDialog()
-                    }
+                    viewModel.putUserRegion(region)
+                    dialog.cancelCenterDialog()
                 }
             }
         }

@@ -12,19 +12,16 @@ import com.side.project.foodmap.helper.setAnimClick
 import com.side.project.foodmap.ui.activity.MainActivity
 import com.side.project.foodmap.ui.fragment.BaseFragment
 import com.side.project.foodmap.ui.viewModel.LoginViewModel
-import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.RegisterLoginValidation
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login) {
     private val viewModel: LoginViewModel by viewModel()
-    private val animManager: AnimManager by inject()
 
     override fun FragmentLoginBinding.initialize() {
         binding.vm = viewModel
@@ -74,10 +71,12 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                         if (it.data?.status == 0) {
                             // 登入
                             Method.logE("Login", "Success")
+                            viewModel.clearPublicData()
                             if (binding.checkbox.isChecked) {
                                 viewModel.putUserAccount(binding.edUsername.text.toString().trim())
                                 viewModel.putUserPassword(it.message.toString())
                             }
+                            viewModel.putDeviceId(mActivity.getDeviceId())
                             mActivity.start(MainActivity::class.java, true)
                         } else {
                             // 註冊
@@ -115,7 +114,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                         dialog.cancelLoadingDialog()
                         binding.edUsername.isFocusableInTouchMode = true
                         binding.edPassword.isFocusableInTouchMode = true
-                        requireActivity().displayShortToast(it.message.toString())
+                        requireActivity().displayShortToast(getString(R.string.hint_register_success))
                     }
                     is Resource.Error -> {
                         Method.logE("Register", "Error:${it.message.toString()}")

@@ -11,6 +11,7 @@ import com.side.project.foodmap.R
 import com.side.project.foodmap.util.Constants.USERS_PREFERENCE
 import com.side.project.foodmap.util.Constants.USER_ACCESS_KEY
 import com.side.project.foodmap.util.Constants.USER_ACCOUNT
+import com.side.project.foodmap.util.Constants.USER_DEVICE_ID
 import com.side.project.foodmap.util.Constants.USER_IS_LOGIN
 import com.side.project.foodmap.util.Constants.USER_NAME
 import com.side.project.foodmap.util.Constants.USER_PASSWORD
@@ -31,6 +32,9 @@ interface DataStoreRepo {
     // API AccessKey
     suspend fun putAccessKey(accessKey: String)
     suspend fun getAccessKey(): String
+    // deviceId
+    suspend fun putDeviceId(deviceId: String)
+    suspend fun getDeviceId(): String
     // 使用者 ID
     suspend fun putUserUID(UID: String)
     suspend fun getUserUID(): String
@@ -52,6 +56,7 @@ interface DataStoreRepo {
 //    suspend fun putTdxTokenUpdate(date: String)
 //    suspend fun getTdxTokenUpdate(): String
     suspend fun clearData()
+    suspend fun clearPublicData()
 }
 
 class DataStoreRepoImpl(private val context: Context) : DataStoreRepo, KoinComponent {
@@ -70,13 +75,13 @@ class DataStoreRepoImpl(private val context: Context) : DataStoreRepo, KoinCompo
         }.first()
 
     override suspend fun putPassword(password: String) {
-        context.userInfo.edit {
+        context.userPublicInfo.edit {
             it[stringPreferencesKey(USER_PASSWORD)] = password
         }
     }
 
     override suspend fun getPassword(): String =
-        context.userInfo.data.map {
+        context.userPublicInfo.data.map {
             it[stringPreferencesKey(USER_PASSWORD)] ?: ""
         }.first()
 
@@ -89,6 +94,17 @@ class DataStoreRepoImpl(private val context: Context) : DataStoreRepo, KoinCompo
     override suspend fun getAccessKey(): String =
         context.userInfo.data.map {
             it[stringPreferencesKey(USER_ACCESS_KEY)] ?: ""
+        }.first()
+
+    override suspend fun putDeviceId(deviceId: String) {
+        context.userInfo.edit {
+            it[stringPreferencesKey(USER_DEVICE_ID)] = deviceId
+        }
+    }
+
+    override suspend fun getDeviceId(): String =
+        context.userInfo.data.map {
+            it[stringPreferencesKey(USER_DEVICE_ID)] ?: ""
         }.first()
 
     override suspend fun putUserUID(UID: String) {
@@ -170,5 +186,9 @@ class DataStoreRepoImpl(private val context: Context) : DataStoreRepo, KoinCompo
 
     override suspend fun clearData() {
         context.userInfo.edit { it.clear() }
+    }
+
+    override suspend fun clearPublicData() {
+        context.userPublicInfo.edit { it.clear() }
     }
 }

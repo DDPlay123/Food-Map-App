@@ -13,17 +13,16 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
     private var map: GoogleMap? = null
 
     override fun FragmentMapsBinding.initialize() {
-        if (!requestPermission(mActivity, *permission))
-            findNavController().navigate(R.id.action_mapsFragment_to_homeFragment)
+        initLocationService()
     }
 
     private val callback = OnMapReadyCallback { googleMap ->
         map = googleMap
-//        googleMap.moveCamera(
-//            CameraUpdateFactory.newLatLngZoom(
-//                LatLng(myLatitude, myLongitude), DEFAULT_ZOOM
-//            )
-//        )
+        googleMap.moveCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                LatLng(myLatitude, myLongitude), DEFAULT_ZOOM
+            )
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

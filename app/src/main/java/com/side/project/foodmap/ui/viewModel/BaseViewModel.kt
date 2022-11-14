@@ -31,6 +31,10 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     val accessKey: StateFlow<String>
         get() = _accessKey
 
+    private val _deviceId = MutableStateFlow("")
+    val deviceId: StateFlow<String>
+        get() = _deviceId
+
     private val _userUID = MutableStateFlow("")
     val userUID: StateFlow<String>
         get() = _userUID
@@ -88,6 +92,15 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
 
     fun getAccessKeyFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
         _accessKey.emit(dataStoreRepo.getAccessKey())
+    }
+
+    fun putDeviceId(deviceId: String) = viewModelScope.launch(Dispatchers.Default) {
+        dataStoreRepo.putDeviceId(deviceId)
+        getDeviceId()
+    }
+
+    fun getDeviceId() = viewModelScope.launch(Dispatchers.Default) {
+        _deviceId.emit(dataStoreRepo.getDeviceId())
     }
 
     fun putUserUID(UID: String) = viewModelScope.launch(Dispatchers.Default) {
@@ -155,6 +168,10 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
 
     fun clearData() = viewModelScope.launch(Dispatchers.Default) {
         dataStoreRepo.clearData()
+    }
+
+    fun clearPublicData() = viewModelScope.launch(Dispatchers.Default) {
+        dataStoreRepo.clearPublicData()
     }
 
     /**

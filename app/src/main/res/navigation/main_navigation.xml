@@ -14,15 +14,7 @@
         android:id="@+id/mapsFragment"
         android:name="com.side.project.foodmap.ui.fragment.MapsFragment"
         android:label="fragment_maps"
-        tools:layout="@layout/fragment_maps" >
-        <action
-            android:id="@+id/action_mapsFragment_to_homeFragment"
-            app:destination="@id/homeFragment"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_right"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_left" />
-    </fragment>
+        tools:layout="@layout/fragment_maps" />
     <fragment
         android:id="@+id/favoritesFragment"
         android:name="com.side.project.foodmap.ui.fragment.FavoritesFragment"

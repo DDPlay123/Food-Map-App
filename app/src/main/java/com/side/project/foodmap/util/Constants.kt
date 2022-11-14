@@ -27,6 +27,7 @@ object Constants {
 
     const val USERS_PREFERENCE = "USER_INFO"
     const val USER_ACCESS_KEY = "USER_ACCESS_KEY"
+    const val USER_DEVICE_ID = "USER_DEVICE_ID"
     const val USER_UID = "USER_UID"
     const val USER_REGION = "USER_REGION"
     const val USER_NAME = "USER_NAME"

@@ -96,10 +96,7 @@ class LoginViewModel : BaseViewModel() {
                     viewModelScope.launch {
                         response.body()?.let {
                             when (it.status) {
-                                0 -> {
-                                    _registerState.value = Resource.Success(it
-                                    )
-                                }
+                                0 -> _registerState.value = Resource.Success(it)
                                 else -> {}
                             }
                         }
