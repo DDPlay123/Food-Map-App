@@ -61,7 +61,6 @@ class LoginViewModel : BaseViewModel() {
                                 3 -> _loginState.value = Resource.Success(it)
                                 else -> _loginState.value = Resource.Error(it.errMsg.toString())
                             }
-                            _loginState.value = Resource.Success(it)
                         }
                     }
                 }
@@ -84,17 +83,25 @@ class LoginViewModel : BaseViewModel() {
         }
     }
 
-    fun register(registerReq: RegisterReq) {
-        if (checkValidation(registerReq.username, registerReq.password)) {
+    fun register(account: String, password: String, deviceId: String) {
+        if (checkValidation(account, password)) {
+            val registerReq = RegisterReq(
+                username = account,
+                password = AES.encrypt("MMSLAB", password),
+                deviceId = deviceId
+            )
             viewModelScope.launch { _registerState.emit(Resource.Loading()) }
             getAPI.apiUserRegister(registerReq).enqueue(object : Callback<RegisterRes> {
                 override fun onResponse(call: Call<RegisterRes>, response: Response<RegisterRes>) {
                     viewModelScope.launch {
                         response.body()?.let {
                             when (it.status) {
-                                // TODO(註冊)
+                                0 -> {
+                                    _registerState.value = Resource.Success(it
+                                    )
+                                }
+                                else -> {}
                             }
-                            _registerState.value = Resource.Success(it)
                         }
                     }
                 }
@@ -109,8 +116,8 @@ class LoginViewModel : BaseViewModel() {
             viewModelScope.launch {
                 _validation.send(
                     RegisterLoginFieldsState(
-                        Method.validateAccount(registerReq.username),
-                        Method.validatePassword(registerReq.password)
+                        Method.validateAccount(account),
+                        Method.validatePassword(password)
                     )
                 )
             }
@@ -133,8 +140,8 @@ class LoginViewModel : BaseViewModel() {
     private fun setUserInfo(loginRes: LoginRes, username: String) {
         loginRes.result?.let {
             putUserUID(it.userId)
+            putAccessKey(it.accessKey)
             putUserName(username)
-            putUserPicture(it.userIcon)
             putUserIsLogin(true)
         }
     }

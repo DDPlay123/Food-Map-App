@@ -5,7 +5,6 @@ import com.side.project.foodmap.data.remote.api.BaseResponse
 data class RegisterReq(
     val username: String,
     val password: String,
-    val userIcon: String,
     val deviceId: String
 )
 

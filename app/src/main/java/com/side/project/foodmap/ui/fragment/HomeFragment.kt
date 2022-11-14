@@ -18,6 +18,7 @@ import com.side.project.foodmap.ui.adapter.RegionSelectAdapter
 import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.HomeViewModel
+import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Method.logE
 import com.side.project.foodmap.util.Method.requestPermission
 import com.side.project.foodmap.util.Resource
@@ -38,6 +39,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     override fun FragmentHomeBinding.initialize() {
         binding.vm = viewModel
         regionList = ArrayList(listOf(*resources.getStringArray(R.array.search_type)))
+        Method.getFcmToken { token -> viewModel.putFcmToken(mActivity.getDeviceId(), token) }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -48,6 +50,28 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     }
 
     private fun doInitialize() {
+        // 傳送 FCM Token
+        lifecycleScope.launchWhenCreated {
+            viewModel.putFcmTokenState.collect {
+                when (it) {
+                    is Resource.Loading -> {
+                        logE("FCM Put", "Loading")
+                        dialog.showLoadingDialog(false)
+                    }
+                    is Resource.Success -> {
+                        logE("FCM Put", "Success")
+                        dialog.cancelLoadingDialog()
+                    }
+                    is Resource.Error -> {
+                        logE("FCM Put", "Error:${it.message.toString()}")
+                        dialog.cancelLoadingDialog()
+                        requireActivity().displayShortToast(getString(R.string.hint_error))
+                    }
+                    else -> Unit
+                }
+            }
+        }
+
         // 取得使用者區域設定
         lifecycleScope.launchWhenCreated {
             viewModel.userRegion.collect { region ->

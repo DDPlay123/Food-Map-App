@@ -1,8 +1,10 @@
 package com.side.project.foodmap.ui.activity
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.side.project.foodmap.R
@@ -51,6 +53,10 @@ abstract class BaseActivity : AppCompatActivity() {
             }
         }
     }
+
+    @SuppressLint("HardwareIds")
+    fun getDeviceId(): String =
+        Settings.Secure.getString(applicationContext.contentResolver, Settings.Secure.ANDROID_ID)
 
     override fun onRequestPermissionsResult(
         requestCode: Int,

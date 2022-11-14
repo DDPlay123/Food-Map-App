@@ -3,6 +3,8 @@ package com.side.project.foodmap.data.remote.api.restaurant
 import com.side.project.foodmap.data.remote.api.*
 
 data class NameSearchReq(
+    override val accessKey: String,
+    override val userId: String,
     val name: String
 ) : BaseRequest()
 

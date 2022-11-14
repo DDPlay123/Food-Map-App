@@ -11,5 +11,5 @@ data class LoginReq(
 data class LoginRes(
     val result: Result? = null
 ) : BaseResponse() {
-    data class Result(val msg: String, val userId: String, val userIcon: String, val accessKey: String)
+    data class Result(val msg: String, val userId: String, val accessKey: String)
 }

@@ -3,12 +3,15 @@ package com.side.project.foodmap.ui.viewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.side.project.foodmap.data.remote.api.user.AddFcmTokenReq
+import com.side.project.foodmap.data.remote.api.user.AddFcmTokenRes
 import com.side.project.foodmap.data.remote.google.placesSearch.PlacesSearch
 import com.side.project.foodmap.helper.getLocation
 import com.side.project.foodmap.network.ApiClient
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -16,6 +19,8 @@ import retrofit2.Response
 
 class HomeViewModel : BaseViewModel() {
     init {
+        getAccessKeyFromDataStore()
+        getUserUIDFromDataStore()
         getUserRegionFromDataStore()
         getUserPictureFromDataStore()
     }
@@ -23,6 +28,11 @@ class HomeViewModel : BaseViewModel() {
     /**
      * 資料流
      */
+    private val _putFcmTokenState =
+        MutableStateFlow<Resource<AddFcmTokenRes>>(Resource.Unspecified())
+    val putFcmTokenState
+        get() = _putFcmTokenState.asStateFlow()
+
     private val _placeSearchState = MutableStateFlow<Resource<PlacesSearch>>(Resource.Unspecified())
     val placeSearchState
         get() = _placeSearchState.asSharedFlow()
@@ -34,6 +44,37 @@ class HomeViewModel : BaseViewModel() {
     /**
      * 可呼叫方法
      */
+    fun putFcmToken(deviceId: String, fcmToken: String) {
+        val addFcmTokenReq = AddFcmTokenReq(
+            accessKey = accessKey.value,
+            userId = userUID.value,
+            deviceId = deviceId,
+            fcmToken = fcmToken
+        )
+        viewModelScope.launch { _putFcmTokenState.emit(Resource.Loading()) }
+        ApiClient.getAPI.apiAddFcmToken(addFcmTokenReq).enqueue(object : Callback<AddFcmTokenRes> {
+            override fun onResponse(
+                call: Call<AddFcmTokenRes>,
+                response: Response<AddFcmTokenRes>
+            ) {
+                viewModelScope.launch {
+                    response.body()?.let {
+                        when (it.status) {
+                            0 -> _putFcmTokenState.value = Resource.Success(it)
+                            else -> _putFcmTokenState.value = Resource.Error(it.errMsg.toString())
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<AddFcmTokenRes>, t: Throwable) {
+                viewModelScope.launch {
+                    _putFcmTokenState.value = Resource.Error(t.message.toString())
+                }
+            }
+        })
+    }
+
     fun placesSearch(region: String, latLng: String, key: String) {
         val currentLatLng = if (region.getLocation().first == 0.00) latLng
         else "${region.getLocation().first},${region.getLocation().second}"
@@ -43,14 +84,18 @@ class HomeViewModel : BaseViewModel() {
             location = currentLatLng, key = key
         ).enqueue(object : Callback<PlacesSearch> {
             override fun onResponse(call: Call<PlacesSearch>, response: Response<PlacesSearch>) {
-                response.body()?.let {
-                    postPlaceSearchValue(it)
-                    _placeSearchState.value = Resource.Success(it)
+                viewModelScope.launch {
+                    response.body()?.let {
+                        postPlaceSearchValue(it)
+                        _placeSearchState.value = Resource.Success(it)
+                    }
                 }
             }
 
             override fun onFailure(call: Call<PlacesSearch>, t: Throwable) {
-                _placeSearchState.value = Resource.Error(t.message.toString())
+                viewModelScope.launch {
+                    _placeSearchState.value = Resource.Error(t.message.toString())
+                }
             }
         })
     }

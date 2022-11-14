@@ -1,12 +1,9 @@
 package com.side.project.foodmap.ui.fragment.launch
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.provider.Settings
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import com.side.project.foodmap.R
-import com.side.project.foodmap.data.remote.api.user.LoginReq
 import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.databinding.FragmentLoginBinding
 import com.side.project.foodmap.helper.displayShortToast
@@ -61,7 +58,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
             }
         }
 
-        // 登入/註冊
+        // 登入
         lifecycleScope.launchWhenCreated {
             viewModel.loginState.collect {
                 when (it) {
@@ -95,7 +92,37 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                         dialog.cancelLoadingDialog()
                         binding.edUsername.isFocusableInTouchMode = true
                         binding.edPassword.isFocusableInTouchMode = true
-                        requireActivity().displayShortToast(getString(R.string.hint_login_error))
+                        requireActivity().displayShortToast(it.message.toString())
+                    }
+                    else -> Unit
+                }
+            }
+        }
+
+        // 註冊
+        lifecycleScope.launchWhenCreated {
+            viewModel.registerState.collect {
+                when (it) {
+                    is Resource.Loading -> {
+                        Method.logE("Register", "Loading")
+                        mActivity.hideKeyboard()
+                        dialog.showLoadingDialog(false)
+                        binding.edUsername.isFocusableInTouchMode = false
+                        binding.edPassword.isFocusableInTouchMode = false
+                    }
+                    is Resource.Success -> {
+                        Method.logE("Register", "Success")
+                        dialog.cancelLoadingDialog()
+                        binding.edUsername.isFocusableInTouchMode = true
+                        binding.edPassword.isFocusableInTouchMode = true
+                        requireActivity().displayShortToast(it.message.toString())
+                    }
+                    is Resource.Error -> {
+                        Method.logE("Register", "Error:${it.message.toString()}")
+                        dialog.cancelLoadingDialog()
+                        binding.edUsername.isFocusableInTouchMode = true
+                        binding.edPassword.isFocusableInTouchMode = true
+                        requireActivity().displayShortToast(it.message.toString())
                     }
                     else -> Unit
                 }
@@ -114,7 +141,12 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                 subTitleText = getString(R.string.hint_register_prompt_subtitle)
                 tvCancel.setOnClickListener { dialog.cancelCenterDialog() }
                 tvConfirm.setOnClickListener {
-                    // TODO(直接註冊或先選圖片)
+                    dialog.cancelCenterDialog()
+                    viewModel.register(
+                        account = binding.edUsername.text.toString().trim(),
+                        password = binding.edPassword.text.toString().trim(),
+                        deviceId = mActivity.getDeviceId()
+                    )
                 }
             }
         }
@@ -129,7 +161,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                 viewModel.login(
                     account = binding.edUsername.text.toString().trim(),
                     password = binding.edPassword.text.toString().trim(),
-                    deviceId = getDeviceId()
+                    deviceId = mActivity.getDeviceId()
                 )
             }
         }
@@ -142,8 +174,4 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
         }
         return true
     }
-
-    @SuppressLint("HardwareIds")
-    private fun getDeviceId(): String =
-        Settings.Secure.getString(context?.contentResolver, Settings.Secure.ANDROID_ID)
 }

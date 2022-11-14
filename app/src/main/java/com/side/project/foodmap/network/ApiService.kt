@@ -17,42 +17,50 @@ interface ApiService {
      */
     @Headers("Content-Type: application/json")
     @POST("api/restaurant/update")
-    fun apiRestaurantUpdate(
-        @Body updateReq: UpdateReq
-    ): Call<UpdateRes>
+    fun apiRestaurantUpdate(@Body updateReq: UpdateReq): Call<UpdateRes>
 
     @Headers("Content-Type: application/json")
     @POST("api/restaurant/update")
-    fun apiRestaurantNearSearch(
-        @Body nearSearchReq: NearSearchReq
-    ): Call<NearSearchRes>
+    fun apiRestaurantNearSearch(@Body nearSearchReq: NearSearchReq): Call<NearSearchRes>
 
     @Headers("Content-Type: application/json")
     @POST("api/restaurant/update")
-    fun apiRestaurantNameSearch(
-        @Body nameSearchReq: NameSearchReq
-    ): Call<NameSearchRes>
+    fun apiRestaurantNameSearch(@Body nameSearchReq: NameSearchReq): Call<NameSearchRes>
 
     /**
      * User API Server
      */
     @Headers("Content-Type: application/json")
     @POST("api/user/login")
-    fun apiUserLogin(
-        @Body loginReq: LoginReq
-    ): Call<LoginRes>
+    fun apiUserLogin(@Body loginReq: LoginReq): Call<LoginRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/logout")
+    fun apiUserLogout(@Body logoutReq: LogoutReq): Call<LogoutRes>
 
     @Headers("Content-Type: application/json")
     @POST("api/user/register")
-    fun apiUserRegister(
-        @Body registerReq: RegisterReq
-    ): Call<RegisterRes>
+    fun apiUserRegister(@Body registerReq: RegisterReq): Call<RegisterRes>
 
     @Headers("Content-Type: application/json")
     @POST("api/user/delete_account")
-    fun apiDeleteAccount(
-        @Body deleteAccountReq: DeleteAccountReq
-    ): Call<DeleteAccountRes>
+    fun apiDeleteAccount(@Body deleteAccountReq: DeleteAccountReq): Call<DeleteAccountRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/add_fcm_token")
+    fun apiAddFcmToken(@Body addFcmTokenReq: AddFcmTokenReq): Call<AddFcmTokenRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/set_image")
+    fun apiSetUserImage(@Body setUserImageReq: SetUserImageReq): Call<SetUserImageRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/get_image")
+    fun apiGetUserImage(@Body getUserImageReq: GetUserImageReq): Call<GetUserImageRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/set_password")
+    fun apiSetUserPassword(@Body setPasswordReq: SetPasswordReq): Call<SetPasswordRes>
 
     /********************** 以下未用到 ************************/
     /**

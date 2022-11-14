@@ -11,8 +11,8 @@ class LocalData(val response: Any, val others: Any? = null)
  * 基本 Request & Response
  */
 abstract class BaseRequest {
-    val accessKey: String? = null
-    val userId: String? = null
+    abstract val accessKey: String
+    abstract val userId: String
 }
 
 abstract class BaseResponse {

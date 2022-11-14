@@ -3,6 +3,8 @@ package com.side.project.foodmap.data.remote.api.restaurant
 import com.side.project.foodmap.data.remote.api.*
 
 data class NearSearchReq(
+    override val accessKey: String,
+    override val userId: String,
     val latitude: Double,
     val longitude: Double,
     val radius: Int // 單位:公里
