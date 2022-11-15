@@ -45,6 +45,7 @@
     <string name="hint_not_provider_gps">目前無可用的定位</string>
     <string name="hint_quick_view">快速瀏覽</string>
     <string name="hint_view_all">查看全部</string>
+    <string name="hint_view_more">查看更多</string>
     <string name="hint_error">發生一些錯誤</string>
     <string name="hint_now_register">立即註冊</string>
     <string name="hint_now_login">立即登入</string>
@@ -73,6 +74,8 @@
     <string name="hint_delete_account">刪除帳號</string>
     <string name="hint_delete_account_success">刪除成功</string>
     <string name="hint_logout_success">登出成功</string>
+    <string name="hint_popular_restaurant">附近的人氣餐廳</string>
+    <string name="hint_all_restaurant">全部餐廳</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>

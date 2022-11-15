@@ -35,7 +35,8 @@ class LoginViewModel : BaseViewModel() {
     val validation
         get() = _validation.receiveAsFlow()
 
-    private val _getUserImageState = MutableStateFlow<Resource<GetUserImageRes>>(Resource.Unspecified())
+    private val _getUserImageState =
+        MutableStateFlow<Resource<GetUserImageRes>>(Resource.Unspecified())
     val getUserImageState
         get() = _getUserImageState.asStateFlow()
 
@@ -96,9 +97,9 @@ class LoginViewModel : BaseViewModel() {
                 override fun onResponse(call: Call<RegisterRes>, response: Response<RegisterRes>) {
                     viewModelScope.launch {
                         response.body()?.let {
-                            when (it.status) {
-                                0 -> _registerState.value = Resource.Success(it)
-                                else -> {}
+                            _registerState.value = when (it.status) {
+                                0 -> Resource.Success(it)
+                                else -> Resource.Error(it.errMsg.toString())
                             }
                         }
                     }
@@ -122,33 +123,34 @@ class LoginViewModel : BaseViewModel() {
         }
     }
 
-    private fun getUserImage() {
+    private fun getUserImage(loginRes: LoginRes) {
         val getUserImageReq = GetUserImageReq(
-            accessKey = accessKey.value,
-            userId = userUID.value,
+            accessKey = loginRes.result?.accessKey ?: accessKey.value,
+            userId = loginRes.result?.userId ?: userUID.value,
         )
         viewModelScope.launch { _getUserImageState.emit(Resource.Loading()) }
-        ApiClient.getAPI.apiGetUserImage(getUserImageReq).enqueue(object : Callback<GetUserImageRes> {
-            override fun onResponse(
-                call: Call<GetUserImageRes>,
-                response: Response<GetUserImageRes>
-            ) {
-                viewModelScope.launch {
-                    response.body()?.let {
-                        when (it.status) {
-                            0 -> _getUserImageState.value = Resource.Success(it)
-                            else -> _getUserImageState.value = Resource.Error(it.errMsg.toString())
+        ApiClient.getAPI.apiGetUserImage(getUserImageReq)
+            .enqueue(object : Callback<GetUserImageRes> {
+                override fun onResponse(
+                    call: Call<GetUserImageRes>,
+                    response: Response<GetUserImageRes>
+                ) {
+                    viewModelScope.launch {
+                        response.body()?.let {
+                            _getUserImageState.value = when (it.status) {
+                                0 -> Resource.Success(it)
+                                else -> Resource.Error(it.errMsg.toString())
+                            }
                         }
                     }
                 }
-            }
 
-            override fun onFailure(call: Call<GetUserImageRes>, t: Throwable) {
-                viewModelScope.launch {
-                    _getUserImageState.value = Resource.Error(t.message.toString())
+                override fun onFailure(call: Call<GetUserImageRes>, t: Throwable) {
+                    viewModelScope.launch {
+                        _getUserImageState.value = Resource.Error(t.message.toString())
+                    }
                 }
-            }
-        })
+            })
     }
 
     /**
@@ -170,7 +172,7 @@ class LoginViewModel : BaseViewModel() {
             putAccessKey(it.accessKey)
             putUserName(username)
             putUserIsLogin(true)
-            getUserImage()
+            getUserImage(loginRes)
         }
     }
 }

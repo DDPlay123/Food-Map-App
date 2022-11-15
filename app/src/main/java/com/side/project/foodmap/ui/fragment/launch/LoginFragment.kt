@@ -67,7 +67,6 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                         binding.edPassword.isFocusableInTouchMode = false
                     }
                     is Resource.Success -> {
-                        dialog.cancelLoadingDialog()
                         if (it.data?.status == 0) {
                             // 登入
                             Method.logE("Login", "Success")
@@ -79,6 +78,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                             viewModel.putDeviceId(mActivity.getDeviceId())
                         } else {
                             // 註冊
+                            dialog.cancelLoadingDialog()
                             Method.logE("Login", "to Register")
                             binding.edUsername.isFocusableInTouchMode = true
                             binding.edPassword.isFocusableInTouchMode = true

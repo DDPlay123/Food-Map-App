@@ -6,12 +6,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.side.project.foodmap.data.remote.google.placesSearch.PlacesSearch
 import com.side.project.foodmap.data.remote.google.placesSearch.Result
-import com.side.project.foodmap.databinding.ItemQuickViewBinding
+import com.side.project.foodmap.databinding.ItemPopularViewBinding
 import java.io.IOException
 
-class QuickViewAdapter : RecyclerView.Adapter<QuickViewAdapter.ViewHolder>() {
+class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolder>() {
 
     private val itemCallback = object : DiffUtil.ItemCallback<Result>() {
         // 比對新舊 Item
@@ -32,7 +31,7 @@ class QuickViewAdapter : RecyclerView.Adapter<QuickViewAdapter.ViewHolder>() {
     fun getData(position: Int): Result = differ.currentList[position]
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-        ViewHolder(ItemQuickViewBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        ViewHolder(ItemPopularViewBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -45,7 +44,6 @@ class QuickViewAdapter : RecyclerView.Adapter<QuickViewAdapter.ViewHolder>() {
                 rating.rating = item.rating ?: 0F
                 tvRatingTotal.text = "(${item.user_ratings_total ?: "0"})"
                 tvVicinity.text = item.vicinity ?: ""
-                isOpen = item.opening_hours?.open_now ?: false
             }
         } catch (ignored: IOException) {
         }
@@ -53,5 +51,5 @@ class QuickViewAdapter : RecyclerView.Adapter<QuickViewAdapter.ViewHolder>() {
 
     override fun getItemCount(): Int = differ.currentList.size
 
-    class ViewHolder(val binding: ItemQuickViewBinding): RecyclerView.ViewHolder(binding.root)
+    class ViewHolder(val binding: ItemPopularViewBinding): RecyclerView.ViewHolder(binding.root)
 }

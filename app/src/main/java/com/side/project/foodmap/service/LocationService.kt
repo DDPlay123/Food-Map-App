@@ -30,7 +30,11 @@ class LocationService : Service(), LocationListenerCompat {
     private var checkNetwork = false
     private var canGetLocation = false
 
-    // For Location value
+    // For Force Get Location value
+    private var getLatitude = 0.00
+    private var getLongitude = 0.00
+
+    // For Observer Location value
     private var locationManager: LocationManager? = null
     private var mLocation: Location? = null
 
@@ -52,14 +56,6 @@ class LocationService : Service(), LocationListenerCompat {
         logE("MyLocation", "Lat:${location.latitude}\tLong:${location.longitude}")
         _latitude.value = location.latitude
         _longitude.value = location.longitude
-    }
-
-    override fun onProviderEnabled(provider: String) {
-        super.onProviderEnabled(provider)
-    }
-
-    override fun onProviderDisabled(provider: String) {
-        super.onProviderDisabled(provider)
     }
 
     private fun getLocation(mContext: Context): Location? {
@@ -147,6 +143,20 @@ class LocationService : Service(), LocationListenerCompat {
     }
 
     fun canGetLocation(): Boolean = canGetLocation
+
+    @JvmName("getLatitude")
+    fun getLatitude(): Double {
+        if (mLocation != null)
+            getLatitude = mLocation!!.latitude
+        return getLatitude
+    }
+
+    @JvmName("getLongitude")
+    fun getLongitude(): Double {
+        if (mLocation != null)
+            getLongitude = mLocation!!.longitude
+        return getLongitude
+    }
 
     fun stopListener(context: Context) {
         if (locationManager != null) {

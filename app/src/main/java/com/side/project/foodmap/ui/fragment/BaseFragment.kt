@@ -23,7 +23,7 @@ open class BaseFragment<T : ViewDataBinding>(@LayoutRes val layoutRes: Int) : Fr
     val binding : T get() = _binding!!
     val animManager: AnimManager by inject()
 
-    private lateinit var locationService: LocationService
+    lateinit var locationService: LocationService
     var myLatitude: Double = DEFAULT_LATITUDE
     var myLongitude: Double = DEFAULT_LONGITUDE
 

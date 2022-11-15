@@ -50,6 +50,7 @@
                     android:layout_marginBottom="@dimen/_15sdp"
                     android:fontFamily="@font/poppins_thin"
                     android:text="@string/text_loading"
+                    android:textColor="@color/g_gray700"
                     android:textStyle="bold"
                     android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="parent"

@@ -1,8 +1,9 @@
 package com.side.project.foodmap.ui.viewModel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.LatLng
+import com.side.project.foodmap.data.remote.api.restaurant.NearSearchReq
+import com.side.project.foodmap.data.remote.api.restaurant.NearSearchRes
 import com.side.project.foodmap.data.remote.api.user.AddFcmTokenReq
 import com.side.project.foodmap.data.remote.api.user.AddFcmTokenRes
 import com.side.project.foodmap.data.remote.google.placesSearch.PlacesSearch
@@ -22,17 +23,19 @@ class HomeViewModel : BaseViewModel() {
     /**
      * 資料流
      */
-    private val _putFcmTokenState = MutableStateFlow<Resource<AddFcmTokenRes>>(Resource.Unspecified())
+    private val _putFcmTokenState =
+        MutableStateFlow<Resource<AddFcmTokenRes>>(Resource.Unspecified())
     val putFcmTokenState
         get() = _putFcmTokenState.asStateFlow()
 
-    private val _placeSearchState = MutableStateFlow<Resource<PlacesSearch>>(Resource.Unspecified())
-    val placeSearchState
-        get() = _placeSearchState.asSharedFlow()
+    private val _popularSearchState =
+        MutableStateFlow<Resource<PlacesSearch>>(Resource.Unspecified())
+    val popularSearchState
+        get() = _popularSearchState.asSharedFlow()
 
-    private val _placeSearch = MutableLiveData<PlacesSearch>()
-    val placeSearch: LiveData<PlacesSearch>
-        get() = _placeSearch
+    private val _nearSearchState = MutableStateFlow<Resource<NearSearchRes>>(Resource.Unspecified())
+    val nearSearchState
+        get() = _nearSearchState.asSharedFlow()
 
     /**
      * 可呼叫方法
@@ -68,32 +71,49 @@ class HomeViewModel : BaseViewModel() {
         })
     }
 
-    fun placesSearch(region: String, latLng: String, key: String) {
+    fun popularSearch(region: String, latLng: String) {
         val currentLatLng = if (region.getLocation().first == 0.00) latLng
         else "${region.getLocation().first},${region.getLocation().second}"
+        // TODO(人氣餐廳)
 
-        viewModelScope.launch { _placeSearchState.emit(Resource.Loading()) }
-        ApiClient.googlePlaces.getPlaceSearch(
-            location = currentLatLng, key = key
-        ).enqueue(object : Callback<PlacesSearch> {
-            override fun onResponse(call: Call<PlacesSearch>, response: Response<PlacesSearch>) {
+    }
+
+    fun nearSearch(region: String, latLng: LatLng) {
+        val currentLatLng = getCurrentLatLng(region, latLng)
+        val nearSearchReq = NearSearchReq(
+            accessKey = accessKey.value,
+            userId = userUID.value,
+            latitude = currentLatLng.latitude,
+            longitude = currentLatLng.longitude,
+            radius = 100
+        )
+        viewModelScope.launch { _nearSearchState.emit(Resource.Loading()) }
+        ApiClient.getAPI.apiRestaurantNearSearch(nearSearchReq).enqueue(object : Callback<NearSearchRes> {
+            override fun onResponse(call: Call<NearSearchRes>, response: Response<NearSearchRes>) {
                 viewModelScope.launch {
                     response.body()?.let {
-                        postPlaceSearchValue(it)
-                        _placeSearchState.value = Resource.Success(it)
+                        _nearSearchState.value = when (it.status) {
+                            0 -> Resource.Success(it)
+                            else -> Resource.Error(it.errMsg.toString())
+                        }
                     }
                 }
             }
 
-            override fun onFailure(call: Call<PlacesSearch>, t: Throwable) {
+            override fun onFailure(call: Call<NearSearchRes>, t: Throwable) {
                 viewModelScope.launch {
-                    _placeSearchState.value = Resource.Error(t.message.toString())
+                    _nearSearchState.value = Resource.Error(t.message.toString())
                 }
             }
         })
     }
 
-    fun postPlaceSearchValue(placesSearch: PlacesSearch) {
-        _placeSearch.postValue(placesSearch)
-    }
+    /**
+     * 取得正確經緯度
+     */
+    private fun getCurrentLatLng(region: String, latLng: LatLng): LatLng =
+        LatLng(
+            if (region.getLocation().first != 0.00) region.getLocation().first else latLng.latitude,
+            if (region.getLocation().second != 0.00) region.getLocation().second else latLng.longitude
+        )
 }

@@ -20,11 +20,11 @@ interface ApiService {
     fun apiRestaurantUpdate(@Body updateReq: UpdateReq): Call<UpdateRes>
 
     @Headers("Content-Type: application/json")
-    @POST("api/restaurant/update")
+    @POST("api/restaurant/search_by_near")
     fun apiRestaurantNearSearch(@Body nearSearchReq: NearSearchReq): Call<NearSearchRes>
 
     @Headers("Content-Type: application/json")
-    @POST("api/restaurant/update")
+    @POST("api/restaurant/search_by_name")
     fun apiRestaurantNameSearch(@Body nameSearchReq: NameSearchReq): Call<NameSearchRes>
 
     /**

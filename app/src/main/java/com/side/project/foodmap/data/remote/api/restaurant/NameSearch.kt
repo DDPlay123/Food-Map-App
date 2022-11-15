@@ -9,7 +9,7 @@ data class NameSearchReq(
 ) : BaseRequest()
 
 class NameSearchRes(
-    val result: Result? = null
+    val result: ArrayList<Result>? = null
 ) : BaseResponse() {
     class Result(
         val _id: String,

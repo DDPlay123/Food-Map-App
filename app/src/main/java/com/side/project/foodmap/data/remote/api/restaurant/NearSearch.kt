@@ -11,7 +11,7 @@ data class NearSearchReq(
 ) : BaseRequest()
 
 class NearSearchRes(
-    val result: Result? = null
+    val result: ArrayList<Result>? = null
 ) : BaseResponse() {
     class Result(
         val _id: String,

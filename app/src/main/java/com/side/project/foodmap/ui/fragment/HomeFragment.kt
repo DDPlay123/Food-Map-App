@@ -8,12 +8,13 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
+import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.DialogPromptSelectBinding
 import com.side.project.foodmap.databinding.FragmentHomeBinding
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.helper.setAnimClick
-import com.side.project.foodmap.ui.adapter.QuickViewAdapter
+import com.side.project.foodmap.ui.adapter.PopularSearchAdapter
 import com.side.project.foodmap.ui.adapter.RegionSelectAdapter
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.HomeViewModel
@@ -30,7 +31,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private lateinit var regionList: ArrayList<String>
     private var regionID: Int = 0
 
-    private lateinit var quickViewAdapter: QuickViewAdapter
+    private lateinit var popularSearchAdapter: PopularSearchAdapter
 
     init {
         Method.getFcmToken { token -> viewModel.putFcmToken(token) }
@@ -82,24 +83,25 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         lifecycleScope.launchWhenCreated {
             viewModel.userRegion.collect { region ->
                 regionID = regionList.indexOf(region)
-                placesSearch()
+                viewModel.nearSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
             }
         }
 
-        // Google Places Search
+        // 人氣餐廳
         lifecycleScope.launchWhenCreated {
-            viewModel.placeSearchState.collect {
+            viewModel.popularSearchState.collect {
                 when (it) {
                     is Resource.Loading -> {
-                        logE("Places Search", "Loading")
+                        logE("Popular Search", "Loading")
                         dialog.showLoadingDialog(false)
                     }
                     is Resource.Success -> {
-                        logE("Places Search", "Success")
+                        logE("Popular Search", "Success")
                         dialog.cancelLoadingDialog()
+                        // TODO(初始化人氣餐廳卡片)
                     }
                     is Resource.Error -> {
-                        logE("Places Search", "Error:${it.message.toString()}")
+                        logE("Popular Search", "Error:${it.message.toString()}")
                         dialog.cancelLoadingDialog()
                         requireActivity().displayShortToast(getString(R.string.hint_error))
                     }
@@ -108,11 +110,26 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             }
         }
 
-        // Quick View
-        initQuickView()
+        // 附近搜尋
         lifecycleScope.launchWhenCreated {
-            viewModel.placeSearch.observe(viewLifecycleOwner) { placesSearch ->
-                quickViewAdapter.setData(placesSearch.results)
+            viewModel.nearSearchState.collect {
+                when (it) {
+                    is Resource.Loading -> {
+                        logE("Near Search", "Loading")
+                        dialog.showLoadingDialog(false)
+                    }
+                    is Resource.Success -> {
+                        logE("Near Search", "Success")
+                        dialog.cancelLoadingDialog()
+                        it.data?.let { data -> binding.nearSearch = data }
+                    }
+                    is Resource.Error -> {
+                        logE("Near Search", "Error:${it.message.toString()}")
+                        dialog.cancelLoadingDialog()
+                        requireActivity().displayShortToast(getString(R.string.hint_error))
+                    }
+                    else -> Unit
+                }
             }
         }
     }
@@ -142,6 +159,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 it.setAnimClick(anim, AnimState.Start) {
                     mActivity.displayShortToast("Sound")
                 }
+            }
+
+            cardAllRestaurant.setOnClickListener {
+                // TODO(查看詳細資料)
+            }
+
+            tvViewMore.setOnClickListener {
+                // TODO(切換Fragment，查看條列餐廳資料)
             }
         }
     }
@@ -176,15 +201,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         }
     }
 
-    private fun placesSearch() {
-//        viewModel.placesSearch(
-//            regionList[regionID], "$myLatitude,$myLongitude",
-//            mActivity.appInfo().metaData["GOOGLE_KEY"].toString()
-//        )
-    }
-
-    private fun initQuickView() {
-        quickViewAdapter = QuickViewAdapter()
+    private fun initPopularCard() {
+        popularSearchAdapter = PopularSearchAdapter()
         val compositePageTransformer = CompositePageTransformer()
         compositePageTransformer.apply {
             addTransformer(MarginPageTransformer(10))
@@ -193,13 +211,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 page.scaleY = 0.85f + (r * 0.15f)
             }
         }
-        binding.vpQuickView.apply {
+        binding.vpPopular.apply {
             clipToPadding = false
             clipChildren = false
             offscreenPageLimit = 3
             getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
             setPageTransformer(compositePageTransformer)
-            adapter = quickViewAdapter
+            adapter = popularSearchAdapter
         }
     }
 }
