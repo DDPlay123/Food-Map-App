@@ -18,7 +18,7 @@ object ApiClient {
     val getAPI: ApiService by lazy {
         Retrofit.Builder()
             .client(okHttpClient)
-            .baseUrl("http://kkhomeserver.ddns.net/")
+            .baseUrl("http://kkhomeserver.ddns.net:33000/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)

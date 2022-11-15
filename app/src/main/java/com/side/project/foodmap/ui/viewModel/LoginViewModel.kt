@@ -1,11 +1,8 @@
 package com.side.project.foodmap.ui.viewModel
 
 import androidx.lifecycle.viewModelScope
-import com.side.project.foodmap.data.remote.api.user.LoginReq
-import com.side.project.foodmap.data.remote.api.user.LoginRes
-import com.side.project.foodmap.data.remote.api.user.RegisterReq
-import com.side.project.foodmap.data.remote.api.user.RegisterRes
-import com.side.project.foodmap.network.ApiClient.getAPI
+import com.side.project.foodmap.data.remote.api.user.*
+import com.side.project.foodmap.network.ApiClient
 import com.side.project.foodmap.util.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,6 +35,10 @@ class LoginViewModel : BaseViewModel() {
     val validation
         get() = _validation.receiveAsFlow()
 
+    private val _getUserImageState = MutableStateFlow<Resource<GetUserImageRes>>(Resource.Unspecified())
+    val getUserImageState
+        get() = _getUserImageState.asStateFlow()
+
     /**
      * 可呼叫方法
      */
@@ -49,7 +50,7 @@ class LoginViewModel : BaseViewModel() {
         )
         if (checkValidation(account, password)) {
             viewModelScope.launch { _loginState.emit(Resource.Loading()) }
-            getAPI.apiUserLogin(loginReq).enqueue(object : Callback<LoginRes> {
+            ApiClient.getAPI.apiUserLogin(loginReq).enqueue(object : Callback<LoginRes> {
                 override fun onResponse(call: Call<LoginRes>, response: Response<LoginRes>) {
                     viewModelScope.launch {
                         response.body()?.let {
@@ -91,7 +92,7 @@ class LoginViewModel : BaseViewModel() {
                 deviceId = deviceId
             )
             viewModelScope.launch { _registerState.emit(Resource.Loading()) }
-            getAPI.apiUserRegister(registerReq).enqueue(object : Callback<RegisterRes> {
+            ApiClient.getAPI.apiUserRegister(registerReq).enqueue(object : Callback<RegisterRes> {
                 override fun onResponse(call: Call<RegisterRes>, response: Response<RegisterRes>) {
                     viewModelScope.launch {
                         response.body()?.let {
@@ -121,6 +122,35 @@ class LoginViewModel : BaseViewModel() {
         }
     }
 
+    private fun getUserImage() {
+        val getUserImageReq = GetUserImageReq(
+            accessKey = accessKey.value,
+            userId = userUID.value,
+        )
+        viewModelScope.launch { _getUserImageState.emit(Resource.Loading()) }
+        ApiClient.getAPI.apiGetUserImage(getUserImageReq).enqueue(object : Callback<GetUserImageRes> {
+            override fun onResponse(
+                call: Call<GetUserImageRes>,
+                response: Response<GetUserImageRes>
+            ) {
+                viewModelScope.launch {
+                    response.body()?.let {
+                        when (it.status) {
+                            0 -> _getUserImageState.value = Resource.Success(it)
+                            else -> _getUserImageState.value = Resource.Error(it.errMsg.toString())
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<GetUserImageRes>, t: Throwable) {
+                viewModelScope.launch {
+                    _getUserImageState.value = Resource.Error(t.message.toString())
+                }
+            }
+        })
+    }
+
     /**
      * 驗證輸入
      */
@@ -140,6 +170,7 @@ class LoginViewModel : BaseViewModel() {
             putAccessKey(it.accessKey)
             putUserName(username)
             putUserIsLogin(true)
+            getUserImage()
         }
     }
 }

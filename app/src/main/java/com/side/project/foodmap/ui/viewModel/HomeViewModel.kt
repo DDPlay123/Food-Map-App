@@ -5,12 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.side.project.foodmap.data.remote.api.user.AddFcmTokenReq
 import com.side.project.foodmap.data.remote.api.user.AddFcmTokenRes
-import com.side.project.foodmap.data.remote.api.user.GetUserImageReq
-import com.side.project.foodmap.data.remote.api.user.GetUserImageRes
 import com.side.project.foodmap.data.remote.google.placesSearch.PlacesSearch
 import com.side.project.foodmap.helper.getLocation
 import com.side.project.foodmap.network.ApiClient
-import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -28,10 +25,6 @@ class HomeViewModel : BaseViewModel() {
     private val _putFcmTokenState = MutableStateFlow<Resource<AddFcmTokenRes>>(Resource.Unspecified())
     val putFcmTokenState
         get() = _putFcmTokenState.asStateFlow()
-
-    private val _getUserImageState = MutableStateFlow<Resource<GetUserImageRes>>(Resource.Unspecified())
-    val getUserImageState
-        get() = _getUserImageState.asStateFlow()
 
     private val _placeSearchState = MutableStateFlow<Resource<PlacesSearch>>(Resource.Unspecified())
     val placeSearchState
@@ -70,35 +63,6 @@ class HomeViewModel : BaseViewModel() {
             override fun onFailure(call: Call<AddFcmTokenRes>, t: Throwable) {
                 viewModelScope.launch {
                     _putFcmTokenState.value = Resource.Error(t.message.toString())
-                }
-            }
-        })
-    }
-
-    fun getUserImage() {
-        val getUserImageReq = GetUserImageReq(
-            accessKey = accessKey.value,
-            userId = userUID.value,
-        )
-        viewModelScope.launch { _putFcmTokenState.emit(Resource.Loading()) }
-        ApiClient.getAPI.apiGetUserImage(getUserImageReq).enqueue(object : Callback<GetUserImageRes> {
-            override fun onResponse(
-                call: Call<GetUserImageRes>,
-                response: Response<GetUserImageRes>
-            ) {
-                viewModelScope.launch {
-                    response.body()?.let {
-                        when (it.status) {
-                            0 -> _getUserImageState.value = Resource.Success(it)
-                            else -> _getUserImageState.value = Resource.Error(it.errMsg.toString())
-                        }
-                    }
-                }
-            }
-
-            override fun onFailure(call: Call<GetUserImageRes>, t: Throwable) {
-                viewModelScope.launch {
-                    _getUserImageState.value = Resource.Error(t.message.toString())
                 }
             }
         })

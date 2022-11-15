@@ -67,36 +67,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     is Resource.Success -> {
                         logE("FCM Put", "Success")
                         dialog.cancelLoadingDialog()
-                        viewModel.getUserImage()
                     }
                     is Resource.Error -> {
                         logE("FCM Put", "Error:${it.message.toString()}")
-                        dialog.cancelLoadingDialog()
-                        requireActivity().displayShortToast(getString(R.string.hint_error))
-                        viewModel.getUserImage()
-                    }
-                    else -> Unit
-                }
-            }
-        }
-
-        // 取得使用者照片
-        lifecycleScope.launchWhenCreated {
-            viewModel.getUserImageState.collect {
-                when (it) {
-                    is Resource.Loading -> {
-                        logE("Get User Image", "Loading")
-                        dialog.showLoadingDialog(false)
-                    }
-                    is Resource.Success -> {
-                        logE("Get User Image", "Success")
-                        dialog.cancelLoadingDialog()
-                        it.data?.result?.let { result ->
-                            viewModel.putUserPicture(result.userImage)
-                        }
-                    }
-                    is Resource.Error -> {
-                        logE("Get User Image", "Error:${it.message.toString()}")
                         dialog.cancelLoadingDialog()
                         requireActivity().displayShortToast(getString(R.string.hint_error))
                     }

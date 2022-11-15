@@ -77,7 +77,6 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                                 viewModel.putUserPassword(it.message.toString())
                             }
                             viewModel.putDeviceId(mActivity.getDeviceId())
-                            mActivity.start(MainActivity::class.java, true)
                         } else {
                             // 註冊
                             Method.logE("Login", "to Register")
@@ -122,6 +121,32 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                         binding.edUsername.isFocusableInTouchMode = true
                         binding.edPassword.isFocusableInTouchMode = true
                         requireActivity().displayShortToast(it.message.toString())
+                    }
+                    else -> Unit
+                }
+            }
+        }
+
+        // 取得使用者照片
+        lifecycleScope.launchWhenCreated {
+            viewModel.getUserImageState.collect {
+                when (it) {
+                    is Resource.Loading -> {
+                        Method.logE("Get User Image", "Loading")
+                        dialog.showLoadingDialog(false)
+                    }
+                    is Resource.Success -> {
+                        Method.logE("Get User Image", "Success")
+                        dialog.cancelLoadingDialog()
+                        it.data?.result?.let { result ->
+                            viewModel.putUserPicture(result.userImage)
+                            mActivity.start(MainActivity::class.java, true)
+                        }
+                    }
+                    is Resource.Error -> {
+                        Method.logE("Get User Image", "Error:${it.message.toString()}")
+                        dialog.cancelLoadingDialog()
+                        requireActivity().displayShortToast(getString(R.string.hint_error))
                     }
                     else -> Unit
                 }
