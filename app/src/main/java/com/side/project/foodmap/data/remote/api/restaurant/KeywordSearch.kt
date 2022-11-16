@@ -2,15 +2,17 @@ package com.side.project.foodmap.data.remote.api.restaurant
 
 import com.side.project.foodmap.data.remote.api.*
 
-data class NearSearchReq(
+data class KeywordSearchReq(
     override val accessKey: String,
     override val userId: String,
     val latitude: Double,
     val longitude: Double,
-    val radius: Int // 單位:公里
+    val keyboard: String,
+    val minNum: Int,
+    val maxNum: Int
 ) : BaseRequest()
 
-class NearSearchRes(
+class KeywordSearchRes(
     val result: ArrayList<Result>? = null
 ) : BaseResponse() {
     class Result(

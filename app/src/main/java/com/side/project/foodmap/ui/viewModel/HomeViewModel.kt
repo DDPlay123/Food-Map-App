@@ -2,8 +2,8 @@ package com.side.project.foodmap.ui.viewModel
 
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
-import com.side.project.foodmap.data.remote.api.restaurant.NearSearchReq
-import com.side.project.foodmap.data.remote.api.restaurant.NearSearchRes
+import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchReq
+import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 import com.side.project.foodmap.data.remote.api.user.AddFcmTokenReq
 import com.side.project.foodmap.data.remote.api.user.AddFcmTokenRes
 import com.side.project.foodmap.data.remote.google.placesSearch.PlacesSearch
@@ -33,7 +33,7 @@ class HomeViewModel : BaseViewModel() {
     val popularSearchState
         get() = _popularSearchState.asSharedFlow()
 
-    private val _nearSearchState = MutableStateFlow<Resource<NearSearchRes>>(Resource.Unspecified())
+    private val _nearSearchState = MutableStateFlow<Resource<DistanceSearchRes>>(Resource.Unspecified())
     val nearSearchState
         get() = _nearSearchState.asSharedFlow()
 
@@ -80,16 +80,15 @@ class HomeViewModel : BaseViewModel() {
 
     fun nearSearch(region: String, latLng: LatLng) {
         val currentLatLng = getCurrentLatLng(region, latLng)
-        val nearSearchReq = NearSearchReq(
+        val distanceSearchReq = DistanceSearchReq(
             accessKey = accessKey.value,
             userId = userUID.value,
             latitude = currentLatLng.latitude,
             longitude = currentLatLng.longitude,
-            radius = 100
         )
         viewModelScope.launch { _nearSearchState.emit(Resource.Loading()) }
-        ApiClient.getAPI.apiRestaurantNearSearch(nearSearchReq).enqueue(object : Callback<NearSearchRes> {
-            override fun onResponse(call: Call<NearSearchRes>, response: Response<NearSearchRes>) {
+        ApiClient.getAPI.apiRestaurantDistanceSearch(distanceSearchReq).enqueue(object : Callback<DistanceSearchRes> {
+            override fun onResponse(call: Call<DistanceSearchRes>, response: Response<DistanceSearchRes>) {
                 viewModelScope.launch {
                     response.body()?.let {
                         _nearSearchState.value = when (it.status) {
@@ -100,7 +99,7 @@ class HomeViewModel : BaseViewModel() {
                 }
             }
 
-            override fun onFailure(call: Call<NearSearchRes>, t: Throwable) {
+            override fun onFailure(call: Call<DistanceSearchRes>, t: Throwable) {
                 viewModelScope.launch {
                     _nearSearchState.value = Resource.Error(t.message.toString())
                 }

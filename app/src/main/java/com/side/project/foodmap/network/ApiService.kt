@@ -16,16 +16,12 @@ interface ApiService {
      * Restaurant API Server
      */
     @Headers("Content-Type: application/json")
-    @POST("api/restaurant/update")
-    fun apiRestaurantUpdate(@Body updateReq: UpdateReq): Call<UpdateRes>
+    @POST("api/place/search_by_distance")
+    fun apiRestaurantDistanceSearch(@Body distanceSearchReq: DistanceSearchReq): Call<DistanceSearchRes>
 
     @Headers("Content-Type: application/json")
-    @POST("api/restaurant/search_by_near")
-    fun apiRestaurantNearSearch(@Body nearSearchReq: NearSearchReq): Call<NearSearchRes>
-
-    @Headers("Content-Type: application/json")
-    @POST("api/restaurant/search_by_name")
-    fun apiRestaurantNameSearch(@Body nameSearchReq: NameSearchReq): Call<NameSearchRes>
+    @POST("api/place/search_by_keyword")
+    fun apiRestaurantKeywordSearch(@Body keywordSearchReq: KeywordSearchReq): Call<KeywordSearchRes>
 
     /**
      * User API Server

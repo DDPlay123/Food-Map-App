@@ -60,8 +60,7 @@ fun View.setAnimClick(
 inline fun SpannableStringBuilder.withSpan(
     vararg spans: Any,
     action: SpannableStringBuilder.() -> Unit
-):
-        SpannableStringBuilder {
+): SpannableStringBuilder {
     val from = length
     action()
 

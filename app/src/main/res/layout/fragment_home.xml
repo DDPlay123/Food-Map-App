@@ -11,7 +11,7 @@
 
         <variable
             name="nearSearch"
-            type="com.side.project.foodmap.data.remote.api.restaurant.NearSearchRes" />
+            type="com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes" />
 
     </data>
 
