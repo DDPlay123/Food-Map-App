@@ -3,6 +3,7 @@ package com.side.project.foodmap.ui.fragment
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -14,6 +15,7 @@ import com.side.project.foodmap.databinding.DialogPromptSelectBinding
 import com.side.project.foodmap.databinding.FragmentHomeBinding
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.helper.setAnimClick
+import com.side.project.foodmap.ui.activity.DetailActivity
 import com.side.project.foodmap.ui.adapter.PopularSearchAdapter
 import com.side.project.foodmap.ui.adapter.RegionSelectAdapter
 import com.side.project.foodmap.ui.other.AnimState
@@ -132,6 +134,26 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 }
             }
         }
+
+        // 查看詳細資料
+        lifecycleScope.launchWhenCreated {
+            viewModel.watchDetailState.collect {
+                when (it) {
+                    is Resource.Success -> {
+                        logE("Watch Detail", "Success")
+                        Bundle().also { b ->
+                            b.putString("PLACE_ID", it.data.toString())
+                            mActivity.start(DetailActivity::class.java, b)
+                        }
+                    }
+                    is Resource.Error -> {
+                        logE("Watch Detail", "Error:${it.message.toString()}")
+                        requireActivity().displayShortToast(getString(R.string.hint_error))
+                    }
+                    else -> Unit
+                }
+            }
+        }
     }
 
     private fun setListener() {
@@ -159,10 +181,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 it.setAnimClick(anim, AnimState.Start) {
                     mActivity.displayShortToast("Sound")
                 }
-            }
-
-            cardAllRestaurant.setOnClickListener {
-                // TODO(查看詳細資料)
             }
 
             tvViewMore.setOnClickListener {

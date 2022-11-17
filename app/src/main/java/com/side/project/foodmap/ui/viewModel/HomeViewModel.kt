@@ -23,19 +23,21 @@ class HomeViewModel : BaseViewModel() {
     /**
      * 資料流
      */
-    private val _putFcmTokenState =
-        MutableStateFlow<Resource<AddFcmTokenRes>>(Resource.Unspecified())
+    private val _putFcmTokenState = MutableStateFlow<Resource<AddFcmTokenRes>>(Resource.Unspecified())
     val putFcmTokenState
         get() = _putFcmTokenState.asStateFlow()
 
-    private val _popularSearchState =
-        MutableStateFlow<Resource<PlacesSearch>>(Resource.Unspecified())
+    private val _popularSearchState = MutableStateFlow<Resource<PlacesSearch>>(Resource.Unspecified())
     val popularSearchState
         get() = _popularSearchState.asSharedFlow()
 
     private val _nearSearchState = MutableStateFlow<Resource<DistanceSearchRes>>(Resource.Unspecified())
     val nearSearchState
         get() = _nearSearchState.asSharedFlow()
+
+    private val _watchDetailState = MutableStateFlow<Resource<String>>(Resource.Unspecified())
+    val watchDetailState
+        get() = _watchDetailState.asStateFlow()
 
     /**
      * 可呼叫方法
@@ -105,6 +107,13 @@ class HomeViewModel : BaseViewModel() {
                 }
             }
         })
+    }
+
+    fun watchDetail(placeId: String) {
+        if (placeId.isNotEmpty())
+            viewModelScope.launch { _watchDetailState.emit(Resource.Success(placeId)) }
+        else
+            viewModelScope.launch { _watchDetailState.emit(Resource.Error("")) }
     }
 
     /**

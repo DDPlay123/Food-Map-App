@@ -25,7 +25,6 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
 
     private val differ = AsyncListDiffer(this, itemCallback)
 
-
     fun setData(placesSearchResult: List<Result>) = differ.submitList(placesSearchResult)
 
     fun getData(position: Int): Result = differ.currentList[position]

@@ -163,6 +163,7 @@ interface ApiService {
     @GET("details/json")
     fun getPlaceDetails(
         @Query("place_id") placeID: String,
+        @Query("language") language: String = "zh-TW",
         @Query("key") key: String
     ): Call<PlacesDetails>
 }

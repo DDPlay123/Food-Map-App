@@ -130,6 +130,7 @@
             android:layout_marginBottom="@dimen/_16sdp"
             android:clickable="true"
             android:focusable="true"
+            android:onClick='@{() -> VM.watchDetail(nearSearch.result.placeList[0].uid)}'
             android:foreground="?android:attr/selectableItemBackground"
             app:cardCornerRadius="@dimen/_8sdp"
             app:cardElevation="@dimen/_3ssp"
@@ -160,7 +161,9 @@
                     android:ellipsize="end"
                     android:fontFamily="@font/poppins_thin"
                     android:maxLines="1"
-                    android:padding="@dimen/_8sdp"
+                    android:paddingTop="@dimen/_2sdp"
+                    android:paddingBottom="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_5sdp"
                     android:text="@{nearSearch.result.placeList[0].name}"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_12ssp"
