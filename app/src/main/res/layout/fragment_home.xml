@@ -146,7 +146,7 @@
                     android:id="@+id/imgAllRestaurant"
                     android:layout_width="@dimen/_80sdp"
                     android:layout_height="@dimen/_80sdp"
-                    android:loadImageFromGoogle='@{nearSearch.result[0].photos[0].photo_reference != null ? nearSearch.result[0].photos[0].photo_reference : ""}'
+                    android:loadImageFromGoogle='@{nearSearch.result.placeList[0].photos[0].photo_reference != null ? nearSearch.result.placeList[0].photos[0].photo_reference : ""}'
                     android:scaleType="centerCrop"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -161,7 +161,7 @@
                     android:fontFamily="@font/poppins_thin"
                     android:maxLines="1"
                     android:padding="@dimen/_8sdp"
-                    android:text="@{nearSearch.result[0].name}"
+                    android:text="@{nearSearch.result.placeList[0].name}"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_12ssp"
                     android:textStyle="bold"
@@ -176,7 +176,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/_5sdp"
                     android:fontFamily="@font/poppins_thin"
-                    android:text="@{String.valueOf(nearSearch.result[0].rating.star)}"
+                    android:text="@{String.valueOf(nearSearch.result.placeList[0].rating.star)}"
                     app:layout_constraintBottom_toBottomOf="@+id/rating"
                     app:layout_constraintStart_toEndOf="@id/imgAllRestaurant"
                     app:layout_constraintTop_toTopOf="@id/rating"
@@ -191,7 +191,7 @@
                     android:layout_marginTop="@dimen/_4sdp"
                     android:isIndicator="true"
                     android:numStars="5"
-                    android:rating="@{nearSearch.result[0].rating.star}"
+                    android:rating="@{nearSearch.result.placeList[0].rating.star}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0"
                     app:layout_constraintStart_toEndOf="@id/tvRating"
@@ -204,7 +204,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/_5sdp"
                     android:fontFamily="@font/poppins_thin"
-                    android:text='@{"("+String.valueOf(nearSearch.result[0].rating.total)+")"}'
+                    android:text='@{"("+String.valueOf(nearSearch.result.placeList[0].rating.total)+")"}'
                     app:layout_constraintBottom_toBottomOf="@id/rating"
                     app:layout_constraintStart_toEndOf="@id/rating"
                     app:layout_constraintTop_toTopOf="@id/rating"
@@ -219,7 +219,7 @@
                     android:ellipsize="end"
                     android:fontFamily="@font/poppins_light"
                     android:maxLines="1"
-                    android:text="@{nearSearch.result[0].address}"
+                    android:text="@{nearSearch.result.placeList[0].address}"
                     android:textColor="@color/g_gray500"
                     android:textSize="@dimen/_11ssp"
                     app:layout_constraintBottom_toBottomOf="@+id/imgAllRestaurant"

@@ -46,3 +46,17 @@ data class Rating(
     val star: Float,
     val total: Long
 )
+
+data class PlaceList(
+    val _id: String,
+    val uid: String,
+    val address: String,
+    val icon: Icon,
+    val location: Location,
+    val name: String,
+    val photos: ArrayList<Photos>,
+    val rating: Rating,
+    val status: String,
+    val types: ArrayList<String>,
+    val updateTime: String
+)

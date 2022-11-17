@@ -13,20 +13,12 @@ data class KeywordSearchReq(
 ) : BaseRequest()
 
 class KeywordSearchRes(
-    val result: ArrayList<Result>? = null
+    val result: Result? = null
 ) : BaseResponse() {
-    class Result(
-        val _id: String,
-        val uid: String,
-        val address: String,
-        val icon: Icon,
-        val location: Location,
-        val name: String,
-        val photos: ArrayList<Photos>,
-        val rating: Rating,
-        val status: String,
-        val types: ArrayList<String>,
-        val updateTime: String
+    data class Result(
+        val updated: Boolean,
+        val placeCount: Long,
+        val placeList: ArrayList<PlaceList>
     )
 }
 
