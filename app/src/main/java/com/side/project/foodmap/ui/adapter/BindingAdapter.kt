@@ -1,6 +1,7 @@
 package com.side.project.foodmap.ui.adapter
 
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import coil.imageLoader
 import coil.load
@@ -9,6 +10,8 @@ import coil.transform.RoundedCornersTransformation
 import com.side.project.foodmap.R
 import com.side.project.foodmap.helper.appInfo
 import com.side.project.foodmap.util.Method
+import java.text.SimpleDateFormat
+import java.util.*
 
 class BindingAdapter {
     companion object {
@@ -17,6 +20,19 @@ class BindingAdapter {
         fun setLoadImage(imageView: ImageView, any: Any) {
             try {
                 imageView.load(any, imageLoader = imageView.context.imageLoader)
+            } catch (ignored: Exception) {
+            }
+        }
+
+        @BindingAdapter("android:loadUserCircleAnyImage")
+        @kotlin.jvm.JvmStatic
+        fun setLoadUserCircleImage(imageView: ImageView, any: Any) {
+            try {
+                imageView.load(any, imageLoader = imageView.context.imageLoader) {
+                    transformations(CircleCropTransformation())
+                    placeholder(R.drawable.img_user)
+                    error(R.drawable.img_user)
+                }
             } catch (ignored: Exception) {
             }
         }
@@ -47,6 +63,16 @@ class BindingAdapter {
                 ) {
                     transformations(RoundedCornersTransformation(25f))
                 }
+            } catch (ignored: Exception) {
+            }
+        }
+
+        @BindingAdapter("android:getDateFormat")
+        @kotlin.jvm.JvmStatic
+        fun getDataFormat(textView: TextView, unixTime: String) {
+            try {
+                val simpleDate = SimpleDateFormat("yyyy/MM/dd hh:mm", Locale.TAIWAN)
+                textView.text = simpleDate.format(Date(unixTime))
             } catch (ignored: Exception) {
             }
         }

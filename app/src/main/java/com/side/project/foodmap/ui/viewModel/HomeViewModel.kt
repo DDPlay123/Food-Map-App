@@ -35,7 +35,7 @@ class HomeViewModel : BaseViewModel() {
     val nearSearchState
         get() = _nearSearchState.asSharedFlow()
 
-    private val _watchDetailState = MutableStateFlow<Resource<String>>(Resource.Unspecified())
+    val _watchDetailState = MutableStateFlow<Resource<String>>(Resource.Unspecified())
     val watchDetailState
         get() = _watchDetailState.asStateFlow()
 

@@ -144,6 +144,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         Bundle().also { b ->
                             b.putString("PLACE_ID", it.data.toString())
                             mActivity.start(DetailActivity::class.java, b)
+                            viewModel._watchDetailState.emit(Resource.Loading())
                         }
                     }
                     is Resource.Error -> {
