@@ -25,8 +25,8 @@
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/guidelineBottom"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -35,11 +35,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/imgPlaceHolder"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:scaleType="center"
+                    android:src="@drawable/img_placeholder"
+                    android:visibility="visible"
+                    app:layout_constraintBottom_toBottomOf="@+id/vpPhoto"
+                    app:layout_constraintEnd_toEndOf="@+id/vpPhoto"
+                    app:layout_constraintStart_toStartOf="@+id/vpPhoto"
+                    app:layout_constraintTop_toTopOf="@+id/vpPhoto" />
+
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/vpPhoto"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:orientation="horizontal"
+                    android:visibility="invisible"
                     app:layout_constraintDimensionRatio="3:2"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -213,11 +226,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/background_textview_tool"
+                        android:background="@drawable/background_google_blue_button"
+                        android:drawableEnd="@drawable/ic_public"
+                        android:fontFamily="@font/poppins_thin"
                         android:gravity="center"
                         android:padding="@dimen/_10sdp"
                         android:text="@string/text_website"
-                        android:textColor="@color/dialog_text_DOWN"
+                        android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
 
                     <androidx.appcompat.widget.AppCompatButton
@@ -225,11 +240,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/background_textview_tool"
+                        android:background="@drawable/background_google_green_button"
+                        android:fontFamily="@font/poppins_thin"
                         android:gravity="center"
                         android:padding="@dimen/_10sdp"
                         android:text="@string/text_go_navigation"
-                        android:textColor="@color/dialog_text_DOWN"
+                        android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
 
                     <androidx.appcompat.widget.AppCompatButton
@@ -237,11 +253,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/background_textview_tool"
+                        android:background="@drawable/background_google_yellow_button"
+                        android:fontFamily="@font/poppins_thin"
                         android:gravity="center"
                         android:padding="@dimen/_10sdp"
                         android:text="@string/text_add_favorite"
-                        android:textColor="@color/dialog_text_DOWN"
+                        android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
 
                     <androidx.appcompat.widget.AppCompatButton
@@ -249,11 +266,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/background_textview_tool"
+                        android:background="@drawable/background_google_red_button"
+                        android:drawableEnd="@drawable/ic_phone_forwarded"
+                        android:drawableTint="@color/white"
+                        android:fontFamily="@font/poppins_thin"
                         android:gravity="center"
                         android:padding="@dimen/_10sdp"
                         android:text="@string/text_call_phone"
-                        android:textColor="@color/dialog_text_DOWN"
+                        android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
 
                 </androidx.appcompat.widget.LinearLayoutCompat>
@@ -299,14 +319,15 @@
                         android:textSize="@dimen/_13ssp" />
 
                     <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/tvGenre"
+                        android:id="@+id/tvGoogle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/_8sdp"
+                        android:drawableEnd="@drawable/ic_arrow_outward"
                         android:drawableTint="@color/red"
                         android:fontFamily="@font/poppins_thin"
+                        android:foreground="?android:attr/selectableItemBackgroundBorderless"
                         android:includeFontPadding="false"
-                        android:drawableEnd="@drawable/ic_arrow_outward"
                         android:text='@{detail.user_ratings_total != null ? detail.user_ratings_total+@string/hint_google_ratings_total : "0"+@string/hint_google_ratings_total, default=@string/text_null }'
                         android:textColor="@color/black"
                         android:textSize="@dimen/_12ssp" />
@@ -371,9 +392,11 @@
                     android:layout_marginStart="@dimen/_8sdp"
                     android:layout_marginTop="@dimen/_4sdp"
                     android:layout_marginEnd="@dimen/_8sdp"
+                    android:layoutAnimation="@anim/layout_animation_random"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvReviews" />
+                    app:layout_constraintTop_toBottomOf="@+id/tvReviews"
+                    tools:listitem="@layout/item_google_reviews" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -417,7 +440,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.95" />
+            app:layout_constraintGuide_percent="0.98" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

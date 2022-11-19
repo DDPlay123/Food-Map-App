@@ -23,6 +23,8 @@ class DetailPhotoAdapter : RecyclerView.Adapter<DetailPhotoAdapter.ViewHolder>()
 
     private val differ = AsyncListDiffer(this, itemCallback)
 
+    lateinit var onItemClick: ((Photo, Int) -> Unit)
+
     fun setData(photoList: List<Photo>) = differ.submitList(photoList)
 
     fun getData(position: Int): Photo = differ.currentList[position]
@@ -31,7 +33,8 @@ class DetailPhotoAdapter : RecyclerView.Adapter<DetailPhotoAdapter.ViewHolder>()
         ViewHolder(ItemSliderPhotoBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.binding.photoReference = differ.currentList[position].photo_reference
+        holder.binding.photoReference = getData(position).photo_reference
+        holder.binding.root.setOnClickListener { onItemClick.invoke(getData(position), position) }
     }
 
     override fun getItemCount(): Int = differ.currentList.size

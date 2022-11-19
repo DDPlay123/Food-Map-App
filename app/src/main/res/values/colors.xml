@@ -33,4 +33,9 @@
     <color name="g_gray500">#969899</color>
     <color name="g_gray700">#666666</color>
 
+    <color name="google_blue">#4099DE</color>
+    <color name="google_green">#21B878</color>
+    <color name="google_yellow">#F8E538</color>
+    <color name="google_red">#E64444</color>
+
 </resources>

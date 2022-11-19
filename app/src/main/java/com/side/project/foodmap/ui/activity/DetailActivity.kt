@@ -1,5 +1,7 @@
 package com.side.project.foodmap.ui.activity
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageView
@@ -14,10 +16,7 @@ import com.side.project.foodmap.data.remote.google.placesDetails.Result
 import com.side.project.foodmap.data.remote.google.placesDetails.Review
 import com.side.project.foodmap.databinding.ActivityDetailBinding
 import com.side.project.foodmap.databinding.DialogPromptSelectBinding
-import com.side.project.foodmap.helper.appInfo
-import com.side.project.foodmap.helper.displayShortToast
-import com.side.project.foodmap.helper.getDrawableCompat
-import com.side.project.foodmap.helper.setAnimClick
+import com.side.project.foodmap.helper.*
 import com.side.project.foodmap.ui.adapter.DetailPhotoAdapter
 import com.side.project.foodmap.ui.adapter.GoogleReviewsAdapter
 import com.side.project.foodmap.ui.adapter.WorkDayAdapter
@@ -34,8 +33,13 @@ class DetailActivity : BaseActivity() {
     private val viewModel: DetailViewModel by viewModel()
     private val animManager: AnimManager by inject()
 
+    // Data
     private lateinit var placeId: String
-    private lateinit var workday: List<String>
+    private lateinit var googleUrl: String
+    private lateinit var website: String
+    private lateinit var phone: String
+    private var workday: List<String> = emptyList()
+    // Tool
     private lateinit var detailPhotoAdapter: DetailPhotoAdapter
     private lateinit var googleReviewsAdapter: GoogleReviewsAdapter
 
@@ -94,6 +98,9 @@ class DetailActivity : BaseActivity() {
             data.reviews?.let { reviewsList -> initRvReviews(reviewsList) }
             data.photos?.let { photoList -> initPhotoSlider(photoList) }
             data.opening_hours?.weekday_text?.let { it -> workday = it }
+            data.url?.let { it -> googleUrl = it }
+            data.website?.let { it -> website = it }
+            data.formatted_phone_number?.let { it -> phone = it }
         }
     }
 
@@ -102,7 +109,64 @@ class DetailActivity : BaseActivity() {
         binding.run {
             tvBack.setOnClickListener { it.setAnimClick(anim, AnimState.Start) { onBackPressed() } }
 
-            tvTime.setOnClickListener { it.setAnimClick(anim, AnimState.Start) { displayRegionDialog() } }
+            tvTime.setOnClickListener {
+                it.setAnimClick(anim, AnimState.Start) {
+                    if (workday.isEmpty()) {
+                        displayShortToast(getString(R.string.text_null))
+                        return@setAnimClick
+                    }
+                    displayRegionDialog()
+                }
+            }
+
+            tvGoogle.setOnClickListener {
+                it.setAnimClick(anim, AnimState.Start) {
+                    if (::googleUrl.isInitialized) {
+                        Intent(Intent.ACTION_VIEW).also { i ->
+                            i.data = Uri.parse(googleUrl)
+                            startActivity(i)
+                        }
+                    } else
+                        displayShortToast(getString(R.string.hint_no_website))
+                }
+            }
+
+            btnWebsite.setOnClickListener {
+                it.setAnimClick(anim, AnimState.Start) {
+                    if (::website.isInitialized) {
+                        Intent(Intent.ACTION_VIEW).also { i ->
+                            i.data = Uri.parse(website)
+                            startActivity(i)
+                        }
+                    } else
+                        displayShortToast(getString(R.string.hint_no_website))
+                }
+            }
+
+            btnNavigation.setOnClickListener {
+                it.setAnimClick(anim, AnimState.Start) {
+                    // TODO(導航)
+
+                }
+            }
+
+            btnFavorite.setOnClickListener {
+                it.setAnimClick(anim, AnimState.Start) {
+                    // TODO(添加最愛)
+                }
+            }
+
+            btnPhone.setOnClickListener {
+                it.setAnimClick(anim, AnimState.Start) {
+                    if (::phone.isInitialized) {
+                        Intent(Intent.ACTION_DIAL).also { i ->
+                            i.data = Uri.parse("tel:$phone")
+                            startActivity(i)
+                        }
+                    } else
+                        displayShortToast(getString(R.string.hint_no_phone))
+                }
+            }
         }
     }
 
@@ -131,6 +195,13 @@ class DetailActivity : BaseActivity() {
             adapter = googleReviewsAdapter
             googleReviewsAdapter.setData(review)
         }
+
+        googleReviewsAdapter.onItemClick = {
+            Intent(Intent.ACTION_VIEW).also { i ->
+                i.data = Uri.parse(it.author_url)
+                startActivity(i)
+            }
+        }
     }
 
     private fun initPhotoSlider(photos: List<Photo>) {
@@ -141,12 +212,24 @@ class DetailActivity : BaseActivity() {
             detailPhotoAdapter.setData(photos)
             setupSliderIndicators(photos.size)
 
+            if (photos.isEmpty()) {
+                binding.imgPlaceHolder.show()
+                binding.vpPhoto.hidden()
+            } else {
+                binding.imgPlaceHolder.hidden()
+                binding.vpPhoto.show()
+            }
+
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
                     setCurrentSliderIndicator(position)
                 }
             })
+        }
+
+        detailPhotoAdapter.onItemClick = { photo, position ->
+            // TODO(切換大圖)
         }
     }
 

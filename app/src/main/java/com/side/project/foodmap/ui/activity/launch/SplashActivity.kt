@@ -16,11 +16,11 @@ class SplashActivity : AppCompatActivity() {
     private val viewModel: LoginViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         // Enable support for Splash Screen API for
         // proper Android 12+ support
         splashScreen = installSplashScreen()
         splashScreen.setKeepOnScreenCondition { true }
+        super.onCreate(savedInstanceState)
 
         doInitialize()
         viewModel.getUserIsLoginFromDataStore()

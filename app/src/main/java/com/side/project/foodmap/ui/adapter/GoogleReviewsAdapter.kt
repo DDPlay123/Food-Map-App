@@ -23,6 +23,8 @@ class GoogleReviewsAdapter : RecyclerView.Adapter<GoogleReviewsAdapter.ViewHolde
 
     private val differ = AsyncListDiffer(this, itemCallback)
 
+    lateinit var onItemClick: ((Review) -> Unit)
+
     fun setData(reviewsList: List<Review>) = differ.submitList(reviewsList)
 
     fun getData(position: Int): Review = differ.currentList[position]
@@ -32,6 +34,7 @@ class GoogleReviewsAdapter : RecyclerView.Adapter<GoogleReviewsAdapter.ViewHolde
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.binding.reviews = differ.currentList[position]
+        holder.binding.imgPicture.setOnClickListener { onItemClick.invoke(getData(position)) }
     }
 
     override fun getItemCount(): Int = differ.currentList.size

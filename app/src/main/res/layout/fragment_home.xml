@@ -45,6 +45,9 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:background="@drawable/circle_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
             android:loadUserPicture='@{VM.userPicture}'
             android:padding="@dimen/_2sdp"
             app:layout_constraintBottom_toBottomOf="@id/tvCategory"
@@ -130,8 +133,8 @@
             android:layout_marginBottom="@dimen/_16sdp"
             android:clickable="true"
             android:focusable="true"
-            android:onClick='@{() -> VM.watchDetail(nearSearch.result.placeList[0].uid)}'
             android:foreground="?android:attr/selectableItemBackground"
+            android:onClick='@{() -> VM.watchDetail(nearSearch.result.placeList[0].uid)}'
             app:cardCornerRadius="@dimen/_8sdp"
             app:cardElevation="@dimen/_3ssp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -158,12 +161,12 @@
                     android:id="@+id/tvTitle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_5sdp"
                     android:ellipsize="end"
                     android:fontFamily="@font/poppins_thin"
                     android:maxLines="1"
                     android:paddingTop="@dimen/_2sdp"
                     android:paddingBottom="@dimen/_2sdp"
-                    android:layout_marginStart="@dimen/_5sdp"
                     android:text="@{nearSearch.result.placeList[0].name}"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_12ssp"
@@ -286,10 +289,25 @@
             android:layout_marginBottom="@dimen/_5sdp"
             android:paddingStart="@dimen/_50sdp"
             android:paddingEnd="@dimen/_50sdp"
+            android:visibility="invisible"
             app:layout_constraintBottom_toTopOf="@id/tvAllRestaurant"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvPopular" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottieNoData"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@+id/vpPopular"
+            app:layout_constraintEnd_toEndOf="@+id/vpPopular"
+            app:layout_constraintStart_toStartOf="@+id/vpPopular"
+            app:layout_constraintTop_toTopOf="@+id/vpPopular"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/no_data"
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

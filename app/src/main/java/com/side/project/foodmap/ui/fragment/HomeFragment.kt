@@ -3,7 +3,6 @@ package com.side.project.foodmap.ui.fragment
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -14,7 +13,9 @@ import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.DialogPromptSelectBinding
 import com.side.project.foodmap.databinding.FragmentHomeBinding
 import com.side.project.foodmap.helper.displayShortToast
+import com.side.project.foodmap.helper.hidden
 import com.side.project.foodmap.helper.setAnimClick
+import com.side.project.foodmap.helper.show
 import com.side.project.foodmap.ui.activity.DetailActivity
 import com.side.project.foodmap.ui.adapter.PopularSearchAdapter
 import com.side.project.foodmap.ui.adapter.RegionSelectAdapter
@@ -96,16 +97,22 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     is Resource.Loading -> {
                         logE("Popular Search", "Loading")
                         dialog.showLoadingDialog(false)
+                        binding.vpPopular.hidden()
+                        binding.lottieNoData.show()
                     }
                     is Resource.Success -> {
                         logE("Popular Search", "Success")
                         dialog.cancelLoadingDialog()
+                        binding.vpPopular.show()
+                        binding.lottieNoData.hidden()
                         // TODO(初始化人氣餐廳卡片)
                     }
                     is Resource.Error -> {
                         logE("Popular Search", "Error:${it.message.toString()}")
                         dialog.cancelLoadingDialog()
                         requireActivity().displayShortToast(getString(R.string.hint_error))
+                        binding.vpPopular.hidden()
+                        binding.lottieNoData.show()
                     }
                     else -> Unit
                 }

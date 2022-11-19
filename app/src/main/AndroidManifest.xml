@@ -19,7 +19,7 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_icon_foreground"
         android:installLocation="internalOnly"
-        android:label="@string/app_name"
+        android:label="${APP_NAME}"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_icon_foreground"
         android:supportsRtl="true"

@@ -25,7 +25,7 @@ fun View.hideKeyboard() {
     imm.hideSoftInputFromWindow(windowToken, 0)
 }
 
-fun View.display() {
+fun View.show() {
     this.visibility = View.VISIBLE
 }
 

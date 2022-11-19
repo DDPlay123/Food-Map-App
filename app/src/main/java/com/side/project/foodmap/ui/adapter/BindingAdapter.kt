@@ -72,7 +72,7 @@ class BindingAdapter {
         fun getDataFormat(textView: TextView, unixTime: String) {
             try {
                 val simpleDate = SimpleDateFormat("yyyy/MM/dd hh:mm", Locale.TAIWAN)
-                textView.text = simpleDate.format(Date(unixTime))
+                textView.text = simpleDate.format(Date(unixTime.toLong() * 1000L))
             } catch (ignored: Exception) {
             }
         }

@@ -12,8 +12,15 @@
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable-mdpi/search_box_background.xml" value="0.2295" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable-xhdpi/background_content_bottom.xml" value="0.201" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable-xhdpi/background_content_top.xml" value="0.201" />
+        <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable-xxxhdpi/background_button_blue.xml" value="0.23" />
+        <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable-xxxhdpi/background_google_blue_button_tool.xml" value="0.23" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/background_back_button.xml" value="0.23" />
+        <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/background_button_tool.xml" value="0.23" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/background_fading_edge.xml" value="0.23" />
+        <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/background_google_blue_button.xml" value="0.23" />
+        <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/background_google_green_button.xml" value="0.23" />
+        <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/background_google_red_button.xml" value="0.23" />
+        <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/background_google_yellow_button.xml" value="0.23" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/background_slider_indicator_active.xml" value="0.1" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/background_slider_indicator_inactive.xml" value="0.1" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/drawable/background_textview_tool.xml" value="0.23" />
@@ -37,6 +44,7 @@
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/activity_detail.xml" value="0.260546875" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/activity_login.xml" value="0.22" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/activity_main.xml" value="0.25" />
+        <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/activity_splash.xml" value="0.15505464480874318" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/dialog_loading.xml" value="0.270703125" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/dialog_prompt.xml" value="0.25" />
         <entry key="..\:/Users/a7032/Desktop/Food-Map-App/app/src/main/res/layout/dialog_prompt_select.xml" value="0.22" />

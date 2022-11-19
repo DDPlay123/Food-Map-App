@@ -8,13 +8,10 @@ import android.graphics.BitmapFactory
 import android.util.Base64
 import android.util.Log
 import android.util.Patterns
-import android.view.View
-import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import com.google.firebase.messaging.FirebaseMessaging
+import com.side.project.foodmap.BuildConfig
 import com.side.project.foodmap.R
 import com.side.project.foodmap.util.Constants.PERMISSION_CODE
 import java.io.ByteArrayOutputStream
@@ -24,11 +21,15 @@ object Method {
     /**
      * Logcat
      */
-    fun logE(tag: String, message: String) =
-        Log.e(tag, message)
+    fun logE(tag: String, message: String) {
+        if (BuildConfig.DEBUG)
+            Log.e(tag, message)
+    }
 
-    fun logD(tag: String, message: String) =
-        Log.d(tag, message)
+    fun logD(tag: String, message: String) {
+        if (BuildConfig.DEBUG)
+            Log.d(tag, message)
+    }
 
     /**
      * Tools

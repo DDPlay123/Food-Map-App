@@ -9,6 +9,7 @@ plugins {
 
 android {
     compileSdk 32
+    flavorDimensions "versionCode"
 
     defaultConfig {
         applicationId "com.side.project.foodmap"
@@ -22,11 +23,21 @@ android {
 
     buildTypes {
         debug {
-
+            debuggable true
         }
         release {
-            minifyEnabled false
+            minifyEnabled true
+            debuggable false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    productFlavors {
+        development {
+            manifestPlaceholders = [APP_NAME: "@string/app_name_dev"]
+        }
+        production {
+            manifestPlaceholders = [APP_NAME: "@string/app_name"]
         }
     }
 
@@ -102,4 +113,7 @@ dependencies {
     implementation "io.insert-koin:koin-androidx-workmanager:$koin_android_version"
     // Google Map
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    // GestureViews (https://github.com/DDPlay123/GestureViews)
+    implementation 'com.alexvasilkov:gesture-views:2.8.3'
+    implementation 'com.alexvasilkov:android-commons:2.0.2'
 }

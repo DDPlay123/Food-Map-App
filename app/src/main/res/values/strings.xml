@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">台灣美食地圖</string>
+    <string name="app_name_dev">台灣美食地圖Dev</string>
 
     <!--  文字陣列  -->
     <string-array name="search_type">
@@ -78,6 +79,8 @@
     <string name="hint_all_restaurant">全部餐廳</string>
     <string name="hint_google_ratings_total">"則 Google 評論</string>
     <string name="hint_from_google_top5_reviews">來自 Google 的前五評論</string>
+    <string name="hint_no_website">找不到網站</string>
+    <string name="hint_no_phone">找不到電話</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>
@@ -115,6 +118,18 @@
     <!--  特殊符號  -->
     <string name="u2022">•</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!--  特殊  -->
+    <string name="menu_enable_pan">Pan</string>
+    <string name="menu_enable_zoom">Zoom</string>
+    <string name="menu_enable_rotation">Rotation</string>
+    <string name="menu_restrict_rotation">Restrict rotation</string>
+    <string name="menu_enable_overscroll">Overscroll</string>
+    <string name="menu_enable_overZoom">OverZoom</string>
+    <string name="menu_fill_viewport">Fill viewport</string>
+    <string name="menu_fit_method">Fit method</string>
+    <string name="menu_bounds_type">Bounds type</string>
+    <string name="menu_gravity">Gravity</string>
+    <string name="menu_enable_slow">Slow animations</string>
+    <string name="menu_enable_overlay">Debug overlay</string>
+
 </resources>
