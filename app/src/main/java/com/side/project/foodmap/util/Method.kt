@@ -5,9 +5,13 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.util.Base64
+import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Patterns
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import com.google.firebase.messaging.FirebaseMessaging
@@ -15,7 +19,7 @@ import com.side.project.foodmap.BuildConfig
 import com.side.project.foodmap.R
 import com.side.project.foodmap.util.Constants.PERMISSION_CODE
 import java.io.ByteArrayOutputStream
-import java.lang.Exception
+
 
 object Method {
     /**
@@ -68,6 +72,26 @@ object Method {
         val bytes = byteArrayOutputStream.toByteArray()
 
         return Base64.encodeToString(bytes, Base64.DEFAULT)
+    }
+
+    fun createMapIcon(activity: Activity, view: View): Bitmap {
+        val displayMetrics = DisplayMetrics()
+        activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
+        view.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        view.measure(displayMetrics.widthPixels, displayMetrics.heightPixels)
+        view.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels)
+        view.buildDrawingCache()
+        val bitmap = Bitmap.createBitmap(
+            view.measuredWidth,
+            view.measuredHeight,
+            Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
+        view.draw(canvas)
+        return bitmap
     }
 
     /**

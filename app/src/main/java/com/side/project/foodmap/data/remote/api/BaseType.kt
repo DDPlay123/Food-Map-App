@@ -3,11 +3,6 @@ package com.side.project.foodmap.data.remote.api
 import java.net.URL
 
 /**
- * 本地資料
- */
-class LocalData(val response: Any, val others: Any? = null)
-
-/**
  * 基本 Request & Response
  */
 abstract class BaseRequest {

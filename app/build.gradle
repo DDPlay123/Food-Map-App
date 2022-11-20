@@ -113,6 +113,7 @@ dependencies {
     implementation "io.insert-koin:koin-androidx-workmanager:$koin_android_version"
     // Google Map
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.google.maps.android:maps-ktx:3.2.1'
     // GestureViews (https://github.com/DDPlay123/GestureViews)
     implementation 'com.alexvasilkov:gesture-views:2.8.3'
     implementation 'com.alexvasilkov:android-commons:2.0.2'

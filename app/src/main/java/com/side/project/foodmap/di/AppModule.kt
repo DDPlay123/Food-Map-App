@@ -9,12 +9,9 @@ import com.side.project.foodmap.data.repo.DataStoreRepo
 import com.side.project.foodmap.data.repo.DataStoreRepoImpl
 import com.side.project.foodmap.data.repo.DistanceSearchRepo
 import com.side.project.foodmap.data.repo.DistanceSearchRepoImpl
-import com.side.project.foodmap.ui.viewModel.LoginViewModel
 import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.NetworkConnection
-import com.side.project.foodmap.ui.viewModel.DetailViewModel
-import com.side.project.foodmap.ui.viewModel.HomeViewModel
-import com.side.project.foodmap.ui.viewModel.ProfilesViewModel
+import com.side.project.foodmap.ui.viewModel.*
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -54,6 +51,7 @@ val repoModule = module {
 val viewModel = module {
     viewModel { LoginViewModel() }
     viewModel { HomeViewModel() }
+    viewModel { MapsViewModel() }
     viewModel { ProfilesViewModel() }
     viewModel { DetailViewModel() }
 }
