@@ -19,6 +19,11 @@ object Constants {
     const val USER_COLLECTION = "User"
 
     /**
+     * User Room Database
+     */
+    const val DISTANCE_SEARCH_MODEL = "DISTANCE_SEARCH_MODEL"
+
+    /**
      * User Preference
      */
     const val USER_PUBLIC_INFO = "USER_PUBLIC_INFO"

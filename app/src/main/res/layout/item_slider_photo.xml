@@ -9,7 +9,7 @@
         
     </data>
 
-    <androidx.appcompat.widget.AppCompatImageView
+    <com.side.project.foodmap.util.customView.SquareImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:loadImageFromGoogle="@{photo_reference}"

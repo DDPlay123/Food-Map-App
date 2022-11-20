@@ -29,11 +29,11 @@ class HomeViewModel : BaseViewModel() {
 
     private val _popularSearchState = MutableStateFlow<Resource<PlacesSearch>>(Resource.Unspecified())
     val popularSearchState
-        get() = _popularSearchState.asSharedFlow()
+        get() = _popularSearchState.asStateFlow()
 
     private val _nearSearchState = MutableStateFlow<Resource<DistanceSearchRes>>(Resource.Unspecified())
     val nearSearchState
-        get() = _nearSearchState.asSharedFlow()
+        get() = _nearSearchState.asStateFlow()
 
     val _watchDetailState = MutableStateFlow<Resource<String>>(Resource.Unspecified())
     val watchDetailState

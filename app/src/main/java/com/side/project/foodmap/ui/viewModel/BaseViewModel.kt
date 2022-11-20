@@ -4,17 +4,23 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 import com.side.project.foodmap.data.repo.DataStoreRepo
+import com.side.project.foodmap.data.repo.DistanceSearchRepo
 import com.side.project.foodmap.util.AES
+import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.io.IOException
 
 abstract class BaseViewModel : ViewModel(), KoinComponent {
     private val dataStoreRepo: DataStoreRepo by inject()
+    private val distanceSearchRepo: DistanceSearchRepo by inject()
 
     /**
      * 資料流
@@ -62,6 +68,10 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
 //    private val _userTdxTokenUpdate = MutableLiveData<String>()
 //    val userTdxTokenUpdate: LiveData<String>
 //        get() = _userTdxTokenUpdate
+
+    private val _getDistanceSearch = MutableStateFlow<Resource<DistanceSearchRes>>(Resource.Loading())
+    val getDistanceSearch
+        get() = _getDistanceSearch.asStateFlow()
 
     /**
      * Datastore Preference Repo
@@ -148,6 +158,32 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
         _userIsLogin.postValue(dataStoreRepo.getUserIsLogin())
     }
 
+    /**
+     * Database Repo
+     */
+    fun getDistanceSearchData() {
+        viewModelScope.launch { _getDistanceSearch.emit(Resource.Loading()) }
+        try {
+            viewModelScope.launch(Dispatchers.Default) {
+                distanceSearchRepo.getData().let {
+                    _getDistanceSearch.emit(Resource.Success(it))
+                }
+            }
+        } catch (e: IOException) {
+            viewModelScope.launch {
+                _getDistanceSearch.emit(Resource.Error("ERROR"))
+            }
+        }
+    }
+
+    suspend fun insertDistanceSearchData(distanceSearchRes: DistanceSearchRes){
+        distanceSearchRepo.insertData(distanceSearchRes)
+        getDistanceSearchData()
+    }
+
+    suspend fun deleteDistanceSearchData(distanceSearchRes: DistanceSearchRes) =
+        distanceSearchRepo.deleteData(distanceSearchRes)
+
 //    fun putUserTdxToken(token: String) = viewModelScope.launch(Dispatchers.Default) {
 //        dataStoreRepo.putTdxToken(token)
 //        getUserTdxTokenFromDataStore()
@@ -173,6 +209,7 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     fun clearPublicData() = viewModelScope.launch(Dispatchers.Default) {
         dataStoreRepo.clearPublicData()
     }
+
 
     /**
      * 呼叫 API

@@ -8,10 +8,7 @@ import coil.ImageLoaderFactory
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import com.side.project.foodmap.R
-import com.side.project.foodmap.di.firebaseModule
-import com.side.project.foodmap.di.otherModule
-import com.side.project.foodmap.di.repoModule
-import com.side.project.foodmap.di.viewModel
+import com.side.project.foodmap.di.*
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -28,6 +25,8 @@ class AppConfig: Application(), ImageLoaderFactory {
                 viewModel,
                 otherModule,
                 firebaseModule,
+                dbModel,
+                daoModel,
                 repoModule
             ))
         }

@@ -130,10 +130,34 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     is Resource.Success -> {
                         logE("Near Search", "Success")
                         dialog.cancelLoadingDialog()
-                        it.data?.let { data -> binding.nearSearch = data }
+                        it.data?.let { data -> viewModel.insertDistanceSearchData(data) }
                     }
                     is Resource.Error -> {
                         logE("Near Search", "Error:${it.message.toString()}")
+                        dialog.cancelLoadingDialog()
+                        requireActivity().displayShortToast(getString(R.string.hint_error))
+                        viewModel.getDistanceSearchData()
+                    }
+                    else -> Unit
+                }
+            }
+        }
+
+        // 附近搜尋 From Room
+        lifecycleScope.launchWhenCreated {
+            viewModel.getDistanceSearch.collect {
+                when (it) {
+                    is Resource.Loading -> {
+                        logE("Near Search Room", "Loading")
+                        dialog.showLoadingDialog(false)
+                    }
+                    is Resource.Success -> {
+                        logE("Near Search Room", "Success")
+                        dialog.cancelLoadingDialog()
+                        it.data?.let { data -> binding.nearSearch = data }
+                    }
+                    is Resource.Error -> {
+                        logE("Near Search Room", "Error:${it.message.toString()}")
                         dialog.cancelLoadingDialog()
                         requireActivity().displayShortToast(getString(R.string.hint_error))
                     }

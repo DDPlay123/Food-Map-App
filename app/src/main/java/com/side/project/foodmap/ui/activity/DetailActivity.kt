@@ -53,6 +53,8 @@ class DetailActivity : BaseActivity() {
             viewModel.searchDetail(placeId, appInfo().metaData["GOOGLE_KEY"].toString())
         }
 
+        checkNetWork { onBackPressed() }
+
         doInitialize()
         setListener()
     }

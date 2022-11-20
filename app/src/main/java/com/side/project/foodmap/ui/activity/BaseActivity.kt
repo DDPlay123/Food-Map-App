@@ -32,10 +32,10 @@ abstract class BaseActivity : AppCompatActivity() {
         mActivity = this
         dialog = DialogManager.instance(mActivity)
 
-        checkNetWork()
+        checkNetWork {}
     }
 
-    private fun checkNetWork() {
+    fun checkNetWork(work: (() -> Unit)) {
         networkConnection.observe(this) { isConnect ->
             if (!isConnect) {
                 val binding = DialogPromptBinding.inflate(layoutInflater)
@@ -47,7 +47,10 @@ abstract class BaseActivity : AppCompatActivity() {
                         imgPromptIcon.setImageResource(R.drawable.ic_wifi_off)
                         titleText = getString(R.string.hint_internet_error_title)
                         subTitleText = getString(R.string.hint_internet_error_subtitle)
-                        tvConfirm.setOnClickListener { dialog.cancelCenterDialog() }
+                        tvConfirm.setOnClickListener {
+                            dialog.cancelCenterDialog()
+                            work()
+                        }
                     }
                 }
             }

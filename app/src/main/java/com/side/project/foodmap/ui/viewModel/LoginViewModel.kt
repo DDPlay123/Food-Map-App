@@ -25,7 +25,7 @@ class LoginViewModel : BaseViewModel() {
      */
     private val _loginState = MutableStateFlow<Resource<LoginRes>>(Resource.Unspecified())
     val loginState
-        get() = _loginState.asSharedFlow()
+        get() = _loginState.asStateFlow()
 
     private val _registerState = MutableStateFlow<Resource<RegisterRes>>(Resource.Unspecified())
     val registerState
@@ -35,8 +35,7 @@ class LoginViewModel : BaseViewModel() {
     val validation
         get() = _validation.receiveAsFlow()
 
-    private val _getUserImageState =
-        MutableStateFlow<Resource<GetUserImageRes>>(Resource.Unspecified())
+    private val _getUserImageState = MutableStateFlow<Resource<GetUserImageRes>>(Resource.Unspecified())
     val getUserImageState
         get() = _getUserImageState.asStateFlow()
 
