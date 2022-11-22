@@ -11,13 +11,14 @@ import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 import com.side.project.foodmap.databinding.FragmentMapsBinding
 import com.side.project.foodmap.helper.displayShortToast
-import com.side.project.foodmap.ui.viewModel.MapsViewModel
+import com.side.project.foodmap.ui.fragment.other.BaseFragment
+import com.side.project.foodmap.ui.viewModel.MainViewModel
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Resource
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
-    private val viewModel: MapsViewModel by viewModel()
+    private val viewModel: MainViewModel by activityViewModel()
 
     private var map: GoogleMap? = null
     private lateinit var distanceSearchRes: DistanceSearchRes
@@ -59,7 +60,6 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
 
     private fun doInitialize() {
         // 附近搜尋 From Room
-        viewModel.getDistanceSearchData()
         lifecycleScope.launchWhenCreated {
             viewModel.getDistanceSearch.collect {
                 when (it) {

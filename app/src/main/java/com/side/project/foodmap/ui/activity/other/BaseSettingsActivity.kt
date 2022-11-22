@@ -1,4 +1,4 @@
-package com.side.project.foodmap.ui.activity
+package com.side.project.foodmap.ui.activity.other
 
 import android.os.Bundle
 import android.view.Menu

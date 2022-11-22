@@ -1,14 +1,13 @@
 package com.side.project.foodmap.ui.adapter
 
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
+import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.google.placesDetails.Review
 import com.side.project.foodmap.databinding.ItemGoogleReviewsBinding
+import com.side.project.foodmap.ui.adapter.other.BaseRvAdapter
 
-class GoogleReviewsAdapter : RecyclerView.Adapter<GoogleReviewsAdapter.ViewHolder>() {
+class GoogleReviewsAdapter : BaseRvAdapter<ItemGoogleReviewsBinding, Review>(R.layout.item_google_reviews) {
 
     private val itemCallback = object : DiffUtil.ItemCallback<Review>() {
         // 比對新舊 Item
@@ -25,19 +24,16 @@ class GoogleReviewsAdapter : RecyclerView.Adapter<GoogleReviewsAdapter.ViewHolde
 
     lateinit var onItemClick: ((Review) -> Unit)
 
-    fun setData(reviewsList: List<Review>) = differ.submitList(reviewsList)
-
-    fun getData(position: Int): Review = differ.currentList[position]
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-        ViewHolder(ItemGoogleReviewsBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.binding.reviews = differ.currentList[position]
-        holder.binding.imgPicture.setOnClickListener { onItemClick.invoke(getData(position)) }
+    fun setterData(reviewsList: List<Review>) {
+        differ.submitList(reviewsList)
+        initData(differ.currentList)
     }
 
-    override fun getItemCount(): Int = differ.currentList.size
+    fun getterData(position: Int): Review = differ.currentList[position]
 
-    class ViewHolder(val binding: ItemGoogleReviewsBinding): RecyclerView.ViewHolder(binding.root)
+    override fun bind(binding: ItemGoogleReviewsBinding, item: Review, position: Int) {
+        super.bind(binding, item, position)
+        binding.reviews = differ.currentList[position]
+        binding.imgPicture.setOnClickListener { onItemClick.invoke(item) }
+    }
 }

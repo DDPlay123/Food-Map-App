@@ -19,17 +19,18 @@ import com.side.project.foodmap.helper.show
 import com.side.project.foodmap.ui.activity.DetailActivity
 import com.side.project.foodmap.ui.adapter.PopularSearchAdapter
 import com.side.project.foodmap.ui.adapter.RegionSelectAdapter
+import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.other.AnimState
-import com.side.project.foodmap.ui.viewModel.HomeViewModel
+import com.side.project.foodmap.ui.viewModel.MainViewModel
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Method.logE
 import com.side.project.foodmap.util.Resource
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import kotlin.collections.ArrayList
 import kotlin.math.abs
 
 class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
-    private val viewModel: HomeViewModel by viewModel()
+    private val viewModel: MainViewModel by activityViewModel()
 
     private lateinit var regionList: ArrayList<String>
     private var regionID: Int = 0
@@ -44,12 +45,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         initLocationService()
         binding.vm = viewModel
         regionList = ArrayList(listOf(*resources.getStringArray(R.array.search_type)))
-        // Call Data
-        viewModel.getAccessKeyFromDataStore()
-        viewModel.getUserUIDFromDataStore()
-        viewModel.getDeviceId()
-        viewModel.getUserRegionFromDataStore()
-        viewModel.getUserPictureFromDataStore()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

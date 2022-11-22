@@ -14,12 +14,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.messaging.FirebaseMessaging
 import com.side.project.foodmap.BuildConfig
 import com.side.project.foodmap.R
+import com.side.project.foodmap.helper.getLocation
 import com.side.project.foodmap.util.Constants.PERMISSION_CODE
 import java.io.ByteArrayOutputStream
-
 
 object Method {
     /**
@@ -73,6 +74,12 @@ object Method {
 
         return Base64.encodeToString(bytes, Base64.DEFAULT)
     }
+
+    fun getCurrentLatLng(region: String, latLng: LatLng): LatLng =
+        LatLng(
+            if (region.getLocation().first != 0.00) region.getLocation().first else latLng.latitude,
+            if (region.getLocation().second != 0.00) region.getLocation().second else latLng.longitude
+        )
 
     fun createMapIcon(activity: Activity, view: View): Bitmap {
         val displayMetrics = DisplayMetrics()

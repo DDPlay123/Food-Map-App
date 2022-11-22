@@ -10,7 +10,7 @@ import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.helper.hideKeyboard
 import com.side.project.foodmap.helper.setAnimClick
 import com.side.project.foodmap.ui.activity.MainActivity
-import com.side.project.foodmap.ui.fragment.BaseFragment
+import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.LoginViewModel
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.util.Method
@@ -18,10 +18,10 @@ import com.side.project.foodmap.util.RegisterLoginValidation
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login) {
-    private val viewModel: LoginViewModel by viewModel()
+    private val viewModel: LoginViewModel by activityViewModel()
 
     override fun FragmentLoginBinding.initialize() {
         binding.vm = viewModel

@@ -7,7 +7,7 @@
 
         <variable
             name="VM"
-            type="com.side.project.foodmap.ui.viewModel.HomeViewModel" />
+            type="com.side.project.foodmap.ui.viewModel.MainViewModel" />
 
         <variable
             name="nearSearch"

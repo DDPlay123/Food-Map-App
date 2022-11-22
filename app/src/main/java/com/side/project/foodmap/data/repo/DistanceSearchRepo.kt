@@ -8,7 +8,8 @@ import org.koin.core.component.inject
 interface DistanceSearchRepo {
     fun getData(): DistanceSearchRes
     suspend fun insertData(distanceSearchRes: DistanceSearchRes)
-    suspend fun deleteData(distanceSearchRes: DistanceSearchRes)
+    suspend fun updateData(distanceSearchRes: DistanceSearchRes)
+    suspend fun deleteData()
 }
 
 class DistanceSearchRepoImpl : DistanceSearchRepo, KoinComponent {
@@ -20,6 +21,9 @@ class DistanceSearchRepoImpl : DistanceSearchRepo, KoinComponent {
     override suspend fun insertData(distanceSearchRes: DistanceSearchRes) =
         distanceSearchDao.insertData(distanceSearchRes)
 
-    override suspend fun deleteData(distanceSearchRes: DistanceSearchRes) =
-        distanceSearchDao.deleteData(distanceSearchRes)
+    override suspend fun updateData(distanceSearchRes: DistanceSearchRes) =
+        distanceSearchDao.updateData(distanceSearchRes)
+
+    override suspend fun deleteData() =
+        distanceSearchDao.deleteData()
 }

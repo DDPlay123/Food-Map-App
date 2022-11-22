@@ -6,7 +6,7 @@ import androidx.navigation.fragment.findNavController
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.FragmentIntroductionBinding
 import com.side.project.foodmap.helper.setAnimClick
-import com.side.project.foodmap.ui.fragment.BaseFragment
+import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.other.AnimState
 
 class IntroductionFragment : BaseFragment<FragmentIntroductionBinding>(R.layout.fragment_introduction) {

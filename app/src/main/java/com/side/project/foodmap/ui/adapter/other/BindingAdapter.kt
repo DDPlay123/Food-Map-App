@@ -1,4 +1,4 @@
-package com.side.project.foodmap.ui.adapter
+package com.side.project.foodmap.ui.adapter.other
 
 import android.widget.ImageView
 import android.widget.TextView

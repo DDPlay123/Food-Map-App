@@ -1,4 +1,4 @@
-package com.side.project.foodmap.ui.fragment
+package com.side.project.foodmap.ui.fragment.other
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import com.side.project.foodmap.R
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.service.LocationService
-import com.side.project.foodmap.ui.activity.BaseActivity
+import com.side.project.foodmap.ui.activity.other.BaseActivity
 import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.DialogManager
 import com.side.project.foodmap.util.Constants.PERMISSION_COARSE_LOCATION

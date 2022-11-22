@@ -1,16 +1,14 @@
 package com.side.project.foodmap.ui.adapter
 
-import android.annotation.SuppressLint
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
+import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.google.placesSearch.Result
 import com.side.project.foodmap.databinding.ItemPopularViewBinding
+import com.side.project.foodmap.ui.adapter.other.BaseRvAdapter
 import java.io.IOException
 
-class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolder>() {
+class PopularSearchAdapter : BaseRvAdapter<ItemPopularViewBinding, Result>(R.layout.item_popular_view) {
 
     private val itemCallback = object : DiffUtil.ItemCallback<Result>() {
         // 比對新舊 Item
@@ -25,18 +23,17 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
 
     private val differ = AsyncListDiffer(this, itemCallback)
 
-    fun setData(placesSearchResult: List<Result>) = differ.submitList(placesSearchResult)
+    fun setterData(placesSearchResult: List<Result>) {
+        differ.submitList(placesSearchResult)
+        initData(differ.currentList)
+    }
 
-    fun getData(position: Int): Result = differ.currentList[position]
+    fun getterData(position: Int): Result = differ.currentList[position]
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-        ViewHolder(ItemPopularViewBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-
-    @SuppressLint("SetTextI18n")
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = differ.currentList[position]
+    override fun bind(binding: ItemPopularViewBinding, item: Result, position: Int) {
+        super.bind(binding, item, position)
         try {
-            holder.binding.run {
+            binding.run {
                 photoReference = item.photos?.get(0)?.photo_reference ?: ""
                 tvTitle.text = item.name ?: ""
                 tvRating.text = (item.rating ?: 0F).toString()
@@ -47,8 +44,4 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
         } catch (ignored: IOException) {
         }
     }
-
-    override fun getItemCount(): Int = differ.currentList.size
-
-    class ViewHolder(val binding: ItemPopularViewBinding): RecyclerView.ViewHolder(binding.root)
 }

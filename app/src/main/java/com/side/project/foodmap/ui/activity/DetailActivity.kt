@@ -17,6 +17,7 @@ import com.side.project.foodmap.data.remote.google.placesDetails.Review
 import com.side.project.foodmap.databinding.ActivityDetailBinding
 import com.side.project.foodmap.databinding.DialogPromptSelectBinding
 import com.side.project.foodmap.helper.*
+import com.side.project.foodmap.ui.activity.other.BaseActivity
 import com.side.project.foodmap.ui.adapter.DetailPhotoAdapter
 import com.side.project.foodmap.ui.adapter.GoogleReviewsAdapter
 import com.side.project.foodmap.ui.adapter.WorkDayAdapter
@@ -195,7 +196,7 @@ class DetailActivity : BaseActivity() {
         binding.rvReviews.apply {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             adapter = googleReviewsAdapter
-            googleReviewsAdapter.setData(review)
+            googleReviewsAdapter.setterData(review)
         }
 
         googleReviewsAdapter.onItemClick = {
@@ -211,7 +212,7 @@ class DetailActivity : BaseActivity() {
         binding.vpPhoto.apply {
             offscreenPageLimit = 1
             adapter = detailPhotoAdapter
-            detailPhotoAdapter.setData(photos)
+            detailPhotoAdapter.setterData(photos)
             setupSliderIndicators(photos.size)
 
             if (photos.isEmpty()) {

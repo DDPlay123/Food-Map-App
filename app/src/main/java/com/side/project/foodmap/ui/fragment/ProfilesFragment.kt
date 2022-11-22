@@ -15,25 +15,19 @@ import com.side.project.foodmap.databinding.FragmentProfilesBinding
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.helper.setAnimClick
 import com.side.project.foodmap.ui.activity.launch.LoginActivity
+import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.other.AnimState
-import com.side.project.foodmap.ui.viewModel.ProfilesViewModel
+import com.side.project.foodmap.ui.viewModel.MainViewModel
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Resource
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import java.io.FileNotFoundException
-import java.io.InputStream
 
 class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment_profiles) {
-    private val viewModel: ProfilesViewModel by viewModel()
+    private val viewModel: MainViewModel by activityViewModel()
 
     override fun FragmentProfilesBinding.initialize() {
         binding.vm = viewModel
-        // Call Data
-        viewModel.getAccessKeyFromDataStore()
-        viewModel.getUserNameFromDataStore()
-        viewModel.getUserUIDFromDataStore()
-        viewModel.getDeviceId()
-        viewModel.getUserPictureFromDataStore()
     }
 
     private val pickImage = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->

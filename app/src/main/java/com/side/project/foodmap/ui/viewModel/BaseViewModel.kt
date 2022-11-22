@@ -176,13 +176,20 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    suspend fun insertDistanceSearchData(distanceSearchRes: DistanceSearchRes){
+    suspend fun insertDistanceSearchData(distanceSearchRes: DistanceSearchRes) {
+        deleteDistanceSearchData()
         distanceSearchRepo.insertData(distanceSearchRes)
         getDistanceSearchData()
     }
 
-    suspend fun deleteDistanceSearchData(distanceSearchRes: DistanceSearchRes) =
-        distanceSearchRepo.deleteData(distanceSearchRes)
+    suspend fun updateDistanceSearchData(distanceSearchRes: DistanceSearchRes) {
+        deleteDistanceSearchData()
+        distanceSearchRepo.updateData(distanceSearchRes)
+        getDistanceSearchData()
+    }
+
+    suspend fun deleteDistanceSearchData() =
+        distanceSearchRepo.deleteData()
 
 //    fun putUserTdxToken(token: String) = viewModelScope.launch(Dispatchers.Default) {
 //        dataStoreRepo.putTdxToken(token)

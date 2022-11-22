@@ -1,4 +1,4 @@
-package com.side.project.foodmap.ui.activity
+package com.side.project.foodmap.ui.activity.other
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -6,12 +6,16 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.ui.other.DialogManager
-import com.side.project.foodmap.ui.other.NetworkConnection
+import com.side.project.foodmap.util.NetworkConnection
 import com.side.project.foodmap.util.Constants
 import com.side.project.foodmap.util.Constants.PERMISSION_CODE
 import org.koin.android.ext.android.inject
@@ -20,6 +24,29 @@ abstract class BaseActivity : AppCompatActivity() {
     lateinit var mActivity: BaseActivity
     lateinit var dialog: DialogManager
     private val networkConnection: NetworkConnection by inject()
+
+    init {
+        // 清空ViewModel，避免記憶體洩漏。
+        lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(@NonNull source: LifecycleOwner, @NonNull event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_STOP) {
+                    window?.let {
+                        if (window.peekDecorView() != null)
+                            window.peekDecorView().cancelPendingInputEvents()
+                    }
+                }
+            }
+        })
+
+        lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(@NonNull source: LifecycleOwner, @NonNull event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_DESTROY) {
+                    if (!isChangingConfigurations)
+                        viewModelStore.clear()
+                }
+            }
+        })
+    }
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
