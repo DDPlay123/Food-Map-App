@@ -1,66 +1,96 @@
 package com.side.project.foodmap.ui.fragment
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
-import androidx.navigation.fragment.findNavController
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.side.project.foodmap.R
+import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 import com.side.project.foodmap.databinding.FragmentMapsBinding
 import com.side.project.foodmap.helper.displayShortToast
-import com.side.project.foodmap.service.LocationService
-import com.side.project.foodmap.util.Constants.PERMISSION_COARSE_LOCATION
-import com.side.project.foodmap.util.Constants.PERMISSION_FINE_LOCATION
-import com.side.project.foodmap.util.Method.requestPermission
+import com.side.project.foodmap.ui.fragment.other.BaseFragment
+import com.side.project.foodmap.ui.viewModel.MainViewModel
+import com.side.project.foodmap.util.Method
+import com.side.project.foodmap.util.Resource
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
-    private lateinit var locationService: LocationService
+    private val viewModel: MainViewModel by activityViewModel()
+
     private var map: GoogleMap? = null
-    private var myLatitude: Double = DEFAULT_LATITUDE
-    private var myLongitude: Double = DEFAULT_LONGITUDE
+    private lateinit var distanceSearchRes: DistanceSearchRes
 
     override fun FragmentMapsBinding.initialize() {
-        val permission = arrayOf(PERMISSION_FINE_LOCATION, PERMISSION_COARSE_LOCATION)
-        if (!requestPermission(mActivity, *permission))
-            findNavController().navigate(R.id.action_mapsFragment_to_homeFragment)
-
         initLocationService()
-    }
-
-    private fun initLocationService() {
-        locationService = LocationService()
-        if (!locationService.canGetLocation()) {
-            mActivity.displayShortToast(getString(R.string.hint_not_provider_gps))
-            return
-        }
-        locationService.latitude.observe(viewLifecycleOwner) { myLatitude = it }
-        locationService.longitude.observe(viewLifecycleOwner) { myLongitude = it }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        locationService.stopListener()
     }
 
     private val callback = OnMapReadyCallback { googleMap ->
         map = googleMap
-        googleMap.moveCamera(
-            CameraUpdateFactory.newLatLngZoom(
+        initGoogleMap()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun initGoogleMap() {
+        map?.apply {
+            uiSettings.setAllGesturesEnabled(true)
+            isMyLocationEnabled = true
+            uiSettings.isMyLocationButtonEnabled = false
+            uiSettings.isMapToolbarEnabled = false
+            map?.moveCamera(CameraUpdateFactory.newLatLngZoom(
                 LatLng(myLatitude, myLongitude), DEFAULT_ZOOM
-            )
-        )
+            ))
+
+            if (::distanceSearchRes.isInitialized)
+                setMapMarkers()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+        mapFragment?.getMapAsync(callback)
 
         doInitialize()
         setListener()
     }
 
     private fun doInitialize() {
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
-        mapFragment?.getMapAsync(callback)
+        // 附近搜尋 From Room
+        lifecycleScope.launchWhenCreated {
+            viewModel.getDistanceSearch.collect {
+                when (it) {
+                    is Resource.Loading -> {
+                        Method.logE("Near Search Room", "Loading")
+                        dialog.showLoadingDialog(false)
+                    }
+                    is Resource.Success -> {
+                        Method.logE("Near Search Room", "Success")
+                        dialog.cancelLoadingDialog()
+                        it.data?.let { data -> distanceSearchRes = data }
+                    }
+                    is Resource.Error -> {
+                        Method.logE("Near Search Room", "Error:${it.message.toString()}")
+                        dialog.cancelLoadingDialog()
+                        requireActivity().displayShortToast(getString(R.string.hint_error))
+                    }
+                    else -> Unit
+                }
+            }
+        }
+    }
+
+    private fun setMapMarkers() {
+        distanceSearchRes.result.placeList.forEach { index ->
+            val markerOption = MarkerOptions().apply {
+                position(LatLng(index.location.lat, index.location.lng))
+                title(index.name)
+            }
+            map?.addMarker(markerOption)
+        }
     }
 
     private fun setListener() {
@@ -70,8 +100,6 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
     }
 
     companion object {
-        private const val DEFAULT_ZOOM = 15F
-        private const val DEFAULT_LATITUDE = 25.043871531367014
-        private const val DEFAULT_LONGITUDE = 121.53453374432904
+        private const val DEFAULT_ZOOM = 18F
     }
 }

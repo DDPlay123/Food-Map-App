@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape android:shape="rectangle" xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#F5F5F5"/>
-    <corners android:radius="@dimen/_12sdp"/>
-</shape>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/g_gray500">
+
+    <item android:id="@+id/background">
+
+        <shape android:shape="rectangle">
+            <solid android:color="#F5F5F5"/>
+            <corners android:radius="@dimen/_12sdp"/>
+        </shape>
+
+    </item>
+
+</ripple>

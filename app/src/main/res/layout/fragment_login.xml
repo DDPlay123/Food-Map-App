@@ -3,6 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="VM"
+            type="com.side.project.foodmap.ui.viewModel.LoginViewModel" />
+
+    </data>
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,7 +22,9 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@drawable/blurry_background"
+            android:fitsSystemWindows="true">
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/imgIcon"
@@ -33,88 +43,104 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_thin"
-                android:text="@string/app_name"
+                android:text="@string/hint_now_start"
                 android:textColor="@color/primary"
-                android:textSize="@dimen/_24ssp"
+                android:textSize="@dimen/_18ssp"
+                app:layout_constraintBottom_toTopOf="@id/guidelineTop"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/imgIcon"
-                app:layout_constraintTop_toTopOf="@id/guidelineTop" />
+                app:layout_constraintStart_toEndOf="@id/imgIcon" />
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/lottieView"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="0dp"
-                app:layout_constraintBottom_toBottomOf="@id/guidelineCenterBottom"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/guidelineCenter"
+                app:layout_constraintEnd_toEndOf="@id/guidelineRight"
+                app:layout_constraintStart_toStartOf="@id/guidelineLeft"
                 app:layout_constraintTop_toTopOf="@id/guidelineTop"
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true"
                 app:lottie_rawRes="@raw/login" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvContent"
-                android:layout_width="0dp"
+                android:id="@+id/tvUserName"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins"
-                android:gravity="center"
-                android:text="@string/hint_login"
-                android:textColor="@color/primary"
-                android:textSize="@dimen/_18ssp"
+                android:fontFamily="@font/poppins_thin"
+                android:text="@string/text_username"
+                android:textColor="@color/g_gray700"
+                android:textSize="@dimen/_12ssp"
                 app:layout_constraintEnd_toEndOf="@id/guidelineRight"
+                app:layout_constraintHorizontal_bias="0"
                 app:layout_constraintStart_toStartOf="@id/guidelineLeft"
                 app:layout_constraintTop_toBottomOf="@id/lottieView" />
 
             <androidx.appcompat.widget.AppCompatEditText
-                android:id="@+id/edName"
+                android:id="@+id/edUsername"
                 style="@style/editText"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/_40sdp"
-                android:hint="@string/hint_enter_name"
+                android:layout_height="60dp"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:hint="@string/hint_input_username"
+                android:imeOptions="actionNext"
                 android:inputType="text"
-                android:imeOptions="actionDone"
-                app:layout_constraintBottom_toTopOf="@id/btnStart"
-                app:layout_constraintEnd_toEndOf="@id/btnStart"
-                app:layout_constraintStart_toStartOf="@id/btnStart"
-                app:layout_constraintTop_toBottomOf="@id/tvContent" />
-
-            <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
-                android:id="@+id/btnStart"
-                style="@style/primaryButtonStyle"
-                android:layout_width="@dimen/_100sdp"
-                android:layout_height="@dimen/_40sdp"
-                android:text="@string/text_anonymity"
-                app:layout_constraintBottom_toBottomOf="@id/guidelineBottom"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:spinning_bar_color="@color/white" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvSupport"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins"
-                android:gravity="center"
-                android:text="@string/hint_anonymity_login"
-                android:textSize="@dimen/_10ssp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:text="@{VM.userAccount}"
                 app:layout_constraintEnd_toEndOf="@id/guidelineRight"
                 app:layout_constraintStart_toStartOf="@id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@id/btnStart"
-                app:layout_constraintVertical_bias="0.2" />
+                app:layout_constraintTop_toBottomOf="@id/tvUserName" />
 
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/lottieArrow"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                app:layout_constraintBottom_toTopOf="@id/btnStart"
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvPassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:fontFamily="@font/poppins_thin"
+                android:text="@string/text_password"
+                android:textColor="@color/g_gray700"
+                android:textSize="@dimen/_12ssp"
                 app:layout_constraintEnd_toEndOf="@id/guidelineRight"
-                app:layout_constraintStart_toEndOf="@id/btnStart"
-                app:layout_constraintTop_toBottomOf="@id/tvContent"
-                app:lottie_autoPlay="true"
-                app:lottie_loop="true"
-                app:lottie_rawRes="@raw/arrow" />
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toStartOf="@id/guidelineLeft"
+                app:layout_constraintTop_toBottomOf="@id/edUsername" />
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/edPassword"
+                style="@style/editText"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:hint="@string/hint_input_password"
+                android:imeOptions="actionDone"
+                android:inputType="textPassword"
+                android:text="@{VM.userPassword}"
+                app:layout_constraintEnd_toEndOf="@id/guidelineRight"
+                app:layout_constraintStart_toStartOf="@id/guidelineLeft"
+                app:layout_constraintTop_toBottomOf="@id/tvPassword" />
+
+            <CheckBox
+                android:id="@+id/checkbox"
+                style="@style/checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked='@{VM.userPassword != ""}'
+                android:paddingStart="@dimen/_5sdp"
+                android:text="@string/hint_remember_me"
+                app:layout_constraintStart_toStartOf="@id/guidelineLeft"
+                app:layout_constraintTop_toBottomOf="@id/edPassword" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnStart"
+                style="@style/primaryButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/_40sdp"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:text="@string/hint_login_register"
+                app:layout_constraintBottom_toTopOf="@+id/guidelineBottom"
+                app:layout_constraintEnd_toEndOf="@id/guidelineRight"
+                app:layout_constraintStart_toStartOf="@id/guidelineLeft"
+                app:layout_constraintTop_toBottomOf="@+id/checkbox"
+                app:layout_constraintVertical_bias="0" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guidelineTop"

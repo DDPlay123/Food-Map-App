@@ -11,6 +11,19 @@ object ApiClient {
     private val okHttpClient: OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(LogInterceptor())
         .build()
+
+    /**
+     * API Server
+     */
+    val getAPI: ApiService by lazy {
+        Retrofit.Builder()
+            .client(okHttpClient)
+            .baseUrl("http://kkhomeserver.ddns.net:33000/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+    }
+
     /**
      * 取得TDX Token
      */
@@ -30,6 +43,18 @@ object ApiClient {
         Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl("https://tdx.transportdata.tw/api/basic/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+    }
+
+    /**
+     * Google Places API
+     */
+    val googlePlaces: ApiService by lazy {
+        Retrofit.Builder()
+            .client(okHttpClient)
+            .baseUrl("https://maps.googleapis.com/maps/api/place/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)

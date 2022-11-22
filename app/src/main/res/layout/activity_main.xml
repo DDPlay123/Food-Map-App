@@ -3,9 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="paddingTop"
+            type="Integer" />
+
+        <variable
+            name="paddingBottom"
+            type="Integer" />
+
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingTop="@{paddingTop}"
         tools:context=".ui.activity.MainActivity">
 
         <androidx.fragment.app.FragmentContainerView
@@ -23,7 +36,7 @@
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigation"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/bottom_navigation_background"
             android:elevation="0dp"
             app:itemIconTint="@drawable/bottom_nav_item_background"

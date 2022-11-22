@@ -1,39 +1,19 @@
 package com.side.project.foodmap.ui.activity
 
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.ActivityMainBinding
-import com.side.project.foodmap.helper.displayShortToast
-import com.side.project.foodmap.util.Constants.PERMISSION_COARSE_LOCATION
-import com.side.project.foodmap.util.Constants.PERMISSION_CODE
-import com.side.project.foodmap.util.Constants.PERMISSION_FINE_LOCATION
+import com.side.project.foodmap.ui.activity.other.BaseActivity
+import com.side.project.foodmap.ui.viewModel.MainViewModel
 
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            PERMISSION_CODE -> {
-                for (result in grantResults)
-                    if (result != PackageManager.PERMISSION_GRANTED) {
-                        when {
-                            permissions.any { it == PERMISSION_FINE_LOCATION || it == PERMISSION_COARSE_LOCATION } ->
-                                displayShortToast(getString(R.string.hint_not_location_permission))
-                        }
-                    }
-            }
-        }
-    }
+    private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,10 +23,35 @@ class MainActivity : BaseActivity() {
     }
 
     private fun doInitialize() {
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+
         val bottomNavigationView: BottomNavigationView = binding.bottomNavigation
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment
         val navController = navHostFragment.navController
 
         NavigationUI.setupWithNavController(bottomNavigationView, navController)
+
+        binding.apply {
+            paddingTop = getStatusBarHeight()
+            paddingBottom = getNavigationBarHeight()
+        }
+    }
+
+    private fun getStatusBarHeight(): Int {
+        var result = 0
+        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        if (resourceId > 0)
+            result = resources.getDimensionPixelSize(resourceId)
+
+        return result
+    }
+
+    private fun getNavigationBarHeight(): Int {
+        var result = 0
+        val resourceId: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+        if (resourceId > 0)
+            result = resources.getDimensionPixelSize(resourceId)
+
+        return result
     }
 }

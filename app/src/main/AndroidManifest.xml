@@ -4,24 +4,24 @@
     package="com.side.project.foodmap">
 
     <!-- 網路狀態 -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- GPS定位 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- 檔案讀寫 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".util.AppConfig"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_icon"
-        android:label="@string/app_name"
+        android:icon="@mipmap/ic_icon_foreground"
+        android:installLocation="internalOnly"
+        android:label="${APP_NAME}"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@mipmap/ic_icon_round"
+        android:roundIcon="@mipmap/ic_icon_foreground"
         android:supportsRtl="true"
         android:theme="@style/Theme.FoodMapApp"
         android:usesCleartextTraffic="true"
@@ -29,10 +29,19 @@
 
         <!-- Service -->
         <service
+            android:name=".service.MessagingService"
+            android:directBootAware="true"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service
             android:name=".service.LocationService"
             android:enabled="true"
-            android:exported="false"/>
-
+            android:exported="false" />
         <!-- 若目標版本在 API 28 或以上需要額外設定 Apache -->
         <uses-library
             android:name="org.apache.http.legacy"
@@ -41,21 +50,32 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${GOOGLE_KEY}" />
+        <!-- Firebase Notification Default Setting -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/img_icon" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/accent" />
         <!-- 金鑰 -->
         <meta-data
-            android:name = "GOOGLE_KEY"
-            android:value = "${GOOGLE_KEY}"/>
+            android:name="GOOGLE_KEY"
+            android:value="${GOOGLE_KEY}" />
         <meta-data
-            android:name = "tdx_grant_type"
-            android:value = "${tdx_grant_type}"/>
+            android:name="tdx_grant_type"
+            android:value="${tdx_grant_type}" />
         <meta-data
-            android:name = "tdx_client_id"
-            android:value = "${tdx_client_id}"/>
+            android:name="tdx_client_id"
+            android:value="${tdx_client_id}" />
         <meta-data
-            android:name = "tdx_client_secret"
-            android:value = "${tdx_client_secret}"/>
-
+            android:name="tdx_client_secret"
+            android:value="${tdx_client_secret}" />
         <!-- Activity -->
+        <activity
+            android:name=".ui.activity.DetailActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".ui.activity.MainActivity"
             android:exported="false"

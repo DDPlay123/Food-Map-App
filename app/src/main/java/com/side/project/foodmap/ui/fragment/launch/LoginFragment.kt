@@ -1,44 +1,30 @@
 package com.side.project.foodmap.ui.fragment.launch
 
-import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.view.animation.Animation
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.side.project.foodmap.R
-import com.side.project.foodmap.data.local.User
+import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.databinding.FragmentLoginBinding
 import com.side.project.foodmap.helper.displayShortToast
+import com.side.project.foodmap.helper.hideKeyboard
+import com.side.project.foodmap.helper.setAnimClick
 import com.side.project.foodmap.ui.activity.MainActivity
+import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.LoginViewModel
-import com.side.project.foodmap.ui.other.AnimManager
-import com.side.project.foodmap.util.Method.logE
+import com.side.project.foodmap.ui.other.AnimState
+import com.side.project.foodmap.util.Method
+import com.side.project.foodmap.util.RegisterLoginValidation
 import com.side.project.foodmap.util.Resource
-import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
-class LoginFragment : Fragment() {
-    private var _binding: FragmentLoginBinding? = null
-    private val binding get() = _binding!!
+class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login) {
+    private val viewModel: LoginViewModel by activityViewModel()
 
-    private val viewModel: LoginViewModel by viewModel()
-    private val animManager: AnimManager by inject()
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_login, container, false)
-        return binding.root
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    override fun FragmentLoginBinding.initialize() {
+        binding.vm = viewModel
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -49,27 +35,118 @@ class LoginFragment : Fragment() {
     }
 
     private fun doInitialize() {
+        // 驗證輸入
+        lifecycleScope.launchWhenCreated {
+            viewModel.validation.collect { validation ->
+                // 帳號錯誤
+                if (validation.account is RegisterLoginValidation.Failed)
+                    withContext(Dispatchers.Main) {
+                        binding.edUsername.apply {
+                            error = getString(validation.account.messageID)
+                        }
+                    }
+                // 密碼錯誤
+                if (validation.password is RegisterLoginValidation.Failed)
+                    withContext(Dispatchers.Main) {
+                        binding.edPassword.apply {
+                            error = getString(validation.password.messageID)
+                        }
+                    }
+            }
+        }
+
+        // 登入
         lifecycleScope.launchWhenCreated {
             viewModel.loginState.collect {
                 when (it) {
                     is Resource.Loading -> {
-                        logE("Login", "Loading")
-                        binding.btnStart.startAnimation()
+                        Method.logE("Login", "Loading")
+                        mActivity.hideKeyboard()
+                        dialog.showLoadingDialog(false)
+                        binding.edUsername.isFocusableInTouchMode = false
+                        binding.edPassword.isFocusableInTouchMode = false
                     }
                     is Resource.Success -> {
-                        logE("Login", "Success")
-                        binding.btnStart.revertAnimation()
-                        requireActivity().displayShortToast(getString(R.string.hint_login_success))
-                        Intent(requireActivity(), MainActivity::class.java).also { intent ->
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                            startActivity(intent)
+                        if (it.data?.status == 0) {
+                            // 登入
+                            Method.logE("Login", "Success")
+                            viewModel.clearPublicData()
+                            if (binding.checkbox.isChecked) {
+                                viewModel.putUserAccount(binding.edUsername.text.toString().trim())
+                                viewModel.putUserPassword(it.message.toString())
+                            }
+                            viewModel.putDeviceId(mActivity.getDeviceId())
+                        } else {
+                            // 註冊
+                            dialog.cancelLoadingDialog()
+                            Method.logE("Login", "to Register")
+                            binding.edUsername.isFocusableInTouchMode = true
+                            binding.edPassword.isFocusableInTouchMode = true
+                            registerPrompt()
                         }
                     }
                     is Resource.Error -> {
-                        logE("Login", "Error:${it.message.toString()}")
-                        binding.btnStart.revertAnimation()
-                        requireActivity().displayShortToast(getString(R.string.hint_login_error))
-                        setEditTextVisibility(true)
+                        Method.logE("Login", "Error:${it.message.toString()}")
+                        dialog.cancelLoadingDialog()
+                        binding.edUsername.isFocusableInTouchMode = true
+                        binding.edPassword.isFocusableInTouchMode = true
+                        requireActivity().displayShortToast(it.message.toString())
+                    }
+                    else -> Unit
+                }
+            }
+        }
+
+        // 註冊
+        lifecycleScope.launchWhenCreated {
+            viewModel.registerState.collect {
+                when (it) {
+                    is Resource.Loading -> {
+                        Method.logE("Register", "Loading")
+                        mActivity.hideKeyboard()
+                        dialog.showLoadingDialog(false)
+                        binding.edUsername.isFocusableInTouchMode = false
+                        binding.edPassword.isFocusableInTouchMode = false
+                    }
+                    is Resource.Success -> {
+                        Method.logE("Register", "Success")
+                        dialog.cancelLoadingDialog()
+                        binding.edUsername.isFocusableInTouchMode = true
+                        binding.edPassword.isFocusableInTouchMode = true
+                        requireActivity().displayShortToast(getString(R.string.hint_register_success))
+                    }
+                    is Resource.Error -> {
+                        Method.logE("Register", "Error:${it.message.toString()}")
+                        dialog.cancelLoadingDialog()
+                        binding.edUsername.isFocusableInTouchMode = true
+                        binding.edPassword.isFocusableInTouchMode = true
+                        requireActivity().displayShortToast(it.message.toString())
+                    }
+                    else -> Unit
+                }
+            }
+        }
+
+        // 取得使用者照片
+        lifecycleScope.launchWhenCreated {
+            viewModel.getUserImageState.collect {
+                when (it) {
+                    is Resource.Loading -> {
+                        Method.logE("Get User Image", "Loading")
+                        dialog.showLoadingDialog(false)
+                    }
+                    is Resource.Success -> {
+                        Method.logE("Get User Image", "Success")
+                        dialog.cancelLoadingDialog()
+                        it.data?.result?.let { result ->
+                            viewModel.putUserPicture(result.userImage)
+                            mActivity.start(MainActivity::class.java, true)
+                        }
+                    }
+                    is Resource.Error -> {
+                        Method.logE("Get User Image", "Error:${it.message.toString()}")
+                        dialog.cancelLoadingDialog()
+                        requireActivity().displayShortToast(getString(R.string.hint_error))
                     }
                     else -> Unit
                 }
@@ -77,50 +154,48 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun setListener() {
-        binding.run {
-            val anim = animManager.smallToLarge
-            btnStart.setOnClickListener {
-                if (edName.text.toString().trim().isEmpty()) {
-                    edName.error = getString(R.string.hint_please_enter_name)
-                    return@setOnClickListener
-                }
-                it.startAnimation(anim)
-            }
-            anim.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(p0: Animation?) {
-                    setEditTextVisibility(false)
-                }
-
-                override fun onAnimationEnd(p0: Animation?) {
-                    val user = User(
-                        edName.text.toString().trim()
+    private fun registerPrompt() {
+        val bindingPrompt = DialogPromptBinding.inflate(layoutInflater)
+        dialog.cancelAllDialog()
+        dialog.showCenterDialog(true, bindingPrompt, false).let {
+            bindingPrompt.run {
+                showIcon = true
+                imgPromptIcon.setImageResource(R.drawable.ic_error)
+                titleText = getString(R.string.hint_register_prompt_title)
+                subTitleText = getString(R.string.hint_register_prompt_subtitle)
+                tvCancel.setOnClickListener { dialog.cancelCenterDialog() }
+                tvConfirm.setOnClickListener {
+                    dialog.cancelCenterDialog()
+                    viewModel.register(
+                        account = binding.edUsername.text.toString().trim(),
+                        password = binding.edPassword.text.toString().trim(),
+                        deviceId = mActivity.getDeviceId()
                     )
-                    viewModel.anonymityLogin(user)
                 }
-
-                override fun onAnimationRepeat(p0: Animation?) {}
-            })
+            }
         }
     }
 
-    private fun setEditTextVisibility(isVisibility: Boolean) {
-        binding.run {
-            if (isVisibility) {
-                edName.visibility = View.VISIBLE
-                return
+    private fun setListener() {
+        binding.btnStart.setOnClickListener {
+            val anim = animManager.smallToLarge
+            it.setAnimClick(anim, AnimState.End) {
+                if (!requestPermission())
+                    return@setAnimClick
+                viewModel.login(
+                    account = binding.edUsername.text.toString().trim(),
+                    password = binding.edPassword.text.toString().trim(),
+                    deviceId = mActivity.getDeviceId()
+                )
             }
-            val anim = animManager.largeToHide
-            edName.startAnimation(anim)
-            anim.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(p0: Animation?) {}
-
-                override fun onAnimationEnd(p0: Animation?) {
-                    edName.visibility = View.GONE
-                }
-
-                override fun onAnimationRepeat(p0: Animation?) {}
-            })
         }
+    }
+
+    private fun requestPermission(): Boolean {
+        if (!Method.requestPermission(mActivity, *permission)) {
+            mActivity.displayShortToast(getString(R.string.hint_not_location_permission))
+            return false
+        }
+        return true
     }
 }
