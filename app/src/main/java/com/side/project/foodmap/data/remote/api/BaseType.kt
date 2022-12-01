@@ -49,7 +49,7 @@ data class PlaceList(
     val icon: Icon,
     val location: Location,
     val name: String,
-    val photos: ArrayList<Photos>,
+    val photos: ArrayList<Photos>? = null,
     val rating: Rating,
     val status: String,
     val types: ArrayList<String>,

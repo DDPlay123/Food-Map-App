@@ -10,6 +10,7 @@ import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.R
+import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
 import com.side.project.foodmap.databinding.DialogPromptSelectBinding
 import com.side.project.foodmap.databinding.FragmentHomeBinding
 import com.side.project.foodmap.helper.displayShortToast
@@ -82,6 +83,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             viewModel.userRegion.collect { region ->
                 regionID = regionList.indexOf(region)
                 viewModel.nearSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
+                viewModel.popularSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
             }
         }
 
@@ -100,7 +102,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         dialog.cancelLoadingDialog()
                         binding.vpPopular.show()
                         binding.lottieNoData.hidden()
-                        // TODO(初始化人氣餐廳卡片)
+                        it.data?.let { data -> initPopularCard(data) }
                     }
                     is Resource.Error -> {
                         logE("Popular Search", "Error:${it.message.toString()}")
@@ -246,7 +248,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         }
     }
 
-    private fun initPopularCard() {
+    private fun initPopularCard(drawCardRes: DrawCardRes) {
         popularSearchAdapter = PopularSearchAdapter()
         val compositePageTransformer = CompositePageTransformer()
         compositePageTransformer.apply {
@@ -263,6 +265,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
             setPageTransformer(compositePageTransformer)
             adapter = popularSearchAdapter
+            if (drawCardRes.result.placeList.size > 0)
+                popularSearchAdapter.setterData(drawCardRes.result.placeList)
         }
+
+        popularSearchAdapter.onItemClick = { viewModel.watchDetail(it) }
     }
 }

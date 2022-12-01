@@ -281,6 +281,19 @@
             app:layout_constraintStart_toStartOf="@id/homeHeader"
             app:layout_constraintTop_toBottomOf="@id/homeHeader" />
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imgRefresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_refresh"
+            android:tint="@color/black"
+            app:layout_constraintBottom_toBottomOf="@+id/tvPopular"
+            app:layout_constraintEnd_toEndOf="@+id/homeHeader"
+            app:layout_constraintTop_toTopOf="@+id/tvPopular" />
+
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/vpPopular"
             android:layout_width="match_parent"

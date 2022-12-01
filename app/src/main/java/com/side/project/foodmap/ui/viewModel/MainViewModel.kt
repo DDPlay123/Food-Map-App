@@ -4,9 +4,9 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchReq
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
+import com.side.project.foodmap.data.remote.api.restaurant.DrawCardReq
+import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
 import com.side.project.foodmap.data.remote.api.user.*
-import com.side.project.foodmap.data.remote.google.placesSearch.PlacesSearch
-import com.side.project.foodmap.helper.getLocation
 import com.side.project.foodmap.network.ApiClient
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Resource
@@ -36,7 +36,7 @@ class MainViewModel : BaseViewModel() {
     val putFcmTokenState
         get() = _putFcmTokenState.asStateFlow()
 
-    private val _popularSearchState = MutableStateFlow<Resource<PlacesSearch>>(Resource.Unspecified())
+    private val _popularSearchState = MutableStateFlow<Resource<DrawCardRes>>(Resource.Unspecified())
     val popularSearchState
         get() = _popularSearchState.asStateFlow()
 
@@ -95,20 +95,47 @@ class MainViewModel : BaseViewModel() {
         })
     }
 
-    fun popularSearch(region: String, latLng: String) {
-        val currentLatLng = if (region.getLocation().first == 0.00) latLng
-        else "${region.getLocation().first},${region.getLocation().second}"
-        // TODO(人氣餐廳)
+    fun popularSearch(region: String, latLng: LatLng, mode: Int = 0, num: Int = 10) {
+        val currentLatLng = Method.getCurrentLatLng(region, latLng)
+        val drawCardReq = DrawCardReq(
+            accessKey = accessKey.value,
+            userId = userUID.value,
+            latitude = currentLatLng.latitude,
+            longitude = currentLatLng.longitude,
+            mode = mode,
+            num = num
+        )
+        viewModelScope.launch { _popularSearchState.emit(Resource.Loading()) }
+        ApiClient.getAPI.apiDrawCard(drawCardReq).enqueue(object : Callback<DrawCardRes> {
+            override fun onResponse(call: Call<DrawCardRes>, response: Response<DrawCardRes>) {
+                viewModelScope.launch {
+                    response.body()?.let {
+                        _popularSearchState.value = when (it.status) {
+                            0 -> Resource.Success(it)
+                            else -> Resource.Error(it.errMsg.toString())
+                        }
+                    }
+                }
+            }
 
+            override fun onFailure(call: Call<DrawCardRes>, t: Throwable) {
+                viewModelScope.launch {
+                    _popularSearchState.value = Resource.Error(t.message.toString())
+                }
+            }
+        })
     }
 
-    fun nearSearch(region: String, latLng: LatLng) {
+    fun nearSearch(region: String, latLng: LatLng, distance: Int = 5000, minNum: Int = 20, maxNum: Int = 50) {
         val currentLatLng = Method.getCurrentLatLng(region, latLng)
         val distanceSearchReq = DistanceSearchReq(
             accessKey = accessKey.value,
             userId = userUID.value,
             latitude = currentLatLng.latitude,
             longitude = currentLatLng.longitude,
+            distance = distance,
+            minNum = minNum,
+            maxNum = maxNum
         )
         viewModelScope.launch { _nearSearchState.emit(Resource.Loading()) }
         ApiClient.getAPI.apiRestaurantDistanceSearch(distanceSearchReq).enqueue(object : Callback<DistanceSearchRes> {

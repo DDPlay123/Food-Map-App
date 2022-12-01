@@ -23,6 +23,10 @@ interface ApiService {
     @POST("api/place/search_by_keyword")
     fun apiRestaurantKeywordSearch(@Body keywordSearchReq: KeywordSearchReq): Call<KeywordSearchRes>
 
+    @Headers("Content-Type: application/json")
+    @POST("api/place/draw_card")
+    fun apiDrawCard(@Body drawCardReq: DrawCardReq): Call<DrawCardRes>
+
     /**
      * User API Server
      */
