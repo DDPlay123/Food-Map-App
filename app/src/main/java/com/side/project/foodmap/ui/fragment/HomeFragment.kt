@@ -1,8 +1,10 @@
 package com.side.project.foodmap.ui.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -12,12 +14,15 @@ import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
 import com.side.project.foodmap.databinding.DialogPromptSelectBinding
+import com.side.project.foodmap.databinding.DialogSearchBinding
 import com.side.project.foodmap.databinding.FragmentHomeBinding
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.helper.hidden
 import com.side.project.foodmap.helper.setAnimClick
 import com.side.project.foodmap.helper.show
 import com.side.project.foodmap.ui.activity.DetailActivity
+import com.side.project.foodmap.ui.activity.ListActivity
+import com.side.project.foodmap.ui.activity.MainActivity
 import com.side.project.foodmap.ui.adapter.PopularSearchAdapter
 import com.side.project.foodmap.ui.adapter.RegionSelectAdapter
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
@@ -34,7 +39,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private val viewModel: MainViewModel by activityViewModel()
 
     private lateinit var regionList: ArrayList<String>
+    private lateinit var region: String
     private var regionID: Int = 0
+
+    private var isRecentPopularSearch: Boolean = true
 
     private lateinit var popularSearchAdapter: PopularSearchAdapter
 
@@ -45,6 +53,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     override fun FragmentHomeBinding.initialize() {
         initLocationService()
         binding.vm = viewModel
+        binding.isPopularSearch = isRecentPopularSearch
         regionList = ArrayList(listOf(*resources.getStringArray(R.array.search_type)))
     }
 
@@ -81,6 +90,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         // 取得使用者區域設定
         lifecycleScope.launchWhenCreated {
             viewModel.userRegion.collect { region ->
+                dialog.cancelAllDialog()
+                this@HomeFragment.region = region
                 regionID = regionList.indexOf(region)
                 viewModel.nearSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
                 viewModel.popularSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
@@ -102,7 +113,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         dialog.cancelLoadingDialog()
                         binding.vpPopular.show()
                         binding.lottieNoData.hidden()
-                        it.data?.let { data -> initPopularCard(data) }
+                        it.data?.let { data ->
+                            if (data.result.msg.isNullOrEmpty())
+                                initPopularCard(data)
+                            else {
+                                binding.vpPopular.hidden()
+                                binding.lottieNoData.show()
+                            }
+                        }
                     }
                     is Resource.Error -> {
                         logE("Popular Search", "Error:${it.message.toString()}")
@@ -194,9 +212,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 }
             }
 
+            imgUserPicture.setOnClickListener {
+                (mActivity as MainActivity).switchFragment(R.id.profilesFragment)
+            }
+
             searchBar.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    mActivity.displayShortToast("Search")
+                    displaySearchDialog()
                 }
             }
 
@@ -212,10 +234,38 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 }
             }
 
+            tvPopular.setOnClickListener {
+                it.setAnimClick(anim, AnimState.Start) {
+                    isRecentPopularSearch = !isRecentPopularSearch
+                    togglePopularSearch(isRecentPopularSearch)
+                }
+            }
+
+            imgRefresh.setOnClickListener {
+                it.setAnimClick(anim, AnimState.Start) {
+                    if (::region.isInitialized) {
+                        viewModel.nearSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
+                        viewModel.popularSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
+                    }
+                }
+            }
+
             tvViewMore.setOnClickListener {
-                // TODO(切換Fragment，查看條列餐廳資料)
+                Bundle().also { b ->
+                    b.putString("TITLE", region)
+                    b.putBoolean("IS_LOCAL", true)
+                    mActivity.start(ListActivity::class.java, b)
+                }
             }
         }
+    }
+
+    private fun togglePopularSearch(isRecentPopularSearch: Boolean) {
+        binding.isPopularSearch = isRecentPopularSearch
+        if (isRecentPopularSearch)
+            viewModel.popularSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()), mode = 0)
+        else
+            viewModel.popularSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()), mode = 1)
     }
 
     private fun displayRegionDialog() {
@@ -242,7 +292,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 // listener
                 regionSelectAdapter.onItemClick = { region ->
                     viewModel.putUserRegion(region)
-                    dialog.cancelCenterDialog()
+                    dialog.showLoadingDialog(false)
                 }
             }
         }
@@ -270,5 +320,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         }
 
         popularSearchAdapter.onItemClick = { viewModel.watchDetail(it) }
+    }
+
+    private fun displaySearchDialog() {
+        val dialogBinding = DialogSearchBinding.inflate(layoutInflater)
+        dialog.showBottomDialog(dialogBinding, true).let {
+            dialogBinding.run {
+
+            }
+        }
     }
 }

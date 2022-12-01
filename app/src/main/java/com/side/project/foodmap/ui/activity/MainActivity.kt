@@ -15,6 +15,8 @@ class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
 
+    private lateinit var bottomNavigationView: BottomNavigationView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
@@ -22,10 +24,14 @@ class MainActivity : BaseActivity() {
         doInitialize()
     }
 
+    fun switchFragment(target: Int) {
+        bottomNavigationView.selectedItemId = target
+    }
+
     private fun doInitialize() {
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
-        val bottomNavigationView: BottomNavigationView = binding.bottomNavigation
+        bottomNavigationView = binding.bottomNavigation
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment
         val navController = navHostFragment.navController
 

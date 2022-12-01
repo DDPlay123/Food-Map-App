@@ -1,5 +1,6 @@
 package com.side.project.foodmap.ui.adapter
 
+import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.side.project.foodmap.R
@@ -8,7 +9,7 @@ import com.side.project.foodmap.databinding.ItemRestaurantViewBinding
 import com.side.project.foodmap.ui.adapter.other.BaseRvAdapter
 import java.io.IOException
 
-class PopularSearchAdapter : BaseRvAdapter<ItemRestaurantViewBinding, PlaceList>(R.layout.item_restaurant_view) {
+class RestaurantListAdapter : BaseRvAdapter<ItemRestaurantViewBinding, PlaceList>(R.layout.item_restaurant_view) {
 
     private val itemCallback = object : DiffUtil.ItemCallback<PlaceList>() {
         // 比對新舊 Item
@@ -32,6 +33,12 @@ class PopularSearchAdapter : BaseRvAdapter<ItemRestaurantViewBinding, PlaceList>
     }
 
     fun getterData(position: Int): PlaceList = differ.currentList[position]
+
+    override fun ItemRestaurantViewBinding.initialize(binding: ItemRestaurantViewBinding) {
+        val params = binding.cardView.layoutParams
+        params.height = ViewGroup.LayoutParams.WRAP_CONTENT
+        binding.cardView.layoutParams = params
+    }
 
     override fun bind(binding: ItemRestaurantViewBinding, item: PlaceList, position: Int) {
         super.bind(binding, item, position)

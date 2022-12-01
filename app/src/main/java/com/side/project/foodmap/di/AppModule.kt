@@ -52,4 +52,5 @@ val viewModel = module {
     viewModel { LoginViewModel() }
     viewModel { MainViewModel() }
     viewModel { DetailViewModel() }
+    viewModel { ListViewModel() }
 }

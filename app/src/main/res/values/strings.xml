@@ -76,6 +76,7 @@
     <string name="hint_delete_account_success">刪除成功</string>
     <string name="hint_logout_success">登出成功</string>
     <string name="hint_popular_restaurant">附近的人氣餐廳</string>
+    <string name="hint_favorite_popular_restaurant">最愛清單的人氣餐廳</string>
     <string name="hint_all_restaurant">全部餐廳</string>
     <string name="hint_google_ratings_total">"則 Google 評論</string>
     <string name="hint_from_google_top5_reviews">來自 Google 的前五評論</string>
@@ -131,5 +132,7 @@
     <string name="menu_gravity">Gravity</string>
     <string name="menu_enable_slow">Slow animations</string>
     <string name="menu_enable_overlay">Debug overlay</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

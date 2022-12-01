@@ -6,12 +6,17 @@
     <data>
 
         <variable
+            name="data"
+            type="com.side.project.foodmap.data.remote.api.PlaceList" />
+
+        <variable
             name="photoReference"
             type="String" />
-        
+
     </data>
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="@dimen/_8sdp"
@@ -47,6 +52,7 @@
                 android:ellipsize="end"
                 android:fontFamily="@font/poppins_thin"
                 android:maxLines="1"
+                android:text="@{data.name}"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_13ssp"
                 android:textStyle="bold"
@@ -61,6 +67,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_4sdp"
                 android:fontFamily="@font/poppins_thin"
+                android:text="@{String.valueOf(data.rating.star)}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle"
                 tools:text="4.3" />
@@ -73,6 +80,7 @@
                 android:layout_marginStart="@dimen/_5sdp"
                 android:isIndicator="true"
                 android:numStars="5"
+                android:rating="@{data.rating.star}"
                 app:layout_constraintBottom_toBottomOf="@id/tvRating"
                 app:layout_constraintStart_toEndOf="@id/tvRating"
                 app:layout_constraintTop_toTopOf="@id/tvRating"
@@ -84,6 +92,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/_5sdp"
                 android:fontFamily="@font/poppins_thin"
+                android:text="@{String.valueOf(data.rating.total)}"
                 app:layout_constraintBottom_toBottomOf="@id/rating"
                 app:layout_constraintStart_toEndOf="@id/rating"
                 app:layout_constraintTop_toTopOf="@id/rating"
@@ -97,6 +106,7 @@
                 android:ellipsize="end"
                 android:fontFamily="@font/poppins_light"
                 android:maxLines="1"
+                android:text="@{data.address}"
                 android:textColor="@color/g_gray500"
                 android:textSize="@dimen/_12ssp"
                 app:layout_constraintEnd_toEndOf="parent"

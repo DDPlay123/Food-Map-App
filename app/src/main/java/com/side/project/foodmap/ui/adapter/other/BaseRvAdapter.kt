@@ -16,13 +16,13 @@ abstract class BaseRvAdapter<T : ViewDataBinding, R : Any>(@LayoutRes val layout
         this.data = data
     }
 
-    open fun T.initialize() {}
+    open fun T.initialize(binding: T) {}
 
     open fun bind(binding: T, item: R, position: Int) {}
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<T> {
         val binding: T = DataBindingUtil.inflate(LayoutInflater.from(parent.context), layoutRes, parent, false)
-        binding.initialize()
+        binding.initialize(binding)
         return BaseViewHolder(binding)
     }
 

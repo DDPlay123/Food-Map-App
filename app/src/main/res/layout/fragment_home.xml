@@ -10,6 +10,10 @@
             type="com.side.project.foodmap.ui.viewModel.MainViewModel" />
 
         <variable
+            name="isPopularSearch"
+            type="Boolean" />
+
+        <variable
             name="nearSearch"
             type="com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes" />
 
@@ -271,10 +275,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_10sdp"
             android:drawableStart="@drawable/ic_pan_tool_alt"
+            android:drawableEnd="@drawable/ic_swap_vert"
             android:drawablePadding="@dimen/_5sdp"
             android:drawableTint="@color/primary"
             android:fontFamily="@font/poppins_thin"
-            android:text="@string/hint_popular_restaurant"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:text="@{isPopularSearch ? @string/hint_popular_restaurant : @string/hint_favorite_popular_restaurant, default=@string/hint_popular_restaurant}"
             android:textColor="@color/black"
             android:textSize="@dimen/_14ssp"
             android:textStyle="bold"
@@ -283,14 +289,15 @@
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/imgRefresh"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_refresh"
-            android:tint="@color/black"
+            android:tint="@color/g_gray500"
             app:layout_constraintBottom_toBottomOf="@+id/tvPopular"
+            app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="@+id/homeHeader"
             app:layout_constraintTop_toTopOf="@+id/tvPopular" />
 

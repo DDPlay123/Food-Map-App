@@ -1,7 +1,10 @@
 package com.side.project.foodmap.ui.adapter.other
 
+import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.widget.addTextChangedListener
 import androidx.databinding.BindingAdapter
 import coil.imageLoader
 import coil.load
@@ -74,6 +77,23 @@ class BindingAdapter {
                 val simpleDate = SimpleDateFormat("yyyy/MM/dd hh:mm", Locale.TAIWAN)
                 textView.text = simpleDate.format(Date(unixTime.toLong() * 1000L))
             } catch (ignored: Exception) {
+            }
+        }
+
+        @BindingAdapter("android:edImgTool")
+        @kotlin.jvm.JvmStatic
+        fun edImgTool(imageView: ImageView, editText: EditText) {
+            try {
+                // init
+                imageView.setOnClickListener { editText.setText("") }
+                // track
+                editText.addTextChangedListener {
+                    if (it?.isNotEmpty() == true)
+                        imageView.setImageResource(R.drawable.ic_cancel)
+                    else
+                        imageView.setImageResource(R.drawable.ic_microphone)
+                }
+            } catch (e: Exception) {
             }
         }
     }

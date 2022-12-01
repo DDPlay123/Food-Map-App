@@ -104,9 +104,9 @@ interface ApiService {
     @GET("autocomplete/json")
     fun getPlacesAutoComplete(
         @Query("input") input: String,
-//        @Query("location") location: String, // Ex: 25.0338,121.5646
+        @Query("location") location: String, // Ex: 25.0338,121.5646
         @Query("components") component: String = "country:tw",
-//        @Query("radius") radius: String = "1000",
+        @Query("radius") radius: String = "10000",
         @Query("type") type: String = "restaurant",
         @Query("key") key: String,
         @Query("language") language: String = "zh-TW"

@@ -20,6 +20,7 @@ class DistanceSearchRes(
     val result: Result
 ) : BaseResponse(), Serializable {
     data class Result(
+        val msg: String? = null,
         val updated: Boolean,
         val placeCount: Long,
         val placeList: ArrayList<PlaceList>

@@ -42,7 +42,7 @@
             app:itemIconTint="@drawable/bottom_nav_item_background"
             app:itemPaddingBottom="10dp"
             app:itemPaddingTop="10dp"
-            app:itemRippleColor="@color/support"
+            app:itemRippleColor="@color/g_gray500"
             app:labelVisibilityMode="unlabeled"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
