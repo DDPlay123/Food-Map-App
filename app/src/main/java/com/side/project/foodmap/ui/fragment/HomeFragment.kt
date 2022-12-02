@@ -94,7 +94,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 this@HomeFragment.region = region
                 regionID = regionList.indexOf(region)
                 viewModel.nearSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
-                viewModel.popularSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
+                viewModel.popularSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()),
+                    if (isRecentPopularSearch) 0 else 1)
             }
         }
 
@@ -245,7 +246,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 it.setAnimClick(anim, AnimState.Start) {
                     if (::region.isInitialized) {
                         viewModel.nearSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
-                        viewModel.popularSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
+                        viewModel.popularSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()),
+                            if (isRecentPopularSearch) 0 else 1)
                     }
                 }
             }
