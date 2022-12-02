@@ -82,6 +82,7 @@
     <string name="hint_from_google_top5_reviews">來自 Google 的前五評論</string>
     <string name="hint_no_website">找不到網站</string>
     <string name="hint_no_phone">找不到電話</string>
+    <string name="hint_favorite_list">最愛清單</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>
@@ -115,6 +116,8 @@
     <string name="text_add_favorite">加置最愛</string>
     <string name="text_call_phone">致電</string>
     <string name="text_back">返回</string>
+    <string name="text_success">成功</string>
+    <string name="text_failed">失敗</string>
 
     <!--  特殊符號  -->
     <string name="u2022">•</string>

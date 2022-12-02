@@ -7,10 +7,12 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.side.project.foodmap.R
+import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.data.remote.google.placesDetails.Photo
 import com.side.project.foodmap.data.remote.google.placesDetails.Result
 import com.side.project.foodmap.data.remote.google.placesDetails.Review
@@ -27,19 +29,21 @@ import com.side.project.foodmap.ui.viewModel.DetailViewModel
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Resource
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DetailActivity : BaseActivity() {
     private lateinit var binding: ActivityDetailBinding
-    private val viewModel: DetailViewModel by viewModel()
+    private lateinit var viewModel: DetailViewModel
     private val animManager: AnimManager by inject()
 
     // Data
+    private lateinit var placesDetails: Result
     private lateinit var placeId: String
     private lateinit var googleUrl: String
     private lateinit var website: String
     private lateinit var phone: String
+    private var photo: MutableList<String> = ArrayList()
     private var workday: List<String> = emptyList()
+
     // Tool
     private lateinit var detailPhotoAdapter: DetailPhotoAdapter
     private lateinit var googleReviewsAdapter: GoogleReviewsAdapter
@@ -47,29 +51,27 @@ class DetailActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_detail)
+        viewModel = ViewModelProvider(this)[DetailViewModel::class.java]
         binding.paddingTop = getStatusBarHeight()
-
-        intent.extras?.let {
-            placeId = it.getString(PLACE_ID, "") ?: ""
-            viewModel.searchDetail(placeId, appInfo().metaData["GOOGLE_KEY"].toString())
-        }
 
         checkNetWork { onBackPressed() }
 
+        getArguments()
+        initLocationService()
         doInitialize()
         setListener()
     }
 
-    private fun getStatusBarHeight(): Int {
-        var result = 0
-        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
-        if (resourceId > 0)
-            result = resources.getDimensionPixelSize(resourceId)
-
-        return result
+    private fun getArguments() {
+        intent.extras?.let {
+            placeId = it.getString(PLACE_ID, "") ?: ""
+        }
     }
 
     private fun doInitialize() {
+        if (::placeId.isInitialized)
+            viewModel.searchDetail(placeId)
+        // 搜尋詳細資料
         lifecycleScope.launchWhenCreated {
             viewModel.searchDetailState.collect {
                 when (it) {
@@ -81,7 +83,7 @@ class DetailActivity : BaseActivity() {
                         Method.logE("Search Detail", "Success")
                         dialog.cancelLoadingDialog()
                         it.data?.result?.let { data ->
-                            setupData(data)
+                            setupData(data.result)
                         }
                     }
                     is Resource.Error -> {
@@ -93,11 +95,29 @@ class DetailActivity : BaseActivity() {
                 }
             }
         }
+
+        // 加入至最愛清單
+        lifecycleScope.launchWhenCreated {
+            viewModel.pushFavoriteState.collect {
+                when (it) {
+                    is Resource.Success -> {
+                        Method.logE("Push Favorite", "Success")
+                        displayShortToast(getString(R.string.text_success))
+                    }
+                    is Resource.Error -> {
+                        Method.logE("Push Favorite", "Error:${it.message.toString()}")
+                        displayShortToast(it.message.toString())
+                    }
+                    else -> Unit
+                }
+            }
+        }
     }
 
     private fun setupData(data: Result) {
         binding.run {
             detail = data
+            placesDetails = data
             data.reviews?.let { reviewsList -> initRvReviews(reviewsList) }
             data.photos?.let { photoList -> initPhotoSlider(photoList) }
             data.opening_hours?.weekday_text?.let { it -> workday = it }
@@ -124,7 +144,7 @@ class DetailActivity : BaseActivity() {
 
             tvGoogle.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    if (::googleUrl.isInitialized) {
+                    if (::googleUrl.isInitialized && googleUrl.isNotEmpty()) {
                         Intent(Intent.ACTION_VIEW).also { i ->
                             i.data = Uri.parse(googleUrl)
                             startActivity(i)
@@ -136,7 +156,7 @@ class DetailActivity : BaseActivity() {
 
             btnWebsite.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    if (::website.isInitialized) {
+                    if (::website.isInitialized && website.isNotEmpty()) {
                         Intent(Intent.ACTION_VIEW).also { i ->
                             i.data = Uri.parse(website)
                             startActivity(i)
@@ -155,13 +175,30 @@ class DetailActivity : BaseActivity() {
 
             btnFavorite.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    // TODO(添加最愛)
+                    val favoriteList = ArrayList<FavoriteList>()
+                    favoriteList.add(
+                        FavoriteList(
+                            placeId = placeId,
+                            photos = photo,
+                            name = placesDetails.name ?: "",
+                            vicinity = placesDetails.vicinity ?: "",
+                            workDay = workday,
+                            dine_in = placesDetails.dine_in ?: false,
+                            takeout = placesDetails.takeout ?: false,
+                            delivery = placesDetails.delivery ?: false,
+                            website = placesDetails.website ?: "",
+                            phone = placesDetails.formatted_phone_number ?: "",
+                            rating = (placesDetails.rating ?: 0.0).toFloat(),
+                            ratings_total = (placesDetails.user_ratings_total ?: 0).toLong()
+                        )
+                    )
+                    viewModel.pushFavorite(favoriteList)
                 }
             }
 
             btnPhone.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    if (::phone.isInitialized) {
+                    if (::phone.isInitialized && phone.isNotEmpty()) {
                         Intent(Intent.ACTION_DIAL).also { i ->
                             i.data = Uri.parse("tel:$phone")
                             startActivity(i)
@@ -183,7 +220,8 @@ class DetailActivity : BaseActivity() {
                 hideCancel = true
                 hideConfirm = true
                 listItem.apply {
-                    layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+                    layoutManager =
+                        LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
                     adapter = workDayAdapter
                     workDayAdapter.setWorkdayList(workday)
                 }
@@ -221,6 +259,9 @@ class DetailActivity : BaseActivity() {
             } else {
                 binding.imgPlaceHolder.hidden()
                 binding.vpPhoto.show()
+                photos.forEach { data ->
+                    photo.add(data.photo_reference)
+                }
             }
 
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -260,7 +301,8 @@ class DetailActivity : BaseActivity() {
         binding.run {
             val childCount: Int = sliderIndicators.childCount
             for (i in 0 until childCount) {
-                val imageView: AppCompatImageView = sliderIndicators.getChildAt(i) as AppCompatImageView
+                val imageView: AppCompatImageView =
+                    sliderIndicators.getChildAt(i) as AppCompatImageView
                 if (i == position)
                     imageView.setImageDrawable(applicationContext.getDrawableCompat(R.drawable.background_slider_indicator_active))
                 else

@@ -2,66 +2,83 @@ package com.side.project.foodmap.ui.activity
 
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.PlaceList
 import com.side.project.foodmap.databinding.ActivityListBinding
 import com.side.project.foodmap.helper.displayShortToast
+import com.side.project.foodmap.helper.getStatusBarHeight
 import com.side.project.foodmap.ui.activity.other.BaseActivity
 import com.side.project.foodmap.ui.adapter.RestaurantListAdapter
 import com.side.project.foodmap.ui.viewModel.ListViewModel
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Resource
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ListActivity : BaseActivity() {
     private lateinit var binding: ActivityListBinding
-    private val viewModel: ListViewModel by viewModel()
+    private lateinit var viewModel: ListViewModel
 
     // Data
-    private var isLocal: Boolean = true
-    private lateinit var title: String
-    private lateinit var count: String
+    private lateinit var keyword: String
+    private var latitude = DEFAULT_LATITUDE
+    private var longitude = DEFAULT_LONGITUDE
     // Tool
     private lateinit var restaurantListAdapter: RestaurantListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_list)
+        viewModel = ViewModelProvider(this)[ListViewModel::class.java]
         binding.paddingTop = getStatusBarHeight()
 
         checkNetWork { onBackPressed() }
 
         getArguments()
+        initLocationService()
         doInitialize()
         setListener()
     }
 
-    private fun getStatusBarHeight(): Int {
-        var result = 0
-        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
-        if (resourceId > 0)
-            result = resources.getDimensionPixelSize(resourceId)
-
-        return result
-    }
-
     private fun getArguments() {
         intent.extras?.let {
-            title = it.getString("TITLE", "") ?: ""
-            isLocal = it.getBoolean("IS_LOCAL", true)
+            keyword = it.getString("TITLE", "") ?: ""
+            latitude = it.getDouble("LATITUDE", 0.0)
+            longitude = it.getDouble("LONGITUDE", 0.0)
         }
     }
 
     private fun doInitialize() {
         // 初始化
-        if (isLocal && ::title.isInitialized)
-            viewModel.getDistanceSearchData()
-        else
-            viewModel.keywordSearch()
+        if (::keyword.isInitialized)
+            viewModel.nearSearch(keyword, LatLng(latitude, longitude))
 
-        binding.title = title
+        binding.title = keyword
+
+        // 附近搜尋
+        lifecycleScope.launchWhenCreated {
+            viewModel.nearSearchState.collect {
+                when (it) {
+                    is Resource.Loading -> {
+                        Method.logE("Near Search", "Loading")
+                        dialog.showLoadingDialog(false)
+                    }
+                    is Resource.Success -> {
+                        Method.logE("Near Search", "Success")
+                        it.data?.let { data -> viewModel.insertDistanceSearchData(data) }
+                    }
+                    is Resource.Error -> {
+                        Method.logE("Near Search", "Error:${it.message.toString()}")
+                        dialog.cancelLoadingDialog()
+                        displayShortToast(getString(R.string.hint_error))
+                        viewModel.getDistanceSearchData()
+                    }
+                    else -> Unit
+                }
+            }
+        }
 
         // 附近搜尋 From Room
         lifecycleScope.launchWhenCreated {

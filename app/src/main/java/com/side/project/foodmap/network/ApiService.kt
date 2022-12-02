@@ -24,6 +24,10 @@ interface ApiService {
     fun apiRestaurantKeywordSearch(@Body keywordSearchReq: KeywordSearchReq): Call<KeywordSearchRes>
 
     @Headers("Content-Type: application/json")
+    @POST("api/place/details_by_place_id")
+    fun apiDetailByPlaceId(@Body detailsByPlaceIdReq: DetailsByPlaceIdReq): Call<DetailsByPlaceIdRes>
+
+    @Headers("Content-Type: application/json")
     @POST("api/place/draw_card")
     fun apiDrawCard(@Body drawCardReq: DrawCardReq): Call<DrawCardRes>
 
@@ -61,6 +65,18 @@ interface ApiService {
     @Headers("Content-Type: application/json")
     @POST("api/user/set_password")
     fun apiSetUserPassword(@Body setPasswordReq: SetPasswordReq): Call<SetPasswordRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/push_favorite")
+    fun apiPushFavorite(@Body pushFavoriteReq: PushFavoriteReq): Call<PushFavoriteRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/pull_favorite")
+    fun apiPullFavorite(@Body pullFavoriteReq: PullFavoriteReq): Call<PullFavoriteRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/get_favorite")
+    fun apiGetFavorite(@Body getFavoriteReq: GetFavoriteReq): Call<GetFavoriteRes>
 
     /********************** 以下未用到 ************************/
     /**

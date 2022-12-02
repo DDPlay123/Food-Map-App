@@ -71,15 +71,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 when (it) {
                     is Resource.Loading -> {
                         logE("FCM Put", "Loading")
-                        dialog.showLoadingDialog(false)
+//                        dialog.showLoadingDialog(false)
                     }
                     is Resource.Success -> {
                         logE("FCM Put", "Success")
-                        dialog.cancelLoadingDialog()
+//                        dialog.cancelLoadingDialog()
                     }
                     is Resource.Error -> {
                         logE("FCM Put", "Error:${it.message.toString()}")
-                        dialog.cancelLoadingDialog()
+//                        dialog.cancelLoadingDialog()
                         requireActivity().displayShortToast(getString(R.string.hint_error))
                     }
                     else -> Unit
@@ -145,7 +145,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     }
                     is Resource.Success -> {
                         logE("Near Search", "Success")
-                        dialog.cancelLoadingDialog()
                         it.data?.let { data -> viewModel.insertDistanceSearchData(data) }
                     }
                     is Resource.Error -> {
@@ -254,8 +253,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
             tvViewMore.setOnClickListener {
                 Bundle().also { b ->
+                    val latLng: LatLng = Method.getCurrentLatLng(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
                     b.putString("TITLE", region)
-                    b.putBoolean("IS_LOCAL", true)
+                    b.putDouble("LATITUDE", latLng.latitude)
+                    b.putDouble("LONGITUDE", latLng.longitude)
                     mActivity.start(ListActivity::class.java, b)
                 }
             }

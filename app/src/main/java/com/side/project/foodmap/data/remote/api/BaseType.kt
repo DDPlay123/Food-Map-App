@@ -55,3 +55,18 @@ data class PlaceList(
     val types: ArrayList<String>,
     val updateTime: String
 )
+
+data class FavoriteList(
+    val placeId: String,
+    val photos: List<String>,
+    val name: String,
+    val vicinity: String,
+    val workDay: List<String>,
+    val dine_in: Boolean,
+    val takeout: Boolean,
+    val delivery: Boolean,
+    val website: String,
+    val phone: String,
+    val rating: Float,
+    val ratings_total: Long
+)

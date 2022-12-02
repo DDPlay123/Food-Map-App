@@ -76,85 +76,85 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     /**
      * Datastore Preference Repo
      */
-    fun putUserAccount(account: String) = viewModelScope.launch(Dispatchers.Default) {
+    fun putUserAccount(account: String) = viewModelScope.launch(Dispatchers.IO) {
         dataStoreRepo.putAccount(account)
         getUserAccountFromDataStore()
     }
 
-    fun getUserAccountFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserAccountFromDataStore() = viewModelScope.launch(Dispatchers.IO) {
         _userAccount.emit(dataStoreRepo.getAccount())
     }
 
-    fun putUserPassword(password: String) = viewModelScope.launch(Dispatchers.Default) {
+    fun putUserPassword(password: String) = viewModelScope.launch(Dispatchers.IO) {
         dataStoreRepo.putPassword(password)
         getUserPasswordFromDataStore()
     }
 
-    fun getUserPasswordFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserPasswordFromDataStore() = viewModelScope.launch(Dispatchers.IO) {
         val decrypt = AES.decrypt("MMSLAB", dataStoreRepo.getPassword())
         _userPassword.emit(decrypt)
     }
 
-    fun putAccessKey(accessKey: String) = viewModelScope.launch(Dispatchers.Default) {
+    fun putAccessKey(accessKey: String) = viewModelScope.launch(Dispatchers.IO) {
         dataStoreRepo.putAccessKey(accessKey)
         getAccessKeyFromDataStore()
     }
 
-    fun getAccessKeyFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
+    fun getAccessKeyFromDataStore() = viewModelScope.launch(Dispatchers.IO) {
         _accessKey.emit(dataStoreRepo.getAccessKey())
     }
 
-    fun putDeviceId(deviceId: String) = viewModelScope.launch(Dispatchers.Default) {
+    fun putDeviceId(deviceId: String) = viewModelScope.launch(Dispatchers.IO) {
         dataStoreRepo.putDeviceId(deviceId)
         getDeviceId()
     }
 
-    fun getDeviceId() = viewModelScope.launch(Dispatchers.Default) {
+    fun getDeviceId() = viewModelScope.launch(Dispatchers.IO) {
         _deviceId.emit(dataStoreRepo.getDeviceId())
     }
 
-    fun putUserUID(UID: String) = viewModelScope.launch(Dispatchers.Default) {
+    fun putUserUID(UID: String) = viewModelScope.launch(Dispatchers.IO) {
         dataStoreRepo.putUserUID(UID)
         getUserUIDFromDataStore()
     }
 
-    fun getUserUIDFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserUIDFromDataStore() = viewModelScope.launch(Dispatchers.IO) {
         _userUID.emit(dataStoreRepo.getUserUID())
     }
 
-    fun putUserRegion(region: String) = viewModelScope.launch(Dispatchers.Default) {
+    fun putUserRegion(region: String) = viewModelScope.launch(Dispatchers.IO) {
         dataStoreRepo.putUserRegion(region)
         getUserRegionFromDataStore()
     }
 
-    fun getUserRegionFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserRegionFromDataStore() = viewModelScope.launch(Dispatchers.IO) {
         _userRegion.emit(dataStoreRepo.getUserRegion())
     }
 
-    fun putUserName(name: String) = viewModelScope.launch(Dispatchers.Default) {
+    fun putUserName(name: String) = viewModelScope.launch(Dispatchers.IO) {
         dataStoreRepo.putUserName(name)
         getUserNameFromDataStore()
     }
 
-    fun getUserNameFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserNameFromDataStore() = viewModelScope.launch(Dispatchers.IO) {
         _userName.emit(dataStoreRepo.getUserName())
     }
 
-    fun putUserPicture(picture: String) = viewModelScope.launch(Dispatchers.Default) {
+    fun putUserPicture(picture: String) = viewModelScope.launch(Dispatchers.IO) {
         dataStoreRepo.putUserPicture(picture)
         getUserPictureFromDataStore()
     }
 
-    fun getUserPictureFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserPictureFromDataStore() = viewModelScope.launch(Dispatchers.IO) {
         _userPicture.emit(dataStoreRepo.getUserPicture())
     }
 
-    fun putUserIsLogin(isLogin: Boolean) = viewModelScope.launch(Dispatchers.Default) {
+    fun putUserIsLogin(isLogin: Boolean) = viewModelScope.launch(Dispatchers.IO) {
         dataStoreRepo.putUserIsLogin(isLogin)
         getUserIsLoginFromDataStore()
     }
 
-    fun getUserIsLoginFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
+    fun getUserIsLoginFromDataStore() = viewModelScope.launch(Dispatchers.IO) {
         _userIsLogin.postValue(dataStoreRepo.getUserIsLogin())
     }
 

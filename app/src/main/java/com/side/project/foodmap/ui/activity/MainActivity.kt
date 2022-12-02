@@ -8,6 +8,7 @@ import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.ActivityMainBinding
+import com.side.project.foodmap.helper.getStatusBarHeight
 import com.side.project.foodmap.ui.activity.other.BaseActivity
 import com.side.project.foodmap.ui.viewModel.MainViewModel
 
@@ -41,15 +42,6 @@ class MainActivity : BaseActivity() {
             paddingTop = getStatusBarHeight()
             paddingBottom = getNavigationBarHeight()
         }
-    }
-
-    private fun getStatusBarHeight(): Int {
-        var result = 0
-        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
-        if (resourceId > 0)
-            result = resources.getDimensionPixelSize(resourceId)
-
-        return result
     }
 
     private fun getNavigationBarHeight(): Int {

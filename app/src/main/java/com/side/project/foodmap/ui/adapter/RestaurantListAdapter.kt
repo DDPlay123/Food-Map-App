@@ -48,6 +48,7 @@ class RestaurantListAdapter : BaseRvAdapter<ItemRestaurantViewBinding, PlaceList
                 item.photos[0].photo_reference
             else
                 ""
+            binding.executePendingBindings() // 即時更新
             binding.root.setOnClickListener { onItemClick.invoke(item.uid) }
         } catch (ignored: IOException) {
         }
