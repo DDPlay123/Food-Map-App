@@ -46,10 +46,6 @@ class MainViewModel : BaseViewModel() {
     val nearSearchState: LiveData<Resource<DistanceSearchRes>>
         get() = _nearSearchState
 
-    private val _watchDetailState = MutableLiveData<Resource<String>>()
-    val watchDetailState: LiveData<Resource<String>>
-        get() = _watchDetailState
-
     // Profile Page
     private val _logoutState = MutableStateFlow<Resource<LogoutRes>>(Resource.Unspecified())
     val logoutState
@@ -161,13 +157,6 @@ class MainViewModel : BaseViewModel() {
                 }
             }
         })
-    }
-
-    fun watchDetail(placeId: String) {
-        if (placeId.isNotEmpty())
-            viewModelScope.launch { _watchDetailState.value = Resource.Success(placeId) }
-        else
-            viewModelScope.launch { _watchDetailState.value = Resource.Error("") }
     }
 
     fun logout() {

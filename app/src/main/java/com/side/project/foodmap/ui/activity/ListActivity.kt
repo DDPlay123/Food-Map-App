@@ -19,6 +19,7 @@ import com.side.project.foodmap.ui.viewModel.ListViewModel
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 class ListActivity : BaseActivity() {
     private lateinit var binding: ActivityListBinding
@@ -111,25 +112,6 @@ class ListActivity : BaseActivity() {
                         }
                     }
                 }
-                // 查看詳細資料
-                launch {
-                    viewModel.watchDetailState.observe(this@ListActivity) { resource ->
-                        when (resource) {
-                            is Resource.Success -> {
-                                Method.logE("Watch Detail", "Success")
-                                Bundle().also { b ->
-                                    b.putString("PLACE_ID", resource.data.toString())
-                                    mActivity.start(DetailActivity::class.java, b)
-                                }
-                            }
-                            is Resource.Error -> {
-                                Method.logE("Watch Detail", "Error:${resource.message.toString()}")
-                                displayShortToast(getString(R.string.hint_error))
-                            }
-                            else -> Unit
-                        }
-                    }
-                }
             }
         }
     }
@@ -148,6 +130,17 @@ class ListActivity : BaseActivity() {
             restaurantListAdapter.setterData(placeList)
         }
 
-        restaurantListAdapter.onItemClick = { viewModel.watchDetail(it) }
+        restaurantListAdapter.onItemClick = {
+            try {
+                Method.logE("Watch Detail", "Success")
+                Bundle().also { b ->
+                    b.putString("PLACE_ID", it)
+                    mActivity.start(DetailActivity::class.java, b)
+                }
+            } catch (e: Exception) {
+                Method.logE("Watch Detail", "Error")
+                displayShortToast(getString(R.string.hint_error))
+            }
+        }
     }
 }

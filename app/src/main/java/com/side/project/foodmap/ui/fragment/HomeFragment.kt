@@ -33,6 +33,7 @@ import com.side.project.foodmap.util.Method.logE
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import java.lang.Exception
 import kotlin.collections.ArrayList
 import kotlin.math.abs
 
@@ -41,6 +42,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
     private lateinit var regionList: ArrayList<String>
     private lateinit var region: String
+    private lateinit var placeId: String
     private var regionID: Int = 0
 
     private var isRecentPopularSearch: Boolean = true
@@ -114,7 +116,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                 binding.vpPopular.show()
                                 binding.lottieNoData.hidden()
                                 resource.data?.let { data ->
-                                    if (data.result.msg.isNullOrEmpty())
+                                    if (data.result.msg.isNullOrEmpty() && data.result.placeList.isNotEmpty())
                                         initPopularCard(data)
                                     else {
                                         binding.vpPopular.hidden()
@@ -171,7 +173,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                             is Resource.Success -> {
                                 logE("Near Search Room", "Success")
                                 dialog.cancelLoadingDialog()
-                                resource.data?.let { data -> binding.nearSearch = data }
+                                resource.data?.let { data ->
+                                    binding.nearSearch = data
+                                    placeId = data.result.placeList[0].uid
+                                }
                                 return@observe
                             }
                             is Resource.Error -> {
@@ -181,27 +186,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                 return@observe
                             }
                             else -> Unit
-                        }
-                    }
-                }
-                // 查看詳細資料
-                launch {
-                    lifecycleScope.launchWhenCreated {
-                        viewModel.watchDetailState.observe(viewLifecycleOwner) { resource ->
-                            when (resource) {
-                                is Resource.Success -> {
-                                    logE("Watch Detail", "Success")
-                                    Bundle().also { b ->
-                                        b.putString("PLACE_ID", resource.data.toString())
-                                        mActivity.start(DetailActivity::class.java, b)
-                                    }
-                                }
-                                is Resource.Error -> {
-                                    logE("Watch Detail", "Error:${resource.message.toString()}")
-                                    requireActivity().displayShortToast(getString(R.string.hint_error))
-                                }
-                                else -> Unit
-                            }
                         }
                     }
                 }
@@ -256,6 +240,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     }
                 }
             }
+
+            cardAllRestaurant.setOnClickListener { watchDetail(placeId) }
 
             tvViewMore.setOnClickListener {
                 Bundle().also { b ->
@@ -328,7 +314,21 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 popularSearchAdapter.setterData(drawCardRes.result.placeList)
         }
 
-        popularSearchAdapter.onItemClick = { viewModel.watchDetail(it) }
+        popularSearchAdapter.onItemClick = { watchDetail(it) }
+    }
+
+    private fun watchDetail(placeId: String) {
+        if (placeId.isEmpty()) return
+        try {
+            logE("Watch Detail", "Success")
+            Bundle().also { b ->
+                b.putString("PLACE_ID", placeId)
+                mActivity.start(DetailActivity::class.java, b)
+            }
+        } catch (e: Exception) {
+            logE("Watch Detail", "Error")
+            requireActivity().displayShortToast(getString(R.string.hint_error))
+        }
     }
 
     private fun displaySearchDialog() {

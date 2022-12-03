@@ -138,7 +138,6 @@
             android:clickable="true"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground"
-            android:onClick='@{() -> VM.watchDetail(nearSearch.result.placeList[0].uid)}'
             app:cardCornerRadius="@dimen/_8sdp"
             app:cardElevation="@dimen/_3ssp"
             app:layout_constraintBottom_toBottomOf="parent"

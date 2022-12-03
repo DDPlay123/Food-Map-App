@@ -23,10 +23,6 @@ class ListViewModel : BaseViewModel() {
     /**
      * 資料流
      */
-    private val _watchDetailState = MutableLiveData<Resource<String>>()
-    val watchDetailState: LiveData<Resource<String>>
-        get() = _watchDetailState
-
     private val _nearSearchState = MutableLiveData<Resource<DistanceSearchRes>>()
     val nearSearchState: LiveData<Resource<DistanceSearchRes>>
         get() = _nearSearchState
@@ -34,13 +30,6 @@ class ListViewModel : BaseViewModel() {
     /**
      * 可呼叫方法
      */
-    fun watchDetail(placeId: String) {
-        if (placeId.isNotEmpty())
-            viewModelScope.launch { _watchDetailState.value = Resource.Success(placeId) }
-        else
-            viewModelScope.launch { _watchDetailState.value = Resource.Error("") }
-    }
-
     fun nearSearch(region: String, latLng: LatLng, distance: Int = 5000, minNum: Int = 20, maxNum: Int = 50) {
         val currentLatLng = Method.getCurrentLatLng(region, latLng)
         val distanceSearchReq = DistanceSearchReq(
