@@ -21,6 +21,7 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
         doInitialize()
     }
@@ -30,8 +31,6 @@ class MainActivity : BaseActivity() {
     }
 
     private fun doInitialize() {
-        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
-
         bottomNavigationView = binding.bottomNavigation
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment
         val navController = navHostFragment.navController

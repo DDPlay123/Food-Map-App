@@ -7,8 +7,10 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.side.project.foodmap.R
@@ -28,6 +30,7 @@ import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.DetailViewModel
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Resource
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 class DetailActivity : BaseActivity() {
@@ -71,44 +74,48 @@ class DetailActivity : BaseActivity() {
     private fun doInitialize() {
         if (::placeId.isInitialized)
             viewModel.searchDetail(placeId)
-        // 搜尋詳細資料
-        lifecycleScope.launchWhenCreated {
-            viewModel.searchDetailState.collect {
-                when (it) {
-                    is Resource.Loading -> {
-                        Method.logE("Search Detail", "Loading")
-                        dialog.showLoadingDialog(false)
-                    }
-                    is Resource.Success -> {
-                        Method.logE("Search Detail", "Success")
-                        dialog.cancelLoadingDialog()
-                        it.data?.result?.let { data ->
-                            setupData(data.result)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                // 搜尋詳細資料
+                launch {
+                    viewModel.searchDetailState.collect {
+                        when (it) {
+                            is Resource.Loading -> {
+                                Method.logE("Search Detail", "Loading")
+                                dialog.showLoadingDialog(false)
+                            }
+                            is Resource.Success -> {
+                                Method.logE("Search Detail", "Success")
+                                dialog.cancelLoadingDialog()
+                                it.data?.result?.let { data ->
+                                    setupData(data.result)
+                                }
+                            }
+                            is Resource.Error -> {
+                                Method.logE("Search Detail", "Error:${it.message.toString()}")
+                                dialog.cancelLoadingDialog()
+                                displayShortToast(getString(R.string.hint_error))
+                            }
+                            else -> Unit
                         }
                     }
-                    is Resource.Error -> {
-                        Method.logE("Search Detail", "Error:${it.message.toString()}")
-                        dialog.cancelLoadingDialog()
-                        displayShortToast(getString(R.string.hint_error))
-                    }
-                    else -> Unit
                 }
-            }
-        }
-
-        // 加入至最愛清單
-        lifecycleScope.launchWhenCreated {
-            viewModel.pushFavoriteState.collect {
-                when (it) {
-                    is Resource.Success -> {
-                        Method.logE("Push Favorite", "Success")
-                        displayShortToast(getString(R.string.text_success))
+                // 加入至最愛清單
+                launch {
+                    viewModel.pushFavoriteState.collect {
+                        when (it) {
+                            is Resource.Success -> {
+                                Method.logE("Push Favorite", "Success")
+                                displayShortToast(getString(R.string.text_success))
+                            }
+                            is Resource.Error -> {
+                                Method.logE("Push Favorite", "Error:${it.message.toString()}")
+                                displayShortToast(it.message.toString())
+                            }
+                            else -> Unit
+                        }
                     }
-                    is Resource.Error -> {
-                        Method.logE("Push Favorite", "Error:${it.message.toString()}")
-                        displayShortToast(it.message.toString())
-                    }
-                    else -> Unit
                 }
             }
         }

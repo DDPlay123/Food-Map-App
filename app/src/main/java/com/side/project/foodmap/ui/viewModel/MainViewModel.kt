@@ -1,5 +1,7 @@
 package com.side.project.foodmap.ui.viewModel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchReq
@@ -36,17 +38,17 @@ class MainViewModel : BaseViewModel() {
     val putFcmTokenState
         get() = _putFcmTokenState.asStateFlow()
 
-    private val _popularSearchState = MutableStateFlow<Resource<DrawCardRes>>(Resource.Unspecified())
-    val popularSearchState
-        get() = _popularSearchState.asStateFlow()
+    private val _popularSearchState = MutableLiveData<Resource<DrawCardRes>>()
+    val popularSearchState: LiveData<Resource<DrawCardRes>>
+        get() = _popularSearchState
 
-    private val _nearSearchState = MutableStateFlow<Resource<DistanceSearchRes>>(Resource.Unspecified())
-    val nearSearchState
-        get() = _nearSearchState.asStateFlow()
+    private val _nearSearchState = MutableLiveData<Resource<DistanceSearchRes>>()
+    val nearSearchState: LiveData<Resource<DistanceSearchRes>>
+        get() = _nearSearchState
 
-    val _watchDetailState = MutableStateFlow<Resource<String>>(Resource.Unspecified())
-    val watchDetailState
-        get() = _watchDetailState.asStateFlow()
+    private val _watchDetailState = MutableLiveData<Resource<String>>()
+    val watchDetailState: LiveData<Resource<String>>
+        get() = _watchDetailState
 
     // Profile Page
     private val _logoutState = MutableStateFlow<Resource<LogoutRes>>(Resource.Unspecified())
@@ -105,15 +107,15 @@ class MainViewModel : BaseViewModel() {
             mode = mode,
             num = num
         )
-        viewModelScope.launch { _popularSearchState.emit(Resource.Loading()) }
+        viewModelScope.launch { _popularSearchState.postValue(Resource.Loading()) }
         ApiClient.getAPI.apiDrawCard(drawCardReq).enqueue(object : Callback<DrawCardRes> {
             override fun onResponse(call: Call<DrawCardRes>, response: Response<DrawCardRes>) {
                 viewModelScope.launch {
                     response.body()?.let {
-                        _popularSearchState.value = when (it.status) {
+                        _popularSearchState.postValue(when (it.status) {
                             0 -> Resource.Success(it)
                             else -> Resource.Error(it.errMsg.toString())
-                        }
+                        })
                     }
                 }
             }
@@ -137,14 +139,17 @@ class MainViewModel : BaseViewModel() {
             minNum = minNum,
             maxNum = maxNum
         )
-        viewModelScope.launch { _nearSearchState.emit(Resource.Loading()) }
+        viewModelScope.launch { _nearSearchState.postValue(Resource.Loading()) }
         ApiClient.getAPI.apiRestaurantDistanceSearch(distanceSearchReq).enqueue(object : Callback<DistanceSearchRes> {
             override fun onResponse(call: Call<DistanceSearchRes>, response: Response<DistanceSearchRes>) {
                 viewModelScope.launch {
                     response.body()?.let {
-                        _nearSearchState.value = when (it.status) {
-                            0 -> Resource.Success(it)
-                            else -> Resource.Error(it.errMsg.toString())
+                         when (it.status) {
+                            0 -> {
+                                _nearSearchState.postValue(Resource.Success(it))
+                                insertDistanceSearchData(it)
+                            }
+                            else -> _nearSearchState.value = Resource.Error(it.errMsg.toString())
                         }
                     }
                 }
@@ -160,9 +165,9 @@ class MainViewModel : BaseViewModel() {
 
     fun watchDetail(placeId: String) {
         if (placeId.isNotEmpty())
-            viewModelScope.launch { _watchDetailState.emit(Resource.Success(placeId)) }
+            viewModelScope.launch { _watchDetailState.value = Resource.Success(placeId) }
         else
-            viewModelScope.launch { _watchDetailState.emit(Resource.Error("")) }
+            viewModelScope.launch { _watchDetailState.value = Resource.Error("") }
     }
 
     fun logout() {
@@ -178,10 +183,10 @@ class MainViewModel : BaseViewModel() {
                     response.body()?.let {
                         when (it.status) {
                             0 -> {
-                                _logoutState.value = Resource.Success(it)
+                                _logoutState.emit(Resource.Success(it))
                                 putUserIsLogin(false)
                             }
-                            else -> _logoutState.value = Resource.Error(it.errMsg.toString())
+                            else -> _logoutState.emit(Resource.Error(it.errMsg.toString()))
                         }
                     }
                 }
@@ -189,7 +194,7 @@ class MainViewModel : BaseViewModel() {
 
             override fun onFailure(call: Call<LogoutRes>, t: Throwable) {
                 viewModelScope.launch {
-                    _logoutState.value = Resource.Error(t.message.toString())
+                    _logoutState.emit(Resource.Error(t.message.toString()))
                 }
             }
         })
@@ -207,12 +212,12 @@ class MainViewModel : BaseViewModel() {
                     response.body()?.let {
                         when (it.status) {
                             0 -> {
-                                _deleteAccountState.value = Resource.Success(it)
+                                _deleteAccountState.emit(Resource.Success(it))
                                 clearData()
                                 clearPublicData()
                                 deleteDistanceSearchData()
                             }
-                            else -> _deleteAccountState.value = Resource.Error(it.errMsg.toString())
+                            else -> _deleteAccountState.emit(Resource.Error(it.errMsg.toString()))
                         }
                     }
                 }
@@ -220,7 +225,7 @@ class MainViewModel : BaseViewModel() {
 
             override fun onFailure(call: Call<DeleteAccountRes>, t: Throwable) {
                 viewModelScope.launch {
-                    _deleteAccountState.value = Resource.Error(t.message.toString())
+                    _deleteAccountState.emit(Resource.Error(t.message.toString()))
                 }
             }
         })
@@ -239,10 +244,10 @@ class MainViewModel : BaseViewModel() {
                     response.body()?.let {
                         when (it.status) {
                             0 -> {
-                                _setUserImageState.value = Resource.Success(it)
+                                _setUserImageState.emit(Resource.Success(it))
                                 putUserPicture(userImage)
                             }
-                            else -> _setUserImageState.value = Resource.Error(it.errMsg.toString())
+                            else -> _setUserImageState.emit(Resource.Error(it.errMsg.toString()))
                         }
                     }
                 }
@@ -250,7 +255,7 @@ class MainViewModel : BaseViewModel() {
 
             override fun onFailure(call: Call<SetUserImageRes>, t: Throwable) {
                 viewModelScope.launch {
-                    _setUserImageState.value = Resource.Error(t.message.toString())
+                    _setUserImageState.emit(Resource.Error(t.message.toString()))
                 }
             }
         })

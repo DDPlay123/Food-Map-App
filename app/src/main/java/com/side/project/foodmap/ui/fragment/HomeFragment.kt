@@ -1,10 +1,10 @@
 package com.side.project.foodmap.ui.fragment
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -31,6 +31,7 @@ import com.side.project.foodmap.ui.viewModel.MainViewModel
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Method.logE
 import com.side.project.foodmap.util.Resource
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import kotlin.collections.ArrayList
 import kotlin.math.abs
@@ -65,139 +66,144 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     }
 
     private fun doInitialize() {
-        // 傳送 FCM Token
-        lifecycleScope.launchWhenCreated {
-            viewModel.putFcmTokenState.collect {
-                when (it) {
-                    is Resource.Loading -> {
-                        logE("FCM Put", "Loading")
-//                        dialog.showLoadingDialog(false)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                // 傳送 FCM Token
+                launch {
+                    viewModel.putFcmTokenState.collect {
+                        when (it) {
+                            is Resource.Loading -> {
+                                logE("FCM Put", "Loading")
+                            }
+                            is Resource.Success -> {
+                                logE("FCM Put", "Success")
+                            }
+                            is Resource.Error -> {
+                                logE("FCM Put", "Error:${it.message.toString()}")
+                                requireActivity().displayShortToast(getString(R.string.hint_error))
+                            }
+                            else -> Unit
+                        }
                     }
-                    is Resource.Success -> {
-                        logE("FCM Put", "Success")
-//                        dialog.cancelLoadingDialog()
-                    }
-                    is Resource.Error -> {
-                        logE("FCM Put", "Error:${it.message.toString()}")
-//                        dialog.cancelLoadingDialog()
-                        requireActivity().displayShortToast(getString(R.string.hint_error))
-                    }
-                    else -> Unit
                 }
-            }
-        }
-
-        // 取得使用者區域設定
-        lifecycleScope.launchWhenCreated {
-            viewModel.userRegion.collect { region ->
-                dialog.cancelAllDialog()
-                this@HomeFragment.region = region
-                regionID = regionList.indexOf(region)
-                viewModel.nearSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
-                viewModel.popularSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()),
-                    if (isRecentPopularSearch) 0 else 1)
-            }
-        }
-
-        // 人氣餐廳
-        lifecycleScope.launchWhenCreated {
-            viewModel.popularSearchState.collect {
-                when (it) {
-                    is Resource.Loading -> {
-                        logE("Popular Search", "Loading")
-                        dialog.showLoadingDialog(false)
-                        binding.vpPopular.hidden()
-                        binding.lottieNoData.show()
+                // 取得使用者區域設定
+                launch {
+                    viewModel.userRegion.collect { region ->
+                        dialog.cancelAllDialog()
+                        this@HomeFragment.region = region
+                        regionID = regionList.indexOf(region)
+                        viewModel.nearSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
+                        viewModel.popularSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()),
+                            if (isRecentPopularSearch) 0 else 1)
                     }
-                    is Resource.Success -> {
-                        logE("Popular Search", "Success")
-                        dialog.cancelLoadingDialog()
-                        binding.vpPopular.show()
-                        binding.lottieNoData.hidden()
-                        it.data?.let { data ->
-                            if (data.result.msg.isNullOrEmpty())
-                                initPopularCard(data)
-                            else {
+                }
+                // 人氣餐廳
+                launch {
+                    viewModel.popularSearchState.observe(viewLifecycleOwner) { resource ->
+                        when (resource) {
+                            is Resource.Loading -> {
+                                logE("Popular Search", "Loading")
+                                dialog.showLoadingDialog(false)
                                 binding.vpPopular.hidden()
                                 binding.lottieNoData.show()
+                                return@observe
+                            }
+                            is Resource.Success -> {
+                                logE("Popular Search", "Success")
+                                dialog.cancelLoadingDialog()
+                                binding.vpPopular.show()
+                                binding.lottieNoData.hidden()
+                                resource.data?.let { data ->
+                                    if (data.result.msg.isNullOrEmpty())
+                                        initPopularCard(data)
+                                    else {
+                                        binding.vpPopular.hidden()
+                                        binding.lottieNoData.show()
+                                    }
+                                }
+                                return@observe
+                            }
+                            is Resource.Error -> {
+                                logE("Popular Search", "Error:${resource.message.toString()}")
+                                dialog.cancelLoadingDialog()
+                                requireActivity().displayShortToast(getString(R.string.hint_error))
+                                binding.vpPopular.hidden()
+                                binding.lottieNoData.show()
+                                return@observe
+                            }
+                            else -> Unit
+                        }
+                    }
+                }
+                // 附近搜尋
+                launch {
+                    viewModel.nearSearchState.observe(viewLifecycleOwner) { resource ->
+                        when (resource) {
+                            is Resource.Loading -> {
+                                logE("Near Search", "Loading")
+                                dialog.showLoadingDialog(false)
+                                return@observe
+                            }
+                            is Resource.Success -> {
+                                logE("Near Search", "Success")
+                                return@observe
+                            }
+                            is Resource.Error -> {
+                                logE("Near Search", "Error:${resource.message.toString()}")
+                                dialog.cancelLoadingDialog()
+                                requireActivity().displayShortToast(getString(R.string.hint_error))
+                                viewModel.getDistanceSearchData()
+                                return@observe
+                            }
+                            else -> Unit
+                        }
+                    }
+                }
+                // 附近搜尋 From Room
+                launch {
+                    viewModel.getDistanceSearch.observe(viewLifecycleOwner) { resource ->
+                        when (resource) {
+                            is Resource.Loading -> {
+                                logE("Near Search Room", "Loading")
+                                dialog.showLoadingDialog(false)
+                                return@observe
+                            }
+                            is Resource.Success -> {
+                                logE("Near Search Room", "Success")
+                                dialog.cancelLoadingDialog()
+                                resource.data?.let { data -> binding.nearSearch = data }
+                                return@observe
+                            }
+                            is Resource.Error -> {
+                                logE("Near Search Room", "Error:${resource.message.toString()}")
+                                dialog.cancelLoadingDialog()
+                                requireActivity().displayShortToast(getString(R.string.hint_error))
+                                return@observe
+                            }
+                            else -> Unit
+                        }
+                    }
+                }
+                // 查看詳細資料
+                launch {
+                    lifecycleScope.launchWhenCreated {
+                        viewModel.watchDetailState.observe(viewLifecycleOwner) { resource ->
+                            when (resource) {
+                                is Resource.Success -> {
+                                    logE("Watch Detail", "Success")
+                                    Bundle().also { b ->
+                                        b.putString("PLACE_ID", resource.data.toString())
+                                        mActivity.start(DetailActivity::class.java, b)
+                                    }
+                                }
+                                is Resource.Error -> {
+                                    logE("Watch Detail", "Error:${resource.message.toString()}")
+                                    requireActivity().displayShortToast(getString(R.string.hint_error))
+                                }
+                                else -> Unit
                             }
                         }
                     }
-                    is Resource.Error -> {
-                        logE("Popular Search", "Error:${it.message.toString()}")
-                        dialog.cancelLoadingDialog()
-                        requireActivity().displayShortToast(getString(R.string.hint_error))
-                        binding.vpPopular.hidden()
-                        binding.lottieNoData.show()
-                    }
-                    else -> Unit
-                }
-            }
-        }
-
-        // 附近搜尋
-        lifecycleScope.launchWhenCreated {
-            viewModel.nearSearchState.collect {
-                when (it) {
-                    is Resource.Loading -> {
-                        logE("Near Search", "Loading")
-                        dialog.showLoadingDialog(false)
-                    }
-                    is Resource.Success -> {
-                        logE("Near Search", "Success")
-                        it.data?.let { data -> viewModel.insertDistanceSearchData(data) }
-                    }
-                    is Resource.Error -> {
-                        logE("Near Search", "Error:${it.message.toString()}")
-                        dialog.cancelLoadingDialog()
-                        requireActivity().displayShortToast(getString(R.string.hint_error))
-                        viewModel.getDistanceSearchData()
-                    }
-                    else -> Unit
-                }
-            }
-        }
-
-        // 附近搜尋 From Room
-        lifecycleScope.launchWhenCreated {
-            viewModel.getDistanceSearch.collect {
-                when (it) {
-                    is Resource.Loading -> {
-                        logE("Near Search Room", "Loading")
-                        dialog.showLoadingDialog(false)
-                    }
-                    is Resource.Success -> {
-                        logE("Near Search Room", "Success")
-                        dialog.cancelLoadingDialog()
-                        it.data?.let { data -> binding.nearSearch = data }
-                    }
-                    is Resource.Error -> {
-                        logE("Near Search Room", "Error:${it.message.toString()}")
-                        dialog.cancelLoadingDialog()
-                        requireActivity().displayShortToast(getString(R.string.hint_error))
-                    }
-                    else -> Unit
-                }
-            }
-        }
-
-        // 查看詳細資料
-        lifecycleScope.launchWhenCreated {
-            viewModel.watchDetailState.collect {
-                when (it) {
-                    is Resource.Success -> {
-                        logE("Watch Detail", "Success")
-                        Bundle().also { b ->
-                            b.putString("PLACE_ID", it.data.toString())
-                            mActivity.start(DetailActivity::class.java, b)
-                            viewModel._watchDetailState.emit(Resource.Loading())
-                        }
-                    }
-                    is Resource.Error -> {
-                        logE("Watch Detail", "Error:${it.message.toString()}")
-                        requireActivity().displayShortToast(getString(R.string.hint_error))
-                    }
-                    else -> Unit
                 }
             }
         }

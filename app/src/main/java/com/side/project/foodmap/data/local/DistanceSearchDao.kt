@@ -13,9 +13,6 @@ interface DistanceSearchDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertData(distanceSearchRes: DistanceSearchRes)
 
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateData(distanceSearchRes: DistanceSearchRes)
-
     @Query("DELETE FROM $DISTANCE_SEARCH_MODEL")
     suspend fun deleteData()
 }

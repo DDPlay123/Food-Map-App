@@ -12,7 +12,6 @@ import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -69,9 +68,9 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
 //    val userTdxTokenUpdate: LiveData<String>
 //        get() = _userTdxTokenUpdate
 
-    private val _getDistanceSearch = MutableStateFlow<Resource<DistanceSearchRes>>(Resource.Loading())
-    val getDistanceSearch
-        get() = _getDistanceSearch.asStateFlow()
+    private val _getDistanceSearch = MutableLiveData<Resource<DistanceSearchRes>>()
+    val getDistanceSearch: LiveData<Resource<DistanceSearchRes>>
+        get() = _getDistanceSearch
 
     /**
      * Datastore Preference Repo
@@ -162,16 +161,16 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
      * Database Repo
      */
     fun getDistanceSearchData() {
-        viewModelScope.launch { _getDistanceSearch.emit(Resource.Loading()) }
+        viewModelScope.launch { _getDistanceSearch.postValue(Resource.Loading()) }
         try {
             viewModelScope.launch(Dispatchers.Default) {
                 distanceSearchRepo.getData().let {
-                    _getDistanceSearch.emit(Resource.Success(it))
+                    _getDistanceSearch.postValue(Resource.Success(it))
                 }
             }
         } catch (e: IOException) {
             viewModelScope.launch {
-                _getDistanceSearch.emit(Resource.Error("ERROR"))
+                _getDistanceSearch.value = Resource.Error("ERROR")
             }
         }
     }
@@ -179,12 +178,6 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     suspend fun insertDistanceSearchData(distanceSearchRes: DistanceSearchRes) {
         deleteDistanceSearchData()
         distanceSearchRepo.insertData(distanceSearchRes)
-        getDistanceSearchData()
-    }
-
-    suspend fun updateDistanceSearchData(distanceSearchRes: DistanceSearchRes) {
-        deleteDistanceSearchData()
-        distanceSearchRepo.updateData(distanceSearchRes)
         getDistanceSearchData()
     }
 

@@ -1,13 +1,13 @@
 package com.side.project.foodmap.ui.viewModel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.side.project.foodmap.data.remote.api.user.*
 import com.side.project.foodmap.network.ApiClient
 import com.side.project.foodmap.util.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -22,21 +22,21 @@ class LoginViewModel : BaseViewModel() {
     /**
      * 資料流
      */
-    private val _loginState = MutableStateFlow<Resource<LoginRes>>(Resource.Unspecified())
+    private val _loginState = MutableSharedFlow<Resource<LoginRes>>()
     val loginState
-        get() = _loginState.asStateFlow()
+        get() = _loginState.asSharedFlow()
 
-    private val _registerState = MutableStateFlow<Resource<RegisterRes>>(Resource.Unspecified())
+    private val _registerState = MutableSharedFlow<Resource<RegisterRes>>()
     val registerState
-        get() = _registerState.asStateFlow()
+        get() = _registerState.asSharedFlow()
 
     private val _validation = Channel<RegisterLoginFieldsState>()
     val validation
         get() = _validation.receiveAsFlow()
 
-    private val _getUserImageState = MutableStateFlow<Resource<GetUserImageRes>>(Resource.Unspecified())
-    val getUserImageState
-        get() = _getUserImageState.asStateFlow()
+    private val _getUserImageState = MutableLiveData<Resource<GetUserImageRes>>()
+    val getUserImageState: LiveData<Resource<GetUserImageRes>>
+        get() = _getUserImageState
 
     /**
      * 可呼叫方法
@@ -55,11 +55,11 @@ class LoginViewModel : BaseViewModel() {
                         response.body()?.let {
                             when (it.status) {
                                 0 -> {
-                                    _loginState.value = Resource.Success(it, loginReq.password)
+                                    _loginState.emit(Resource.Success(it, loginReq.password))
                                     setUserInfo(it, loginReq.username)
                                 }
-                                3 -> _loginState.value = Resource.Success(it)
-                                else -> _loginState.value = Resource.Error(it.errMsg.toString())
+                                3 -> _loginState.emit(Resource.Success(it))
+                                else -> _loginState.emit(Resource.Error(it.errMsg.toString()))
                             }
                         }
                     }
@@ -67,7 +67,7 @@ class LoginViewModel : BaseViewModel() {
 
                 override fun onFailure(call: Call<LoginRes>, t: Throwable) {
                     viewModelScope.launch {
-                        _loginState.value = Resource.Error(t.message.toString())
+                        _loginState.emit(Resource.Error(t.message.toString()))
                     }
                 }
             })
@@ -75,8 +75,8 @@ class LoginViewModel : BaseViewModel() {
             viewModelScope.launch {
                 _validation.send(
                     RegisterLoginFieldsState(
-                        Method.validateAccount(loginReq.username),
-                        Method.validatePassword(loginReq.password)
+                        Method.validateAccount(account),
+                        Method.validatePassword(password)
                     )
                 )
             }
@@ -95,9 +95,9 @@ class LoginViewModel : BaseViewModel() {
                 override fun onResponse(call: Call<RegisterRes>, response: Response<RegisterRes>) {
                     viewModelScope.launch {
                         response.body()?.let {
-                            _registerState.value = when (it.status) {
-                                0 -> Resource.Success(it)
-                                else -> Resource.Error(it.errMsg.toString())
+                            when (it.status) {
+                                0 -> _registerState.emit(Resource.Success(it))
+                                else -> _registerState.emit(Resource.Error(it.errMsg.toString()))
                             }
                         }
                     }
@@ -105,7 +105,7 @@ class LoginViewModel : BaseViewModel() {
 
                 override fun onFailure(call: Call<RegisterRes>, t: Throwable) {
                     viewModelScope.launch {
-                        _registerState.value = Resource.Error(t.message.toString())
+                        _registerState.emit(Resource.Error(t.message.toString()))
                     }
                 }
             })
@@ -126,7 +126,7 @@ class LoginViewModel : BaseViewModel() {
             accessKey = loginRes.result?.accessKey ?: accessKey.value,
             userId = loginRes.result?.userId ?: userUID.value,
         )
-        viewModelScope.launch { _getUserImageState.emit(Resource.Loading()) }
+        viewModelScope.launch { _getUserImageState.postValue(Resource.Loading()) }
         ApiClient.getAPI.apiGetUserImage(getUserImageReq)
             .enqueue(object : Callback<GetUserImageRes> {
                 override fun onResponse(
@@ -135,9 +135,9 @@ class LoginViewModel : BaseViewModel() {
                 ) {
                     viewModelScope.launch {
                         response.body()?.let {
-                            _getUserImageState.value = when (it.status) {
-                                0 -> Resource.Success(it)
-                                else -> Resource.Error(it.errMsg.toString())
+                            when (it.status) {
+                                0 -> _getUserImageState.postValue(Resource.Success(it))
+                                else -> _getUserImageState.value = Resource.Error(it.errMsg.toString())
                             }
                         }
                     }
@@ -157,8 +157,7 @@ class LoginViewModel : BaseViewModel() {
     private fun checkValidation(account: String, password: String): Boolean {
         val validAccount = Method.validateAccount(account)
         val validPassword = Method.validatePassword(password)
-        return validAccount is RegisterLoginValidation.Success &&
-                validPassword is RegisterLoginValidation.Success
+        return validAccount is RegisterLoginValidation.Success && validPassword is RegisterLoginValidation.Success
     }
 
     /**

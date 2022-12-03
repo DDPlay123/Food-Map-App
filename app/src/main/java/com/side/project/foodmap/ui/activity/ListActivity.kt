@@ -2,8 +2,10 @@ package com.side.project.foodmap.ui.activity
 
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.R
@@ -16,6 +18,7 @@ import com.side.project.foodmap.ui.adapter.RestaurantListAdapter
 import com.side.project.foodmap.ui.viewModel.ListViewModel
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Resource
+import kotlinx.coroutines.launch
 
 class ListActivity : BaseActivity() {
     private lateinit var binding: ActivityListBinding
@@ -57,72 +60,75 @@ class ListActivity : BaseActivity() {
 
         binding.title = keyword
 
-        // 附近搜尋
-        lifecycleScope.launchWhenCreated {
-            viewModel.nearSearchState.collect {
-                when (it) {
-                    is Resource.Loading -> {
-                        Method.logE("Near Search", "Loading")
-                        dialog.showLoadingDialog(false)
-                    }
-                    is Resource.Success -> {
-                        Method.logE("Near Search", "Success")
-                        it.data?.let { data -> viewModel.insertDistanceSearchData(data) }
-                    }
-                    is Resource.Error -> {
-                        Method.logE("Near Search", "Error:${it.message.toString()}")
-                        dialog.cancelLoadingDialog()
-                        displayShortToast(getString(R.string.hint_error))
-                        viewModel.getDistanceSearchData()
-                    }
-                    else -> Unit
-                }
-            }
-        }
-
-        // 附近搜尋 From Room
-        lifecycleScope.launchWhenCreated {
-            viewModel.getDistanceSearch.collect {
-                when (it) {
-                    is Resource.Loading -> {
-                        Method.logE("Near Search Room", "Loading")
-                        dialog.showLoadingDialog(false)
-                    }
-                    is Resource.Success -> {
-                        Method.logE("Near Search Room", "Success")
-                        dialog.cancelLoadingDialog()
-                        it.data?.let { data ->
-                            binding.count = data.result.placeCount.toString()
-                            initRestaurant(data.result.placeList)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                // 附近搜尋
+                launch {
+                    viewModel.nearSearchState.observe(this@ListActivity) { resource ->
+                        when (resource) {
+                            is Resource.Loading -> {
+                                Method.logE("Near Search", "Loading")
+                                dialog.showLoadingDialog(false)
+                            }
+                            is Resource.Success -> {
+                                Method.logE("Near Search", "Success")
+                            }
+                            is Resource.Error -> {
+                                Method.logE("Near Search", "Error:${resource.message.toString()}")
+                                dialog.cancelLoadingDialog()
+                                displayShortToast(getString(R.string.hint_error))
+                                viewModel.getDistanceSearchData()
+                            }
+                            else -> Unit
                         }
                     }
-                    is Resource.Error -> {
-                        Method.logE("Near Search Room", "Error:${it.message.toString()}")
-                        dialog.cancelLoadingDialog()
-                        displayShortToast(getString(R.string.hint_error))
-                    }
-                    else -> Unit
                 }
-            }
-        }
-
-        // 查看詳細資料
-        lifecycleScope.launchWhenCreated {
-            viewModel.watchDetailState.collect {
-                when (it) {
-                    is Resource.Success -> {
-                        Method.logE("Watch Detail", "Success")
-                        Bundle().also { b ->
-                            b.putString("PLACE_ID", it.data.toString())
-                            mActivity.start(DetailActivity::class.java, b)
-                            viewModel._watchDetailState.emit(Resource.Loading())
+                // 附近搜尋 From Room
+                launch {
+                    viewModel.getDistanceSearch.observe(this@ListActivity) { resource ->
+                        when (resource) {
+                            is Resource.Loading -> {
+                                Method.logE("Near Search Room", "Loading")
+                                dialog.showLoadingDialog(false)
+                                return@observe
+                            }
+                            is Resource.Success -> {
+                                Method.logE("Near Search Room", "Success")
+                                dialog.cancelLoadingDialog()
+                                resource.data?.let { data ->
+                                    binding.count = data.result.placeCount.toString()
+                                    initRestaurant(data.result.placeList)
+                                }
+                                return@observe
+                            }
+                            is Resource.Error -> {
+                                Method.logE("Near Search Room", "Error:${resource.message.toString()}")
+                                dialog.cancelLoadingDialog()
+                                displayShortToast(getString(R.string.hint_error))
+                                return@observe
+                            }
+                            else -> Unit
                         }
                     }
-                    is Resource.Error -> {
-                        Method.logE("Watch Detail", "Error:${it.message.toString()}")
-                        displayShortToast(getString(R.string.hint_error))
+                }
+                // 查看詳細資料
+                launch {
+                    viewModel.watchDetailState.observe(this@ListActivity) { resource ->
+                        when (resource) {
+                            is Resource.Success -> {
+                                Method.logE("Watch Detail", "Success")
+                                Bundle().also { b ->
+                                    b.putString("PLACE_ID", resource.data.toString())
+                                    mActivity.start(DetailActivity::class.java, b)
+                                }
+                            }
+                            is Resource.Error -> {
+                                Method.logE("Watch Detail", "Error:${resource.message.toString()}")
+                                displayShortToast(getString(R.string.hint_error))
+                            }
+                            else -> Unit
+                        }
                     }
-                    else -> Unit
                 }
             }
         }

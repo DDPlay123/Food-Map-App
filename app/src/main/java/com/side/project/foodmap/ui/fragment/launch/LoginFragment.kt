@@ -2,7 +2,9 @@ package com.side.project.foodmap.ui.fragment.launch
 
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.databinding.FragmentLoginBinding
@@ -17,11 +19,12 @@ import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.RegisterLoginValidation
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login) {
-    private val viewModel: LoginViewModel by activityViewModel()
+    private val viewModel: LoginViewModel by viewModel()
 
     override fun FragmentLoginBinding.initialize() {
         binding.vm = viewModel
@@ -35,120 +38,121 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
     }
 
     private fun doInitialize() {
-        // 驗證輸入
-        lifecycleScope.launchWhenCreated {
-            viewModel.validation.collect { validation ->
-                // 帳號錯誤
-                if (validation.account is RegisterLoginValidation.Failed)
-                    withContext(Dispatchers.Main) {
-                        binding.edUsername.apply {
-                            error = getString(validation.account.messageID)
-                        }
-                    }
-                // 密碼錯誤
-                if (validation.password is RegisterLoginValidation.Failed)
-                    withContext(Dispatchers.Main) {
-                        binding.edPassword.apply {
-                            error = getString(validation.password.messageID)
-                        }
-                    }
-            }
-        }
-
-        // 登入
-        lifecycleScope.launchWhenCreated {
-            viewModel.loginState.collect {
-                when (it) {
-                    is Resource.Loading -> {
-                        Method.logE("Login", "Loading")
-                        mActivity.hideKeyboard()
-                        dialog.showLoadingDialog(false)
-                        binding.edUsername.isFocusableInTouchMode = false
-                        binding.edPassword.isFocusableInTouchMode = false
-                    }
-                    is Resource.Success -> {
-                        if (it.data?.status == 0) {
-                            // 登入
-                            Method.logE("Login", "Success")
-                            viewModel.clearPublicData()
-                            if (binding.checkbox.isChecked) {
-                                viewModel.putUserAccount(binding.edUsername.text.toString().trim())
-                                viewModel.putUserPassword(it.message.toString())
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                // 驗證輸入
+                launch {
+                    viewModel.validation.collect { validation ->
+                        // 帳號錯誤
+                        if (validation.account is RegisterLoginValidation.Failed)
+                            withContext(Dispatchers.Main) {
+                                binding.edUsername.apply {
+                                    error = getString(validation.account.messageID)
+                                }
                             }
-                            viewModel.putDeviceId(mActivity.getDeviceId())
-                        } else {
-                            // 註冊
-                            dialog.cancelLoadingDialog()
-                            Method.logE("Login", "to Register")
-                            binding.edUsername.isFocusableInTouchMode = true
-                            binding.edPassword.isFocusableInTouchMode = true
-                            registerPrompt()
+                        // 密碼錯誤
+                        if (validation.password is RegisterLoginValidation.Failed)
+                            withContext(Dispatchers.Main) {
+                                binding.edPassword.apply {
+                                    error = getString(validation.password.messageID)
+                                }
+                            }
+                    }
+                }
+                // 登入
+                launch {
+                    viewModel.loginState.collect {
+                        when (it) {
+                            is Resource.Loading -> {
+                                Method.logE("Login", "Loading")
+                                mActivity.hideKeyboard()
+                                dialog.showLoadingDialog(false)
+                                binding.edUsername.isFocusableInTouchMode = false
+                                binding.edPassword.isFocusableInTouchMode = false
+                            }
+                            is Resource.Success -> {
+                                if (it.data?.status == 0) {
+                                    // 登入
+                                    Method.logE("Login", "Success")
+                                    viewModel.clearPublicData()
+                                    if (binding.checkbox.isChecked) {
+                                        viewModel.putUserAccount(binding.edUsername.text.toString().trim())
+                                        viewModel.putUserPassword(it.message.toString())
+                                    }
+                                    viewModel.putDeviceId(mActivity.getDeviceId())
+                                } else {
+                                    // 註冊
+                                    dialog.cancelLoadingDialog()
+                                    Method.logE("Login", "to Register")
+                                    binding.edUsername.isFocusableInTouchMode = true
+                                    binding.edPassword.isFocusableInTouchMode = true
+                                    registerPrompt()
+                                }
+                            }
+                            is Resource.Error -> {
+                                Method.logE("Login", "Error:${it.message.toString()}")
+                                dialog.cancelLoadingDialog()
+                                binding.edUsername.isFocusableInTouchMode = true
+                                binding.edPassword.isFocusableInTouchMode = true
+                                requireActivity().displayShortToast(it.message.toString())
+                            }
+                            else -> Unit
                         }
                     }
-                    is Resource.Error -> {
-                        Method.logE("Login", "Error:${it.message.toString()}")
-                        dialog.cancelLoadingDialog()
-                        binding.edUsername.isFocusableInTouchMode = true
-                        binding.edPassword.isFocusableInTouchMode = true
-                        requireActivity().displayShortToast(it.message.toString())
-                    }
-                    else -> Unit
                 }
-            }
-        }
-
-        // 註冊
-        lifecycleScope.launchWhenCreated {
-            viewModel.registerState.collect {
-                when (it) {
-                    is Resource.Loading -> {
-                        Method.logE("Register", "Loading")
-                        mActivity.hideKeyboard()
-                        dialog.showLoadingDialog(false)
-                        binding.edUsername.isFocusableInTouchMode = false
-                        binding.edPassword.isFocusableInTouchMode = false
-                    }
-                    is Resource.Success -> {
-                        Method.logE("Register", "Success")
-                        dialog.cancelLoadingDialog()
-                        binding.edUsername.isFocusableInTouchMode = true
-                        binding.edPassword.isFocusableInTouchMode = true
-                        requireActivity().displayShortToast(getString(R.string.hint_register_success))
-                    }
-                    is Resource.Error -> {
-                        Method.logE("Register", "Error:${it.message.toString()}")
-                        dialog.cancelLoadingDialog()
-                        binding.edUsername.isFocusableInTouchMode = true
-                        binding.edPassword.isFocusableInTouchMode = true
-                        requireActivity().displayShortToast(it.message.toString())
-                    }
-                    else -> Unit
-                }
-            }
-        }
-
-        // 取得使用者照片
-        lifecycleScope.launchWhenCreated {
-            viewModel.getUserImageState.collect {
-                when (it) {
-                    is Resource.Loading -> {
-                        Method.logE("Get User Image", "Loading")
-                        dialog.showLoadingDialog(false)
-                    }
-                    is Resource.Success -> {
-                        Method.logE("Get User Image", "Success")
-                        dialog.cancelLoadingDialog()
-                        it.data?.result?.let { result ->
-                            viewModel.putUserPicture(result.userImage)
-                            mActivity.start(MainActivity::class.java, true)
+                // 註冊
+                launch {
+                    viewModel.registerState.collect {
+                        when (it) {
+                            is Resource.Loading -> {
+                                Method.logE("Register", "Loading")
+                                mActivity.hideKeyboard()
+                                dialog.showLoadingDialog(false)
+                                binding.edUsername.isFocusableInTouchMode = false
+                                binding.edPassword.isFocusableInTouchMode = false
+                            }
+                            is Resource.Success -> {
+                                Method.logE("Register", "Success")
+                                dialog.cancelLoadingDialog()
+                                binding.edUsername.isFocusableInTouchMode = true
+                                binding.edPassword.isFocusableInTouchMode = true
+                                requireActivity().displayShortToast(getString(R.string.hint_register_success))
+                            }
+                            is Resource.Error -> {
+                                Method.logE("Register", "Error:${it.message.toString()}")
+                                dialog.cancelLoadingDialog()
+                                binding.edUsername.isFocusableInTouchMode = true
+                                binding.edPassword.isFocusableInTouchMode = true
+                                requireActivity().displayShortToast(it.message.toString())
+                            }
+                            else -> Unit
                         }
                     }
-                    is Resource.Error -> {
-                        Method.logE("Get User Image", "Error:${it.message.toString()}")
-                        dialog.cancelLoadingDialog()
-                        requireActivity().displayShortToast(getString(R.string.hint_error))
+                }
+                // 取得使用者照片
+                launch {
+                    viewModel.getUserImageState.observe(viewLifecycleOwner) {
+                        when (it) {
+                            is Resource.Loading -> {
+                                Method.logE("Get User Image", "Loading")
+                                dialog.showLoadingDialog(false)
+                            }
+                            is Resource.Success -> {
+                                Method.logE("Get User Image", "Success")
+                                dialog.cancelLoadingDialog()
+                                it.data?.result?.let { result ->
+                                    viewModel.putUserPicture(result.userImage)
+                                    mActivity.start(MainActivity::class.java, true)
+                                }
+                            }
+                            is Resource.Error -> {
+                                Method.logE("Get User Image", "Error:${it.message.toString()}")
+                                dialog.cancelLoadingDialog()
+                                requireActivity().displayShortToast(getString(R.string.hint_error))
+                            }
+                            else -> Unit
+                        }
                     }
-                    else -> Unit
                 }
             }
         }
