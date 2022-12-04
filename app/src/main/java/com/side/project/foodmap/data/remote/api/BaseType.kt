@@ -1,5 +1,8 @@
 package com.side.project.foodmap.data.remote.api
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.side.project.foodmap.util.Constants.GET_FAVORITE_MODEL
 import java.net.URL
 
 /**
@@ -56,12 +59,16 @@ data class PlaceList(
     val updateTime: String
 )
 
+@Entity(tableName = GET_FAVORITE_MODEL)
 data class FavoriteList(
+    @PrimaryKey
     val placeId: String,
     val photos: List<String>,
     val name: String,
     val latitude: Double,
     val longitude: Double,
+    val price_level: Int,
+    val url: String,
     val vicinity: String,
     val workDay: List<String>,
     val dine_in: Boolean,

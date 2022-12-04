@@ -10,6 +10,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
         tools:context=".ui.fragment.FavoritesFragment">
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -37,17 +38,19 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvFavorites"
             android:layout_width="match_parent"
-            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_2sdp"
             android:layout_height="0dp"
             android:visibility="gone"
+            android:padding="@dimen/_5sdp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/supportLine"
+            tools:listitem="@layout/item_favorite"
             tools:visibility="visible"/>
 
         <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/lottie"
+            android:id="@+id/lottieNoData"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="visible"

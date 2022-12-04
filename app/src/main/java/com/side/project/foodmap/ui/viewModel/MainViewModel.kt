@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
+import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchReq
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 import com.side.project.foodmap.data.remote.api.restaurant.DrawCardReq
@@ -45,6 +46,18 @@ class MainViewModel : BaseViewModel() {
     private val _nearSearchState = MutableLiveData<Resource<DistanceSearchRes>>()
     val nearSearchState: LiveData<Resource<DistanceSearchRes>>
         get() = _nearSearchState
+
+    // Favorite Page
+    private var favoriteListFromRoom = getFavoriteData()
+    fun observeFavoriteListFromRoom(): LiveData<List<FavoriteList>> = favoriteListFromRoom
+
+    private val _getFavoriteListState = MutableLiveData<Resource<GetFavoriteRes>>()
+    val getFavoriteListState: LiveData<Resource<GetFavoriteRes>>
+        get() = _getFavoriteListState
+
+    private val _pullFavoriteState = MutableStateFlow<Resource<PullFavoriteRes>>(Resource.Unspecified())
+    val pullFavoriteState
+        get() = _pullFavoriteState.asStateFlow()
 
     // Profile Page
     private val _logoutState = MutableStateFlow<Resource<LogoutRes>>(Resource.Unspecified())
@@ -157,6 +170,64 @@ class MainViewModel : BaseViewModel() {
             override fun onFailure(call: Call<DistanceSearchRes>, t: Throwable) {
                 viewModelScope.launch {
                     _nearSearchState.value = Resource.Error(t.message.toString())
+                }
+            }
+        })
+    }
+
+    fun getFavoriteList() {
+        val getFavoriteReq = GetFavoriteReq(
+            userId = userUID.value,
+            accessKey = accessKey.value
+        )
+        viewModelScope.launch { _getFavoriteListState.postValue(Resource.Loading()) }
+        ApiClient.getAPI.apiGetFavorite(getFavoriteReq).enqueue(object : Callback<GetFavoriteRes> {
+            override fun onResponse(
+                call: Call<GetFavoriteRes>,
+                response: Response<GetFavoriteRes>
+            ) {
+                viewModelScope.launch {
+                    response.body()?.let {
+                        when (it.status) {
+                            0 -> _getFavoriteListState.postValue(Resource.Success(it))
+                            else ->_getFavoriteListState.value = Resource.Error(it.errMsg.toString())
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<GetFavoriteRes>, t: Throwable) {
+                viewModelScope.launch {
+                    _getFavoriteListState.value = Resource.Error(t.message.toString())
+                }
+            }
+        })
+    }
+
+    fun pullFavorite(placeIdList: ArrayList<String>) {
+        val pullFavoriteReq = PullFavoriteReq(
+            accessKey = accessKey.value,
+            userId = userUID.value,
+            favoriteIdList = placeIdList
+        )
+        ApiClient.getAPI.apiPullFavorite(pullFavoriteReq).enqueue(object : Callback<PullFavoriteRes> {
+            override fun onResponse(
+                call: Call<PullFavoriteRes>,
+                response: Response<PullFavoriteRes>
+            ) {
+                viewModelScope.launch {
+                    response.body()?.let {
+                        when (it.status) {
+                            0 -> _pullFavoriteState.value = Resource.Success(it)
+                            else -> _pullFavoriteState.value = Resource.Error(it.errMsg.toString())
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<PullFavoriteRes>, t: Throwable) {
+                viewModelScope.launch {
+                    _pullFavoriteState.value = Resource.Error(t.message.toString())
                 }
             }
         })

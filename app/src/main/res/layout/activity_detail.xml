@@ -159,8 +159,9 @@
                         android:fontFamily="@font/poppins_light"
                         android:includeFontPadding="false"
                         android:text="@string/text_dine_in"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_12ssp" />
+                        android:textColor="@color/g_gray700"
+                        android:textSize="@dimen/_12ssp"
+                        app:fontFamily="@font/poppins_thin" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="wrap_content"
@@ -181,7 +182,7 @@
                         android:fontFamily="@font/poppins_thin"
                         android:includeFontPadding="false"
                         android:text="@string/text_takeout"
-                        android:textColor="@color/black"
+                        android:textColor="@color/g_gray700"
                         android:textSize="@dimen/_12ssp" />
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -203,7 +204,7 @@
                         android:fontFamily="@font/poppins_thin"
                         android:includeFontPadding="false"
                         android:text="@string/text_delivery"
-                        android:textColor="@color/black"
+                        android:textColor="@color/g_gray700"
                         android:textSize="@dimen/_12ssp" />
 
                 </androidx.appcompat.widget.LinearLayoutCompat>
@@ -241,10 +242,11 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@drawable/background_google_green_button"
+                        android:drawableEnd="@drawable/ic_directions"
                         android:fontFamily="@font/poppins_thin"
                         android:gravity="center"
                         android:padding="@dimen/_10sdp"
-                        android:text="@string/text_go_navigation"
+                        android:text="@string/text_navigation"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
 
@@ -254,10 +256,11 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@drawable/background_google_yellow_button"
+                        android:drawableEnd="@drawable/ic_favorite_border"
                         android:fontFamily="@font/poppins_thin"
                         android:gravity="center"
                         android:padding="@dimen/_10sdp"
-                        android:text="@string/text_add_favorite"
+                        android:text="@string/text_favorite"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
 

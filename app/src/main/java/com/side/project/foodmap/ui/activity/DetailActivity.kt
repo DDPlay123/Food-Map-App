@@ -182,26 +182,26 @@ class DetailActivity : BaseActivity() {
 
             btnFavorite.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    val favoriteList = ArrayList<FavoriteList>()
-                    favoriteList.add(
-                        FavoriteList(
-                            placeId = placeId,
-                            photos = photo,
-                            name = placesDetails.name ?: "",
-                            latitude = placesDetails.geometry?.location?.lat ?: 0.0,
-                            longitude = placesDetails.geometry?.location?.lng ?: 0.0,
-                            vicinity = placesDetails.vicinity ?: "",
-                            workDay = workday,
-                            dine_in = placesDetails.dine_in ?: false,
-                            takeout = placesDetails.takeout ?: false,
-                            delivery = placesDetails.delivery ?: false,
-                            website = placesDetails.website ?: "",
-                            phone = placesDetails.formatted_phone_number ?: "",
-                            rating = (placesDetails.rating ?: 0.0).toFloat(),
-                            ratings_total = (placesDetails.user_ratings_total ?: 0).toLong()
-                        )
+                    val favoriteList = FavoriteList(
+                        placeId = placeId,
+                        photos = photo,
+                        name = placesDetails.name ?: "",
+                        latitude = placesDetails.geometry?.location?.lat ?: 0.0,
+                        longitude = placesDetails.geometry?.location?.lng ?: 0.0,
+                        price_level = placesDetails.price_level ?: 0,
+                        url = placesDetails.url ?: "",
+                        vicinity = placesDetails.vicinity ?: "",
+                        workDay = workday,
+                        dine_in = placesDetails.dine_in ?: false,
+                        takeout = placesDetails.takeout ?: false,
+                        delivery = placesDetails.delivery ?: false,
+                        website = placesDetails.website ?: "",
+                        phone = placesDetails.formatted_phone_number ?: "",
+                        rating = (placesDetails.rating ?: 0.0).toFloat(),
+                        ratings_total = (placesDetails.user_ratings_total ?: 0).toLong()
                     )
-                    viewModel.pushFavorite(favoriteList)
+                    viewModel.pushFavorite(arrayListOf(favoriteList))
+                    viewModel.insertFavoriteData(favoriteList)
                 }
             }
 

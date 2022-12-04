@@ -21,6 +21,7 @@ import com.side.project.foodmap.R
 import com.side.project.foodmap.helper.getLocation
 import com.side.project.foodmap.util.Constants.PERMISSION_CODE
 import java.io.ByteArrayOutputStream
+import java.util.*
 
 object Method {
     /**
@@ -80,6 +81,16 @@ object Method {
             if (region.getLocation().first != 0.00) region.getLocation().first else latLng.latitude,
             if (region.getLocation().second != 0.00) region.getLocation().second else latLng.longitude
         )
+
+    fun getWeekOfDate(dt: Date): Int {
+        val weekDays = arrayOf(7, 1, 2, 3, 4, 5, 6)
+        val cal = Calendar.getInstance()
+        cal.time = dt
+        var w = cal[Calendar.DAY_OF_WEEK] - 1
+        if (w < 0)
+            w = 0
+        return weekDays[w]
+    }
 
     fun createMapIcon(activity: Activity, view: View): Bitmap {
         val displayMetrics = DisplayMetrics()

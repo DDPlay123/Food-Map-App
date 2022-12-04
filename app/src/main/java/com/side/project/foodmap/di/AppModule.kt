@@ -6,6 +6,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.side.project.foodmap.data.local.distanceSearch.DistanceSearchDb
 import com.side.project.foodmap.data.local.drawCard.DrawCardDb
+import com.side.project.foodmap.data.local.getFavorite.GetFavoriteDb
 import com.side.project.foodmap.data.repo.*
 import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.util.NetworkConnection
@@ -43,17 +44,27 @@ val dbModel = module {
         ).fallbackToDestructiveMigration()
             .build()
     }
+    single {
+        Room.databaseBuilder(
+            androidApplication(),
+            GetFavoriteDb::class.java,
+            GetFavoriteDb::class.java.simpleName
+        ).fallbackToDestructiveMigration()
+            .build()
+    }
 }
 
 val daoModel = module {
     single { get<DistanceSearchDb>().distanceSearchDao() }
     single { get<DrawCardDb>().drawCardDao() }
+    single { get<GetFavoriteDb>().getFavoriteDao() }
 }
 
 val repoModule = module {
     single<DataStoreRepo> { DataStoreRepoImpl(androidContext()) }
     single<DistanceSearchRepo> { DistanceSearchRepoImpl() }
     single<DrawCardRepo> { DrawCardRepoImpl() }
+    single<GetFavoriteRepo> { GetFavoriteRepoImpl() }
 }
 
 val viewModel = module {

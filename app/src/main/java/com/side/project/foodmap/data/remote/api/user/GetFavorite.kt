@@ -10,7 +10,5 @@ data class GetFavoriteReq(
 ) : BaseRequest()
 
 data class GetFavoriteRes(
-    val result: Result? = null
-) : BaseResponse() {
-    data class Result(val favoriteList: List<FavoriteList>)
-}
+    val result: ArrayList<FavoriteList>
+) : BaseResponse()

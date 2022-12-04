@@ -4,11 +4,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
 import com.side.project.foodmap.data.repo.DataStoreRepo
 import com.side.project.foodmap.data.repo.DistanceSearchRepo
 import com.side.project.foodmap.data.repo.DrawCardRepo
+import com.side.project.foodmap.data.repo.GetFavoriteRepo
 import com.side.project.foodmap.util.AES
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.Dispatchers
@@ -23,6 +25,7 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     private val dataStoreRepo: DataStoreRepo by inject()
     private val distanceSearchRepo: DistanceSearchRepo by inject()
     private val drawCardRepo: DrawCardRepo by inject()
+    private val getFavoriteRepo: GetFavoriteRepo by inject()
 
     /**
      * 資料流
@@ -170,6 +173,7 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     suspend fun clearDbData() {
         deleteDistanceSearchData()
         deleteDrawCardData()
+        deleteAllFavoriteData()
     }
 
     fun getDistanceSearchData() {
@@ -219,6 +223,18 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
 
     private suspend fun deleteDrawCardData() =
         drawCardRepo.deleteData()
+
+    fun getFavoriteData(): LiveData<List<FavoriteList>> =
+        getFavoriteRepo.getData()
+
+    fun insertFavoriteData(favoriteList: FavoriteList) =
+        getFavoriteRepo.insertData(favoriteList)
+
+    fun deleteFavoriteData(favoriteList: FavoriteList) =
+        getFavoriteRepo.deleteData(favoriteList)
+
+    private fun deleteAllFavoriteData() =
+        getFavoriteRepo.deleteAllData()
 
 //    fun putUserTdxToken(token: String) = viewModelScope.launch(Dispatchers.Default) {
 //        dataStoreRepo.putTdxToken(token)

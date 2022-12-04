@@ -8,6 +8,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.databinding.BindingAdapter
 import coil.imageLoader
 import coil.load
+import coil.size.Scale
 import coil.transform.CircleCropTransformation
 import coil.transform.RoundedCornersTransformation
 import com.side.project.foodmap.R
@@ -22,7 +23,9 @@ class BindingAdapter {
         @kotlin.jvm.JvmStatic
         fun setLoadImage(imageView: ImageView, any: Any) {
             try {
-                imageView.load(any, imageLoader = imageView.context.imageLoader)
+                imageView.load(any, imageLoader = imageView.context.imageLoader) {
+                    scale(Scale.FILL)
+                }
             } catch (ignored: Exception) {
             }
         }
@@ -35,6 +38,7 @@ class BindingAdapter {
                     transformations(CircleCropTransformation())
                     placeholder(R.drawable.img_user)
                     error(R.drawable.img_user)
+                    scale(Scale.FILL)
                 }
             } catch (ignored: Exception) {
             }
@@ -49,6 +53,7 @@ class BindingAdapter {
                     transformations(CircleCropTransformation())
                     placeholder(R.drawable.img_user)
                     error(R.drawable.img_user)
+                    scale(Scale.FILL)
                 }
             } catch (ignored: Exception) {
             }
@@ -65,6 +70,23 @@ class BindingAdapter {
                     imageLoader = imageView.context.imageLoader
                 ) {
                     transformations(RoundedCornersTransformation(25f))
+                    scale(Scale.FILL)
+                }
+            } catch (ignored: Exception) {
+            }
+        }
+
+        @BindingAdapter("android:loadSquareImageFromGoogle")
+        @kotlin.jvm.JvmStatic
+        fun setLoadSquareImageFromGoogle(imageView: ImageView, photoReference: String) {
+            try {
+                val maxWidth = 400
+                imageView.load(
+                    "https://maps.googleapis.com/maps/api/place/photo?maxwidth=$maxWidth&photoreference=" +
+                            "$photoReference&key=${imageView.context.appInfo().metaData["GOOGLE_KEY"].toString()}",
+                    imageLoader = imageView.context.imageLoader
+                ) {
+                    scale(Scale.FILL)
                 }
             } catch (ignored: Exception) {
             }

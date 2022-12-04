@@ -5,7 +5,6 @@ import android.text.Spanned
 import android.view.View
 import android.view.animation.Animation
 import com.side.project.foodmap.ui.other.AnimState
-import com.side.project.foodmap.util.Method
 
 fun String.getLocation(): Pair<Double, Double> =
     when (this) {
