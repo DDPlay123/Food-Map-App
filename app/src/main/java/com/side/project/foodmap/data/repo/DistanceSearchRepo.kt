@@ -1,6 +1,6 @@
 package com.side.project.foodmap.data.repo
 
-import com.side.project.foodmap.data.local.DistanceSearchDao
+import com.side.project.foodmap.data.local.distanceSearch.DistanceSearchDao
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject

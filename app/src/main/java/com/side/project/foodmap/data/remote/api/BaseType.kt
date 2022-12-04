@@ -60,6 +60,8 @@ data class FavoriteList(
     val placeId: String,
     val photos: List<String>,
     val name: String,
+    val latitude: Double,
+    val longitude: Double,
     val vicinity: String,
     val workDay: List<String>,
     val dine_in: Boolean,

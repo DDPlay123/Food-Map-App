@@ -188,6 +188,8 @@ class DetailActivity : BaseActivity() {
                             placeId = placeId,
                             photos = photo,
                             name = placesDetails.name ?: "",
+                            latitude = placesDetails.geometry?.location?.lat ?: 0.0,
+                            longitude = placesDetails.geometry?.location?.lng ?: 0.0,
                             vicinity = placesDetails.vicinity ?: "",
                             workDay = workday,
                             dine_in = placesDetails.dine_in ?: false,

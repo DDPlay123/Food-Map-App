@@ -1,11 +1,11 @@
-package com.side.project.foodmap.data.local
+package com.side.project.foodmap.data.local.distanceSearch
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 
-class DistanceSearchConverters {
+class DistanceSearchConverter {
     @TypeConverter
     fun fromModel(result: DistanceSearchRes.Result): String {
         val type = object : TypeToken<DistanceSearchRes.Result>() {}.type

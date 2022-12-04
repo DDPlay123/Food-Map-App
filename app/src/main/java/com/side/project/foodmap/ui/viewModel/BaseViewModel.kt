@@ -5,8 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
+import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
 import com.side.project.foodmap.data.repo.DataStoreRepo
 import com.side.project.foodmap.data.repo.DistanceSearchRepo
+import com.side.project.foodmap.data.repo.DrawCardRepo
 import com.side.project.foodmap.util.AES
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +22,7 @@ import java.io.IOException
 abstract class BaseViewModel : ViewModel(), KoinComponent {
     private val dataStoreRepo: DataStoreRepo by inject()
     private val distanceSearchRepo: DistanceSearchRepo by inject()
+    private val drawCardRepo: DrawCardRepo by inject()
 
     /**
      * 資料流
@@ -71,6 +74,10 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     private val _getDistanceSearch = MutableLiveData<Resource<DistanceSearchRes>>()
     val getDistanceSearch: LiveData<Resource<DistanceSearchRes>>
         get() = _getDistanceSearch
+
+    private val _getDrawCard = MutableLiveData<Resource<DrawCardRes>>()
+    val getDrawCard: LiveData<Resource<DrawCardRes>>
+        get() = _getDrawCard
 
     /**
      * Datastore Preference Repo
@@ -160,10 +167,15 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     /**
      * Database Repo
      */
+    suspend fun clearDbData() {
+        deleteDistanceSearchData()
+        deleteDrawCardData()
+    }
+
     fun getDistanceSearchData() {
         viewModelScope.launch { _getDistanceSearch.postValue(Resource.Loading()) }
         try {
-            viewModelScope.launch(Dispatchers.Default) {
+            viewModelScope.launch(Dispatchers.IO) {
                 distanceSearchRepo.getData().let {
                     _getDistanceSearch.postValue(Resource.Success(it))
                 }
@@ -181,8 +193,32 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
         getDistanceSearchData()
     }
 
-    suspend fun deleteDistanceSearchData() =
+    private suspend fun deleteDistanceSearchData() =
         distanceSearchRepo.deleteData()
+
+    fun getDrawCardData() {
+        viewModelScope.launch { _getDrawCard.postValue(Resource.Loading()) }
+        try {
+            viewModelScope.launch(Dispatchers.IO) {
+                drawCardRepo.getData().let {
+                    _getDrawCard.postValue(Resource.Success(it))
+                }
+            }
+        } catch (e: IOException) {
+            viewModelScope.launch {
+                _getDrawCard.value = Resource.Error("ERROR")
+            }
+        }
+    }
+
+    suspend fun insertDrawCardData(drawCardRes: DrawCardRes) {
+        deleteDrawCardData()
+        drawCardRepo.insertData(drawCardRes)
+        getDrawCardData()
+    }
+
+    private suspend fun deleteDrawCardData() =
+        drawCardRepo.deleteData()
 
 //    fun putUserTdxToken(token: String) = viewModelScope.launch(Dispatchers.Default) {
 //        dataStoreRepo.putTdxToken(token)
@@ -209,7 +245,6 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     fun clearPublicData() = viewModelScope.launch(Dispatchers.Default) {
         dataStoreRepo.clearPublicData()
     }
-
 
     /**
      * 呼叫 API

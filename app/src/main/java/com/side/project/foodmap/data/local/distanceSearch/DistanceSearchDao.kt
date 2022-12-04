@@ -1,4 +1,4 @@
-package com.side.project.foodmap.data.local
+package com.side.project.foodmap.data.local.distanceSearch
 
 import androidx.room.*
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes

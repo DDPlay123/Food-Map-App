@@ -108,10 +108,13 @@ class MainViewModel : BaseViewModel() {
             override fun onResponse(call: Call<DrawCardRes>, response: Response<DrawCardRes>) {
                 viewModelScope.launch {
                     response.body()?.let {
-                        _popularSearchState.postValue(when (it.status) {
-                            0 -> Resource.Success(it)
-                            else -> Resource.Error(it.errMsg.toString())
-                        })
+                        when (it.status) {
+                            0 -> {
+                                _popularSearchState.postValue(Resource.Success(it))
+                                insertDrawCardData(it)
+                            }
+                            else -> _popularSearchState.value = Resource.Error(it.errMsg.toString())
+                        }
                     }
                 }
             }
@@ -204,7 +207,7 @@ class MainViewModel : BaseViewModel() {
                                 _deleteAccountState.emit(Resource.Success(it))
                                 clearData()
                                 clearPublicData()
-                                deleteDistanceSearchData()
+                                clearDbData()
                             }
                             else -> _deleteAccountState.emit(Resource.Error(it.errMsg.toString()))
                         }

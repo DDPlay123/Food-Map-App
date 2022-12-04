@@ -1,8 +1,10 @@
 package com.side.project.foodmap.data.remote.api.restaurant
 
+import androidx.room.Entity
 import com.side.project.foodmap.data.remote.api.BaseRequest
 import com.side.project.foodmap.data.remote.api.BaseResponse
 import com.side.project.foodmap.data.remote.api.PlaceList
+import com.side.project.foodmap.util.Constants.DRAW_CARD_MODEL
 import java.io.Serializable
 
 data class DrawCardReq(
@@ -14,6 +16,7 @@ data class DrawCardReq(
     val num: Int = 10
 ) : BaseRequest()
 
+@Entity(tableName = DRAW_CARD_MODEL, primaryKeys = ["result"])
 class DrawCardRes(
     val result: Result
 ) : BaseResponse(), Serializable {

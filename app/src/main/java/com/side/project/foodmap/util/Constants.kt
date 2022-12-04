@@ -22,6 +22,7 @@ object Constants {
      * User Room Database
      */
     const val DISTANCE_SEARCH_MODEL = "DISTANCE_SEARCH_MODEL"
+    const val DRAW_CARD_MODEL = "DRAW_CARD_MODEL"
 
     /**
      * User Preference

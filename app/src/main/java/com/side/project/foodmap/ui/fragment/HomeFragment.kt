@@ -112,6 +112,30 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                             }
                             is Resource.Success -> {
                                 logE("Popular Search", "Success")
+                                return@observe
+                            }
+                            is Resource.Error -> {
+                                logE("Popular Search", "Error:${resource.message.toString()}")
+                                dialog.cancelLoadingDialog()
+                                requireActivity().displayShortToast(getString(R.string.hint_error))
+                                viewModel.getDrawCardData()
+                                return@observe
+                            }
+                            else -> Unit
+                        }
+                    }
+                }
+                // 人氣餐廳 From Room
+                launch {
+                    viewModel.getDrawCard.observe(viewLifecycleOwner) { resource ->
+                        when (resource) {
+                            is Resource.Loading -> {
+                                logE("Popular Search Room", "Loading")
+                                dialog.showLoadingDialog(false)
+                                return@observe
+                            }
+                            is Resource.Success -> {
+                                logE("Popular Search Room", "Success")
                                 dialog.cancelLoadingDialog()
                                 binding.vpPopular.show()
                                 binding.lottieNoData.hidden()
@@ -126,7 +150,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                 return@observe
                             }
                             is Resource.Error -> {
-                                logE("Popular Search", "Error:${resource.message.toString()}")
+                                logE("Popular Search Room", "Error:${resource.message.toString()}")
                                 dialog.cancelLoadingDialog()
                                 requireActivity().displayShortToast(getString(R.string.hint_error))
                                 binding.vpPopular.hidden()
