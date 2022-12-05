@@ -48,6 +48,7 @@ data class Rating(
 data class PlaceList(
     val _id: String,
     val uid: String,
+    val isFavorite: Boolean,
     val address: String,
     val icon: Icon,
     val location: Location,

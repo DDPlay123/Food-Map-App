@@ -7,6 +7,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 
+/**
+ * 註：使用 DiffUtil 不應該使用這個當基底。
+ */
 abstract class BaseRvAdapter<T : ViewDataBinding, R : Any>(@LayoutRes val layoutRes: Int)
     : RecyclerView.Adapter<BaseRvAdapter.BaseViewHolder<T>>() {
 

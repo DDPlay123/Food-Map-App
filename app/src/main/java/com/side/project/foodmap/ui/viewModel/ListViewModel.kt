@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
+import com.side.project.foodmap.data.remote.api.PlaceList
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchReq
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 import com.side.project.foodmap.network.ApiClient
@@ -20,6 +21,12 @@ class ListViewModel : BaseViewModel() {
         getAccessKeyFromDataStore()
         getUserUIDFromDataStore()
     }
+
+    /**
+     * 參數
+     */
+    private var searchData: MutableList<PlaceList> = ArrayList()
+
     /**
      * 資料流
      */
@@ -27,10 +34,14 @@ class ListViewModel : BaseViewModel() {
     val nearSearchState: LiveData<Resource<DistanceSearchRes>>
         get() = _nearSearchState
 
+    private val _observeSearchData = MutableLiveData<Resource<MutableList<PlaceList>>>()
+    val observeSearchData: LiveData<Resource<MutableList<PlaceList>>>
+        get() = _observeSearchData
+
     /**
      * 可呼叫方法
      */
-    fun nearSearch(region: String, latLng: LatLng, distance: Int = 5000, minNum: Int = 20, maxNum: Int = 50) {
+    fun nearSearch(region: String, latLng: LatLng, distance: Int = 5000, skip: Int = 0, limit: Int = 50) {
         val currentLatLng = Method.getCurrentLatLng(region, latLng)
         val distanceSearchReq = DistanceSearchReq(
             accessKey = accessKey.value,
@@ -38,8 +49,8 @@ class ListViewModel : BaseViewModel() {
             latitude = currentLatLng.latitude,
             longitude = currentLatLng.longitude,
             distance = distance,
-            minNum = minNum,
-            maxNum = maxNum
+            skip = skip,
+            limit = limit
         )
         viewModelScope.launch { _nearSearchState.postValue(Resource.Loading()) }
         ApiClient.getAPI.apiRestaurantDistanceSearch(distanceSearchReq).enqueue(object :
@@ -50,7 +61,7 @@ class ListViewModel : BaseViewModel() {
                         when (it.status) {
                             0 -> {
                                 _nearSearchState.postValue(Resource.Success(it))
-                                insertDistanceSearchData(it)
+                                setObserveSearchData(it.result.placeList, it.result.placeCount)
                             }
                             else -> _nearSearchState.value = Resource.Error(it.errMsg.toString())
                         }
@@ -64,6 +75,15 @@ class ListViewModel : BaseViewModel() {
                 }
             }
         })
+    }
+
+    private fun setObserveSearchData(placeList: ArrayList<PlaceList>, totalCount: Long) {
+        if (searchData.size.toLong() >= totalCount)
+            _observeSearchData.value = Resource.Error("ERROR")
+        else {
+            searchData.addAll(placeList)
+            _observeSearchData.postValue(Resource.Success(searchData))
+        }
     }
 
     fun keywordSearch() {

@@ -42,4 +42,16 @@ object Constants {
     const val USER_IS_LOGIN = "USER_IS_LOGIN"
     const val USER_TDX_TOKEN = "USER_TDX_TOKEN"
     const val USER_TDX_TOKEN_UPDATE = "USER_TDX_TOKEN_UPDATE"
+
+    /**
+     * Activity Parameter
+     */
+    // Detail Activity
+    const val PLACE_ID = "PLACE_ID"
+
+    // List Activity
+    const val KEYWORD = "KEYWORD"
+    const val IS_NEAR_SEARCH = "IS_NEAR_SEARCH"
+    const val LATITUDE = "LATITUDE"
+    const val LONGITUDE = "LONGITUDE"
 }

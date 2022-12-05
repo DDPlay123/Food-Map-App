@@ -65,7 +65,7 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvRestaurants"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="@dimen/_5sdp"
             android:layoutAnimation="@anim/layout_animation_fade_in"

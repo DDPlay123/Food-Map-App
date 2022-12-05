@@ -28,6 +28,11 @@ import com.side.project.foodmap.ui.adapter.RegionSelectAdapter
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.MainViewModel
+import com.side.project.foodmap.util.Constants.IS_NEAR_SEARCH
+import com.side.project.foodmap.util.Constants.KEYWORD
+import com.side.project.foodmap.util.Constants.LATITUDE
+import com.side.project.foodmap.util.Constants.LONGITUDE
+import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Method.logE
 import com.side.project.foodmap.util.Resource
@@ -270,9 +275,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             tvViewMore.setOnClickListener {
                 Bundle().also { b ->
                     val latLng: LatLng = Method.getCurrentLatLng(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
-                    b.putString("TITLE", region)
-                    b.putDouble("LATITUDE", latLng.latitude)
-                    b.putDouble("LONGITUDE", latLng.longitude)
+                    b.putString(KEYWORD, region)
+                    b.putBoolean(IS_NEAR_SEARCH, true)
+                    b.putDouble(LATITUDE, latLng.latitude)
+                    b.putDouble(LONGITUDE, latLng.longitude)
                     mActivity.start(ListActivity::class.java, b)
                 }
             }
@@ -335,7 +341,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             setPageTransformer(compositePageTransformer)
             adapter = popularSearchAdapter
             if (drawCardRes.result.placeList.size > 0)
-                popularSearchAdapter.setterData(drawCardRes.result.placeList)
+                popularSearchAdapter.setData(drawCardRes.result.placeList)
         }
 
         popularSearchAdapter.onItemClick = { watchDetail(it) }
@@ -346,7 +352,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         try {
             logE("Watch Detail", "Success")
             Bundle().also { b ->
-                b.putString("PLACE_ID", placeId)
+                b.putString(PLACE_ID, placeId)
                 mActivity.start(DetailActivity::class.java, b)
             }
         } catch (e: Exception) {

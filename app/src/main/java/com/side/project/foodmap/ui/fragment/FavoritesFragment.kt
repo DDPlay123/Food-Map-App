@@ -84,7 +84,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                 // 取的最愛清單 From Room
                 launch {
                     viewModel.observeFavoriteListFromRoom().observe(viewLifecycleOwner) { favoriteList ->
-                        favoriteList?.let { favoriteListAdapter.setterData(it) }
+                        favoriteList?.let { favoriteListAdapter.setData(it) }
                         if (::remoteFavoriteList.isInitialized && favoriteList.size != remoteFavoriteList.size) {
                             // TODO(同步兩邊)
                         }

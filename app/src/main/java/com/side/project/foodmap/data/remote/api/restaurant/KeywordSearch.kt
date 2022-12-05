@@ -8,8 +8,8 @@ data class KeywordSearchReq(
     val latitude: Double,
     val longitude: Double,
     val keyboard: String,
-    val minNum: Int = 20,
-    val maxNum: Int = 100
+    val skip: Int = 20,
+    val limit: Int = 100
 ) : BaseRequest()
 
 class KeywordSearchRes(

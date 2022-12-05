@@ -1,14 +1,15 @@
 package com.side.project.foodmap.ui.adapter
 
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
-import com.side.project.foodmap.R
+import androidx.recyclerview.widget.RecyclerView
 import com.side.project.foodmap.data.remote.api.PlaceList
 import com.side.project.foodmap.databinding.ItemRestaurantViewBinding
-import com.side.project.foodmap.ui.adapter.other.BaseRvAdapter
 import java.io.IOException
 
-class PopularSearchAdapter : BaseRvAdapter<ItemRestaurantViewBinding, PlaceList>(R.layout.item_restaurant_view) {
+class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolder>() {
 
     private val itemCallback = object : DiffUtil.ItemCallback<PlaceList>() {
         // 比對新舊 Item
@@ -26,23 +27,28 @@ class PopularSearchAdapter : BaseRvAdapter<ItemRestaurantViewBinding, PlaceList>
 
     lateinit var onItemClick: ((String) -> Unit)
 
-    fun setterData(placeList: ArrayList<PlaceList>) {
-        differ.submitList(placeList)
-        initData(differ.currentList)
-    }
+    fun setData(placeList: ArrayList<PlaceList>) = differ.submitList(placeList)
 
-    fun getterData(position: Int): PlaceList = differ.currentList[position]
+    fun getData(position: Int): PlaceList = differ.currentList[position]
 
-    override fun bind(binding: ItemRestaurantViewBinding, item: PlaceList, position: Int) {
-        super.bind(binding, item, position)
-        try {
-            binding.data = item
-            binding.photoReference = if (item.photos != null && item.photos.size > 0)
-                item.photos[0].photo_reference
-            else
-                ""
-            binding.root.setOnClickListener { onItemClick.invoke(item.uid) }
-        } catch (ignored: IOException) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
+        ViewHolder(ItemRestaurantViewBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.apply {
+            try {
+                binding.data = getData(position)
+                binding.photoReference = if (getData(position).photos != null && (getData(position).photos?.size ?: 0) > 0)
+                    getData(position).photos?.get(0)?.photo_reference
+                else
+                    ""
+                binding.root.setOnClickListener { onItemClick.invoke(getData(position).uid) }
+            } catch (ignored: IOException) {
+            }
         }
     }
+
+    override fun getItemCount(): Int = differ.currentList.size
+
+    class ViewHolder(val binding: ItemRestaurantViewBinding) : RecyclerView.ViewHolder(binding.root)
 }

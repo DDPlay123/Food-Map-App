@@ -140,7 +140,7 @@ class MainViewModel : BaseViewModel() {
         })
     }
 
-    fun nearSearch(region: String, latLng: LatLng, distance: Int = 5000, minNum: Int = 20, maxNum: Int = 50) {
+    fun nearSearch(region: String, latLng: LatLng, distance: Int = 5000, skip: Int = 0, limit: Int = 50) {
         val currentLatLng = Method.getCurrentLatLng(region, latLng)
         val distanceSearchReq = DistanceSearchReq(
             accessKey = accessKey.value,
@@ -148,8 +148,8 @@ class MainViewModel : BaseViewModel() {
             latitude = currentLatLng.latitude,
             longitude = currentLatLng.longitude,
             distance = distance,
-            minNum = minNum,
-            maxNum = maxNum
+            skip = skip,
+            limit = limit
         )
         viewModelScope.launch { _nearSearchState.postValue(Resource.Loading()) }
         ApiClient.getAPI.apiRestaurantDistanceSearch(distanceSearchReq).enqueue(object : Callback<DistanceSearchRes> {

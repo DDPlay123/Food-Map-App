@@ -1,20 +1,19 @@
 package com.side.project.foodmap.ui.adapter
 
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.side.project.foodmap.R
+import androidx.recyclerview.widget.RecyclerView
 import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.databinding.ItemFavoriteBinding
 import com.side.project.foodmap.helper.gone
-import com.side.project.foodmap.helper.hidden
 import com.side.project.foodmap.helper.show
-import com.side.project.foodmap.ui.adapter.other.BaseRvAdapter
 import com.side.project.foodmap.util.Method
 import java.util.*
-import kotlin.collections.ArrayList
 
-class FavoriteListAdapter : BaseRvAdapter<ItemFavoriteBinding, FavoriteList>(R.layout.item_favorite) {
+class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>() {
 
     private val itemCallback = object : DiffUtil.ItemCallback<FavoriteList>() {
         override fun areItemsTheSame(oldItem: FavoriteList, newItem: FavoriteList): Boolean {
@@ -35,29 +34,35 @@ class FavoriteListAdapter : BaseRvAdapter<ItemFavoriteBinding, FavoriteList>(R.l
     lateinit var onItemPhone: ((String) -> Unit)
     lateinit var onItemShare: ((String) -> Unit)
 
-    fun setterData(favoriteList: List<FavoriteList>) {
-        differ.submitList(favoriteList)
-        initData(differ.currentList)
+    fun setData(favoriteList: List<FavoriteList>) = differ.submitList(favoriteList)
+
+    fun getData(position: Int): FavoriteList = differ.currentList[position]
+
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
+        ViewHolder(ItemFavoriteBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.apply {
+            binding.placeDetail = getData(position)
+            binding.today = Method.getWeekOfDate(Date())
+
+            binding.imgSetFavorite.setOnClickListener { onItemPullFavorite.invoke(getData(position), position) }
+
+            if (getData(position).photos.isNotEmpty()) {
+                val favoritePhotosListAdapter = FavoritePhotosListAdapter()
+                binding.rvPhotos.apply {
+                    layoutManager = LinearLayoutManager(binding.root.context, LinearLayoutManager.HORIZONTAL, false)
+                    adapter = favoritePhotosListAdapter
+                    favoritePhotosListAdapter.setPhotosList(getData(position).photos)
+                    show()
+                }
+            } else
+                binding.rvPhotos.gone()
+        }
     }
 
-    fun getterData(position: Int): FavoriteList = differ.currentList[position]
+    override fun getItemCount(): Int = differ.currentList.size
 
-    override fun bind(binding: ItemFavoriteBinding, item: FavoriteList, position: Int) {
-        super.bind(binding, item, position)
-        binding.placeDetail = item
-        binding.today = Method.getWeekOfDate(Date())
-
-        binding.imgSetFavorite.setOnClickListener { onItemPullFavorite.invoke(item, position) }
-
-        if (item.photos.isNotEmpty()) {
-            val favoritePhotosListAdapter = FavoritePhotosListAdapter()
-            binding.rvPhotos.apply {
-                layoutManager = LinearLayoutManager(binding.root.context, LinearLayoutManager.HORIZONTAL, false)
-                adapter = favoritePhotosListAdapter
-                favoritePhotosListAdapter.setPhotosList(item.photos)
-                show()
-            }
-        } else
-            binding.rvPhotos.gone()
-    }
+    class ViewHolder(val binding: ItemFavoriteBinding) : RecyclerView.ViewHolder(binding.root)
 }

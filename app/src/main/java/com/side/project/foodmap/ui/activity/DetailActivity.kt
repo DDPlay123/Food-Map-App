@@ -28,6 +28,7 @@ import com.side.project.foodmap.ui.adapter.WorkDayAdapter
 import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.DetailViewModel
+import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.launch
@@ -243,7 +244,7 @@ class DetailActivity : BaseActivity() {
         binding.rvReviews.apply {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             adapter = googleReviewsAdapter
-            googleReviewsAdapter.setterData(review)
+            googleReviewsAdapter.setReviewList(review)
         }
 
         googleReviewsAdapter.onItemClick = {
@@ -259,7 +260,7 @@ class DetailActivity : BaseActivity() {
         binding.vpPhoto.apply {
             offscreenPageLimit = 1
             adapter = detailPhotoAdapter
-            detailPhotoAdapter.setterData(photos)
+            detailPhotoAdapter.setData(photos)
             setupSliderIndicators(photos.size)
 
             if (photos.isEmpty()) {
@@ -318,9 +319,5 @@ class DetailActivity : BaseActivity() {
                     imageView.setImageDrawable(applicationContext.getDrawableCompat(R.drawable.background_slider_indicator_inactive))
             }
         }
-    }
-
-    companion object {
-        private const val PLACE_ID = "PLACE_ID"
     }
 }

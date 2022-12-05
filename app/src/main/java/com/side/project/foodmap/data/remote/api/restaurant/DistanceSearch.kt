@@ -11,8 +11,8 @@ data class DistanceSearchReq(
     val latitude: Double,
     val longitude: Double,
     val distance: Int = 100,
-    val minNum: Int = 20,
-    val maxNum: Int = 100
+    val skip: Int = 0,
+    val limit: Int = 100
 ) : BaseRequest()
 
 @Entity(tableName = DISTANCE_SEARCH_MODEL, primaryKeys = ["result"])
