@@ -28,6 +28,7 @@ import com.side.project.foodmap.ui.adapter.RegionSelectAdapter
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.MainViewModel
+import com.side.project.foodmap.util.Constants.IS_FAVORITE
 import com.side.project.foodmap.util.Constants.IS_NEAR_SEARCH
 import com.side.project.foodmap.util.Constants.KEYWORD
 import com.side.project.foodmap.util.Constants.LATITUDE
@@ -48,6 +49,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private lateinit var regionList: ArrayList<String>
     private lateinit var region: String
     private lateinit var placeId: String
+    private var isFavorite: Boolean = false
     private var regionID: Int = 0
 
     private var isRecentPopularSearch: Boolean = true
@@ -205,6 +207,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                 resource.data?.let { data ->
                                     binding.nearSearch = data
                                     placeId = data.result.placeList[0].uid
+                                    isFavorite = data.result.placeList[0].isFavorite
                                 }
                                 return@observe
                             }
@@ -270,7 +273,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 }
             }
 
-            cardAllRestaurant.setOnClickListener { watchDetail(placeId) }
+            cardAllRestaurant.setOnClickListener {
+                watchDetail(placeId, isFavorite)
+            }
 
             tvViewMore.setOnClickListener {
                 Bundle().also { b ->
@@ -344,15 +349,18 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 popularSearchAdapter.setData(drawCardRes.result.placeList)
         }
 
-        popularSearchAdapter.onItemClick = { watchDetail(it) }
+        popularSearchAdapter.onItemClick = { placeId, isFavorite ->
+            watchDetail(placeId, isFavorite)
+        }
     }
 
-    private fun watchDetail(placeId: String) {
+    private fun watchDetail(placeId: String, isFavorite: Boolean) {
         if (placeId.isEmpty()) return
         try {
             logE("Watch Detail", "Success")
             Bundle().also { b ->
                 b.putString(PLACE_ID, placeId)
+                b.putBoolean(IS_FAVORITE, isFavorite)
                 mActivity.start(DetailActivity::class.java, b)
             }
         } catch (e: Exception) {

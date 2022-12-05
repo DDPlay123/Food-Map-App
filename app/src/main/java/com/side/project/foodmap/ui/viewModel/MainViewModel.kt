@@ -11,6 +11,7 @@ import com.side.project.foodmap.data.remote.api.restaurant.DrawCardReq
 import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
 import com.side.project.foodmap.data.remote.api.user.*
 import com.side.project.foodmap.network.ApiClient
+import com.side.project.foodmap.util.Coroutines
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +20,8 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.IOException
+import java.lang.Exception
 
 class MainViewModel : BaseViewModel() {
 
@@ -48,8 +51,7 @@ class MainViewModel : BaseViewModel() {
         get() = _nearSearchState
 
     // Favorite Page
-    private var favoriteListFromRoom = getFavoriteData()
-    fun observeFavoriteListFromRoom(): LiveData<List<FavoriteList>> = favoriteListFromRoom
+    val observeFavoriteListFromRoom = getFavoriteData()
 
     private val _getFavoriteListState = MutableLiveData<Resource<GetFavoriteRes>>()
     val getFavoriteListState: LiveData<Resource<GetFavoriteRes>>

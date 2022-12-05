@@ -149,7 +149,6 @@
                     android:layout_marginEnd="@dimen/_5sdp"
                     android:gravity="end|center_vertical"
                     android:orientation="horizontal"
-                    android:padding="@dimen/_8sdp"
                     android:visibility="@{placeDetail.price_level > 0 ? View.VISIBLE : View.GONE, default=gone}"
                     tools:visibility="visible" />
 

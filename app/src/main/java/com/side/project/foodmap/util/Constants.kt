@@ -48,6 +48,7 @@ object Constants {
      */
     // Detail Activity
     const val PLACE_ID = "PLACE_ID"
+    const val IS_FAVORITE = "IS_FAVORITE"
 
     // List Activity
     const val KEYWORD = "KEYWORD"

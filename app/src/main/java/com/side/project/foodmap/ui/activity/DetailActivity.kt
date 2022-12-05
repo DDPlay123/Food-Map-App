@@ -28,6 +28,7 @@ import com.side.project.foodmap.ui.adapter.WorkDayAdapter
 import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.DetailViewModel
+import com.side.project.foodmap.util.Constants.IS_FAVORITE
 import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Resource
@@ -40,6 +41,7 @@ class DetailActivity : BaseActivity() {
     private val animManager: AnimManager by inject()
 
     // Data
+    private var isFavorite: Boolean = false
     private lateinit var placesDetails: Result
     private lateinit var placeId: String
     private lateinit var googleUrl: String
@@ -69,12 +71,15 @@ class DetailActivity : BaseActivity() {
     private fun getArguments() {
         intent.extras?.let {
             placeId = it.getString(PLACE_ID, "") ?: ""
+            isFavorite = it.getBoolean(IS_FAVORITE, false)
         }
     }
 
     private fun doInitialize() {
         if (::placeId.isInitialized)
             viewModel.searchDetail(placeId)
+
+        binding.isFavorite = isFavorite
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {

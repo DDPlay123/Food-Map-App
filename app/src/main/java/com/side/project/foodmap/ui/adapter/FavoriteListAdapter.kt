@@ -2,12 +2,16 @@ package com.side.project.foodmap.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.databinding.ItemFavoriteBinding
+import com.side.project.foodmap.helper.getDrawableCompat
 import com.side.project.foodmap.helper.gone
 import com.side.project.foodmap.helper.show
 import com.side.project.foodmap.util.Method
@@ -28,7 +32,7 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
     private val differ = AsyncListDiffer(this, itemCallback)
 
     lateinit var onItemClick: ((String) -> Unit)
-    lateinit var onItemPullFavorite: ((FavoriteList, Int) -> Unit)
+    lateinit var onItemPullFavorite: ((FavoriteList) -> Unit)
     lateinit var onItemWebsite: ((String) -> Unit)
     lateinit var onItemNavigation: ((Double, Double) -> Unit)
     lateinit var onItemPhone: ((String) -> Unit)
@@ -38,16 +42,29 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
 
     fun getData(position: Int): FavoriteList = differ.currentList[position]
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         ViewHolder(ItemFavoriteBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.apply {
             binding.placeDetail = getData(position)
-            binding.today = Method.getWeekOfDate(Date())
+            binding.today = Method.getWeekOfDate(Date()) - 1
 
-            binding.imgSetFavorite.setOnClickListener { onItemPullFavorite.invoke(getData(position), position) }
+            // Price Level
+            val indicators: Array<AppCompatImageView?> = arrayOfNulls(getData(position).price_level)
+            val layoutParams: LinearLayoutCompat.LayoutParams = LinearLayoutCompat.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            layoutParams.setMargins(0, 0, 0, 0)
+            indicators.forEachIndexed { id, _ ->
+                indicators[id] = AppCompatImageView(binding.root.context)
+                indicators[id]?.setImageDrawable(binding.root.context.getDrawableCompat(R.drawable.ic_money))
+
+                indicators[id]?.layoutParams = layoutParams
+                binding.priceLevelIndicators.addView(indicators[id])
+            }
+
+            binding.imgSetFavorite.setOnClickListener { onItemPullFavorite.invoke(getData(position)) }
 
             if (getData(position).photos.isNotEmpty()) {
                 val favoritePhotosListAdapter = FavoritePhotosListAdapter()

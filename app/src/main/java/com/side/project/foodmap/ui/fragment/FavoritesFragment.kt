@@ -52,8 +52,6 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                             is Resource.Loading -> {
                                 logE("Get Favorite List", "Loading")
                                 dialog.showLoadingDialog(false)
-                                binding.rvFavorites.hidden()
-                                binding.lottieNoData.show()
                                 return@observe
                             }
                             is Resource.Success -> {
@@ -83,10 +81,18 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                 }
                 // 取的最愛清單 From Room
                 launch {
-                    viewModel.observeFavoriteListFromRoom().observe(viewLifecycleOwner) { favoriteList ->
+                    viewModel.observeFavoriteListFromRoom.observe(viewLifecycleOwner) { favoriteList ->
                         favoriteList?.let { favoriteListAdapter.setData(it) }
                         if (::remoteFavoriteList.isInitialized && favoriteList.size != remoteFavoriteList.size) {
                             // TODO(同步兩邊)
+                        }
+
+                        if (favoriteList.isNotEmpty()) {
+                            binding.rvFavorites.show()
+                            binding.lottieNoData.hidden()
+                        } else {
+                            binding.rvFavorites.hidden()
+                            binding.lottieNoData.show()
                         }
                     }
                 }
@@ -126,7 +132,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
     private fun setItemListener() {
         if (!::favoriteListAdapter.isInitialized) return
 
-        favoriteListAdapter.onItemPullFavorite = { item, position ->
+        favoriteListAdapter.onItemPullFavorite = { item ->
             viewModel.deleteFavoriteData(item)
             viewModel.pullFavorite(arrayListOf(item.placeId))
         }

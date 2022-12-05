@@ -13,6 +13,10 @@
             name="detail"
             type="com.side.project.foodmap.data.remote.google.placesDetails.Result" />
 
+        <variable
+            name="isFavorite"
+            type="Boolean" />
+
         <import type="android.view.View" />
 
     </data>
@@ -256,7 +260,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@drawable/background_google_yellow_button"
-                        android:drawableEnd="@drawable/ic_favorite_border"
+                        android:drawableEnd="@{isFavorite ? @drawable/ic_favorite : @drawable/ic_favorite_border, default=@drawable/ic_favorite_border}"
                         android:fontFamily="@font/poppins_thin"
                         android:gravity="center"
                         android:padding="@dimen/_10sdp"

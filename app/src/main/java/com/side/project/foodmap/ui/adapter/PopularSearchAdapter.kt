@@ -25,7 +25,7 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
 
     private val differ = AsyncListDiffer(this, itemCallback)
 
-    lateinit var onItemClick: ((String) -> Unit)
+    lateinit var onItemClick: ((String, Boolean) -> Unit)
 
     fun setData(placeList: ArrayList<PlaceList>) = differ.submitList(placeList)
 
@@ -42,7 +42,7 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
                     getData(position).photos?.get(0)?.photo_reference
                 else
                     ""
-                binding.root.setOnClickListener { onItemClick.invoke(getData(position).uid) }
+                binding.root.setOnClickListener { onItemClick.invoke(getData(position).uid, getData(position).isFavorite) }
             } catch (ignored: IOException) {
             }
         }
