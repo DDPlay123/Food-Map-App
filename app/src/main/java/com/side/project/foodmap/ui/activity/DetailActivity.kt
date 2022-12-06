@@ -16,6 +16,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.data.remote.google.placesDetails.Photo
+import com.side.project.foodmap.data.remote.google.placesDetails.PlacesDetails
 import com.side.project.foodmap.data.remote.google.placesDetails.Result
 import com.side.project.foodmap.data.remote.google.placesDetails.Review
 import com.side.project.foodmap.databinding.ActivityDetailBinding
@@ -29,7 +30,7 @@ import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.DetailViewModel
 import com.side.project.foodmap.util.Constants.PLACE_ID
-import com.side.project.foodmap.util.Method
+import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -89,13 +90,13 @@ class DetailActivity : BaseActivity() {
                         when (it) {
                             is Resource.Loading -> {
                                 Method.logE("Search Detail", "Loading")
-                                dialog.showLoadingDialog(false)
+                                dialog.showLoadingDialog(mActivity, false)
                             }
                             is Resource.Success -> {
                                 Method.logE("Search Detail", "Success")
                                 dialog.cancelLoadingDialog()
                                 it.data?.result?.let { data ->
-                                    setupData(data.result)
+                                    setupData(data)
                                 }
                             }
                             is Resource.Error -> {
@@ -129,10 +130,12 @@ class DetailActivity : BaseActivity() {
         }
     }
 
-    private fun setupData(data: Result) {
+    private fun setupData(placesDetail: PlacesDetails) {
+        val data = placesDetail.result
         binding.run {
             detail = data
             placesDetails = data
+            detailFavorite = placesDetail.isFavorite
             data.reviews?.let { reviewsList -> initRvReviews(reviewsList) }
             data.photos?.let { photoList -> initPhotoSlider(photoList) }
             data.opening_hours?.weekday_text?.let { it -> workday = it }
@@ -229,7 +232,7 @@ class DetailActivity : BaseActivity() {
     private fun displayRegionDialog() {
         val dialogBinding = DialogPromptSelectBinding.inflate(layoutInflater)
         val workDayAdapter = WorkDayAdapter()
-        dialog.showCenterDialog(true, dialogBinding, false).let {
+        dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
             dialogBinding.run {
                 // initialize
                 titleText = getString(R.string.text_workday)

@@ -1,7 +1,6 @@
 package com.side.project.foodmap.data.remote.google.placesDetails
 
 data class Result(
-    val isFavorite: Boolean,
     val address_components: List<AddressComponent>?,
     val adr_address: String?,
     val business_status: String?,

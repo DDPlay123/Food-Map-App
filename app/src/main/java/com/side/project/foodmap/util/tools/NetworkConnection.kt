@@ -1,4 +1,4 @@
-package com.side.project.foodmap.util
+package com.side.project.foodmap.util.tools
 
 import android.content.Context
 import android.net.*

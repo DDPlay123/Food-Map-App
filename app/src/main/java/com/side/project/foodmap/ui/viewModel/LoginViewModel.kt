@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.side.project.foodmap.data.remote.api.user.*
 import com.side.project.foodmap.network.ApiClient
 import com.side.project.foodmap.util.*
+import com.side.project.foodmap.util.tools.AES
+import com.side.project.foodmap.util.tools.Method
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

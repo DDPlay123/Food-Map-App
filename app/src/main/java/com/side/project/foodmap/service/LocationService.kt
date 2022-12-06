@@ -16,7 +16,7 @@ import com.side.project.foodmap.R
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.util.Constants.PERMISSION_COARSE_LOCATION
 import com.side.project.foodmap.util.Constants.PERMISSION_FINE_LOCATION
-import com.side.project.foodmap.util.Method.logE
+import com.side.project.foodmap.util.tools.Method.logE
 
 class LocationService : Service(), LocationListenerCompat {
     companion object {

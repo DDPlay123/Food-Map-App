@@ -8,7 +8,7 @@ import com.side.project.foodmap.data.remote.api.PlaceList
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchReq
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 import com.side.project.foodmap.network.ApiClient
-import com.side.project.foodmap.util.Method
+import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.launch
 import retrofit2.Call

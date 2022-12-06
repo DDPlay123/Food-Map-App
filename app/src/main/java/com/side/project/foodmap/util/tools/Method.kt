@@ -1,4 +1,4 @@
-package com.side.project.foodmap.util
+package com.side.project.foodmap.util.tools
 
 import android.app.Activity
 import android.content.Context
@@ -20,8 +20,12 @@ import com.side.project.foodmap.BuildConfig
 import com.side.project.foodmap.R
 import com.side.project.foodmap.helper.getLocation
 import com.side.project.foodmap.util.Constants.PERMISSION_CODE
+import com.side.project.foodmap.util.RegisterLoginValidation
 import java.io.ByteArrayOutputStream
 import java.util.*
+import kotlin.math.acos
+import kotlin.math.cos
+import kotlin.math.sin
 
 object Method {
     /**
@@ -90,6 +94,18 @@ object Method {
         if (w < 0)
             w = 0
         return weekDays[w]
+    }
+
+    const val EarthRadius = 6371 // 地球半徑
+    fun getDistance(start: LatLng, end: LatLng): Double {
+        val startLat = (Math.PI / 180) * start.latitude
+        val endLat = (Math.PI / 180) * end.latitude
+
+        val startLng = (Math.PI / 180) * start.longitude
+        val endLng = (Math.PI / 180) * end.longitude
+
+        // 回傳公里 km
+        return acos(sin(startLat) * sin(endLat) + cos(startLat) * cos(endLat) * cos(startLng - endLng)) * EarthRadius
     }
 
     fun createMapIcon(activity: Activity, view: View): Bitmap {

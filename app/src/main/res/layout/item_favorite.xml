@@ -204,8 +204,8 @@
                     android:id="@+id/dineInDot"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_thin"
                     android:layout_marginEnd="@dimen/_5sdp"
+                    android:fontFamily="@font/poppins_thin"
                     android:includeFontPadding="false"
                     android:text="@string/u2022"
                     android:textColor="@color/primary"
@@ -271,58 +271,74 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:autoSizeTextType="uniform"
                     android:background="@drawable/background_google_blue_button"
                     android:drawableEnd="@drawable/ic_public"
+                    android:ellipsize="end"
                     android:fontFamily="@font/poppins_thin"
                     android:gravity="center"
+                    android:maxLines="1"
                     android:padding="@dimen/_10sdp"
                     android:text="@string/text_website"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/_12ssp" />
+                    android:textSize="@dimen/_12ssp"
+                    app:autoSizeTextType="uniform" />
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnNavigation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:autoSizeTextType="uniform"
                     android:background="@drawable/background_google_green_button"
                     android:drawableEnd="@drawable/ic_directions"
+                    android:ellipsize="end"
                     android:fontFamily="@font/poppins_thin"
                     android:gravity="center"
+                    android:maxLines="1"
                     android:padding="@dimen/_10sdp"
                     android:text="@string/text_navigation"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/_12ssp" />
+                    android:textSize="@dimen/_12ssp"
+                    app:autoSizeTextType="uniform" />
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnPhone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:autoSizeTextType="uniform"
                     android:background="@drawable/background_google_yellow_button"
                     android:drawableEnd="@drawable/ic_phone_forwarded"
                     android:drawableTint="@color/white"
+                    android:ellipsize="end"
                     android:fontFamily="@font/poppins_thin"
                     android:gravity="center"
+                    android:maxLines="1"
                     android:padding="@dimen/_10sdp"
                     android:text="@string/text_call_phone"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/_12ssp" />
+                    android:textSize="@dimen/_12ssp"
+                    app:autoSizeTextType="uniform" />
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnShare"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:autoSizeTextType="uniform"
                     android:background="@drawable/background_google_red_button"
                     android:drawableEnd="@drawable/ic_share"
                     android:drawableTint="@color/white"
+                    android:ellipsize="end"
                     android:fontFamily="@font/poppins_thin"
                     android:gravity="center"
+                    android:maxLines="1"
                     android:padding="@dimen/_10sdp"
                     android:text="@string/text_share"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/_12ssp" />
+                    android:textSize="@dimen/_12ssp"
+                    app:autoSizeTextType="uniform" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 

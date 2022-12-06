@@ -5,8 +5,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.data.remote.api.PlaceList
 import com.side.project.foodmap.databinding.ItemRestaurantViewBinding
+import com.side.project.foodmap.helper.gone
+import com.side.project.foodmap.helper.show
+import com.side.project.foodmap.util.tools.Method
 import java.io.IOException
 
 class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolder>() {
@@ -31,6 +35,11 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
 
     fun getData(position: Int): PlaceList = differ.currentList[position]
 
+    private lateinit var myLocation: LatLng
+    fun setMyLocation(startLatLng: LatLng) {
+        myLocation = startLatLng
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         ViewHolder(ItemRestaurantViewBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
@@ -42,6 +51,13 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
                     getData(adapterPosition).photos?.get(0)?.photo_reference
                 else
                     ""
+
+                if (::myLocation.isInitialized && (myLocation.latitude != 0.0 || myLocation.longitude != 0.0)) {
+                    binding.distance = Method.getDistance(myLocation, LatLng(getData(adapterPosition).location.lat, getData(adapterPosition).location.lng))
+                    binding.tvDistance.show()
+                } else
+                    binding.tvDistance.gone()
+
                 binding.root.setOnClickListener { onItemClick.invoke(getData(adapterPosition).uid) }
             } catch (ignored: IOException) {
             }

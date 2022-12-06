@@ -1,6 +1,5 @@
 package com.side.project.foodmap.ui.adapter.other
 
-import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -13,7 +12,7 @@ import coil.transform.CircleCropTransformation
 import coil.transform.RoundedCornersTransformation
 import com.side.project.foodmap.R
 import com.side.project.foodmap.helper.appInfo
-import com.side.project.foodmap.util.Method
+import com.side.project.foodmap.util.tools.Method
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -115,6 +114,17 @@ class BindingAdapter {
                     else
                         imageView.setImageResource(R.drawable.ic_microphone)
                 }
+            } catch (e: Exception) {
+            }
+        }
+
+        @BindingAdapter("android:showDistance")
+        @kotlin.jvm.JvmStatic
+        fun showDistance(textView: TextView, distance: Double) {
+            try {
+                textView.text = String.format(
+                    textView.context.getString(if (distance < 1) R.string.text_number_meter else R.string.text_number_kilometer),
+                    if (distance < 1) distance * 1000 else distance)
             } catch (e: Exception) {
             }
         }

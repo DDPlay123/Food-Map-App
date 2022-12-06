@@ -4,15 +4,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
-import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchReq
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 import com.side.project.foodmap.data.remote.api.restaurant.DrawCardReq
 import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
 import com.side.project.foodmap.data.remote.api.user.*
 import com.side.project.foodmap.network.ApiClient
-import com.side.project.foodmap.util.Coroutines
-import com.side.project.foodmap.util.Method
+import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,8 +18,6 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.IOException
-import java.lang.Exception
 
 class MainViewModel : BaseViewModel() {
 
@@ -118,6 +114,10 @@ class MainViewModel : BaseViewModel() {
             mode = mode,
             num = num
         )
+        if (currentLatLng.latitude == 0.0 || currentLatLng.longitude == 0.0) {
+            viewModelScope.launch { _popularSearchState.value = Resource.Error("ERROR") }
+            return
+        }
         viewModelScope.launch { _popularSearchState.postValue(Resource.Loading()) }
         ApiClient.getAPI.apiDrawCard(drawCardReq).enqueue(object : Callback<DrawCardRes> {
             override fun onResponse(call: Call<DrawCardRes>, response: Response<DrawCardRes>) {
@@ -153,6 +153,10 @@ class MainViewModel : BaseViewModel() {
             skip = skip,
             limit = limit
         )
+        if (currentLatLng.latitude == 0.0 || currentLatLng.longitude == 0.0) {
+            viewModelScope.launch { _nearSearchState.value = Resource.Error("ERROR") }
+            return
+        }
         viewModelScope.launch { _nearSearchState.postValue(Resource.Loading()) }
         ApiClient.getAPI.apiRestaurantDistanceSearch(distanceSearchReq).enqueue(object : Callback<DistanceSearchRes> {
             override fun onResponse(call: Call<DistanceSearchRes>, response: Response<DistanceSearchRes>) {

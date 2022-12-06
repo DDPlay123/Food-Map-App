@@ -19,315 +19,326 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:scrollbars="none"
         tools:context=".ui.fragment.HomeFragment">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvCategory"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/_24sdp"
-            android:layout_marginTop="@dimen/_15sdp"
-            android:drawableStart="@drawable/ic_category"
-            android:drawableEnd="@drawable/ic_arrow_down"
-            android:drawablePadding="@dimen/_5sdp"
-            android:drawableTint="@color/accent"
-            android:fontFamily="@font/poppins_thin"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless"
-            android:text="@{VM.userRegion}"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_14ssp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="附近的餐廳" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/imgUserPicture"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/blue_circle_background"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless"
-            android:loadUserPicture='@{VM.userPicture}'
-            android:padding="@dimen/_2sdp"
-            app:layout_constraintBottom_toBottomOf="@id/tvCategory"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toEndOf="@id/homeHeader"
-            app:layout_constraintTop_toTopOf="@id/tvCategory"
-            tools:src="@drawable/img_user" />
-
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/homeHeader"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:layout_marginEnd="@dimen/_15sdp"
-            android:orientation="horizontal"
-            app:divider="@drawable/divider"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/tvCategory"
-            app:layout_constraintTop_toBottomOf="@+id/tvCategory"
-            app:showDividers="middle">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/searchBar"
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvCategory"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@drawable/search_box_background">
+                android:layout_marginStart="@dimen/_24sdp"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:drawableStart="@drawable/ic_category"
+                android:drawableEnd="@drawable/ic_arrow_down"
+                android:drawablePadding="@dimen/_5sdp"
+                android:drawableTint="@color/accent"
+                android:fontFamily="@font/poppins_thin"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:text="@{VM.userRegion}"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_14ssp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="附近的餐廳" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="0dp"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgUserPicture"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/blue_circle_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:loadUserPicture='@{VM.userPicture}'
+                android:padding="@dimen/_2sdp"
+                app:layout_constraintBottom_toBottomOf="@id/tvCategory"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="@id/homeHeader"
+                app:layout_constraintTop_toTopOf="@id/tvCategory"
+                tools:src="@drawable/img_user" />
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/homeHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_15sdp"
+                android:orientation="horizontal"
+                app:divider="@drawable/divider"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/tvCategory"
+                app:layout_constraintTop_toBottomOf="@+id/tvCategory"
+                app:showDividers="middle">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/searchBar"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_thin"
-                    android:paddingStart="@dimen/_20sdp"
-                    android:paddingTop="@dimen/_10sdp"
-                    android:paddingEnd="0dp"
-                    android:paddingBottom="@dimen/_10sdp"
-                    android:singleLine="true"
-                    android:text="@string/hint_search_now"
-                    android:textColor="#919394"
-                    android:textSize="@dimen/_15ssp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:layout_weight="1"
+                    android:background="@drawable/search_box_background">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_thin"
+                        android:paddingStart="@dimen/_20sdp"
+                        android:paddingTop="@dimen/_10sdp"
+                        android:paddingEnd="0dp"
+                        android:paddingBottom="@dimen/_10sdp"
+                        android:singleLine="true"
+                        android:text="@string/hint_search_now"
+                        android:textColor="#919394"
+                        android:textSize="@dimen/_15ssp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="@dimen/_20sdp"
+                        android:layout_height="@dimen/_20sdp"
+                        android:layout_marginEnd="@dimen/_20sdp"
+                        android:src="@drawable/ic_search"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="@dimen/_20sdp"
-                    android:layout_height="@dimen/_20sdp"
-                    android:layout_marginEnd="@dimen/_20sdp"
-                    android:src="@drawable/ic_search"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:id="@+id/imgCameraSearch"
+                    android:layout_width="@dimen/_40sdp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/search_box_background"
+                    android:backgroundTint="@color/support"
+                    android:padding="@dimen/_10sdp"
+                    android:src="@drawable/ic_camera" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/imgSoundSearch"
+                    android:layout_width="@dimen/_40sdp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/search_box_background"
+                    android:backgroundTint="@color/support"
+                    android:padding="@dimen/_10sdp"
+                    android:src="@drawable/ic_microphone" />
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/imgCameraSearch"
-                android:layout_width="@dimen/_40sdp"
-                android:layout_height="match_parent"
-                android:background="@drawable/search_box_background"
-                android:backgroundTint="@color/support"
-                android:padding="@dimen/_10sdp"
-                android:src="@drawable/ic_camera" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/imgSoundSearch"
-                android:layout_width="@dimen/_40sdp"
-                android:layout_height="match_parent"
-                android:background="@drawable/search_box_background"
-                android:backgroundTint="@color/support"
-                android:padding="@dimen/_10sdp"
-                android:src="@drawable/ic_microphone" />
-
-        </androidx.appcompat.widget.LinearLayoutCompat>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardAllRestaurant"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/_30sdp"
-            android:layout_marginEnd="@dimen/_30sdp"
-            android:layout_marginBottom="@dimen/_16sdp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"
-            app:cardCornerRadius="@dimen/_8sdp"
-            app:cardElevation="@dimen/_3ssp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardAllRestaurant"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/_8sdp">
+                android:layout_marginStart="@dimen/_30sdp"
+                android:layout_marginEnd="@dimen/_30sdp"
+                android:layout_marginBottom="@dimen/_16sdp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:cardCornerRadius="@dimen/_8sdp"
+                app:cardElevation="@dimen/_3ssp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
 
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/imgAllRestaurant"
-                    android:layout_width="@dimen/_80sdp"
-                    android:layout_height="@dimen/_80sdp"
-                    android:loadImageFromGoogle='@{nearSearch.result.placeList[0].photos[0].photo_reference != null ? nearSearch.result.placeList[0].photos[0].photo_reference : ""}'
-                    android:scaleType="centerCrop"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:src="@drawable/img_placeholder" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvTitle"
-                    android:layout_width="0dp"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/_5sdp"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/poppins_thin"
-                    android:maxLines="1"
-                    android:paddingTop="@dimen/_2sdp"
-                    android:paddingBottom="@dimen/_2sdp"
-                    android:text="@{nearSearch.result.placeList[0].name}"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/_12ssp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/imgAllRestaurant"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="攪和餅果室 北科店" />
+                    android:padding="@dimen/_8sdp">
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvRating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/_5sdp"
-                    android:text="@{String.valueOf(nearSearch.result.placeList[0].rating.star)}"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@+id/rating"
-                    app:layout_constraintStart_toEndOf="@id/imgAllRestaurant"
-                    app:layout_constraintTop_toTopOf="@id/rating"
-                    tools:text="4.3" />
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/imgAllRestaurant"
+                        android:layout_width="@dimen/_80sdp"
+                        android:layout_height="@dimen/_80sdp"
+                        android:loadImageFromGoogle='@{nearSearch.result.placeList[0].photos[0].photo_reference != null ? nearSearch.result.placeList[0].photos[0].photo_reference : ""}'
+                        android:scaleType="centerCrop"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:src="@drawable/img_placeholder" />
 
-                <RatingBar
-                    android:id="@+id/rating"
-                    style="@style/Widget.AppCompat.RatingBar.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/_5sdp"
-                    android:layout_marginTop="@dimen/_4sdp"
-                    android:isIndicator="true"
-                    android:numStars="5"
-                    android:rating="@{nearSearch.result.placeList[0].rating.star}"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0"
-                    app:layout_constraintStart_toEndOf="@id/tvRating"
-                    app:layout_constraintTop_toBottomOf="@+id/tvTitle"
-                    tools:rating="4.5" />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_5sdp"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/poppins_thin"
+                        android:maxLines="1"
+                        android:paddingTop="@dimen/_2sdp"
+                        android:paddingBottom="@dimen/_2sdp"
+                        android:text="@{nearSearch.result.placeList[0].name}"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12ssp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/imgAllRestaurant"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="攪和餅果室 北科店" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvRatingTotal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/_5sdp"
-                    android:text='@{"("+String.valueOf(nearSearch.result.placeList[0].rating.total)+")"}'
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/rating"
-                    app:layout_constraintStart_toEndOf="@id/rating"
-                    app:layout_constraintTop_toTopOf="@id/rating"
-                    tools:text="(17)" />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvRating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_5sdp"
+                        android:text="@{String.valueOf(nearSearch.result.placeList[0].rating.star)}"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="@+id/rating"
+                        app:layout_constraintStart_toEndOf="@id/imgAllRestaurant"
+                        app:layout_constraintTop_toTopOf="@id/rating"
+                        tools:text="4.3" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvVicinity"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/_4sdp"
-                    android:layout_marginTop="@dimen/_3sdp"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/poppins_light"
-                    android:maxLines="1"
-                    android:text="@{nearSearch.result.placeList[0].address}"
-                    android:textColor="@color/g_gray500"
-                    android:textSize="@dimen/_11ssp"
-                    app:layout_constraintBottom_toBottomOf="@+id/imgAllRestaurant"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/imgAllRestaurant"
-                    tools:text="台北市大安區" />
+                    <RatingBar
+                        android:id="@+id/rating"
+                        style="@style/Widget.AppCompat.RatingBar.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginTop="@dimen/_4sdp"
+                        android:isIndicator="true"
+                        android:numStars="5"
+                        android:rating="@{nearSearch.result.placeList[0].rating.star}"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0"
+                        app:layout_constraintStart_toEndOf="@id/tvRating"
+                        app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+                        tools:rating="4.5" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvRatingTotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_5sdp"
+                        android:text='@{"("+String.valueOf(nearSearch.result.placeList[0].rating.total)+")"}'
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="@id/rating"
+                        app:layout_constraintStart_toEndOf="@id/rating"
+                        app:layout_constraintTop_toTopOf="@id/rating"
+                        tools:text="(17)" />
 
-        </androidx.cardview.widget.CardView>
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvVicinity"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_marginTop="@dimen/_3sdp"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/poppins_light"
+                        android:maxLines="1"
+                        android:text="@{nearSearch.result.placeList[0].address}"
+                        android:textColor="@color/g_gray500"
+                        android:textSize="@dimen/_11ssp"
+                        app:layout_constraintBottom_toBottomOf="@+id/imgAllRestaurant"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/imgAllRestaurant"
+                        tools:text="台北市大安區" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvAllRestaurant"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/_10sdp"
-            android:drawableStart="@drawable/ic_thumb_up"
-            android:drawablePadding="@dimen/_5sdp"
-            android:drawableTint="@color/primary"
-            android:fontFamily="@font/poppins_thin"
-            android:text="@string/hint_all_restaurant"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_14ssp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@id/cardAllRestaurant"
-            app:layout_constraintStart_toStartOf="@id/homeHeader" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvViewMore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless"
-            android:text="@string/hint_view_more"
-            android:textColor="@color/g_gray700"
-            android:textSize="@dimen/_11ssp"
-            app:layout_constraintBottom_toBottomOf="@id/tvAllRestaurant"
-            app:layout_constraintEnd_toEndOf="@id/homeHeader"
-            app:layout_constraintTop_toTopOf="@id/tvAllRestaurant" />
+            </androidx.cardview.widget.CardView>
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvPopular"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:drawableStart="@drawable/ic_pan_tool_alt"
-            android:drawableEnd="@drawable/ic_swap_vert"
-            android:drawablePadding="@dimen/_5sdp"
-            android:drawableTint="@color/primary"
-            android:fontFamily="@font/poppins_thin"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless"
-            android:text="@{isPopularSearch ? @string/hint_popular_restaurant : @string/hint_favorite_popular_restaurant, default=@string/hint_popular_restaurant}"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_14ssp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@id/homeHeader"
-            app:layout_constraintTop_toBottomOf="@id/homeHeader" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvAllRestaurant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/_10sdp"
+                android:drawableStart="@drawable/ic_thumb_up"
+                android:drawablePadding="@dimen/_5sdp"
+                android:drawableTint="@color/primary"
+                android:fontFamily="@font/poppins_thin"
+                android:text="@string/hint_all_restaurant"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_14ssp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/cardAllRestaurant"
+                app:layout_constraintStart_toStartOf="@id/homeHeader" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/imgRefresh"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_refresh"
-            android:tint="@color/g_gray500"
-            app:layout_constraintBottom_toBottomOf="@+id/tvPopular"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toEndOf="@+id/homeHeader"
-            app:layout_constraintTop_toTopOf="@+id/tvPopular" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvViewMore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:text="@string/hint_view_more"
+                android:textColor="@color/g_gray700"
+                android:textSize="@dimen/_11ssp"
+                app:layout_constraintBottom_toBottomOf="@id/tvAllRestaurant"
+                app:layout_constraintEnd_toEndOf="@id/homeHeader"
+                app:layout_constraintTop_toTopOf="@id/tvAllRestaurant" />
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/vpPopular"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="@dimen/_5sdp"
-            android:layout_marginBottom="@dimen/_5sdp"
-            android:paddingStart="@dimen/_50sdp"
-            android:paddingEnd="@dimen/_50sdp"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toTopOf="@id/tvAllRestaurant"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvPopular" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvPopular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:drawableStart="@drawable/ic_pan_tool_alt"
+                android:drawableEnd="@drawable/ic_swap_vert"
+                android:drawablePadding="@dimen/_5sdp"
+                android:drawableTint="@color/primary"
+                android:fontFamily="@font/poppins_thin"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:text="@{isPopularSearch ? @string/hint_popular_restaurant : @string/hint_favorite_popular_restaurant, default=@string/hint_popular_restaurant}"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_14ssp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="@id/homeHeader"
+                app:layout_constraintTop_toBottomOf="@id/homeHeader" />
 
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/lottieNoData"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="@+id/vpPopular"
-            app:layout_constraintEnd_toEndOf="@+id/vpPopular"
-            app:layout_constraintStart_toStartOf="@+id/vpPopular"
-            app:layout_constraintTop_toTopOf="@+id/vpPopular"
-            app:lottie_autoPlay="true"
-            app:lottie_loop="true"
-            app:lottie_rawRes="@raw/no_data"
-            tools:visibility="visible" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgRefresh"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_refresh"
+                android:tint="@color/g_gray500"
+                app:layout_constraintBottom_toBottomOf="@+id/tvPopular"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="@+id/homeHeader"
+                app:layout_constraintTop_toTopOf="@+id/tvPopular" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/vpPopular"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:layout_marginBottom="@dimen/_5sdp"
+                android:paddingStart="@dimen/_50sdp"
+                android:paddingEnd="@dimen/_50sdp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toTopOf="@id/tvAllRestaurant"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvPopular" />
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottieNoData"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@+id/vpPopular"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/vpPopular"
+                app:layout_constraintDimensionRatio="1:1"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/no_data"
+                tools:visibility="visible" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
 
 </layout>

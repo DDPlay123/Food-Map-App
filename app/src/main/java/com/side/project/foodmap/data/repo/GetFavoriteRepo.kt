@@ -3,8 +3,8 @@ package com.side.project.foodmap.data.repo
 import androidx.lifecycle.LiveData
 import com.side.project.foodmap.data.local.getFavorite.GetFavoriteDao
 import com.side.project.foodmap.data.remote.api.FavoriteList
-import com.side.project.foodmap.util.Coroutines
-import com.side.project.foodmap.util.Method
+import com.side.project.foodmap.util.tools.Coroutines
+import com.side.project.foodmap.util.tools.Method
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

@@ -11,7 +11,7 @@ import com.side.project.foodmap.data.repo.DataStoreRepo
 import com.side.project.foodmap.data.repo.DistanceSearchRepo
 import com.side.project.foodmap.data.repo.DrawCardRepo
 import com.side.project.foodmap.data.repo.GetFavoriteRepo
-import com.side.project.foodmap.util.AES
+import com.side.project.foodmap.util.tools.AES
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

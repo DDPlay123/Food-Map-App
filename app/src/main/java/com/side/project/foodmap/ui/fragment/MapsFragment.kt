@@ -15,7 +15,7 @@ import com.side.project.foodmap.databinding.FragmentMapsBinding
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.MainViewModel
-import com.side.project.foodmap.util.Method
+import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -70,7 +70,7 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
                         when (resource) {
                             is Resource.Loading -> {
                                 Method.logE("Near Search Room", "Loading")
-                                dialog.showLoadingDialog(false)
+                                dialog.showLoadingDialog(mActivity, false)
                                 return@observe
                             }
                             is Resource.Success -> {

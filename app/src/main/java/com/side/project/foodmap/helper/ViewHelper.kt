@@ -7,7 +7,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import coil.imageLoader
 import coil.load
 import com.google.android.material.snackbar.Snackbar
-import com.side.project.foodmap.util.Method
+import com.side.project.foodmap.util.tools.Method
 
 fun View.displayErrorShortSnackBar(message: String) =
     Snackbar.make(this, "Error：${message}", Snackbar.LENGTH_SHORT).show()

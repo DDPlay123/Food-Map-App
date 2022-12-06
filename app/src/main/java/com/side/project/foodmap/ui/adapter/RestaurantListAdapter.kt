@@ -5,8 +5,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.data.remote.api.PlaceList
 import com.side.project.foodmap.databinding.ItemRestaurantViewBinding
+import com.side.project.foodmap.helper.gone
+import com.side.project.foodmap.helper.show
+import com.side.project.foodmap.util.tools.Method
 import java.io.IOException
 
 class RestaurantListAdapter : RecyclerView.Adapter<RestaurantListAdapter.ViewHolder>() {
@@ -31,6 +35,11 @@ class RestaurantListAdapter : RecyclerView.Adapter<RestaurantListAdapter.ViewHol
 
     fun getData(position: Int): PlaceList = differ.currentList[position]
 
+    private lateinit var myLocation: LatLng
+    fun setMyLocation(startLatLng: LatLng) {
+        myLocation = startLatLng
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemRestaurantViewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         val params = binding.cardView.layoutParams
@@ -42,12 +51,19 @@ class RestaurantListAdapter : RecyclerView.Adapter<RestaurantListAdapter.ViewHol
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         try {
             holder.apply {
+                binding.executePendingBindings() // 即時更新
                 binding.data = getData(adapterPosition)
                 binding.photoReference = if (getData(adapterPosition).photos != null && (getData(adapterPosition).photos?.size ?: 0) > 0)
                     getData(adapterPosition).photos?.get(0)?.photo_reference
                 else
                     ""
-                binding.executePendingBindings() // 即時更新
+
+                if (::myLocation.isInitialized && (myLocation.latitude != 0.0 || myLocation.longitude != 0.0)) {
+                    binding.distance = Method.getDistance(myLocation, LatLng(getData(adapterPosition).location.lat, getData(adapterPosition).location.lng))
+                    binding.tvDistance.show()
+                } else
+                    binding.tvDistance.gone()
+
                 binding.root.setOnClickListener { onItemClick.invoke(getData(adapterPosition).uid, getData(adapterPosition).isFavorite) }
             }
         } catch (ignored: IOException) {

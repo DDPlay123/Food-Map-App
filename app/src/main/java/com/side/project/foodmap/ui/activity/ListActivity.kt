@@ -21,7 +21,7 @@ import com.side.project.foodmap.util.Constants.KEYWORD
 import com.side.project.foodmap.util.Constants.LATITUDE
 import com.side.project.foodmap.util.Constants.LONGITUDE
 import com.side.project.foodmap.util.Constants.PLACE_ID
-import com.side.project.foodmap.util.Method
+import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.launch
 import java.lang.Exception
@@ -86,7 +86,7 @@ class ListActivity : BaseActivity() {
                         when (resource) {
                             is Resource.Loading -> {
                                 Method.logE("Near Search", "Loading")
-                                dialog.showLoadingDialog(false)
+                                dialog.showLoadingDialog(mActivity, false)
                             }
                             is Resource.Success -> {
                                 Method.logE("Near Search", "Success")
@@ -115,6 +115,7 @@ class ListActivity : BaseActivity() {
                                 resource.data?.let { placeList ->
                                     binding.count = placeList.size.toString()
                                     restaurantListAdapter.setData(placeList.toMutableList())
+                                    restaurantListAdapter.setMyLocation(LatLng(locationService.getLatitude(), locationService.getLongitude()))
                                 }
                             }
                             is Resource.Error -> {

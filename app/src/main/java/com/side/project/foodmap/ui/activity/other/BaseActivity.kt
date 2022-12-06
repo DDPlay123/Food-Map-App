@@ -16,7 +16,7 @@ import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.service.LocationService
 import com.side.project.foodmap.ui.other.DialogManager
-import com.side.project.foodmap.util.NetworkConnection
+import com.side.project.foodmap.util.tools.NetworkConnection
 import com.side.project.foodmap.util.Constants
 import com.side.project.foodmap.util.Constants.PERMISSION_CODE
 import org.koin.android.ext.android.inject
@@ -28,7 +28,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     lateinit var mActivity: BaseActivity
-    lateinit var dialog: DialogManager
+    val dialog: DialogManager by inject()
     private val networkConnection: NetworkConnection by inject()
 
     lateinit var locationService: LocationService
@@ -67,7 +67,6 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mActivity = this
-        dialog = DialogManager.instance(mActivity)
 
         checkNetWork {}
     }
@@ -83,7 +82,7 @@ abstract class BaseActivity : AppCompatActivity() {
             if (!isConnect) {
                 val binding = DialogPromptBinding.inflate(layoutInflater)
                 dialog.cancelAllDialog()
-                dialog.showCenterDialog(false, binding, false).let {
+                dialog.showCenterDialog(mActivity, false, binding, false).let {
                     binding.run {
                         showIcon = true
                         hideCancel = true

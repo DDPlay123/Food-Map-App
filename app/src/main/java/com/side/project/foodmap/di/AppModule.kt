@@ -9,7 +9,8 @@ import com.side.project.foodmap.data.local.drawCard.DrawCardDb
 import com.side.project.foodmap.data.local.getFavorite.GetFavoriteDb
 import com.side.project.foodmap.data.repo.*
 import com.side.project.foodmap.ui.other.AnimManager
-import com.side.project.foodmap.util.NetworkConnection
+import com.side.project.foodmap.ui.other.DialogManager
+import com.side.project.foodmap.util.tools.NetworkConnection
 import com.side.project.foodmap.ui.viewModel.*
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
@@ -17,6 +18,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val otherModule = module {
+    single { DialogManager() }
     single { AnimManager(androidContext()) }
     single { NetworkConnection(androidContext()) }
 }

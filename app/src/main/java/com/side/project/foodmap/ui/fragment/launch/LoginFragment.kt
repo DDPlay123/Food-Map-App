@@ -15,7 +15,7 @@ import com.side.project.foodmap.ui.activity.MainActivity
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.LoginViewModel
 import com.side.project.foodmap.ui.other.AnimState
-import com.side.project.foodmap.util.Method
+import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.RegisterLoginValidation
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.Dispatchers
@@ -66,7 +66,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                             is Resource.Loading -> {
                                 Method.logE("Login", "Loading")
                                 mActivity.hideKeyboard()
-                                dialog.showLoadingDialog(false)
+                                dialog.showLoadingDialog(mActivity, false)
                                 binding.edUsername.isFocusableInTouchMode = false
                                 binding.edPassword.isFocusableInTouchMode = false
                             }
@@ -107,7 +107,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                             is Resource.Loading -> {
                                 Method.logE("Register", "Loading")
                                 mActivity.hideKeyboard()
-                                dialog.showLoadingDialog(false)
+                                dialog.showLoadingDialog(mActivity, false)
                                 binding.edUsername.isFocusableInTouchMode = false
                                 binding.edPassword.isFocusableInTouchMode = false
                             }
@@ -135,7 +135,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                         when (it) {
                             is Resource.Loading -> {
                                 Method.logE("Get User Image", "Loading")
-                                dialog.showLoadingDialog(false)
+                                dialog.showLoadingDialog(mActivity, false)
                             }
                             is Resource.Success -> {
                                 Method.logE("Get User Image", "Success")
@@ -161,7 +161,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
     private fun registerPrompt() {
         val bindingPrompt = DialogPromptBinding.inflate(layoutInflater)
         dialog.cancelAllDialog()
-        dialog.showCenterDialog(true, bindingPrompt, false).let {
+        dialog.showCenterDialog(mActivity, true, bindingPrompt, false).let {
             bindingPrompt.run {
                 showIcon = true
                 imgPromptIcon.setImageResource(R.drawable.ic_error)

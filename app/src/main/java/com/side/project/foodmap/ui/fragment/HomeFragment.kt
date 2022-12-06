@@ -1,7 +1,10 @@
 package com.side.project.foodmap.ui.fragment
 
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -13,6 +16,7 @@ import androidx.viewpager2.widget.MarginPageTransformer
 import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
+import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.databinding.DialogPromptSelectBinding
 import com.side.project.foodmap.databinding.DialogSearchBinding
 import com.side.project.foodmap.databinding.FragmentHomeBinding
@@ -33,12 +37,12 @@ import com.side.project.foodmap.util.Constants.KEYWORD
 import com.side.project.foodmap.util.Constants.LATITUDE
 import com.side.project.foodmap.util.Constants.LONGITUDE
 import com.side.project.foodmap.util.Constants.PLACE_ID
-import com.side.project.foodmap.util.Method
-import com.side.project.foodmap.util.Method.logE
+import com.side.project.foodmap.util.tools.Method
+import com.side.project.foodmap.util.tools.Method.logE
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
-import java.lang.Exception
+import kotlin.Exception
 import kotlin.collections.ArrayList
 import kotlin.math.abs
 
@@ -58,8 +62,22 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         Method.getFcmToken { token -> viewModel.putFcmToken(token) }
     }
 
+    private val openGps = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        result?.let {
+            try {
+                initLocationService()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     override fun FragmentHomeBinding.initialize() {
         initLocationService()
+
+        if (!locationService.canGetLocation())
+            viewModel.putUserRegion(getString(R.string.text_taipei))
+
         binding.vm = viewModel
         binding.isPopularSearch = isRecentPopularSearch
         regionList = ArrayList(listOf(*resources.getStringArray(R.array.search_type)))
@@ -110,7 +128,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         when (resource) {
                             is Resource.Loading -> {
                                 logE("Popular Search", "Loading")
-                                dialog.showLoadingDialog(false)
+                                dialog.showLoadingDialog(mActivity, false)
                                 binding.vpPopular.hidden()
                                 binding.lottieNoData.show()
                                 return@observe
@@ -136,7 +154,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         when (resource) {
                             is Resource.Loading -> {
                                 logE("Popular Search Room", "Loading")
-                                dialog.showLoadingDialog(false)
+                                dialog.showLoadingDialog(mActivity, false)
                                 return@observe
                             }
                             is Resource.Success -> {
@@ -172,7 +190,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         when (resource) {
                             is Resource.Loading -> {
                                 logE("Near Search", "Loading")
-                                dialog.showLoadingDialog(false)
+                                dialog.showLoadingDialog(mActivity, false)
                                 return@observe
                             }
                             is Resource.Success -> {
@@ -196,7 +214,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         when (resource) {
                             is Resource.Loading -> {
                                 logE("Near Search Room", "Loading")
-                                dialog.showLoadingDialog(false)
+                                dialog.showLoadingDialog(mActivity, false)
                                 return@observe
                             }
                             is Resource.Success -> {
@@ -275,6 +293,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             }
 
             tvViewMore.setOnClickListener {
+                if (!locationService.canGetLocation()) {
+                    displayNotGpsDialog()
+                    return@setOnClickListener
+                }
                 Bundle().also { b ->
                     val latLng: LatLng = Method.getCurrentLatLng(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
                     b.putString(KEYWORD, region)
@@ -298,7 +320,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private fun displayRegionDialog() {
         val dialogBinding = DialogPromptSelectBinding.inflate(layoutInflater)
         val regionSelectAdapter = RegionSelectAdapter()
-        dialog.showCenterDialog(true, dialogBinding, false).let {
+        dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
             dialogBinding.run {
                 // initialize
                 titleText = getString(R.string.hint_select_region)
@@ -318,8 +340,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 listItem.layoutManager?.startSmoothScroll(smoothScroller)
                 // listener
                 regionSelectAdapter.onItemClick = { region ->
-                    viewModel.putUserRegion(region)
-                    dialog.showLoadingDialog(false)
+                    if (!locationService.canGetLocation() && region == getString(R.string.hint_near_region))
+                        displayNotGpsDialog()
+                    else {
+                        initLocationService()
+                        viewModel.putUserRegion(region)
+                        dialog.showLoadingDialog(mActivity, false)
+                    }
                 }
             }
         }
@@ -342,8 +369,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
             setPageTransformer(compositePageTransformer)
             adapter = popularSearchAdapter
-            if (drawCardRes.result.placeList.size > 0)
+            if (drawCardRes.result.placeList.size > 0) {
                 popularSearchAdapter.setData(drawCardRes.result.placeList)
+                popularSearchAdapter.setMyLocation(LatLng(locationService.getLatitude(), locationService.getLongitude()))
+            }
         }
 
         popularSearchAdapter.onItemClick = { placeId ->
@@ -365,9 +394,29 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         }
     }
 
+    private fun displayNotGpsDialog() {
+        val dialogBinding = DialogPromptBinding.inflate(layoutInflater)
+        dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
+            dialogBinding.run {
+                dialogBinding.run {
+                    showIcon = true
+                    hideCancel = true
+                    imgPromptIcon.setImageResource(R.drawable.ic_public)
+                    titleText = getString(R.string.hint_prompt_not_gps_title)
+                    tvConfirm.setOnClickListener {
+                        Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).apply {
+                            openGps.launch(this)
+                        }
+                        dialog.cancelCenterDialog()
+                    }
+                }
+            }
+        }
+    }
+
     private fun displaySearchDialog() {
         val dialogBinding = DialogSearchBinding.inflate(layoutInflater)
-        dialog.showBottomDialog(dialogBinding, true).let {
+        dialog.showBottomDialog(mActivity, dialogBinding, true).let {
             dialogBinding.run {
 
             }

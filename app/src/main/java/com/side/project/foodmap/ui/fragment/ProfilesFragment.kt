@@ -21,7 +21,7 @@ import com.side.project.foodmap.ui.activity.launch.LoginActivity
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.MainViewModel
-import com.side.project.foodmap.util.Method
+import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -66,7 +66,7 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
                         when (it) {
                             is Resource.Loading -> {
                                 Method.logE("Logout", "Loading")
-                                dialog.showLoadingDialog(false)
+                                dialog.showLoadingDialog(mActivity, false)
                             }
                             is Resource.Success -> {
                                 Method.logE("Logout", "Success")
@@ -89,7 +89,7 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
                         when (it) {
                             is Resource.Loading -> {
                                 Method.logE("Delete Account", "Loading")
-                                dialog.showLoadingDialog(false)
+                                dialog.showLoadingDialog(mActivity, false)
                             }
                             is Resource.Success -> {
                                 Method.logE("Delete Account", "Success")
@@ -112,7 +112,7 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
                         when (it) {
                             is Resource.Loading -> {
                                 Method.logE("Set User Image", "Loading")
-                                dialog.showLoadingDialog(false)
+                                dialog.showLoadingDialog(mActivity, false)
                             }
                             is Resource.Success -> {
                                 Method.logE("Set User Image", "Success")
@@ -157,7 +157,7 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
 
     private fun displayLogoutDialog() {
         val dialogBinding = DialogPromptBinding.inflate(layoutInflater)
-        dialog.showCenterDialog(true, dialogBinding, false).let {
+        dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
             dialogBinding.run {
                 dialogBinding.run {
                     showIcon = true
@@ -175,7 +175,7 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
 
     private fun displayDeleteAccountDialog() {
         val dialogBinding = DialogPromptBinding.inflate(layoutInflater)
-        dialog.showCenterDialog(true, dialogBinding, false).let {
+        dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
             dialogBinding.run {
                 dialogBinding.run {
                     showIcon = true

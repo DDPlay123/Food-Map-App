@@ -14,6 +14,10 @@
             type="com.side.project.foodmap.data.remote.google.placesDetails.Result" />
 
         <variable
+            name="detailFavorite"
+            type="Boolean" />
+
+        <variable
             name="isFavorite"
             type="Boolean" />
 
@@ -231,57 +235,73 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:autoSizeTextType="uniform"
                         android:background="@drawable/background_google_blue_button"
                         android:drawableEnd="@drawable/ic_public"
+                        android:ellipsize="end"
                         android:fontFamily="@font/poppins_thin"
                         android:gravity="center"
+                        android:maxLines="1"
                         android:padding="@dimen/_10sdp"
                         android:text="@string/text_website"
                         android:textColor="@color/white"
-                        android:textSize="@dimen/_12ssp" />
+                        android:textSize="@dimen/_12ssp"
+                        app:autoSizeTextType="uniform" />
 
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnNavigation"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:autoSizeTextType="uniform"
                         android:background="@drawable/background_google_green_button"
                         android:drawableEnd="@drawable/ic_directions"
+                        android:ellipsize="end"
                         android:fontFamily="@font/poppins_thin"
                         android:gravity="center"
+                        android:maxLines="1"
                         android:padding="@dimen/_10sdp"
                         android:text="@string/text_navigation"
                         android:textColor="@color/white"
-                        android:textSize="@dimen/_12ssp" />
+                        android:textSize="@dimen/_12ssp"
+                        app:autoSizeTextType="uniform" />
 
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnFavorite"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:autoSizeTextType="uniform"
                         android:background="@drawable/background_google_yellow_button"
-                        android:drawableEnd="@{detail.isFavorite | isFavorite ? @drawable/ic_favorite : @drawable/ic_favorite_border, default=@drawable/ic_favorite_border}"
+                        android:drawableEnd="@{detailFavorite | isFavorite ? @drawable/ic_favorite : @drawable/ic_favorite_border, default=@drawable/ic_favorite_border}"
+                        android:ellipsize="end"
                         android:fontFamily="@font/poppins_thin"
                         android:gravity="center"
+                        android:maxLines="1"
                         android:padding="@dimen/_10sdp"
                         android:text="@string/text_favorite"
                         android:textColor="@color/white"
-                        android:textSize="@dimen/_12ssp" />
+                        android:textSize="@dimen/_12ssp"
+                        app:autoSizeTextType="uniform" />
 
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnPhone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:autoSizeTextType="uniform"
                         android:background="@drawable/background_google_red_button"
                         android:drawableEnd="@drawable/ic_phone_forwarded"
                         android:drawableTint="@color/white"
+                        android:ellipsize="end"
                         android:fontFamily="@font/poppins_thin"
                         android:gravity="center"
+                        android:maxLines="1"
                         android:padding="@dimen/_10sdp"
                         android:text="@string/text_call_phone"
                         android:textColor="@color/white"
-                        android:textSize="@dimen/_12ssp" />
+                        android:textSize="@dimen/_12ssp"
+                        app:autoSizeTextType="uniform" />
 
                 </androidx.appcompat.widget.LinearLayoutCompat>
 

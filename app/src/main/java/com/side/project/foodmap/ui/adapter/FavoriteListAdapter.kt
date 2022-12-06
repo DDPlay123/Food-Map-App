@@ -14,7 +14,7 @@ import com.side.project.foodmap.databinding.ItemFavoriteBinding
 import com.side.project.foodmap.helper.getDrawableCompat
 import com.side.project.foodmap.helper.gone
 import com.side.project.foodmap.helper.show
-import com.side.project.foodmap.util.Method
+import com.side.project.foodmap.util.tools.Method
 import java.util.*
 
 class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>() {

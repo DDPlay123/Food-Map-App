@@ -16,7 +16,7 @@ import com.side.project.foodmap.helper.show
 import com.side.project.foodmap.ui.adapter.FavoriteListAdapter
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.MainViewModel
-import com.side.project.foodmap.util.Method.logE
+import com.side.project.foodmap.util.tools.Method.logE
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -55,7 +55,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                         when (resource) {
                             is Resource.Loading -> {
                                 logE("Get Favorite List", "Loading")
-                                dialog.showLoadingDialog(false)
+                                dialog.showLoadingDialog(mActivity, false)
                                 return@observe
                             }
                             is Resource.Success -> {
@@ -150,7 +150,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
 
     private fun displayRemoveFavoriteDialog() {
         val dialogBinding = DialogPromptBinding.inflate(layoutInflater)
-        dialog.showCenterDialog(true, dialogBinding, false).let {
+        dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
             dialogBinding.run {
                 dialogBinding.run {
                     showIcon = true

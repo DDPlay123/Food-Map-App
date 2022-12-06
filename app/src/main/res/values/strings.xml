@@ -89,6 +89,7 @@
     <string name="hint_prompt_delete_account_title">是否要刪除帳號</string>
     <string name="hint_prompt_delete_account_subtitle">刪除帳號後就無法進行恢復</string>
     <string name="hint_prompt_remove_favorite_title">是否要移除最愛</string>
+    <string name="hint_prompt_not_gps_title">請開啟GPS定位</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>
@@ -130,6 +131,10 @@
 
     <!--  特殊符號  -->
     <string name="u2022">•</string>
+
+    <!--  嵌入字  -->
+    <string name="text_number_meter">距離 %,.1f 公尺</string>
+    <string name="text_number_kilometer">距離 %,.1f 公里</string>
 
     <!--  特殊  -->
     <string name="menu_enable_pan">Pan</string>
