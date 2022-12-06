@@ -47,11 +47,12 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.apply {
-            binding.placeDetail = getData(position)
+            binding.executePendingBindings()
+            binding.placeDetail = getData(adapterPosition)
             binding.today = Method.getWeekOfDate(Date()) - 1
 
             // Price Level
-            val indicators: Array<AppCompatImageView?> = arrayOfNulls(getData(position).price_level)
+            val indicators: Array<AppCompatImageView?> = arrayOfNulls(getData(adapterPosition).price_level)
             val layoutParams: LinearLayoutCompat.LayoutParams = LinearLayoutCompat.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
             )
@@ -64,14 +65,14 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
                 binding.priceLevelIndicators.addView(indicators[id])
             }
 
-            binding.imgSetFavorite.setOnClickListener { onItemPullFavorite.invoke(getData(position)) }
+            binding.imgSetFavorite.setOnClickListener { onItemPullFavorite.invoke(getData(adapterPosition)) }
 
-            if (getData(position).photos.isNotEmpty()) {
+            if (getData(adapterPosition).photos.isNotEmpty()) {
                 val favoritePhotosListAdapter = FavoritePhotosListAdapter()
                 binding.rvPhotos.apply {
                     layoutManager = LinearLayoutManager(binding.root.context, LinearLayoutManager.HORIZONTAL, false)
                     adapter = favoritePhotosListAdapter
-                    favoritePhotosListAdapter.setPhotosList(getData(position).photos)
+                    favoritePhotosListAdapter.setPhotosList(getData(adapterPosition).photos)
                     show()
                 }
             } else

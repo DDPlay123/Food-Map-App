@@ -233,7 +233,7 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     fun deleteFavoriteData(favoriteList: FavoriteList) =
         getFavoriteRepo.deleteData(favoriteList)
 
-    private fun deleteAllFavoriteData() =
+    fun deleteAllFavoriteData() =
         getFavoriteRepo.deleteAllData()
 
 //    fun putUserTdxToken(token: String) = viewModelScope.launch(Dispatchers.Default) {

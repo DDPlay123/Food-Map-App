@@ -28,7 +28,6 @@ import com.side.project.foodmap.ui.adapter.WorkDayAdapter
 import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.DetailViewModel
-import com.side.project.foodmap.util.Constants.IS_FAVORITE
 import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.Method
 import com.side.project.foodmap.util.Resource
@@ -41,7 +40,6 @@ class DetailActivity : BaseActivity() {
     private val animManager: AnimManager by inject()
 
     // Data
-    private var isFavorite: Boolean = false
     private lateinit var placesDetails: Result
     private lateinit var placeId: String
     private lateinit var googleUrl: String
@@ -49,6 +47,9 @@ class DetailActivity : BaseActivity() {
     private lateinit var phone: String
     private var photo: MutableList<String> = ArrayList()
     private var workday: List<String> = emptyList()
+
+    // Wait push favorite list
+    private lateinit var favoriteList: FavoriteList
 
     // Tool
     private lateinit var detailPhotoAdapter: DetailPhotoAdapter
@@ -71,15 +72,12 @@ class DetailActivity : BaseActivity() {
     private fun getArguments() {
         intent.extras?.let {
             placeId = it.getString(PLACE_ID, "") ?: ""
-            isFavorite = it.getBoolean(IS_FAVORITE, false)
         }
     }
 
     private fun doInitialize() {
         if (::placeId.isInitialized)
             viewModel.searchDetail(placeId)
-
-        binding.isFavorite = isFavorite
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
@@ -114,6 +112,7 @@ class DetailActivity : BaseActivity() {
                             is Resource.Success -> {
                                 Method.logE("Push Favorite", "Success")
                                 displayShortToast(getString(R.string.text_success))
+                                viewModel.insertFavoriteData(favoriteList)
                             }
                             is Resource.Error -> {
                                 Method.logE("Push Favorite", "Error:${it.message.toString()}")
@@ -188,7 +187,7 @@ class DetailActivity : BaseActivity() {
 
             btnFavorite.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    val favoriteList = FavoriteList(
+                    favoriteList = FavoriteList(
                         placeId = placeId,
                         photos = photo,
                         name = placesDetails.name ?: "",
@@ -207,7 +206,6 @@ class DetailActivity : BaseActivity() {
                         ratings_total = (placesDetails.user_ratings_total ?: 0).toLong()
                     )
                     viewModel.pushFavorite(arrayListOf(favoriteList))
-                    viewModel.insertFavoriteData(favoriteList)
                 }
             }
 

@@ -34,8 +34,8 @@ class DetailPhotoAdapter : RecyclerView.Adapter<DetailPhotoAdapter.ViewHolder>()
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.apply {
-            binding.photoReference = getterData(position).photo_reference
-            binding.root.setOnClickListener { onItemClick.invoke(getterData(position), position) }
+            binding.photoReference = getterData(adapterPosition).photo_reference
+            binding.root.setOnClickListener { onItemClick.invoke(getterData(adapterPosition), adapterPosition) }
         }
     }
 

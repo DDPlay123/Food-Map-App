@@ -42,13 +42,13 @@ class RestaurantListAdapter : RecyclerView.Adapter<RestaurantListAdapter.ViewHol
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         try {
             holder.apply {
-                binding.data = getData(position)
-                binding.photoReference = if (getData(position).photos != null && (getData(position).photos?.size ?: 0) > 0)
-                    getData(position).photos?.get(0)?.photo_reference
+                binding.data = getData(adapterPosition)
+                binding.photoReference = if (getData(adapterPosition).photos != null && (getData(adapterPosition).photos?.size ?: 0) > 0)
+                    getData(adapterPosition).photos?.get(0)?.photo_reference
                 else
                     ""
                 binding.executePendingBindings() // 即時更新
-                binding.root.setOnClickListener { onItemClick.invoke(getData(position).uid, getData(position).isFavorite) }
+                binding.root.setOnClickListener { onItemClick.invoke(getData(adapterPosition).uid, getData(adapterPosition).isFavorite) }
             }
         } catch (ignored: IOException) {
         }

@@ -16,7 +16,6 @@ import com.side.project.foodmap.helper.getStatusBarHeight
 import com.side.project.foodmap.ui.activity.other.BaseActivity
 import com.side.project.foodmap.ui.adapter.RestaurantListAdapter
 import com.side.project.foodmap.ui.viewModel.ListViewModel
-import com.side.project.foodmap.util.Constants.IS_FAVORITE
 import com.side.project.foodmap.util.Constants.IS_NEAR_SEARCH
 import com.side.project.foodmap.util.Constants.KEYWORD
 import com.side.project.foodmap.util.Constants.LATITUDE
@@ -94,8 +93,7 @@ class ListActivity : BaseActivity() {
                                 dialog.cancelLoadingDialog()
                                 resource.data?.let { data ->
                                     totalCount = data.result.placeCount
-                                    binding.count = totalCount.toString()
-                                    repeatNum = data.result.placeCount / 50
+                                    repeatNum = totalCount / 50
                                 }
                                 return@observe
                             }
@@ -109,12 +107,13 @@ class ListActivity : BaseActivity() {
                         }
                     }
                 }
-                // 關鍵字搜尋
+                // 觀察 List 資料變化
                 launch {
                     viewModel.observeSearchData.observe(this@ListActivity) { resource ->
                         when (resource) {
                             is Resource.Success -> {
                                 resource.data?.let { placeList ->
+                                    binding.count = placeList.size.toString()
                                     restaurantListAdapter.setData(placeList.toMutableList())
                                 }
                             }
@@ -166,7 +165,6 @@ class ListActivity : BaseActivity() {
                 Method.logE("Watch Detail", "Success")
                 Bundle().also { b ->
                     b.putString(PLACE_ID, placeId)
-                    b.putBoolean(IS_FAVORITE, isFavorite)
                     mActivity.start(DetailActivity::class.java, b)
                 }
             } catch (e: Exception) {

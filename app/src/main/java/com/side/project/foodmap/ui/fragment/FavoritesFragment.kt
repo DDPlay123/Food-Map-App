@@ -29,6 +29,9 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
     // Toole
     private lateinit var favoriteListAdapter: FavoriteListAdapter
 
+    // Wait pull favorite list
+    private lateinit var favoriteList: FavoriteList
+
     override fun FragmentFavoritesBinding.initialize() {
         initLocationService()
     }
@@ -83,8 +86,12 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                 launch {
                     viewModel.observeFavoriteListFromRoom.observe(viewLifecycleOwner) { favoriteList ->
                         favoriteList?.let { favoriteListAdapter.setData(it) }
-                        if (::remoteFavoriteList.isInitialized && favoriteList.size != remoteFavoriteList.size) {
-                            // TODO(同步兩邊)
+                        if (::remoteFavoriteList.isInitialized && !favoriteList.containsAll(remoteFavoriteList)) {
+//                            // TODO(同步兩邊，目前需優化)
+//                            viewModel.deleteAllFavoriteData()
+//                            remoteFavoriteList.forEach {
+//                                viewModel.insertFavoriteData(it)
+//                            }
                         }
 
                         if (favoriteList.isNotEmpty()) {
@@ -102,6 +109,8 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                         when (it) {
                             is Resource.Success -> {
                                 logE("Pull Favorite", "Success")
+                                if (::favoriteList.isInitialized)
+                                    viewModel.deleteFavoriteData(favoriteList)
                             }
                             is Resource.Error -> {
                                 logE("Pull Favorite", "Error:${it.message.toString()}")
@@ -133,8 +142,8 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
         if (!::favoriteListAdapter.isInitialized) return
 
         favoriteListAdapter.onItemPullFavorite = { item ->
-            viewModel.deleteFavoriteData(item)
-            viewModel.pullFavorite(arrayListOf(item.placeId))
+            favoriteList = item
+            viewModel.pullFavorite(arrayListOf(favoriteList.placeId))
         }
     }
 }
