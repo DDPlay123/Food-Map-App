@@ -9,7 +9,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.data.remote.api.PlaceList
 import com.side.project.foodmap.databinding.ItemRestaurantViewBinding
 import com.side.project.foodmap.helper.gone
-import com.side.project.foodmap.helper.show
+import com.side.project.foodmap.helper.display
 import com.side.project.foodmap.util.tools.Method
 import java.io.IOException
 
@@ -54,7 +54,7 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
 
                 if (::myLocation.isInitialized && (myLocation.latitude != 0.0 || myLocation.longitude != 0.0)) {
                     binding.distance = Method.getDistance(myLocation, LatLng(getData(adapterPosition).location.lat, getData(adapterPosition).location.lng))
-                    binding.tvDistance.show()
+                    binding.tvDistance.display()
                 } else
                     binding.tvDistance.gone()
 

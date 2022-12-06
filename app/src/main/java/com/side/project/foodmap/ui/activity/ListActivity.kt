@@ -7,28 +7,33 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.ActivityListBinding
+import com.side.project.foodmap.helper.display
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.helper.getStatusBarHeight
+import com.side.project.foodmap.helper.gone
 import com.side.project.foodmap.ui.activity.other.BaseActivity
 import com.side.project.foodmap.ui.adapter.RestaurantListAdapter
+import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.viewModel.ListViewModel
 import com.side.project.foodmap.util.Constants.IS_NEAR_SEARCH
 import com.side.project.foodmap.util.Constants.KEYWORD
 import com.side.project.foodmap.util.Constants.LATITUDE
 import com.side.project.foodmap.util.Constants.LONGITUDE
 import com.side.project.foodmap.util.Constants.PLACE_ID
-import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
+import com.side.project.foodmap.util.tools.Method
 import kotlinx.coroutines.launch
-import java.lang.Exception
+import org.koin.android.ext.android.inject
 
 class ListActivity : BaseActivity() {
     private lateinit var binding: ActivityListBinding
     private lateinit var viewModel: ListViewModel
+    private val animManager: AnimManager by inject()
 
     // Data
     private lateinit var keyword: String
@@ -132,6 +137,15 @@ class ListActivity : BaseActivity() {
     private fun setListener() {
         binding.run {
             imgBack.setOnClickListener { onBackPressed() }
+
+            fabUpTool.setOnClickListener {
+                val smoothScroller: RecyclerView.SmoothScroller =
+                    object : LinearSmoothScroller(this@ListActivity) {
+                        override fun getVerticalSnapPreference(): Int = SNAP_TO_START
+                    }
+                smoothScroller.targetPosition = 0
+                rvRestaurants.layoutManager?.startSmoothScroll(smoothScroller)
+            }
         }
     }
 
@@ -145,6 +159,13 @@ class ListActivity : BaseActivity() {
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
+                    val firstItemPosition: Int = (binding.rvRestaurants.layoutManager as GridLayoutManager).findFirstVisibleItemPosition()
+
+                    if (firstItemPosition >= 1)
+                        binding.fabUpTool.display()
+                    else
+                        binding.fabUpTool.gone()
+
                     if (!canScrollVertically(1)) {
                         // 判斷第幾次呼叫
                         if (alreadyCalledNum < repeatNum)

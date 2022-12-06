@@ -272,11 +272,11 @@ class DetailActivity : BaseActivity() {
             setupSliderIndicators(photos.size)
 
             if (photos.isEmpty()) {
-                binding.imgPlaceHolder.show()
+                binding.imgPlaceHolder.display()
                 binding.vpPhoto.hidden()
             } else {
                 binding.imgPlaceHolder.hidden()
-                binding.vpPhoto.show()
+                binding.vpPhoto.display()
                 photos.forEach { data ->
                     photo.add(data.photo_reference)
                 }

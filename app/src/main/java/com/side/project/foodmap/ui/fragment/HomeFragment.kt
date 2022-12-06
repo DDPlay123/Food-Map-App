@@ -23,7 +23,7 @@ import com.side.project.foodmap.databinding.FragmentHomeBinding
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.helper.hidden
 import com.side.project.foodmap.helper.setAnimClick
-import com.side.project.foodmap.helper.show
+import com.side.project.foodmap.helper.display
 import com.side.project.foodmap.ui.activity.DetailActivity
 import com.side.project.foodmap.ui.activity.ListActivity
 import com.side.project.foodmap.ui.activity.MainActivity
@@ -130,7 +130,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                 logE("Popular Search", "Loading")
                                 dialog.showLoadingDialog(mActivity, false)
                                 binding.vpPopular.hidden()
-                                binding.lottieNoData.show()
+                                binding.lottieNoData.display()
                                 return@observe
                             }
                             is Resource.Success -> {
@@ -160,14 +160,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                             is Resource.Success -> {
                                 logE("Popular Search Room", "Success")
                                 dialog.cancelLoadingDialog()
-                                binding.vpPopular.show()
+                                binding.vpPopular.display()
                                 binding.lottieNoData.hidden()
                                 resource.data?.let { data ->
                                     if (data.result.msg.isNullOrEmpty() && data.result.placeList.isNotEmpty())
                                         initPopularCard(data)
                                     else {
                                         binding.vpPopular.hidden()
-                                        binding.lottieNoData.show()
+                                        binding.lottieNoData.display()
                                     }
                                 }
                                 return@observe
@@ -177,7 +177,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                 dialog.cancelLoadingDialog()
                                 requireActivity().displayShortToast(getString(R.string.hint_error))
                                 binding.vpPopular.hidden()
-                                binding.lottieNoData.show()
+                                binding.lottieNoData.display()
                                 return@observe
                             }
                             else -> Unit

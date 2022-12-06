@@ -13,7 +13,7 @@ import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.databinding.ItemFavoriteBinding
 import com.side.project.foodmap.helper.getDrawableCompat
 import com.side.project.foodmap.helper.gone
-import com.side.project.foodmap.helper.show
+import com.side.project.foodmap.helper.display
 import com.side.project.foodmap.util.tools.Method
 import java.util.*
 
@@ -73,7 +73,7 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
                     layoutManager = LinearLayoutManager(binding.root.context, LinearLayoutManager.HORIZONTAL, false)
                     adapter = favoritePhotosListAdapter
                     favoritePhotosListAdapter.setPhotosList(getData(adapterPosition).photos)
-                    show()
+                    display()
                 }
             } else
                 binding.rvPhotos.gone()
