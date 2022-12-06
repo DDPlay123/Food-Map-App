@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
+import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchReq
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 import com.side.project.foodmap.data.remote.api.restaurant.DrawCardReq
@@ -12,8 +13,9 @@ import com.side.project.foodmap.data.remote.api.user.*
 import com.side.project.foodmap.network.ApiClient
 import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -47,7 +49,9 @@ class MainViewModel : BaseViewModel() {
         get() = _nearSearchState
 
     // Favorite Page
-    val observeFavoriteListFromRoom = getFavoriteData()
+    private val _currentFavoriteList = MutableLiveData<List<FavoriteList>>()
+    val currentFavoriteList: LiveData<List<FavoriteList>>
+        get() = _currentFavoriteList
 
     private val _getFavoriteListState = MutableLiveData<Resource<GetFavoriteRes>>()
     val getFavoriteListState: LiveData<Resource<GetFavoriteRes>>
@@ -181,33 +185,12 @@ class MainViewModel : BaseViewModel() {
         })
     }
 
-    fun getFavoriteList() {
-        val getFavoriteReq = GetFavoriteReq(
-            userId = userUID.value,
-            accessKey = accessKey.value
-        )
-        viewModelScope.launch { _getFavoriteListState.postValue(Resource.Loading()) }
-        ApiClient.getAPI.apiGetFavorite(getFavoriteReq).enqueue(object : Callback<GetFavoriteRes> {
-            override fun onResponse(
-                call: Call<GetFavoriteRes>,
-                response: Response<GetFavoriteRes>
-            ) {
-                viewModelScope.launch {
-                    response.body()?.let {
-                        when (it.status) {
-                            0 -> _getFavoriteListState.postValue(Resource.Success(it))
-                            else ->_getFavoriteListState.value = Resource.Error(it.errMsg.toString())
-                        }
-                    }
-                }
+    fun getSyncFavoriteList() {
+        viewModelScope.launch(Dispatchers.IO) {
+            syncFavoriteList().distinctUntilChanged().collect { favoriteLists ->
+                _currentFavoriteList.postValue(favoriteLists)
             }
-
-            override fun onFailure(call: Call<GetFavoriteRes>, t: Throwable) {
-                viewModelScope.launch {
-                    _getFavoriteListState.value = Resource.Error(t.message.toString())
-                }
-            }
-        })
+        }
     }
 
     fun pullFavorite(placeIdList: ArrayList<String>) {
@@ -328,5 +311,51 @@ class MainViewModel : BaseViewModel() {
                 }
             }
         })
+    }
+
+    /**
+     * 其他方法
+     */
+    private fun getFavoriteList(): Flow<List<FavoriteList>> = callbackFlow {
+        val getFavoriteReq = GetFavoriteReq(
+            userId = userUID.value,
+            accessKey = accessKey.value
+        )
+        viewModelScope.launch { _getFavoriteListState.postValue(Resource.Loading()) }
+        ApiClient.getAPI.apiGetFavorite(getFavoriteReq).enqueue(object : Callback<GetFavoriteRes> {
+            override fun onResponse(
+                call: Call<GetFavoriteRes>,
+                response: Response<GetFavoriteRes>
+            ) {
+                viewModelScope.launch {
+                    response.body()?.let {
+                        when (it.status) {
+                            0 -> {
+                                _getFavoriteListState.postValue(Resource.Success(it))
+                                trySend(it.result)
+                            }
+                            else ->_getFavoriteListState.value = Resource.Error(it.errMsg.toString())
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<GetFavoriteRes>, t: Throwable) {
+                viewModelScope.launch {
+                    _getFavoriteListState.value = Resource.Error(t.message.toString())
+                }
+            }
+        })
+        awaitClose { getFavoriteListState.value is Resource.Error }
+    }
+
+    private fun syncFavoriteList(): Flow<List<FavoriteList>> {
+        val favoriteList = getFavoriteData()
+        return getFavoriteList()
+            .onStart { emit(favoriteList) }
+            .onEach { favoriteLists ->
+                if (favoriteLists != favoriteList)
+                    insertAllFavoriteData(favoriteLists)
+            }
     }
 }

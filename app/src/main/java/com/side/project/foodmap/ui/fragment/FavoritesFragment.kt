@@ -19,22 +19,21 @@ import com.side.project.foodmap.helper.hidden
 import com.side.project.foodmap.helper.display
 import com.side.project.foodmap.helper.gone
 import com.side.project.foodmap.ui.activity.DetailActivity
+import com.side.project.foodmap.ui.activity.MainActivity
 import com.side.project.foodmap.ui.adapter.FavoriteListAdapter
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.MainViewModel
 import com.side.project.foodmap.util.Constants
 import com.side.project.foodmap.util.tools.Method.logE
 import com.side.project.foodmap.util.Resource
-import com.side.project.foodmap.util.tools.Method
+import com.side.project.foodmap.util.tools.NetworkConnection
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragment_favorites) {
     private val viewModel: MainViewModel by activityViewModel()
-
-    // Data
-    private lateinit var remoteFavoriteList: List<FavoriteList>
-    private lateinit var localFavoriteList: List<FavoriteList>
+    private val networkConnection: NetworkConnection by inject()
 
     // Toole
     private lateinit var favoriteListAdapter: FavoriteListAdapter
@@ -55,7 +54,12 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
     }
 
     private fun doInitialize() {
-        viewModel.getFavoriteList()
+        networkConnection.observe(viewLifecycleOwner) { isConnect ->
+            if (isConnect)
+                viewModel.getSyncFavoriteList()
+            else
+                dialog.cancelAllDialog()
+        }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 // 取的最愛清單
@@ -70,12 +74,11 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                             is Resource.Success -> {
                                 logE("Get Favorite List", "Success")
                                 dialog.cancelLoadingDialog()
-                                binding.rvFavorites.display()
-                                binding.lottieNoData.hidden()
                                 resource.data?.let { data ->
-                                    if (data.result.isNotEmpty())
-                                        remoteFavoriteList = data.result
-                                    else {
+                                    if (data.result.isNotEmpty()) {
+                                        binding.rvFavorites.display()
+                                        binding.lottieNoData.hidden()
+                                    } else {
                                         binding.rvFavorites.hidden()
                                         binding.lottieNoData.display()
                                     }
@@ -92,13 +95,10 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                         }
                     }
                 }
-                // 取的最愛清單 From Room
+                // 取的最愛清單 (已同步的)
                 launch {
-                    viewModel.observeFavoriteListFromRoom.observe(viewLifecycleOwner) { favoriteList ->
-                        favoriteList?.let {
-                            localFavoriteList = it
-                            favoriteListAdapter.setData(it)
-                        }
+                    viewModel.currentFavoriteList.observe(viewLifecycleOwner) { favoriteList ->
+                        favoriteList.let { favoriteListAdapter.setData(it) }
 
                         if (favoriteList.isNotEmpty()) {
                             binding.rvFavorites.display()
@@ -115,12 +115,14 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                         when (it) {
                             is Resource.Success -> {
                                 logE("Pull Favorite", "Success")
-                                if (::favoriteList.isInitialized)
+                                if (::favoriteList.isInitialized) {
                                     viewModel.deleteFavoriteData(favoriteList)
+                                    viewModel.getSyncFavoriteList()
+                                }
                             }
                             is Resource.Error -> {
                                 logE("Pull Favorite", "Error:${it.message.toString()}")
-                                requireActivity().displayShortToast(it.message.toString())
+                                requireActivity().displayShortToast(getString(R.string.hint_failed_pull_favorite))
                             }
                             else -> Unit
                         }
@@ -139,17 +141,6 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                     }
                 smoothScroller.targetPosition = 0
                 rvFavorites.layoutManager?.startSmoothScroll(smoothScroller)
-            }
-        }
-    }
-
-    private fun syncRemoteFavoriteList() {
-        if (::remoteFavoriteList.isInitialized && ::localFavoriteList.isInitialized) {
-            if (localFavoriteList == remoteFavoriteList)
-                return
-            viewModel.deleteAllFavoriteData()
-            remoteFavoriteList.forEach {
-                viewModel.insertFavoriteData(it)
             }
         }
     }

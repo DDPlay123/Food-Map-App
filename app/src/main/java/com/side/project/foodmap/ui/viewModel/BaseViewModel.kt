@@ -224,11 +224,14 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     private suspend fun deleteDrawCardData() =
         drawCardRepo.deleteData()
 
-    fun getFavoriteData(): LiveData<List<FavoriteList>> =
+    fun getFavoriteData(): List<FavoriteList> =
         getFavoriteRepo.getData()
 
     fun insertFavoriteData(favoriteList: FavoriteList) =
         getFavoriteRepo.insertData(favoriteList)
+
+    fun insertAllFavoriteData(favoriteLists: List<FavoriteList>) =
+        getFavoriteRepo.insertAllData(favoriteLists)
 
     fun deleteFavoriteData(favoriteList: FavoriteList) =
         getFavoriteRepo.deleteData(favoriteList)

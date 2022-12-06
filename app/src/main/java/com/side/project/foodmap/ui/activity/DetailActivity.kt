@@ -115,13 +115,13 @@ class DetailActivity : BaseActivity() {
                         when (it) {
                             is Resource.Success -> {
                                 Method.logE("Push Favorite", "Success")
-                                displayShortToast(getString(R.string.text_success))
+                                displayShortToast(getString(R.string.hint_success_push_favorite))
                                 viewModel.insertFavoriteData(favoriteList)
                                 binding.isFavorite = true
                             }
                             is Resource.Error -> {
                                 Method.logE("Push Favorite", "Error:${it.message.toString()}")
-                                displayShortToast(it.message.toString())
+                                displayShortToast(getString(R.string.hint_failed_push_favorite))
                             }
                             else -> Unit
                         }
