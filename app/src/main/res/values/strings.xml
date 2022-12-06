@@ -85,6 +85,10 @@
     <string name="hint_favorite_list">最愛清單</string>
     <string name="hint_workday_null">營業時間：未提供</string>
     <string name="hint_no_more_data">沒有更多資料了</string>
+    <string name="hint_prompt_logout_title">是否要登出</string>
+    <string name="hint_prompt_delete_account_title">是否要刪除帳號</string>
+    <string name="hint_prompt_delete_account_subtitle">刪除帳號後就無法進行恢復</string>
+    <string name="hint_prompt_remove_favorite_title">是否要移除最愛</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>

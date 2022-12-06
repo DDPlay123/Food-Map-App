@@ -8,6 +8,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.FavoriteList
+import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.databinding.FragmentFavoritesBinding
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.helper.hidden
@@ -143,7 +144,25 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
 
         favoriteListAdapter.onItemPullFavorite = { item ->
             favoriteList = item
-            viewModel.pullFavorite(arrayListOf(favoriteList.placeId))
+            displayRemoveFavoriteDialog()
+        }
+    }
+
+    private fun displayRemoveFavoriteDialog() {
+        val dialogBinding = DialogPromptBinding.inflate(layoutInflater)
+        dialog.showCenterDialog(true, dialogBinding, false).let {
+            dialogBinding.run {
+                dialogBinding.run {
+                    showIcon = true
+                    imgPromptIcon.setImageResource(R.drawable.ic_favorite)
+                    titleText = getString(R.string.hint_prompt_remove_favorite_title)
+                    tvCancel.setOnClickListener { dialog.cancelCenterDialog() }
+                    tvConfirm.setOnClickListener {
+                        viewModel.pullFavorite(arrayListOf(favoriteList.placeId))
+                        dialog.cancelCenterDialog()
+                    }
+                }
+            }
         }
     }
 }

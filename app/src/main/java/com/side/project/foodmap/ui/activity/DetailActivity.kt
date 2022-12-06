@@ -79,6 +79,8 @@ class DetailActivity : BaseActivity() {
         if (::placeId.isInitialized)
             viewModel.searchDetail(placeId)
 
+        binding.isFavorite = false
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 // 搜尋詳細資料
@@ -113,6 +115,7 @@ class DetailActivity : BaseActivity() {
                                 Method.logE("Push Favorite", "Success")
                                 displayShortToast(getString(R.string.text_success))
                                 viewModel.insertFavoriteData(favoriteList)
+                                binding.isFavorite = true
                             }
                             is Resource.Error -> {
                                 Method.logE("Push Favorite", "Error:${it.message.toString()}")
@@ -233,8 +236,7 @@ class DetailActivity : BaseActivity() {
                 hideCancel = true
                 hideConfirm = true
                 listItem.apply {
-                    layoutManager =
-                        LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+                    layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
                     adapter = workDayAdapter
                     workDayAdapter.setWorkdayList(workday)
                 }
