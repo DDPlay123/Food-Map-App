@@ -90,6 +90,7 @@
     <string name="hint_prompt_delete_account_subtitle">刪除帳號後就無法進行恢復</string>
     <string name="hint_prompt_remove_favorite_title">是否要移除最愛</string>
     <string name="hint_prompt_not_gps_title">請開啟GPS定位</string>
+    <string name="hint_share_url_title">分享餐廳</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>

@@ -182,7 +182,7 @@ class ListActivity : BaseActivity() {
     }
 
     private fun setRvItemListener() {
-        restaurantListAdapter.onItemClick = { placeId, isFavorite ->
+        restaurantListAdapter.onItemClick = { placeId ->
             try {
                 Method.logE("Watch Detail", "Success")
                 Bundle().also { b ->

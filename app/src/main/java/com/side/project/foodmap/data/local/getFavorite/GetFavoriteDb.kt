@@ -6,8 +6,8 @@ import androidx.room.TypeConverters
 import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.data.remote.api.user.GetFavoriteRes
 
-@Database(entities = [FavoriteList::class], version = 1, exportSchema = false)
-@TypeConverters(GetFavoriteConverter::class, ListConverter::class)
+@Database(entities = [FavoriteList::class], version = 2, exportSchema = false)
+@TypeConverters(GetFavoriteConverter::class, ListConverter::class, LocationConverter::class)
 abstract class GetFavoriteDb: RoomDatabase() {
     abstract fun getFavoriteDao(): GetFavoriteDao
 }

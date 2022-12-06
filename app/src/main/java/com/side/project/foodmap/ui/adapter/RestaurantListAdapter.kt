@@ -29,7 +29,7 @@ class RestaurantListAdapter : RecyclerView.Adapter<RestaurantListAdapter.ViewHol
 
     private val differ = AsyncListDiffer(this, itemCallback)
 
-    lateinit var onItemClick: ((String, Boolean) -> Unit)
+    lateinit var onItemClick: ((String) -> Unit)
 
     fun setData(placeList: List<PlaceList>) = differ.submitList(placeList)
 
@@ -64,7 +64,7 @@ class RestaurantListAdapter : RecyclerView.Adapter<RestaurantListAdapter.ViewHol
                 } else
                     binding.tvDistance.gone()
 
-                binding.root.setOnClickListener { onItemClick.invoke(getData(adapterPosition).uid, getData(adapterPosition).isFavorite) }
+                binding.root.setOnClickListener { onItemClick.invoke(getData(adapterPosition).uid) }
             }
         } catch (ignored: IOException) {
         }

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.FavoriteList
+import com.side.project.foodmap.data.remote.api.Location
 import com.side.project.foodmap.data.remote.google.placesDetails.Photo
 import com.side.project.foodmap.data.remote.google.placesDetails.PlacesDetails
 import com.side.project.foodmap.data.remote.google.placesDetails.Result
@@ -197,8 +198,7 @@ class DetailActivity : BaseActivity() {
                         placeId = placeId,
                         photos = photo,
                         name = placesDetails.name ?: "",
-                        latitude = placesDetails.geometry?.location?.lat ?: 0.0,
-                        longitude = placesDetails.geometry?.location?.lng ?: 0.0,
+                        location = Location(placesDetails.geometry?.location?.lat ?: 0.0, placesDetails.geometry?.location?.lng ?: 0.0),
                         price_level = placesDetails.price_level ?: 0,
                         url = placesDetails.url ?: "",
                         vicinity = placesDetails.vicinity ?: "",

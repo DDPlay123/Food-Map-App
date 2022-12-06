@@ -1,11 +1,12 @@
 package com.side.project.foodmap.ui.fragment
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -17,11 +18,14 @@ import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.helper.hidden
 import com.side.project.foodmap.helper.display
 import com.side.project.foodmap.helper.gone
+import com.side.project.foodmap.ui.activity.DetailActivity
 import com.side.project.foodmap.ui.adapter.FavoriteListAdapter
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.MainViewModel
+import com.side.project.foodmap.util.Constants
 import com.side.project.foodmap.util.tools.Method.logE
 import com.side.project.foodmap.util.Resource
+import com.side.project.foodmap.util.tools.Method
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
@@ -30,6 +34,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
 
     // Data
     private lateinit var remoteFavoriteList: List<FavoriteList>
+    private lateinit var localFavoriteList: List<FavoriteList>
 
     // Toole
     private lateinit var favoriteListAdapter: FavoriteListAdapter
@@ -90,13 +95,9 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                 // 取的最愛清單 From Room
                 launch {
                     viewModel.observeFavoriteListFromRoom.observe(viewLifecycleOwner) { favoriteList ->
-                        favoriteList?.let { favoriteListAdapter.setData(it) }
-                        if (::remoteFavoriteList.isInitialized && !favoriteList.containsAll(remoteFavoriteList)) {
-//                            // TODO(同步兩邊，目前需優化)
-//                            viewModel.deleteAllFavoriteData()
-//                            remoteFavoriteList.forEach {
-//                                viewModel.insertFavoriteData(it)
-//                            }
+                        favoriteList?.let {
+                            localFavoriteList = it
+                            favoriteListAdapter.setData(it)
                         }
 
                         if (favoriteList.isNotEmpty()) {
@@ -142,6 +143,17 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
         }
     }
 
+    private fun syncRemoteFavoriteList() {
+        if (::remoteFavoriteList.isInitialized && ::localFavoriteList.isInitialized) {
+            if (localFavoriteList == remoteFavoriteList)
+                return
+            viewModel.deleteAllFavoriteData()
+            remoteFavoriteList.forEach {
+                viewModel.insertFavoriteData(it)
+            }
+        }
+    }
+
     private fun initRvFavoriteList() {
         favoriteListAdapter = FavoriteListAdapter()
         binding.rvFavorites.apply {
@@ -165,10 +177,59 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
 
     private fun setRvItemListener() {
         if (!::favoriteListAdapter.isInitialized) return
+        favoriteListAdapter.apply {
+            onItemClick = { placeId ->
+                try {
+                    logE("Watch Detail", "Success")
+                    Bundle().also { b ->
+                        b.putString(Constants.PLACE_ID, placeId)
+                        mActivity.start(DetailActivity::class.java, b)
+                    }
+                } catch (e: Exception) {
+                    logE("Watch Detail", "Error")
+                    requireActivity().displayShortToast(getString(R.string.hint_error))
+                }
+            }
 
-        favoriteListAdapter.onItemPullFavorite = { item ->
-            favoriteList = item
-            displayRemoveFavoriteDialog()
+            onItemPullFavorite = { item ->
+                favoriteList = item
+                displayRemoveFavoriteDialog()
+            }
+
+            onItemWebsite = { website ->
+                if (website.isNotEmpty()) {
+                    Intent(Intent.ACTION_VIEW).also { i ->
+                        i.data = Uri.parse(website)
+                        startActivity(i)
+                    }
+                } else
+                    requireActivity().displayShortToast(getString(R.string.hint_no_website))
+            }
+
+            onItemNavigation = { location ->
+                // TODO(導航)
+            }
+
+            onItemPhone = { phone ->
+                if (phone.isNotEmpty()) {
+                    Intent(Intent.ACTION_DIAL).also { i ->
+                        i.data = Uri.parse("tel:$phone")
+                        startActivity(i)
+                    }
+                } else
+                    requireActivity().displayShortToast(getString(R.string.hint_no_phone))
+            }
+
+            onItemShare = { url ->
+                val share = Intent.createChooser(Intent().apply {
+                    action = Intent.ACTION_SEND
+                    type="text/plain"
+                    putExtra(Intent.EXTRA_TEXT, url)
+                    putExtra(Intent.EXTRA_TITLE, getString(R.string.hint_share_url_title))
+                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                }, getString(R.string.hint_share_url_title))
+                startActivity(share)
+            }
         }
     }
 
