@@ -12,6 +12,9 @@ import coil.transform.CircleCropTransformation
 import coil.transform.RoundedCornersTransformation
 import com.side.project.foodmap.R
 import com.side.project.foodmap.helper.appInfo
+import com.side.project.foodmap.helper.display
+import com.side.project.foodmap.helper.gone
+import com.side.project.foodmap.helper.hidden
 import com.side.project.foodmap.util.tools.Method
 import java.text.SimpleDateFormat
 import java.util.*
@@ -113,6 +116,23 @@ class BindingAdapter {
                         imageView.setImageResource(R.drawable.ic_cancel)
                     else
                         imageView.setImageResource(R.drawable.ic_microphone)
+                }
+            } catch (e: Exception) {
+            }
+        }
+
+        @BindingAdapter("android:edImgClear")
+        @kotlin.jvm.JvmStatic
+        fun edImgClear(imageView: ImageView, editText: EditText) {
+            try {
+                // init
+                imageView.setOnClickListener { editText.setText("") }
+                // track
+                editText.addTextChangedListener {
+                    if (it?.isNotEmpty() == true)
+                        imageView.display()
+                    else
+                        imageView.hidden()
                 }
             } catch (e: Exception) {
             }

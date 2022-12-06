@@ -95,6 +95,9 @@
     <string name="hint_success_pull_favorite">成功移除最愛</string>
     <string name="hint_failed_push_favorite">無法新增最愛</string>
     <string name="hint_failed_pull_favorite">無法移除最愛</string>
+    <string name="hint_prompt_search_in_here">請在此輸入</string>
+    <string name="hint_prompt_set_password">修改密碼</string>
+    <string name="hint_set_password_success">修改成功</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>

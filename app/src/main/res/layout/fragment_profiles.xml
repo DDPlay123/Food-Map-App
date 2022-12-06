@@ -88,16 +88,97 @@
                 app:layout_constraintTop_toBottomOf="@+id/tvUserName"
                 tools:text="63724108fa2dc9c2132c3a97" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnLogout"
-                style="@style/greenButtonStyle"
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/userLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:background="@color/white"
+            android:paddingTop="@dimen/_10sdp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/headerLayout">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvUserSetting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_15sdp"
+                android:fontFamily="@font/poppins_thin"
+                android:text="使用者設定"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_16ssp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvSetPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_15sdp"
+                android:paddingEnd="0dp"
+                android:paddingTop="@dimen/_8sdp"
+                android:paddingBottom="@dimen/_8sdp"
+                android:fontFamily="@font/poppins_thin"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:text="修改密碼"
+                android:textColor="@color/g_gray700"
+                android:textSize="@dimen/_14ssp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvUserSetting" />
+
+            <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/_15sdp"
-                android:layout_marginBottom="@dimen/_5sdp"
+                android:src="@drawable/ic_arrow_forward"
+                app:layout_constraintBottom_toBottomOf="@+id/tvSetPassword"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tvSetPassword"
+                app:tint="@color/red" />
+
+            <View
+                android:id="@+id/supportLine"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gray"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvSetPassword" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvLogout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_15sdp"
+                android:paddingEnd="0dp"
+                android:paddingTop="@dimen/_8sdp"
+                android:paddingBottom="@dimen/_8sdp"
+                android:fontFamily="@font/poppins_thin"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
                 android:text="@string/text_logout"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                android:textColor="@color/g_gray700"
+                android:textSize="@dimen/_14ssp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/supportLine" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/_15sdp"
+                android:src="@drawable/ic_arrow_forward"
+                app:layout_constraintBottom_toBottomOf="@+id/tvLogout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tvLogout"
+                app:tint="@color/red" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -146,7 +227,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.65" />
+            app:layout_constraintGuide_begin="475dp" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineLeft"

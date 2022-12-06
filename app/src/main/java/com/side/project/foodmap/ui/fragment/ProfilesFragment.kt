@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.method.PasswordTransformationMethod
 import android.view.View
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,16 +15,21 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.DialogPromptBinding
+import com.side.project.foodmap.databinding.DialogPromptSearchBinding
 import com.side.project.foodmap.databinding.FragmentProfilesBinding
 import com.side.project.foodmap.helper.displayShortToast
+import com.side.project.foodmap.helper.hideKeyboard
 import com.side.project.foodmap.helper.setAnimClick
 import com.side.project.foodmap.ui.activity.launch.LoginActivity
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.MainViewModel
+import com.side.project.foodmap.util.RegisterLoginValidation
 import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import java.io.FileNotFoundException
 
@@ -60,6 +66,38 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
     private fun doInitialize() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
+                // 驗證密碼輸入
+                launch {
+                    viewModel.validation.collect { validation ->
+                        if (validation.password is RegisterLoginValidation.Failed)
+                            withContext(Dispatchers.Main) {
+                                requireActivity().displayShortToast(getString(validation.password.messageID))
+                            }
+                    }
+                }
+                // 修改密碼
+                launch {
+                    viewModel.setPasswordState.collect {
+                        when (it) {
+                            is Resource.Loading -> {
+                                Method.logE("Set Password", "Loading")
+                                mActivity.hideKeyboard()
+                                dialog.showLoadingDialog(mActivity, false)
+                            }
+                            is Resource.Success -> {
+                                Method.logE("Set Password", "Success")
+                                dialog.cancelAllDialog()
+                                requireActivity().displayShortToast(getString(R.string.hint_set_password_success))
+                            }
+                            is Resource.Error -> {
+                                Method.logE("Set Password", "Error:${it.message.toString()}")
+                                dialog.cancelLoadingDialog()
+                                requireActivity().displayShortToast(it.message.toString())
+                            }
+                            else -> Unit
+                        }
+                    }
+                }
                 // 登出
                 launch {
                     viewModel.logoutState.collect {
@@ -134,10 +172,12 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
     private fun setListener() {
         val anim = animManager.smallToLarge
         binding.run {
-            btnLogout.setOnClickListener {
-                it.setAnimClick(anim, AnimState.Start) {
-                    displayLogoutDialog()
-                }
+            tvSetPassword.setOnClickListener {
+                displaySetPasswordDialog()
+            }
+
+            tvLogout.setOnClickListener {
+                displayLogoutDialog()
             }
 
             btnDeleteAccount.setOnClickListener {
@@ -150,6 +190,22 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
                 Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply {
                     this.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
                     pickImage.launch(this)
+                }
+            }
+        }
+    }
+
+    private fun displaySetPasswordDialog() {
+        val dialogBinding = DialogPromptSearchBinding.inflate(layoutInflater)
+        dialog.showCenterDialog(mActivity, true, dialogBinding, true).let {
+            dialogBinding.run {
+                imgSearchIcon.setImageResource(R.drawable.ic_key)
+                edSearch.transformationMethod = PasswordTransformationMethod.getInstance()
+                titleText = getString(R.string.hint_prompt_set_password)
+                tvCancel.setOnClickListener { dialog.cancelCenterDialog() }
+                tvConfirm.setOnClickListener {
+                    viewModel.setPassword(edSearch.text.toString().trim())
+                    dialog.cancelCenterDialog()
                 }
             }
         }

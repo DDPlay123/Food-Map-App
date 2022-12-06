@@ -77,8 +77,8 @@ class LoginViewModel : BaseViewModel() {
             viewModelScope.launch {
                 _validation.send(
                     RegisterLoginFieldsState(
-                        Method.validateAccount(account),
-                        Method.validatePassword(password)
+                        account = Method.validateAccount(account),
+                        password = Method.validatePassword(password)
                     )
                 )
             }
@@ -115,8 +115,8 @@ class LoginViewModel : BaseViewModel() {
             viewModelScope.launch {
                 _validation.send(
                     RegisterLoginFieldsState(
-                        Method.validateAccount(account),
-                        Method.validatePassword(password)
+                        account = Method.validateAccount(account),
+                        password = Method.validatePassword(password)
                     )
                 )
             }
