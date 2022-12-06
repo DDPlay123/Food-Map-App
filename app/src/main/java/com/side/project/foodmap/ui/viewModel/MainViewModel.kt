@@ -1,17 +1,21 @@
 package com.side.project.foodmap.ui.viewModel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
+import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchReq
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
+import com.side.project.foodmap.data.remote.api.restaurant.DrawCardReq
+import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
 import com.side.project.foodmap.data.remote.api.user.*
-import com.side.project.foodmap.data.remote.google.placesSearch.PlacesSearch
-import com.side.project.foodmap.helper.getLocation
 import com.side.project.foodmap.network.ApiClient
-import com.side.project.foodmap.util.Method
+import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -36,17 +40,26 @@ class MainViewModel : BaseViewModel() {
     val putFcmTokenState
         get() = _putFcmTokenState.asStateFlow()
 
-    private val _popularSearchState = MutableStateFlow<Resource<PlacesSearch>>(Resource.Unspecified())
-    val popularSearchState
-        get() = _popularSearchState.asStateFlow()
+    private val _popularSearchState = MutableLiveData<Resource<DrawCardRes>>()
+    val popularSearchState: LiveData<Resource<DrawCardRes>>
+        get() = _popularSearchState
 
-    private val _nearSearchState = MutableStateFlow<Resource<DistanceSearchRes>>(Resource.Unspecified())
-    val nearSearchState
-        get() = _nearSearchState.asStateFlow()
+    private val _nearSearchState = MutableLiveData<Resource<DistanceSearchRes>>()
+    val nearSearchState: LiveData<Resource<DistanceSearchRes>>
+        get() = _nearSearchState
 
-    val _watchDetailState = MutableStateFlow<Resource<String>>(Resource.Unspecified())
-    val watchDetailState
-        get() = _watchDetailState.asStateFlow()
+    // Favorite Page
+    private val _currentFavoriteList = MutableLiveData<List<FavoriteList>>()
+    val currentFavoriteList: LiveData<List<FavoriteList>>
+        get() = _currentFavoriteList
+
+    private val _getFavoriteListState = MutableLiveData<Resource<GetFavoriteRes>>()
+    val getFavoriteListState: LiveData<Resource<GetFavoriteRes>>
+        get() = _getFavoriteListState
+
+    private val _pullFavoriteState = MutableStateFlow<Resource<PullFavoriteRes>>(Resource.Unspecified())
+    val pullFavoriteState
+        get() = _pullFavoriteState.asStateFlow()
 
     // Profile Page
     private val _logoutState = MutableStateFlow<Resource<LogoutRes>>(Resource.Unspecified())
@@ -95,29 +108,70 @@ class MainViewModel : BaseViewModel() {
         })
     }
 
-    fun popularSearch(region: String, latLng: String) {
-        val currentLatLng = if (region.getLocation().first == 0.00) latLng
-        else "${region.getLocation().first},${region.getLocation().second}"
-        // TODO(人氣餐廳)
+    fun popularSearch(region: String, latLng: LatLng, mode: Int = 0, num: Int = 10) {
+        val currentLatLng = Method.getCurrentLatLng(region, latLng)
+        val drawCardReq = DrawCardReq(
+            accessKey = accessKey.value,
+            userId = userUID.value,
+            latitude = currentLatLng.latitude,
+            longitude = currentLatLng.longitude,
+            mode = mode,
+            num = num
+        )
+        if (currentLatLng.latitude == 0.0 || currentLatLng.longitude == 0.0) {
+            viewModelScope.launch { _popularSearchState.value = Resource.Error("ERROR") }
+            return
+        }
+        viewModelScope.launch { _popularSearchState.postValue(Resource.Loading()) }
+        ApiClient.getAPI.apiDrawCard(drawCardReq).enqueue(object : Callback<DrawCardRes> {
+            override fun onResponse(call: Call<DrawCardRes>, response: Response<DrawCardRes>) {
+                viewModelScope.launch {
+                    response.body()?.let {
+                        when (it.status) {
+                            0 -> {
+                                _popularSearchState.postValue(Resource.Success(it))
+                                insertDrawCardData(it)
+                            }
+                            else -> _popularSearchState.value = Resource.Error(it.errMsg.toString())
+                        }
+                    }
+                }
+            }
 
+            override fun onFailure(call: Call<DrawCardRes>, t: Throwable) {
+                viewModelScope.launch {
+                    _popularSearchState.value = Resource.Error(t.message.toString())
+                }
+            }
+        })
     }
 
-    fun nearSearch(region: String, latLng: LatLng) {
+    fun nearSearch(region: String, latLng: LatLng, distance: Int = 5000, skip: Int = 0, limit: Int = 50) {
         val currentLatLng = Method.getCurrentLatLng(region, latLng)
         val distanceSearchReq = DistanceSearchReq(
             accessKey = accessKey.value,
             userId = userUID.value,
             latitude = currentLatLng.latitude,
             longitude = currentLatLng.longitude,
+            distance = distance,
+            skip = skip,
+            limit = limit
         )
-        viewModelScope.launch { _nearSearchState.emit(Resource.Loading()) }
+        if (currentLatLng.latitude == 0.0 || currentLatLng.longitude == 0.0) {
+            viewModelScope.launch { _nearSearchState.value = Resource.Error("ERROR") }
+            return
+        }
+        viewModelScope.launch { _nearSearchState.postValue(Resource.Loading()) }
         ApiClient.getAPI.apiRestaurantDistanceSearch(distanceSearchReq).enqueue(object : Callback<DistanceSearchRes> {
             override fun onResponse(call: Call<DistanceSearchRes>, response: Response<DistanceSearchRes>) {
                 viewModelScope.launch {
                     response.body()?.let {
-                        _nearSearchState.value = when (it.status) {
-                            0 -> Resource.Success(it)
-                            else -> Resource.Error(it.errMsg.toString())
+                         when (it.status) {
+                            0 -> {
+                                _nearSearchState.postValue(Resource.Success(it))
+                                insertDistanceSearchData(it)
+                            }
+                            else -> _nearSearchState.value = Resource.Error(it.errMsg.toString())
                         }
                     }
                 }
@@ -131,11 +185,41 @@ class MainViewModel : BaseViewModel() {
         })
     }
 
-    fun watchDetail(placeId: String) {
-        if (placeId.isNotEmpty())
-            viewModelScope.launch { _watchDetailState.emit(Resource.Success(placeId)) }
-        else
-            viewModelScope.launch { _watchDetailState.emit(Resource.Error("")) }
+    fun getSyncFavoriteList() {
+        viewModelScope.launch(Dispatchers.IO) {
+            syncFavoriteList().distinctUntilChanged().collect { favoriteLists ->
+                _currentFavoriteList.postValue(favoriteLists)
+            }
+        }
+    }
+
+    fun pullFavorite(placeIdList: ArrayList<String>) {
+        val pullFavoriteReq = PullFavoriteReq(
+            accessKey = accessKey.value,
+            userId = userUID.value,
+            favoriteIdList = placeIdList
+        )
+        ApiClient.getAPI.apiPullFavorite(pullFavoriteReq).enqueue(object : Callback<PullFavoriteRes> {
+            override fun onResponse(
+                call: Call<PullFavoriteRes>,
+                response: Response<PullFavoriteRes>
+            ) {
+                viewModelScope.launch {
+                    response.body()?.let {
+                        when (it.status) {
+                            0 -> _pullFavoriteState.value = Resource.Success(it)
+                            else -> _pullFavoriteState.value = Resource.Error(it.errMsg.toString())
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<PullFavoriteRes>, t: Throwable) {
+                viewModelScope.launch {
+                    _pullFavoriteState.value = Resource.Error(t.message.toString())
+                }
+            }
+        })
     }
 
     fun logout() {
@@ -151,10 +235,10 @@ class MainViewModel : BaseViewModel() {
                     response.body()?.let {
                         when (it.status) {
                             0 -> {
-                                _logoutState.value = Resource.Success(it)
+                                _logoutState.emit(Resource.Success(it))
                                 putUserIsLogin(false)
                             }
-                            else -> _logoutState.value = Resource.Error(it.errMsg.toString())
+                            else -> _logoutState.emit(Resource.Error(it.errMsg.toString()))
                         }
                     }
                 }
@@ -162,7 +246,7 @@ class MainViewModel : BaseViewModel() {
 
             override fun onFailure(call: Call<LogoutRes>, t: Throwable) {
                 viewModelScope.launch {
-                    _logoutState.value = Resource.Error(t.message.toString())
+                    _logoutState.emit(Resource.Error(t.message.toString()))
                 }
             }
         })
@@ -180,12 +264,12 @@ class MainViewModel : BaseViewModel() {
                     response.body()?.let {
                         when (it.status) {
                             0 -> {
-                                _deleteAccountState.value = Resource.Success(it)
+                                _deleteAccountState.emit(Resource.Success(it))
                                 clearData()
                                 clearPublicData()
-                                deleteDistanceSearchData()
+                                clearDbData()
                             }
-                            else -> _deleteAccountState.value = Resource.Error(it.errMsg.toString())
+                            else -> _deleteAccountState.emit(Resource.Error(it.errMsg.toString()))
                         }
                     }
                 }
@@ -193,7 +277,7 @@ class MainViewModel : BaseViewModel() {
 
             override fun onFailure(call: Call<DeleteAccountRes>, t: Throwable) {
                 viewModelScope.launch {
-                    _deleteAccountState.value = Resource.Error(t.message.toString())
+                    _deleteAccountState.emit(Resource.Error(t.message.toString()))
                 }
             }
         })
@@ -212,10 +296,10 @@ class MainViewModel : BaseViewModel() {
                     response.body()?.let {
                         when (it.status) {
                             0 -> {
-                                _setUserImageState.value = Resource.Success(it)
+                                _setUserImageState.emit(Resource.Success(it))
                                 putUserPicture(userImage)
                             }
-                            else -> _setUserImageState.value = Resource.Error(it.errMsg.toString())
+                            else -> _setUserImageState.emit(Resource.Error(it.errMsg.toString()))
                         }
                     }
                 }
@@ -223,9 +307,55 @@ class MainViewModel : BaseViewModel() {
 
             override fun onFailure(call: Call<SetUserImageRes>, t: Throwable) {
                 viewModelScope.launch {
-                    _setUserImageState.value = Resource.Error(t.message.toString())
+                    _setUserImageState.emit(Resource.Error(t.message.toString()))
                 }
             }
         })
+    }
+
+    /**
+     * 其他方法
+     */
+    private fun getFavoriteList(): Flow<List<FavoriteList>> = callbackFlow {
+        val getFavoriteReq = GetFavoriteReq(
+            userId = userUID.value,
+            accessKey = accessKey.value
+        )
+        viewModelScope.launch { _getFavoriteListState.postValue(Resource.Loading()) }
+        ApiClient.getAPI.apiGetFavorite(getFavoriteReq).enqueue(object : Callback<GetFavoriteRes> {
+            override fun onResponse(
+                call: Call<GetFavoriteRes>,
+                response: Response<GetFavoriteRes>
+            ) {
+                viewModelScope.launch {
+                    response.body()?.let {
+                        when (it.status) {
+                            0 -> {
+                                _getFavoriteListState.postValue(Resource.Success(it))
+                                trySend(it.result)
+                            }
+                            else ->_getFavoriteListState.value = Resource.Error(it.errMsg.toString())
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<GetFavoriteRes>, t: Throwable) {
+                viewModelScope.launch {
+                    _getFavoriteListState.value = Resource.Error(t.message.toString())
+                }
+            }
+        })
+        awaitClose { getFavoriteListState.value is Resource.Error }
+    }
+
+    private fun syncFavoriteList(): Flow<List<FavoriteList>> {
+        val favoriteList = getFavoriteData()
+        return getFavoriteList()
+            .onStart { emit(favoriteList) }
+            .onEach { favoriteLists ->
+                if (favoriteLists != favoriteList)
+                    insertAllFavoriteData(favoriteLists)
+            }
     }
 }

@@ -1,4 +1,4 @@
-package com.side.project.foodmap.util
+package com.side.project.foodmap.util.tools
 
 import android.util.Base64
 import java.io.UnsupportedEncodingException

@@ -2,7 +2,7 @@ package com.side.project.foodmap.data.remote.api.restaurant
 
 import androidx.room.Entity
 import com.side.project.foodmap.data.remote.api.*
-import com.side.project.foodmap.util.Constants
+import com.side.project.foodmap.util.Constants.DISTANCE_SEARCH_MODEL
 import java.io.Serializable
 
 data class DistanceSearchReq(
@@ -11,15 +11,16 @@ data class DistanceSearchReq(
     val latitude: Double,
     val longitude: Double,
     val distance: Int = 100,
-    val minNum: Int = 20,
-    val maxNum: Int = 100
+    val skip: Int = 0,
+    val limit: Int = 100
 ) : BaseRequest()
 
-@Entity(tableName = Constants.DISTANCE_SEARCH_MODEL, primaryKeys = ["result"])
+@Entity(tableName = DISTANCE_SEARCH_MODEL, primaryKeys = ["result"])
 class DistanceSearchRes(
     val result: Result
 ) : BaseResponse(), Serializable {
     data class Result(
+        val msg: String? = null,
         val updated: Boolean,
         val placeCount: Long,
         val placeList: ArrayList<PlaceList>

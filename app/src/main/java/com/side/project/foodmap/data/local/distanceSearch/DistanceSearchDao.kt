@@ -1,4 +1,4 @@
-package com.side.project.foodmap.data.local
+package com.side.project.foodmap.data.local.distanceSearch
 
 import androidx.room.*
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
@@ -12,9 +12,6 @@ interface DistanceSearchDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertData(distanceSearchRes: DistanceSearchRes)
-
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateData(distanceSearchRes: DistanceSearchRes)
 
     @Query("DELETE FROM $DISTANCE_SEARCH_MODEL")
     suspend fun deleteData()

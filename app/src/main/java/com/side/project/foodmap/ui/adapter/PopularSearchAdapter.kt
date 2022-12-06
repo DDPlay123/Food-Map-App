@@ -1,47 +1,70 @@
 package com.side.project.foodmap.ui.adapter
 
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
-import com.side.project.foodmap.R
-import com.side.project.foodmap.data.remote.google.placesSearch.Result
-import com.side.project.foodmap.databinding.ItemPopularViewBinding
-import com.side.project.foodmap.ui.adapter.other.BaseRvAdapter
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.model.LatLng
+import com.side.project.foodmap.data.remote.api.PlaceList
+import com.side.project.foodmap.databinding.ItemRestaurantViewBinding
+import com.side.project.foodmap.helper.gone
+import com.side.project.foodmap.helper.display
+import com.side.project.foodmap.util.tools.Method
 import java.io.IOException
 
-class PopularSearchAdapter : BaseRvAdapter<ItemPopularViewBinding, Result>(R.layout.item_popular_view) {
+class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolder>() {
 
-    private val itemCallback = object : DiffUtil.ItemCallback<Result>() {
+    private val itemCallback = object : DiffUtil.ItemCallback<PlaceList>() {
         // 比對新舊 Item
-        override fun areItemsTheSame(oldItem: Result, newItem: Result): Boolean {
-            return oldItem.place_id == newItem.place_id
+        override fun areItemsTheSame(oldItem: PlaceList, newItem: PlaceList): Boolean {
+            return oldItem.uid == newItem.uid
         }
+
         // 比對新舊 Item 內容
-        override fun areContentsTheSame(oldItem: Result, newItem: Result): Boolean {
+        override fun areContentsTheSame(oldItem: PlaceList, newItem: PlaceList): Boolean {
             return oldItem == newItem
         }
     }
 
     private val differ = AsyncListDiffer(this, itemCallback)
 
-    fun setterData(placesSearchResult: List<Result>) {
-        differ.submitList(placesSearchResult)
-        initData(differ.currentList)
+    lateinit var onItemClick: ((String) -> Unit)
+
+    fun setData(placeList: ArrayList<PlaceList>) = differ.submitList(placeList)
+
+    fun getData(position: Int): PlaceList = differ.currentList[position]
+
+    private lateinit var myLocation: LatLng
+    fun setMyLocation(startLatLng: LatLng) {
+        myLocation = startLatLng
     }
 
-    fun getterData(position: Int): Result = differ.currentList[position]
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
+        ViewHolder(ItemRestaurantViewBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
-    override fun bind(binding: ItemPopularViewBinding, item: Result, position: Int) {
-        super.bind(binding, item, position)
-        try {
-            binding.run {
-                photoReference = item.photos?.get(0)?.photo_reference ?: ""
-                tvTitle.text = item.name ?: ""
-                tvRating.text = (item.rating ?: 0F).toString()
-                rating.rating = item.rating ?: 0F
-                tvRatingTotal.text = "(${item.user_ratings_total ?: "0"})"
-                tvVicinity.text = item.vicinity ?: ""
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.apply {
+            try {
+                binding.data = getData(adapterPosition)
+                binding.photoReference = if (getData(adapterPosition).photos != null && (getData(adapterPosition).photos?.size ?: 0) > 0)
+                    getData(adapterPosition).photos?.get(0)?.photo_reference
+                else
+                    ""
+
+                if (::myLocation.isInitialized && (myLocation.latitude != 0.0 || myLocation.longitude != 0.0)) {
+                    binding.distance = Method.getDistance(myLocation, LatLng(getData(adapterPosition).location.lat, getData(adapterPosition).location.lng))
+                    binding.tvDistance.display()
+                } else
+                    binding.tvDistance.gone()
+
+                binding.root.setOnClickListener { onItemClick.invoke(getData(adapterPosition).uid) }
+            } catch (ignored: IOException) {
             }
-        } catch (ignored: IOException) {
         }
     }
+
+    override fun getItemCount(): Int = differ.currentList.size
+
+    class ViewHolder(val binding: ItemRestaurantViewBinding) : RecyclerView.ViewHolder(binding.root)
 }

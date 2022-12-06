@@ -31,3 +31,12 @@ fun Activity.isKeyboardVisible(): Boolean {
     // If the difference is not 0 we assume that the keyboard is currently visible.
     return diff != 0
 }
+
+fun Activity.getStatusBarHeight(): Int {
+    var result = 0
+    val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+    if (resourceId > 0)
+        result = resources.getDimensionPixelSize(resourceId)
+
+    return result
+}

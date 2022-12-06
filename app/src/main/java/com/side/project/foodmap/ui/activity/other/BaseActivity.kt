@@ -14,16 +14,26 @@ import androidx.lifecycle.LifecycleOwner
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.helper.displayShortToast
+import com.side.project.foodmap.service.LocationService
 import com.side.project.foodmap.ui.other.DialogManager
-import com.side.project.foodmap.util.NetworkConnection
+import com.side.project.foodmap.util.tools.NetworkConnection
 import com.side.project.foodmap.util.Constants
 import com.side.project.foodmap.util.Constants.PERMISSION_CODE
 import org.koin.android.ext.android.inject
 
 abstract class BaseActivity : AppCompatActivity() {
+    companion object {
+        const val DEFAULT_LATITUDE = 25.043871531367014
+        const val DEFAULT_LONGITUDE = 121.53453374432904
+    }
+
     lateinit var mActivity: BaseActivity
-    lateinit var dialog: DialogManager
+    val dialog: DialogManager by inject()
     private val networkConnection: NetworkConnection by inject()
+
+    lateinit var locationService: LocationService
+    var myLatitude: Double = DEFAULT_LATITUDE
+    var myLongitude: Double = DEFAULT_LONGITUDE
 
     init {
         // 清空ViewModel，避免記憶體洩漏。
@@ -57,9 +67,14 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mActivity = this
-        dialog = DialogManager.instance(mActivity)
 
         checkNetWork {}
+    }
+
+    override fun onDestroy() {
+        if (::locationService.isInitialized)
+            locationService.stopListener(mActivity)
+        super.onDestroy()
     }
 
     fun checkNetWork(work: (() -> Unit)) {
@@ -67,7 +82,7 @@ abstract class BaseActivity : AppCompatActivity() {
             if (!isConnect) {
                 val binding = DialogPromptBinding.inflate(layoutInflater)
                 dialog.cancelAllDialog()
-                dialog.showCenterDialog(false, binding, false).let {
+                dialog.showCenterDialog(mActivity, false, binding, false).let {
                     binding.run {
                         showIcon = true
                         hideCancel = true
@@ -82,6 +97,17 @@ abstract class BaseActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    fun initLocationService() {
+        locationService = LocationService()
+        locationService.startListener(this)
+        if (!locationService.canGetLocation()) {
+            displayShortToast(getString(R.string.hint_not_provider_gps))
+            return
+        }
+        locationService.latitude.observe(this) { myLatitude = it }
+        locationService.longitude.observe(this) { myLongitude = it }
     }
 
     @SuppressLint("HardwareIds")

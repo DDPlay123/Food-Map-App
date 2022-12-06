@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="placeDetail"
+            type="com.side.project.foodmap.data.remote.api.FavoriteList" />
+
+        <variable
+            name="today"
+            type="Integer" />
+
+        <import type="android.view.View" />
+
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/_5sdp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        app:cardCornerRadius="@dimen/_8sdp"
+        app:cardElevation="@dimen/_5sdp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/g_white"
+            android:padding="@dimen/_8sdp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPhotos"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layoutAnimation="@anim/layout_animation_fade_in"
+                android:visibility="gone"
+                app:layout_constraintDimensionRatio="2.5:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_4sdp"
+                android:layout_marginEnd="@dimen/_5sdp"
+                android:fontFamily="@font/poppins_thin"
+                android:text="@{placeDetail.name}"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_14ssp"
+                app:layout_constraintEnd_toStartOf="@+id/imgSetFavorite"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/rvPhotos"
+                tools:text="@string/app_name" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgSetFavorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_4sdp"
+                android:background="@drawable/pink_circle_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:padding="@dimen/_4sdp"
+                android:src="@drawable/ic_favorite"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/rvPhotos"
+                app:tint="@color/primary"
+                tools:src="@drawable/ic_favorite_border" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_4sdp"
+                android:text="@{String.valueOf(placeDetail.rating)}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvName"
+                tools:text="4.3" />
+
+            <RatingBar
+                android:id="@+id/rating"
+                style="@style/Widget.AppCompat.RatingBar.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:isIndicator="true"
+                android:numStars="5"
+                android:rating="@{placeDetail.rating}"
+                app:layout_constraintBottom_toBottomOf="@id/tvRating"
+                app:layout_constraintStart_toEndOf="@id/tvRating"
+                app:layout_constraintTop_toTopOf="@id/tvRating"
+                tools:rating="4.3" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRatingTotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:text='@{"(" + String.valueOf(placeDetail.ratings_total) + ")"}'
+                app:layout_constraintBottom_toBottomOf="@id/rating"
+                app:layout_constraintStart_toEndOf="@id/rating"
+                app:layout_constraintTop_toTopOf="@id/rating"
+                tools:text="(17)" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvVicinity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_4sdp"
+                android:drawableStart="@drawable/ic_location"
+                android:drawableTint="@color/red"
+                android:ellipsize="end"
+                android:fontFamily="@font/poppins_light"
+                android:maxLines="1"
+                android:text="@{placeDetail.vicinity}"
+                android:textColor="@color/g_gray500"
+                android:textSize="@dimen/_12ssp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rating"
+                tools:text="台北市大安區" />
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/layoutWorkday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvVicinity">
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:id="@+id/priceLevelIndicators"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/_5sdp"
+                    android:gravity="end|center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="@{placeDetail.price_level > 0 ? View.VISIBLE : View.GONE, default=gone}"
+                    tools:visibility="visible" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/priceLevelDot"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/_5sdp"
+                    android:fontFamily="@font/poppins_thin"
+                    android:includeFontPadding="false"
+                    android:text="@string/u2022"
+                    android:textColor="@color/primary"
+                    android:textSize="@dimen/_13ssp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvWorkday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:text="@{placeDetail.workDay.size > 0 ? placeDetail.workDay[today] : @string/hint_workday_null, default=@string/hint_workday_null}"
+                    android:textColor="@color/g_gray700"
+                    android:textSize="@dimen/_12ssp"
+                    android:textStyle="bold"
+                    tools:text="星期一：早上 11:30 – 早上 1:30" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/layoutService"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layoutWorkday">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvDineIn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/_5sdp"
+                    android:fontFamily="@font/poppins_thin"
+                    android:includeFontPadding="false"
+                    android:text="@string/text_dine_in"
+                    android:textColor="@color/g_gray700"
+                    android:textSize="@dimen/_12ssp"
+                    android:visibility="@{placeDetail.dine_in ? View.VISIBLE : View.GONE, default=gone}"
+                    tools:visibility="visible" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/dineInDot"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/_5sdp"
+                    android:fontFamily="@font/poppins_thin"
+                    android:includeFontPadding="false"
+                    android:text="@string/u2022"
+                    android:textColor="@color/primary"
+                    android:textSize="@dimen/_13ssp"
+                    android:visibility="@{placeDetail.takeout ? View.VISIBLE : View.GONE, default=gone}"
+                    tools:visibility="visible" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvTakeout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/_5sdp"
+                    android:fontFamily="@font/poppins_thin"
+                    android:includeFontPadding="false"
+                    android:text="@string/text_takeout"
+                    android:textColor="@color/g_gray700"
+                    android:textSize="@dimen/_12ssp"
+                    android:visibility="@{placeDetail.takeout ? View.VISIBLE : View.GONE, default=gone}"
+                    tools:visibility="visible" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/takeoutDot"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/_5sdp"
+                    android:fontFamily="@font/poppins_thin"
+                    android:includeFontPadding="false"
+                    android:text="@string/u2022"
+                    android:textColor="@color/primary"
+                    android:textSize="@dimen/_13ssp"
+                    android:visibility="@{placeDetail.delivery ? View.VISIBLE : View.GONE, default=gone}"
+                    tools:visibility="visible" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvDelivery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_thin"
+                    android:includeFontPadding="false"
+                    android:text="@string/text_delivery"
+                    android:textColor="@color/g_gray700"
+                    android:textSize="@dimen/_12ssp"
+                    android:visibility="@{placeDetail.delivery ? View.VISIBLE : View.GONE, default=gone}"
+                    tools:visibility="visible" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/layoutTool"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_12sdp"
+                android:orientation="horizontal"
+                android:weightSum="4"
+                app:divider="@drawable/divider"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layoutService"
+                app:showDividers="middle">
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnWebsite"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:autoSizeTextType="uniform"
+                    android:background="@drawable/background_google_blue_button"
+                    android:drawableEnd="@drawable/ic_public"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/poppins_thin"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:padding="@dimen/_10sdp"
+                    android:text="@string/text_website"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_12ssp"
+                    app:autoSizeTextType="uniform" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnNavigation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:autoSizeTextType="uniform"
+                    android:background="@drawable/background_google_green_button"
+                    android:drawableEnd="@drawable/ic_directions"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/poppins_thin"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:padding="@dimen/_10sdp"
+                    android:text="@string/text_navigation"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_12ssp"
+                    app:autoSizeTextType="uniform" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:autoSizeTextType="uniform"
+                    android:background="@drawable/background_google_yellow_button"
+                    android:drawableEnd="@drawable/ic_phone_forwarded"
+                    android:drawableTint="@color/white"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/poppins_thin"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:padding="@dimen/_10sdp"
+                    android:text="@string/text_call_phone"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_12ssp"
+                    app:autoSizeTextType="uniform" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnShare"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:autoSizeTextType="uniform"
+                    android:background="@drawable/background_google_red_button"
+                    android:drawableEnd="@drawable/ic_share"
+                    android:drawableTint="@color/white"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/poppins_thin"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:padding="@dimen/_10sdp"
+                    android:text="@string/text_share"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_12ssp"
+                    app:autoSizeTextType="uniform" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>

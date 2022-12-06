@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "23970519175-budce9nts72uoodm80a07ans4gqvi6jn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.side.project.foodmap",
+            "certificate_hash": "11e742eaf4574ac3efd5c7a6149611a179f251ff"
+          }
+        },
+        {
+          "client_id": "23970519175-nc7m2ibmimbe6ulfgkm3br385ia2q1ht.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.side.project.foodmap",
+            "certificate_hash": "0a613ece790bbabfced8cea7b64666ac7bb00f92"
+          }
+        },
+        {
           "client_id": "23970519175-rq9u7fec7hkhvfrmf394knrn2vcrg412.apps.googleusercontent.com",
           "client_type": 3
         }

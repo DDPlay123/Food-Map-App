@@ -3,7 +3,9 @@ package com.side.project.foodmap.ui.fragment
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
@@ -13,8 +15,9 @@ import com.side.project.foodmap.databinding.FragmentMapsBinding
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.MainViewModel
-import com.side.project.foodmap.util.Method
+import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
@@ -59,25 +62,32 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
     }
 
     private fun doInitialize() {
-        // 附近搜尋 From Room
-        lifecycleScope.launchWhenCreated {
-            viewModel.getDistanceSearch.collect {
-                when (it) {
-                    is Resource.Loading -> {
-                        Method.logE("Near Search Room", "Loading")
-                        dialog.showLoadingDialog(false)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                // 附近搜尋 From Room
+                launch {
+                    viewModel.getDistanceSearch.observe(viewLifecycleOwner) { resource ->
+                        when (resource) {
+                            is Resource.Loading -> {
+                                Method.logE("Near Search Room", "Loading")
+                                dialog.showLoadingDialog(mActivity, false)
+                                return@observe
+                            }
+                            is Resource.Success -> {
+                                Method.logE("Near Search Room", "Success")
+                                dialog.cancelLoadingDialog()
+                                resource.data?.let { data -> distanceSearchRes = data }
+                                return@observe
+                            }
+                            is Resource.Error -> {
+                                Method.logE("Near Search Room", "Error:${resource.message.toString()}")
+                                dialog.cancelLoadingDialog()
+                                requireActivity().displayShortToast(getString(R.string.hint_error))
+                                return@observe
+                            }
+                            else -> Unit
+                        }
                     }
-                    is Resource.Success -> {
-                        Method.logE("Near Search Room", "Success")
-                        dialog.cancelLoadingDialog()
-                        it.data?.let { data -> distanceSearchRes = data }
-                    }
-                    is Resource.Error -> {
-                        Method.logE("Near Search Room", "Error:${it.message.toString()}")
-                        dialog.cancelLoadingDialog()
-                        requireActivity().displayShortToast(getString(R.string.hint_error))
-                    }
-                    else -> Unit
                 }
             }
         }

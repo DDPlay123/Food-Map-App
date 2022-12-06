@@ -2,7 +2,7 @@ package com.side.project.foodmap.service
 
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.side.project.foodmap.util.Method
+import com.side.project.foodmap.util.tools.Method
 
 class MessagingService : FirebaseMessagingService() {
 

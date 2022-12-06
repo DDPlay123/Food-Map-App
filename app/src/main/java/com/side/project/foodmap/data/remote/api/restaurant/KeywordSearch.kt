@@ -8,14 +8,15 @@ data class KeywordSearchReq(
     val latitude: Double,
     val longitude: Double,
     val keyboard: String,
-    val minNum: Int,
-    val maxNum: Int
+    val skip: Int = 20,
+    val limit: Int = 100
 ) : BaseRequest()
 
 class KeywordSearchRes(
     val result: Result? = null
 ) : BaseResponse() {
     data class Result(
+        val msg: String? = null,
         val updated: Boolean,
         val placeCount: Long,
         val placeList: ArrayList<PlaceList>

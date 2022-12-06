@@ -1,4 +1,4 @@
-package com.side.project.foodmap.util
+package com.side.project.foodmap.util.tools
 
 import android.app.Activity
 import android.content.Context
@@ -20,7 +20,12 @@ import com.side.project.foodmap.BuildConfig
 import com.side.project.foodmap.R
 import com.side.project.foodmap.helper.getLocation
 import com.side.project.foodmap.util.Constants.PERMISSION_CODE
+import com.side.project.foodmap.util.RegisterLoginValidation
 import java.io.ByteArrayOutputStream
+import java.util.*
+import kotlin.math.acos
+import kotlin.math.cos
+import kotlin.math.sin
 
 object Method {
     /**
@@ -80,6 +85,28 @@ object Method {
             if (region.getLocation().first != 0.00) region.getLocation().first else latLng.latitude,
             if (region.getLocation().second != 0.00) region.getLocation().second else latLng.longitude
         )
+
+    fun getWeekOfDate(dt: Date): Int {
+        val weekDays = arrayOf(7, 1, 2, 3, 4, 5, 6)
+        val cal = Calendar.getInstance()
+        cal.time = dt
+        var w = cal[Calendar.DAY_OF_WEEK] - 1
+        if (w < 0)
+            w = 0
+        return weekDays[w]
+    }
+
+    const val EarthRadius = 6371 // 地球半徑
+    fun getDistance(start: LatLng, end: LatLng): Double {
+        val startLat = (Math.PI / 180) * start.latitude
+        val endLat = (Math.PI / 180) * end.latitude
+
+        val startLng = (Math.PI / 180) * start.longitude
+        val endLng = (Math.PI / 180) * end.longitude
+
+        // 回傳公里 km
+        return acos(sin(startLat) * sin(endLat) + cos(startLat) * cos(endLat) * cos(startLng - endLng)) * EarthRadius
+    }
 
     fun createMapIcon(activity: Activity, view: View): Bitmap {
         val displayMetrics = DisplayMetrics()

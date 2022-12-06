@@ -23,6 +23,14 @@ interface ApiService {
     @POST("api/place/search_by_keyword")
     fun apiRestaurantKeywordSearch(@Body keywordSearchReq: KeywordSearchReq): Call<KeywordSearchRes>
 
+    @Headers("Content-Type: application/json")
+    @POST("api/place/details_by_place_id")
+    fun apiDetailByPlaceId(@Body detailsByPlaceIdReq: DetailsByPlaceIdReq): Call<DetailsByPlaceIdRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/place/draw_card")
+    fun apiDrawCard(@Body drawCardReq: DrawCardReq): Call<DrawCardRes>
+
     /**
      * User API Server
      */
@@ -57,6 +65,18 @@ interface ApiService {
     @Headers("Content-Type: application/json")
     @POST("api/user/set_password")
     fun apiSetUserPassword(@Body setPasswordReq: SetPasswordReq): Call<SetPasswordRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/push_favorite")
+    fun apiPushFavorite(@Body pushFavoriteReq: PushFavoriteReq): Call<PushFavoriteRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/pull_favorite")
+    fun apiPullFavorite(@Body pullFavoriteReq: PullFavoriteReq): Call<PullFavoriteRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/get_favorite")
+    fun apiGetFavorite(@Body getFavoriteReq: GetFavoriteReq): Call<GetFavoriteRes>
 
     /********************** 以下未用到 ************************/
     /**
@@ -100,9 +120,9 @@ interface ApiService {
     @GET("autocomplete/json")
     fun getPlacesAutoComplete(
         @Query("input") input: String,
-//        @Query("location") location: String, // Ex: 25.0338,121.5646
+        @Query("location") location: String, // Ex: 25.0338,121.5646
         @Query("components") component: String = "country:tw",
-//        @Query("radius") radius: String = "1000",
+        @Query("radius") radius: String = "10000",
         @Query("type") type: String = "restaurant",
         @Query("key") key: String,
         @Query("language") language: String = "zh-TW"

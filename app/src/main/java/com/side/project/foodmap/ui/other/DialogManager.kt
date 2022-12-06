@@ -14,10 +14,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.DialogLoadingBinding
 
-class DialogManager(private val activity: Activity) {
-    companion object {
-        fun instance(activity: Activity): DialogManager = DialogManager(activity)
-    }
+class DialogManager() {
 
     interface BottomCancelListener {
         fun response()
@@ -27,7 +24,7 @@ class DialogManager(private val activity: Activity) {
     private var loadingDialog: Dialog? = null
     private var bottomDialog: BottomSheetDialog? = null
 
-    fun showCenterDialog(cancelable: Boolean, view: ViewDataBinding, keyboard: Boolean): ViewDataBinding {
+    fun showCenterDialog(activity: Activity, cancelable: Boolean, view: ViewDataBinding, keyboard: Boolean): ViewDataBinding {
         cancelCenterDialog()
         dialog = AlertDialog.Builder(activity).create()
         dialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
@@ -43,7 +40,7 @@ class DialogManager(private val activity: Activity) {
         return view
     }
 
-    fun showLoadingDialog(cancelable: Boolean) {
+    fun showLoadingDialog(activity: Activity, cancelable: Boolean) {
         cancelLoadingDialog()
         val loadingView = DialogLoadingBinding.inflate(LayoutInflater.from(activity)).root
 
@@ -56,7 +53,7 @@ class DialogManager(private val activity: Activity) {
         loadingDialog?.setCancelable(cancelable)
     }
 
-    fun showBottomDialog(view: ViewDataBinding, isFullExpand: Boolean, bias: Int = 0): ViewDataBinding {
+    fun showBottomDialog(activity: Activity, view: ViewDataBinding, isFullExpand: Boolean, bias: Int = 0): ViewDataBinding {
         cancelBottomDialog()
         bottomDialog = BottomSheetDialog(activity, R.style.BottomSheetDialogTheme)
         bottomDialog?.show()

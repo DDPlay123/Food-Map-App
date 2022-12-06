@@ -22,6 +22,8 @@ object Constants {
      * User Room Database
      */
     const val DISTANCE_SEARCH_MODEL = "DISTANCE_SEARCH_MODEL"
+    const val DRAW_CARD_MODEL = "DRAW_CARD_MODEL"
+    const val GET_FAVORITE_MODEL = "GET_FAVORITE_MODEL"
 
     /**
      * User Preference
@@ -40,4 +42,17 @@ object Constants {
     const val USER_IS_LOGIN = "USER_IS_LOGIN"
     const val USER_TDX_TOKEN = "USER_TDX_TOKEN"
     const val USER_TDX_TOKEN_UPDATE = "USER_TDX_TOKEN_UPDATE"
+
+    /**
+     * Activity Parameter
+     */
+    // Detail Activity
+    const val PLACE_ID = "PLACE_ID"
+    const val IS_FAVORITE = "IS_FAVORITE"
+
+    // List Activity
+    const val KEYWORD = "KEYWORD"
+    const val IS_NEAR_SEARCH = "IS_NEAR_SEARCH"
+    const val LATITUDE = "LATITUDE"
+    const val LONGITUDE = "LONGITUDE"
 }
