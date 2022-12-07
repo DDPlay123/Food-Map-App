@@ -28,6 +28,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
 
     override fun FragmentLoginBinding.initialize() {
         binding.vm = viewModel
+        viewModel.getUserAccountFromDataStore()
+        viewModel.getUserPasswordFromDataStore()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

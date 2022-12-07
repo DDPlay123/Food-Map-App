@@ -16,10 +16,6 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class LoginViewModel : BaseViewModel() {
-    init {
-        getUserAccountFromDataStore()
-        getUserPasswordFromDataStore()
-    }
 
     /**
      * 資料流
