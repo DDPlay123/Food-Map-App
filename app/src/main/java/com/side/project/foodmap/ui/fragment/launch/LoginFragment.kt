@@ -192,6 +192,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                     deviceId = mActivity.getDeviceId()
                 )
             }
+//            throw RuntimeException("Test Crash") // Force a crash
         }
     }
 
