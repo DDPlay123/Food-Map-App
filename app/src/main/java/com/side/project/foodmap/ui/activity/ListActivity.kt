@@ -12,10 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.ActivityListBinding
-import com.side.project.foodmap.helper.display
-import com.side.project.foodmap.helper.displayShortToast
-import com.side.project.foodmap.helper.getStatusBarHeight
-import com.side.project.foodmap.helper.gone
+import com.side.project.foodmap.helper.*
 import com.side.project.foodmap.ui.activity.other.BaseActivity
 import com.side.project.foodmap.ui.adapter.RestaurantListAdapter
 import com.side.project.foodmap.ui.other.AnimManager
@@ -176,6 +173,15 @@ class ListActivity : BaseActivity() {
                         else
                             viewModel.keywordSearch()
                     }
+                }
+
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                    // 不滾動時
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE)
+                        binding.fabUpTool.delayOnLifecycle(1500L) {
+                            binding.fabUpTool.gone()
+                        }
                 }
             })
         }

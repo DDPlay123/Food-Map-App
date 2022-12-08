@@ -104,9 +104,9 @@ class BindingAdapter {
             }
         }
 
-        @BindingAdapter("android:edImgTool")
+        @BindingAdapter("android:edImgSoundTool")
         @kotlin.jvm.JvmStatic
-        fun edImgTool(imageView: ImageView, editText: EditText) {
+        fun edImgSoundTool(imageView: ImageView, editText: EditText) {
             try {
                 // init
                 imageView.setOnClickListener { editText.setText("") }
@@ -116,6 +116,21 @@ class BindingAdapter {
                         imageView.setImageResource(R.drawable.ic_cancel)
                     else
                         imageView.setImageResource(R.drawable.ic_microphone)
+                }
+            } catch (e: Exception) {
+            }
+        }
+
+        @BindingAdapter("android:edImgCameraTool")
+        @kotlin.jvm.JvmStatic
+        fun edImgCameraTool(imageView: ImageView, editText: EditText) {
+            try {
+                // track
+                editText.addTextChangedListener {
+                    if (it?.isNotEmpty() == true)
+                        imageView.hidden()
+                    else
+                        imageView.display()
                 }
             } catch (e: Exception) {
             }

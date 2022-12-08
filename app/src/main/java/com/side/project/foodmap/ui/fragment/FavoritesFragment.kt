@@ -1,5 +1,6 @@
 package com.side.project.foodmap.ui.fragment
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -10,16 +11,19 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.databinding.FragmentFavoritesBinding
-import com.side.project.foodmap.helper.displayShortToast
-import com.side.project.foodmap.helper.hidden
-import com.side.project.foodmap.helper.display
-import com.side.project.foodmap.helper.gone
+import com.side.project.foodmap.helper.*
 import com.side.project.foodmap.ui.activity.DetailActivity
-import com.side.project.foodmap.ui.activity.MainActivity
 import com.side.project.foodmap.ui.adapter.FavoriteListAdapter
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.MainViewModel
@@ -34,9 +38,11 @@ import org.koin.androidx.viewmodel.ext.android.activityViewModel
 class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragment_favorites) {
     private val viewModel: MainViewModel by activityViewModel()
     private val networkConnection: NetworkConnection by inject()
+    private var map: GoogleMap? = null
 
     // Toole
     private lateinit var favoriteListAdapter: FavoriteListAdapter
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     // Wait pull favorite list
     private lateinit var favoriteList: FavoriteList
@@ -45,11 +51,33 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
         initLocationService()
     }
 
+    private val callback = OnMapReadyCallback { googleMap ->
+        map = googleMap
+        initGoogleMap()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun initGoogleMap() {
+        map?.apply {
+            uiSettings.setAllGesturesEnabled(true)
+            isMyLocationEnabled = true
+            uiSettings.isMyLocationButtonEnabled = false
+            uiSettings.isMapToolbarEnabled = false
+            map?.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                LatLng(myLatitude, myLongitude), DEFAULT_ZOOM
+            ))
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+        mapFragment?.getMapAsync(callback)
+
         doInitialize()
-        initRvFavoriteList()
+        initLayoutOption()
         setListener()
     }
 
@@ -76,11 +104,11 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                                 dialog.cancelLoadingDialog()
                                 resource.data?.let { data ->
                                     if (data.result.isNotEmpty()) {
-                                        binding.rvFavorites.display()
-                                        binding.lottieNoData.hidden()
+                                        binding.layoutOption.rvFavorites.display()
+                                        binding.layoutOption.lottieNoData.hidden()
                                     } else {
-                                        binding.rvFavorites.hidden()
-                                        binding.lottieNoData.display()
+                                        binding.layoutOption.rvFavorites.hidden()
+                                        binding.layoutOption.lottieNoData.display()
                                     }
                                 }
                                 return@observe
@@ -97,15 +125,16 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                 }
                 // 取的最愛清單 (已同步的)
                 launch {
-                    viewModel.currentFavoriteList.observe(viewLifecycleOwner) { favoriteList ->
-                        favoriteList.let { favoriteListAdapter.setData(it) }
+                    viewModel.currentFavoriteList.observe(viewLifecycleOwner) { favoriteLists ->
+                        favoriteLists.let { favoriteListAdapter.setData(it) }
 
-                        if (favoriteList.isNotEmpty()) {
-                            binding.rvFavorites.display()
-                            binding.lottieNoData.hidden()
+                        if (favoriteLists.isNotEmpty()) {
+                            binding.layoutOption.rvFavorites.display()
+                            binding.layoutOption.lottieNoData.hidden()
+                            setMapMarkers(favoriteLists)
                         } else {
-                            binding.rvFavorites.hidden()
-                            binding.lottieNoData.display()
+                            binding.layoutOption.rvFavorites.hidden()
+                            binding.layoutOption.lottieNoData.display()
                         }
                     }
                 }
@@ -134,51 +163,66 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
 
     private fun setListener() {
         binding.run {
-            fabUpTool.setOnClickListener {
+            layoutOption.imgUpToTop.setOnClickListener {
                 val smoothScroller: RecyclerView.SmoothScroller =
                     object : LinearSmoothScroller(context) {
                         override fun getVerticalSnapPreference(): Int = SNAP_TO_START
                     }
                 smoothScroller.targetPosition = 0
-                rvFavorites.layoutManager?.startSmoothScroll(smoothScroller)
+                layoutOption.rvFavorites.layoutManager?.startSmoothScroll(smoothScroller)
             }
         }
     }
 
-    private fun initRvFavoriteList() {
-        favoriteListAdapter = FavoriteListAdapter()
-        binding.rvFavorites.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-            adapter = favoriteListAdapter
-            setRvItemListener()
-
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    val firstItemPosition: Int = (binding.rvFavorites.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-
-                    if (firstItemPosition >= 1)
-                        binding.fabUpTool.display()
-                    else
-                        binding.fabUpTool.gone()
+    private fun setMapMarkers(favoriteLists: List<FavoriteList>) {
+        map?.apply {
+            clear()
+            favoriteLists.forEach { favoriteList ->
+                val markerOption = MarkerOptions().apply {
+                    position(LatLng(favoriteList.location.lat, favoriteList.location.lng))
+                    title(favoriteList.name)
                 }
-            })
+                addMarker(markerOption)
+            }
+        }
+    }
+
+    private fun initLayoutOption() {
+        // https://developer.android.com/reference/com/google/android/material/bottomsheet/BottomSheetBehavior?hl=en#setfittocontents
+        binding.apply {
+            // 初始化
+            bottomSheetBehavior = BottomSheetBehavior.from(binding.layoutOption.layoutFavoriteList)
+            with (bottomSheetBehavior) {
+                isFitToContents = false
+                halfExpandedRatio = 0.5f
+                expandedOffset = mActivity.getStatusBarHeight()
+                state = BottomSheetBehavior.STATE_HALF_EXPANDED
+
+                layoutOption.tvTitle.setOnClickListener {
+                    state = if (state == BottomSheetBehavior.STATE_COLLAPSED)
+                        BottomSheetBehavior.STATE_HALF_EXPANDED
+                    else
+                        BottomSheetBehavior.STATE_COLLAPSED
+                }
+            }
+
+            favoriteListAdapter = FavoriteListAdapter()
+            layoutOption.rvFavorites.apply {
+                layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+                adapter = favoriteListAdapter
+                setRvItemListener()
+            }
         }
     }
 
     private fun setRvItemListener() {
         if (!::favoriteListAdapter.isInitialized) return
         favoriteListAdapter.apply {
-            onItemClick = { placeId ->
-                try {
-                    logE("Watch Detail", "Success")
-                    Bundle().also { b ->
-                        b.putString(Constants.PLACE_ID, placeId)
-                        mActivity.start(DetailActivity::class.java, b)
-                    }
-                } catch (e: Exception) {
-                    logE("Watch Detail", "Error")
-                    requireActivity().displayShortToast(getString(R.string.hint_error))
+            onItemClick = { favoriteList ->
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                map?.apply {
+                    animateCamera(CameraUpdateFactory.newLatLngZoom(
+                        LatLng(favoriteList.location.lat, favoriteList.location.lng), DEFAULT_ZOOM))
                 }
             }
 
@@ -197,8 +241,17 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                     requireActivity().displayShortToast(getString(R.string.hint_no_website))
             }
 
-            onItemNavigation = { location ->
-                // TODO(導航)
+            onItemDetail = { placeId ->
+                try {
+                    logE("Watch Detail", "Success")
+                    Bundle().also { b ->
+                        b.putString(Constants.PLACE_ID, placeId)
+                        mActivity.start(DetailActivity::class.java, b)
+                    }
+                } catch (e: Exception) {
+                    logE("Watch Detail", "Error")
+                    requireActivity().displayShortToast(getString(R.string.hint_error))
+                }
             }
 
             onItemPhone = { phone ->
@@ -240,5 +293,9 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                 }
             }
         }
+    }
+
+    companion object {
+        private const val DEFAULT_ZOOM = 18F
     }
 }

@@ -17,9 +17,7 @@ import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.databinding.DialogPromptSearchBinding
 import com.side.project.foodmap.databinding.FragmentProfilesBinding
-import com.side.project.foodmap.helper.displayShortToast
-import com.side.project.foodmap.helper.hideKeyboard
-import com.side.project.foodmap.helper.setAnimClick
+import com.side.project.foodmap.helper.*
 import com.side.project.foodmap.ui.activity.launch.LoginActivity
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.other.AnimState
@@ -37,6 +35,7 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
     private val viewModel: MainViewModel by activityViewModel()
 
     override fun FragmentProfilesBinding.initialize() {
+        binding.paddingTop = mActivity.getStatusBarHeight()
         binding.vm = viewModel
     }
 

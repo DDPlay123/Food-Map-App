@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutFavoriteList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        android:background="@drawable/background_miscellaneous"
+        app:behavior_hideable="false"
+        app:behavior_peekHeight="@dimen/_40sdp"
+        app:layout_behavior="@string/bottom_sheet_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:animateLayoutChanges="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvTitle"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/_40sdp"
+                android:fontFamily="@font/poppins_thin"
+                android:gravity="center"
+                android:text="@string/hint_favorite_list"
+                android:textColor="@color/accent"
+                android:textSize="@dimen/_16ssp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/supportBar" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgUpToTop"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="1:1"
+                android:padding="@dimen/_8sdp"
+                android:src="@drawable/ic_align_top"
+                android:layout_marginEnd="@dimen/_10sdp"
+                app:tint="@color/primary"
+                app:layout_constraintTop_toTopOf="@+id/tvTitle"
+                app:layout_constraintBottom_toBottomOf="@+id/tvTitle"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <View
+                android:id="@+id/supportBar"
+                android:layout_width="@dimen/_40sdp"
+                android:layout_height="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:background="@drawable/background_white_bar"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <View
+                android:id="@+id/supportLine"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/accent"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvFavorites"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:clipToPadding="false"
+                android:paddingStart="@dimen/_5sdp"
+                android:paddingTop="@dimen/_5sdp"
+                android:paddingEnd="@dimen/_5sdp"
+                android:paddingBottom="?attr/actionBarSize"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/supportLine"
+                tools:listitem="@layout/item_favorite"
+                tools:visibility="visible" />
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottieNoData"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:paddingBottom="?attr/actionBarSize"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/no_data"
+                tools:visibility="gone" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

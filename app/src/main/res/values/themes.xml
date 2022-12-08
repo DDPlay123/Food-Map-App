@@ -92,4 +92,10 @@
         <item name="android:button">@drawable/checkbox_selector</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
+    <!--   Price Level Style  -->
+    <style name="priceLevel" parent="@android:style/Widget.RatingBar">
+        <item name="android:progressDrawable">@drawable/item_price_level</item>
+        <item name="android:minHeight">16dp</item>
+        <item name="android:maxHeight">16dp</item>
+    </style>
 </resources>

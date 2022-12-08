@@ -13,18 +13,20 @@ import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 import com.side.project.foodmap.databinding.FragmentMapsBinding
 import com.side.project.foodmap.helper.displayShortToast
+import com.side.project.foodmap.helper.getLocation
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.MainViewModel
 import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
+import com.side.project.foodmap.util.tools.Coroutines
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
     private val viewModel: MainViewModel by activityViewModel()
 
-    private var map: GoogleMap? = null
-    private lateinit var distanceSearchRes: DistanceSearchRes
+    private lateinit var map: GoogleMap
 
     override fun FragmentMapsBinding.initialize() {
         initLocationService()
@@ -37,17 +39,11 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
 
     @SuppressLint("MissingPermission")
     private fun initGoogleMap() {
-        map?.apply {
+        map.apply {
             uiSettings.setAllGesturesEnabled(true)
             isMyLocationEnabled = true
             uiSettings.isMyLocationButtonEnabled = false
             uiSettings.isMapToolbarEnabled = false
-            map?.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                LatLng(myLatitude, myLongitude), DEFAULT_ZOOM
-            ))
-
-            if (::distanceSearchRes.isInitialized)
-                setMapMarkers()
         }
     }
 
@@ -76,7 +72,7 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
                             is Resource.Success -> {
                                 Method.logE("Near Search Room", "Success")
                                 dialog.cancelLoadingDialog()
-                                resource.data?.let { data -> distanceSearchRes = data }
+                                resource.data?.let { data -> setMapMarkers(data) }
                                 return@observe
                             }
                             is Resource.Error -> {
@@ -89,23 +85,43 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
                         }
                     }
                 }
+                // 取得使用者區域設定
+                launch {
+                    viewModel.userRegion.collect { region ->
+                        setMyLocation(region)
+                    }
+                }
             }
-        }
-    }
-
-    private fun setMapMarkers() {
-        distanceSearchRes.result.placeList.forEach { index ->
-            val markerOption = MarkerOptions().apply {
-                position(LatLng(index.location.lat, index.location.lng))
-                title(index.name)
-            }
-            map?.addMarker(markerOption)
         }
     }
 
     private fun setListener() {
         binding.run {
 
+        }
+    }
+
+    private fun setMapMarkers(distanceSearchRes: DistanceSearchRes) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            distanceSearchRes.result.placeList.forEach { index ->
+                val markerOption = MarkerOptions().apply {
+                    position(LatLng(index.location.lat, index.location.lng))
+                    title(index.name)
+                }
+                map.addMarker(markerOption)
+            }
+        }
+    }
+
+    private fun setMyLocation(region: String) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                if (region.getLocation().first == 0.0)
+                    LatLng(locationService.getLatitude(), locationService.getLongitude())
+                else
+                    LatLng(region.getLocation().first, region.getLocation().second),
+                DEFAULT_ZOOM
+            ))
         }
     }
 

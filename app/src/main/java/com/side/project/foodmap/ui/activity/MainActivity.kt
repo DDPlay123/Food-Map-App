@@ -36,11 +36,6 @@ class MainActivity : BaseActivity() {
         val navController = navHostFragment.navController
 
         NavigationUI.setupWithNavController(bottomNavigationView, navController)
-
-        binding.apply {
-            paddingTop = getStatusBarHeight()
-            paddingBottom = getNavigationBarHeight()
-        }
     }
 
     private fun getNavigationBarHeight(): Int {

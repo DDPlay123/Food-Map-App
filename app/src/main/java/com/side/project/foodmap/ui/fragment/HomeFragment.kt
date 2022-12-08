@@ -20,10 +20,7 @@ import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.databinding.DialogPromptSelectBinding
 import com.side.project.foodmap.databinding.DialogSearchBinding
 import com.side.project.foodmap.databinding.FragmentHomeBinding
-import com.side.project.foodmap.helper.displayShortToast
-import com.side.project.foodmap.helper.hidden
-import com.side.project.foodmap.helper.setAnimClick
-import com.side.project.foodmap.helper.display
+import com.side.project.foodmap.helper.*
 import com.side.project.foodmap.ui.activity.DetailActivity
 import com.side.project.foodmap.ui.activity.ListActivity
 import com.side.project.foodmap.ui.activity.MainActivity
@@ -77,6 +74,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
         if (!locationService.canGetLocation())
             viewModel.putUserRegion(getString(R.string.text_taipei))
+
+        binding.paddingTop = mActivity.getStatusBarHeight()
 
         binding.vm = viewModel
         binding.isPopularSearch = isRecentPopularSearch

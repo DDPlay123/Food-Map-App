@@ -121,7 +121,7 @@
                 android:drawableStart="@drawable/ic_location"
                 android:drawableTint="@color/red"
                 android:ellipsize="end"
-                android:fontFamily="@font/poppins_light"
+                android:gravity="center_vertical"
                 android:maxLines="1"
                 android:text="@{placeDetail.vicinity}"
                 android:textColor="@color/g_gray500"
@@ -131,50 +131,40 @@
                 app:layout_constraintTop_toBottomOf="@id/rating"
                 tools:text="台北市大安區" />
 
-            <androidx.appcompat.widget.LinearLayoutCompat
-                android:id="@+id/layoutWorkday"
-                android:layout_width="0dp"
+            <RatingBar
+                android:id="@+id/priceLevel"
+                style="@style/priceLevel"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_5sdp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
+                android:isIndicator="true"
+                android:numStars="5"
+                android:rating="@{placeDetail.price_level}"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvVicinity">
+                app:layout_constraintTop_toBottomOf="@+id/tvVicinity"
+                tools:rating="1" />
 
-                <androidx.appcompat.widget.LinearLayoutCompat
-                    android:id="@+id/priceLevelIndicators"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/_5sdp"
-                    android:gravity="end|center_vertical"
-                    android:orientation="horizontal"
-                    android:visibility="@{placeDetail.price_level > 0 ? View.VISIBLE : View.GONE, default=gone}"
-                    tools:visibility="visible" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/priceLevelDot"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/_5sdp"
-                    android:fontFamily="@font/poppins_thin"
-                    android:includeFontPadding="false"
-                    android:text="@string/u2022"
-                    android:textColor="@color/primary"
-                    android:textSize="@dimen/_13ssp" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvWorkday"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:includeFontPadding="false"
-                    android:text="@{placeDetail.workDay.size > 0 ? placeDetail.workDay[today] : @string/hint_workday_null, default=@string/hint_workday_null}"
-                    android:textColor="@color/g_gray700"
-                    android:textSize="@dimen/_12ssp"
-                    android:textStyle="bold"
-                    tools:text="星期一：早上 11:30 – 早上 1:30" />
-
-            </androidx.appcompat.widget.LinearLayoutCompat>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvWorkday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:drawableStart="@drawable/ic_access_time"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false"
+                android:drawablePadding="@dimen/_4sdp"
+                android:text="@{placeDetail.workDay.size > 0 ? placeDetail.workDay[today] : @string/hint_workday_null, default=@string/hint_workday_null}"
+                android:textColor="@color/g_gray700"
+                android:textSize="@dimen/_12ssp"
+                android:textStyle="bold"
+                app:drawableTint="@color/primary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/priceLevel"
+                tools:text="星期一：早上 11:30 – 早上 1:30" />
 
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/layoutService"
@@ -185,7 +175,7 @@
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/layoutWorkday">
+                app:layout_constraintTop_toBottomOf="@id/tvWorkday">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvDineIn"
@@ -285,19 +275,19 @@
                     app:autoSizeTextType="uniform" />
 
                 <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/btnNavigation"
+                    android:id="@+id/btnDetail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:autoSizeTextType="uniform"
                     android:background="@drawable/background_google_green_button"
-                    android:drawableEnd="@drawable/ic_directions"
+                    android:drawableEnd="@drawable/ic_restaurant"
                     android:ellipsize="end"
                     android:fontFamily="@font/poppins_thin"
                     android:gravity="center"
                     android:maxLines="1"
                     android:padding="@dimen/_10sdp"
-                    android:text="@string/text_navigation"
+                    android:text="@string/text_detail"
                     android:textColor="@color/white"
                     android:textSize="@dimen/_12ssp"
                     app:autoSizeTextType="uniform" />

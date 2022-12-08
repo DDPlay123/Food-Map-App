@@ -38,7 +38,7 @@
                 android:layout_width="0dp"
                 android:layout_height="60dp"
                 android:background="@drawable/white_background"
-                android:hint="在這裡搜尋"
+                android:hint="@string/hint_in_here_search"
                 android:imeOptions="actionNext"
                 android:inputType="text"
                 android:paddingStart="@dimen/_10sdp"
@@ -50,11 +50,23 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgCameraSearchOrClear"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:edImgCameraTool="@{edSearch}"
+                android:src="@drawable/ic_camera"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/imgSoundSearchOrClear"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="#97aabd" />
+
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/imgSoundSearchOrClear"
                 android:layout_width="@dimen/_20sdp"
                 android:layout_height="@dimen/_20sdp"
                 android:layout_marginEnd="@dimen/_10sdp"
-                android:edImgTool="@{edSearch}"
+                android:edImgSoundTool="@{edSearch}"
                 android:src="@drawable/ic_microphone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -87,7 +99,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_10sdp"
             android:fontFamily="@font/poppins_thin"
-            android:text="歷史紀錄"
+            android:text="@string/hint_history_page"
             android:textColor="@color/black"
             android:textSize="@dimen/_12ssp"
             android:textStyle="bold"

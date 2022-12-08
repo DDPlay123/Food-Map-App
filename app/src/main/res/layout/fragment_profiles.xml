@@ -6,6 +6,10 @@
     <data>
 
         <variable
+            name="paddingTop"
+            type="Integer" />
+
+        <variable
             name="VM"
             type="com.side.project.foodmap.ui.viewModel.MainViewModel" />
 
@@ -22,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="@color/white"
+            android:paddingTop="@{paddingTop}"
             app:layout_constraintDimensionRatio="2.5:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -35,7 +40,7 @@
                 android:fontFamily="@font/poppins_thin"
                 android:text="@string/page_profiles"
                 android:textColor="@color/g_gray700"
-                android:textSize="@dimen/_14ssp"
+                android:textSize="@dimen/_18ssp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -107,7 +112,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/_15sdp"
                 android:fontFamily="@font/poppins_thin"
-                android:text="使用者設定"
+                android:text="@string/hint_user_setting"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_16ssp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -119,13 +124,13 @@
                 android:id="@+id/tvSetPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="@dimen/_15sdp"
-                android:paddingEnd="0dp"
-                android:paddingTop="@dimen/_8sdp"
-                android:paddingBottom="@dimen/_8sdp"
                 android:fontFamily="@font/poppins_thin"
                 android:foreground="?android:attr/selectableItemBackgroundBorderless"
-                android:text="修改密碼"
+                android:paddingStart="@dimen/_15sdp"
+                android:paddingTop="@dimen/_8sdp"
+                android:paddingEnd="0dp"
+                android:paddingBottom="@dimen/_8sdp"
+                android:text="@string/hint_prompt_set_password"
                 android:textColor="@color/g_gray700"
                 android:textSize="@dimen/_14ssp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -148,20 +153,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/gray"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvSetPassword" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvLogout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="@dimen/_15sdp"
-                android:paddingEnd="0dp"
-                android:paddingTop="@dimen/_8sdp"
-                android:paddingBottom="@dimen/_8sdp"
                 android:fontFamily="@font/poppins_thin"
                 android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:paddingStart="@dimen/_15sdp"
+                android:paddingTop="@dimen/_8sdp"
+                android:paddingEnd="0dp"
+                android:paddingBottom="@dimen/_8sdp"
                 android:text="@string/text_logout"
                 android:textColor="@color/g_gray700"
                 android:textSize="@dimen/_14ssp"

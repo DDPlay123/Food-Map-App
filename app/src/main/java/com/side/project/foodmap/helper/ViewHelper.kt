@@ -4,10 +4,15 @@ import android.content.Context
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import coil.imageLoader
 import coil.load
 import com.google.android.material.snackbar.Snackbar
 import com.side.project.foodmap.util.tools.Method
+import kotlinx.coroutines.*
 
 fun View.displayErrorShortSnackBar(message: String) =
     Snackbar.make(this, "Error：${message}", Snackbar.LENGTH_SHORT).show()
@@ -17,6 +22,17 @@ fun View.displayErrorLongSnackBar(message: String) =
 
 fun View.getString(stringResId: Int): String
     = resources.getString(stringResId)
+
+fun View.delayOnLifecycle(
+    durationMillis: Long,
+    dispatcher: CoroutineDispatcher = Dispatchers.Main,
+    block: () -> Unit
+) : Job? = findViewTreeLifecycleOwner()?.let { lifecycleOwner: LifecycleOwner ->
+    lifecycleOwner.lifecycle.coroutineScope.launch(dispatcher) {
+        delay(durationMillis)
+        block()
+    }
+}
 
 fun View.showKeyboard() {
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

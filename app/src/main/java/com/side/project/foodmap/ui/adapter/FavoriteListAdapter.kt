@@ -2,18 +2,13 @@ package com.side.project.foodmap.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.appcompat.widget.AppCompatImageView
-import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.maps.model.LatLng
-import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.data.remote.api.Location
 import com.side.project.foodmap.databinding.ItemFavoriteBinding
-import com.side.project.foodmap.helper.getDrawableCompat
 import com.side.project.foodmap.helper.gone
 import com.side.project.foodmap.helper.display
 import com.side.project.foodmap.util.tools.Method
@@ -33,10 +28,10 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
 
     private val differ = AsyncListDiffer(this, itemCallback)
 
-    lateinit var onItemClick: ((String) -> Unit)
+    lateinit var onItemClick: ((FavoriteList) -> Unit)
     lateinit var onItemPullFavorite: ((FavoriteList) -> Unit)
     lateinit var onItemWebsite: ((String) -> Unit)
-    lateinit var onItemNavigation: ((Location) -> Unit)
+    lateinit var onItemDetail: ((String) -> Unit)
     lateinit var onItemPhone: ((String) -> Unit)
     lateinit var onItemShare: ((String) -> Unit)
 
@@ -53,24 +48,10 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
             binding.placeDetail = getData(adapterPosition)
             binding.today = Method.getWeekOfDate(Date()) - 1
 
-            // Price Level
-            val indicators: Array<AppCompatImageView?> = arrayOfNulls(getData(adapterPosition).price_level)
-            val layoutParams: LinearLayoutCompat.LayoutParams = LinearLayoutCompat.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            layoutParams.setMargins(0, 0, 0, 0)
-            indicators.forEachIndexed { id, _ ->
-                indicators[id] = AppCompatImageView(binding.root.context)
-                indicators[id]?.setImageDrawable(binding.root.context.getDrawableCompat(R.drawable.ic_money))
-
-                indicators[id]?.layoutParams = layoutParams
-                binding.priceLevelIndicators.addView(indicators[id])
-            }
-
-            binding.root.setOnClickListener { onItemClick.invoke(getData(adapterPosition).placeId) }
+            binding.root.setOnClickListener { onItemClick.invoke(getData(adapterPosition)) }
             binding.imgSetFavorite.setOnClickListener { onItemPullFavorite.invoke(getData(adapterPosition)) }
             binding.btnWebsite.setOnClickListener { onItemWebsite.invoke(getData(adapterPosition).website) }
-            binding.btnNavigation.setOnClickListener { onItemNavigation.invoke(getData(adapterPosition).location) }
+            binding.btnDetail.setOnClickListener { onItemDetail.invoke(getData(adapterPosition).placeId) }
             binding.btnPhone.setOnClickListener { onItemPhone.invoke(getData(adapterPosition).phone) }
             binding.btnShare.setOnClickListener { onItemShare.invoke(getData(adapterPosition).url) }
 
