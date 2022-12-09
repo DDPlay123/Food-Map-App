@@ -1,10 +1,13 @@
 package com.side.project.foodmap.ui.fragment
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -15,21 +18,24 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.databinding.FragmentFavoritesBinding
-import com.side.project.foodmap.helper.*
+import com.side.project.foodmap.helper.display
+import com.side.project.foodmap.helper.displayShortToast
+import com.side.project.foodmap.helper.getStatusBarHeight
+import com.side.project.foodmap.helper.hidden
 import com.side.project.foodmap.ui.activity.DetailActivity
 import com.side.project.foodmap.ui.adapter.FavoriteListAdapter
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.MainViewModel
 import com.side.project.foodmap.util.Constants
-import com.side.project.foodmap.util.tools.Method.logE
 import com.side.project.foodmap.util.Resource
+import com.side.project.foodmap.util.animPolyline.AnimatedPolyline
+import com.side.project.foodmap.util.tools.Method.logE
 import com.side.project.foodmap.util.tools.NetworkConnection
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -38,7 +44,10 @@ import org.koin.androidx.viewmodel.ext.android.activityViewModel
 class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragment_favorites) {
     private val viewModel: MainViewModel by activityViewModel()
     private val networkConnection: NetworkConnection by inject()
-    private var map: GoogleMap? = null
+
+    // Google Map Tool
+    private lateinit var map: GoogleMap
+    private lateinit var animatedPolyline: AnimatedPolyline
 
     // Toole
     private lateinit var favoriteListAdapter: FavoriteListAdapter
@@ -58,12 +67,12 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
 
     @SuppressLint("MissingPermission")
     private fun initGoogleMap() {
-        map?.apply {
+        map.apply {
             uiSettings.setAllGesturesEnabled(true)
             isMyLocationEnabled = true
             uiSettings.isMyLocationButtonEnabled = false
             uiSettings.isMapToolbarEnabled = false
-            map?.moveCamera(
+            map.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
                 LatLng(myLatitude, myLongitude), DEFAULT_ZOOM
             ))
@@ -175,7 +184,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
     }
 
     private fun setMapMarkers(favoriteLists: List<FavoriteList>) {
-        map?.apply {
+        map.apply {
             clear()
             favoriteLists.forEach { favoriteList ->
                 val markerOption = MarkerOptions().apply {
@@ -215,14 +224,52 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
         }
     }
 
+    private fun setZoomMap(vararg markers: Marker) {
+        val builder = LatLngBounds.Builder()
+        markers.forEach { marker ->
+            builder.include(marker.position)
+        }
+        val bounds = builder.build()
+
+        val width = resources.displayMetrics.widthPixels
+        val height = resources.displayMetrics.heightPixels
+        val padding = (width * 0.10).toInt() // offset from edges of the map 10% of screen
+
+        val cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding)
+        map.animateCamera(cu)
+    }
+
     private fun setRvItemListener() {
         if (!::favoriteListAdapter.isInitialized) return
         favoriteListAdapter.apply {
             onItemClick = { favoriteList ->
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                map?.apply {
-                    animateCamera(CameraUpdateFactory.newLatLngZoom(
-                        LatLng(favoriteList.location.lat, favoriteList.location.lng), DEFAULT_ZOOM))
+                map.apply {
+//                    animateCamera(CameraUpdateFactory.newLatLngZoom(
+//                        LatLng(favoriteList.location.lat, favoriteList.location.lng), DEFAULT_ZOOM))
+                    animatedPolyline = AnimatedPolyline(
+                        map= this,
+                        points = mutableListOf(
+                            LatLng(locationService.getLatitude(), locationService.getLongitude()),
+                            LatLng(favoriteList.location.lat, favoriteList.location.lng)),
+                        polylineOptions = PolylineOptions()
+                            .width(24f)
+                            .color(R.color.accent)
+                            .pattern(
+                                listOf(
+                                    Dot(), Gap(20f)
+                                )
+                            ),
+                        duration = 1000,
+                        interpolator = DecelerateInterpolator(),
+                        animatorListenerAdapter = object : AnimatorListenerAdapter() {
+                            override fun onAnimationEnd(animation: Animator?) {
+                                super.onAnimationEnd(animation)
+                                animatedPolyline.start()
+                            }
+                        }
+                    )
+                    animatedPolyline.startWithDelay(1000)
                 }
             }
 
