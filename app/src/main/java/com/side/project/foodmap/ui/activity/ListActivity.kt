@@ -117,7 +117,7 @@ class ListActivity : BaseActivity() {
                                 resource.data?.let { placeList ->
                                     binding.count = placeList.size.toString()
                                     restaurantListAdapter.setData(placeList.toMutableList())
-                                    restaurantListAdapter.setMyLocation(LatLng(locationService.getLatitude(), locationService.getLongitude()))
+                                    restaurantListAdapter.setMyLocation(LatLng(myLatitude, myLongitude))
                                 }
                             }
                             is Resource.Error -> {

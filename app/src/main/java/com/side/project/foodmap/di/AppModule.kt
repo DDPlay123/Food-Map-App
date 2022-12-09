@@ -12,6 +12,7 @@ import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.DialogManager
 import com.side.project.foodmap.util.tools.NetworkConnection
 import com.side.project.foodmap.ui.viewModel.*
+import com.side.project.foodmap.util.tools.LocationGet
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -21,6 +22,7 @@ val otherModule = module {
     single { DialogManager() }
     single { AnimManager(androidContext()) }
     single { NetworkConnection(androidContext()) }
+    single { LocationGet(androidContext()) }
 }
 
 val firebaseModule = module {

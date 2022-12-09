@@ -43,6 +43,7 @@
     <string name="hint_select_region">請選擇地區</string>
     <string name="hint_near_region">附近的餐廳</string>
     <string name="hint_not_location_permission">請開啟定位權限</string>
+    <string name="hint_not_gps">請開啟定位功能</string>
     <string name="hint_not_provider_gps">目前無可用的定位</string>
     <string name="hint_quick_view">快速瀏覽</string>
     <string name="hint_view_all">查看全部</string>

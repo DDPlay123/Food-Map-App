@@ -8,9 +8,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.databinding.FragmentLoginBinding
-import com.side.project.foodmap.helper.displayShortToast
-import com.side.project.foodmap.helper.hideKeyboard
-import com.side.project.foodmap.helper.setAnimClick
+import com.side.project.foodmap.helper.*
 import com.side.project.foodmap.ui.activity.MainActivity
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.LoginViewModel
@@ -27,7 +25,6 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
     private val viewModel: LoginViewModel by viewModel()
 
     override fun FragmentLoginBinding.initialize() {
-        binding.vm = viewModel
         viewModel.getUserAccountFromDataStore()
         viewModel.getUserPasswordFromDataStore()
     }
@@ -42,6 +39,13 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
     private fun doInitialize() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
+                // 紀錄上次登入資料
+                launch {
+                    viewModel.userAccount.observe(viewLifecycleOwner) { binding.account = it }
+                }
+                launch {
+                    viewModel.userPassword.observe(viewLifecycleOwner) { binding.password = it }
+                }
                 // 驗證輸入
                 launch {
                     viewModel.validation.collect { validation ->
@@ -196,13 +200,5 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
             }
 //            throw RuntimeException("Test Crash") // Force a crash
         }
-    }
-
-    private fun requestPermission(): Boolean {
-        if (!Method.requestPermission(mActivity, *permission)) {
-            mActivity.displayShortToast(getString(R.string.hint_not_location_permission))
-            return false
-        }
-        return true
     }
 }

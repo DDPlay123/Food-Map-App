@@ -13,12 +13,16 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.DialogPromptBinding
+import com.side.project.foodmap.helper.checkDeviceGPS
+import com.side.project.foodmap.helper.checkNetworkGPS
 import com.side.project.foodmap.helper.displayShortToast
-import com.side.project.foodmap.service.LocationService
 import com.side.project.foodmap.ui.other.DialogManager
 import com.side.project.foodmap.util.tools.NetworkConnection
 import com.side.project.foodmap.util.Constants
 import com.side.project.foodmap.util.Constants.PERMISSION_CODE
+import com.side.project.foodmap.util.Constants.permission
+import com.side.project.foodmap.util.tools.LocationGet
+import com.side.project.foodmap.util.tools.Method
 import org.koin.android.ext.android.inject
 
 abstract class BaseActivity : AppCompatActivity() {
@@ -29,9 +33,10 @@ abstract class BaseActivity : AppCompatActivity() {
 
     lateinit var mActivity: BaseActivity
     val dialog: DialogManager by inject()
-    private val networkConnection: NetworkConnection by inject()
 
-    lateinit var locationService: LocationService
+    private val networkConnection: NetworkConnection by inject()
+    private val locationGet: LocationGet by inject()
+
     var myLatitude: Double = DEFAULT_LATITUDE
     var myLongitude: Double = DEFAULT_LONGITUDE
 
@@ -71,12 +76,6 @@ abstract class BaseActivity : AppCompatActivity() {
         checkNetWork {}
     }
 
-    override fun onDestroy() {
-        if (::locationService.isInitialized)
-            locationService.stopListener(mActivity)
-        super.onDestroy()
-    }
-
     fun checkNetWork(work: (() -> Unit)) {
         networkConnection.observe(this) { isConnect ->
             if (!isConnect) {
@@ -99,15 +98,36 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
+    private val openGps = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        result?.let {
+            try {
+                mActivity.initLocationService()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun checkMYDeviceGPS(): Boolean {
+        if (!checkDeviceGPS() || !checkNetworkGPS()) {
+            Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).apply {
+                openGps.launch(this)
+                return false
+            }
+        }
+        return true
+    }
+
     fun initLocationService() {
-        locationService = LocationService()
-        locationService.startListener(this)
-        if (!locationService.canGetLocation()) {
+        if (!checkDeviceGPS() || !checkNetworkGPS()) {
             displayShortToast(getString(R.string.hint_not_provider_gps))
             return
         }
-        locationService.latitude.observe(this) { myLatitude = it }
-        locationService.longitude.observe(this) { myLongitude = it }
+        locationGet.startLocationUpdates()
+        locationGet.observe(this) { location ->
+            myLatitude = location.lat
+            myLongitude = location.lng
+        }
     }
 
     @SuppressLint("HardwareIds")
@@ -130,27 +150,6 @@ abstract class BaseActivity : AppCompatActivity() {
                         }
                     }
             }
-        }
-    }
-
-    private val receiveResult =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val intent: Intent? = result.data
-            }
-        }
-
-    fun startForResult(next: Class<*>, bundle: Bundle?) {
-        Intent(
-            applicationContext,
-            next
-        ).also { intent ->
-            if (bundle == null)
-                intent.putExtras(Bundle())
-            else
-                intent.putExtras(bundle)
-            // jump activity
-            receiveResult.launch(intent)
         }
     }
 

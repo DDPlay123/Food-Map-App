@@ -57,7 +57,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
     private lateinit var favoriteList: FavoriteList
 
     override fun FragmentFavoritesBinding.initialize() {
-        initLocationService()
+        mActivity.initLocationService()
     }
 
     private val callback = OnMapReadyCallback { googleMap ->
@@ -65,8 +65,9 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
         initGoogleMap()
     }
 
-    @SuppressLint("MissingPermission")
     private fun initGoogleMap() {
+        if (!requestPermission() || !::map.isInitialized)
+            return
         map.apply {
             uiSettings.setAllGesturesEnabled(true)
             isMyLocationEnabled = true
@@ -74,7 +75,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
             uiSettings.isMapToolbarEnabled = false
             map.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
-                LatLng(myLatitude, myLongitude), DEFAULT_ZOOM
+                LatLng(mActivity.myLatitude, mActivity.myLongitude), DEFAULT_ZOOM
             ))
         }
     }
@@ -184,6 +185,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
     }
 
     private fun setMapMarkers(favoriteLists: List<FavoriteList>) {
+        if (!::map.isInitialized) return
         map.apply {
             clear()
             favoriteLists.forEach { favoriteList ->
@@ -225,6 +227,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
     }
 
     private fun setZoomMap(vararg markers: Marker) {
+        if (!::map.isInitialized) return
         val builder = LatLngBounds.Builder()
         markers.forEach { marker ->
             builder.include(marker.position)
@@ -244,32 +247,34 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
         favoriteListAdapter.apply {
             onItemClick = { favoriteList ->
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                map.apply {
+                if (::map.isInitialized) {
+                    map.apply {
 //                    animateCamera(CameraUpdateFactory.newLatLngZoom(
 //                        LatLng(favoriteList.location.lat, favoriteList.location.lng), DEFAULT_ZOOM))
-                    animatedPolyline = AnimatedPolyline(
-                        map= this,
-                        points = mutableListOf(
-                            LatLng(locationService.getLatitude(), locationService.getLongitude()),
-                            LatLng(favoriteList.location.lat, favoriteList.location.lng)),
-                        polylineOptions = PolylineOptions()
-                            .width(24f)
-                            .color(R.color.accent)
-                            .pattern(
-                                listOf(
-                                    Dot(), Gap(20f)
-                                )
-                            ),
-                        duration = 1000,
-                        interpolator = DecelerateInterpolator(),
-                        animatorListenerAdapter = object : AnimatorListenerAdapter() {
-                            override fun onAnimationEnd(animation: Animator?) {
-                                super.onAnimationEnd(animation)
-                                animatedPolyline.start()
+                        animatedPolyline = AnimatedPolyline(
+                            map= this,
+                            points = mutableListOf(
+                                LatLng(mActivity.myLatitude, mActivity.myLongitude),
+                                LatLng(favoriteList.location.lat, favoriteList.location.lng)),
+                            polylineOptions = PolylineOptions()
+                                .width(24f)
+                                .color(R.color.accent)
+                                .pattern(
+                                    listOf(
+                                        Dot(), Gap(20f)
+                                    )
+                                ),
+                            duration = 1000,
+                            interpolator = DecelerateInterpolator(),
+                            animatorListenerAdapter = object : AnimatorListenerAdapter() {
+                                override fun onAnimationEnd(animation: Animator?) {
+                                    super.onAnimationEnd(animation)
+                                    animatedPolyline.start()
+                                }
                             }
-                        }
-                    )
-                    animatedPolyline.startWithDelay(1000)
+                        )
+                        animatedPolyline.startWithDelay(1000)
+                    }
                 }
             }
 

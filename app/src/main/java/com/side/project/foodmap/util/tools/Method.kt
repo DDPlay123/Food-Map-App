@@ -139,7 +139,7 @@ object Method {
             true
     }
 
-    private fun hasPermissions(context: Context, vararg permissions: String): Boolean {
+    fun hasPermissions(context: Context, vararg permissions: String): Boolean {
         for (permission in permissions)
             if (ActivityCompat.checkSelfPermission(
                     context,

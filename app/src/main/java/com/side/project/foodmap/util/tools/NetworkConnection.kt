@@ -2,7 +2,6 @@ package com.side.project.foodmap.util.tools
 
 import android.content.Context
 import android.net.*
-import android.os.Build
 import androidx.lifecycle.LiveData
 
 class NetworkConnection(context: Context) : LiveData<Boolean>() {
@@ -15,14 +14,7 @@ class NetworkConnection(context: Context) : LiveData<Boolean>() {
     override fun onActive() {
         super.onActive()
         updateConnection()
-        when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> {
-                connectivityManager.registerDefaultNetworkCallback(connectivityManagerCallback())
-            }
-            else -> {
-                lollipopNetworkRequest()
-            }
-        }
+        connectivityManager.registerDefaultNetworkCallback(connectivityManagerCallback())
     }
 
     override fun onInactive() {

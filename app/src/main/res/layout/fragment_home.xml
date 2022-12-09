@@ -23,14 +23,14 @@
 
     </data>
 
-    <androidx.core.widget.NestedScrollView
+    <com.side.project.foodmap.util.customView.MNestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:fillViewport="true"
         android:overScrollMode="never"
-        android:scrollbars="none"
         android:paddingTop="@{paddingTop}"
+        android:scrollbars="none"
         tools:context=".ui.fragment.HomeFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -327,23 +327,69 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvPopular" />
 
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgPopularForward"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/blur_focus"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:padding="@dimen/_4sdp"
+                android:src="@drawable/ic_arrow_forward"
+                app:layout_constraintBottom_toBottomOf="@+id/vpPopular"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/guidelineRight"
+                app:layout_constraintTop_toTopOf="@+id/vpPopular"
+                app:tint="@color/g_gray700" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgPopularBack"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/blur_focus"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:padding="@dimen/_4sdp"
+                android:src="@drawable/ic_arrow_back"
+                app:layout_constraintBottom_toBottomOf="@+id/vpPopular"
+                app:layout_constraintEnd_toStartOf="@+id/guidelineLeft"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/vpPopular"
+                app:tint="@color/g_gray700" />
+
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/lottieNoData"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="@+id/vpPopular"
+                app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/vpPopular"
-                app:layout_constraintDimensionRatio="1:1"
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true"
                 app:lottie_rawRes="@raw/no_data"
-                tools:visibility="visible" />
+                tools:visibility="gone" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineLeft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.1" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineRight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.9" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.core.widget.NestedScrollView>
+    </com.side.project.foodmap.util.customView.MNestedScrollView>
 
 </layout>

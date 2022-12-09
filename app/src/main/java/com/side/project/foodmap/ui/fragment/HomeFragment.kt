@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
@@ -62,7 +63,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private val openGps = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         result?.let {
             try {
-                initLocationService()
+                mActivity.initLocationService()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -70,9 +71,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     }
 
     override fun FragmentHomeBinding.initialize() {
-        initLocationService()
+        mActivity.initLocationService()
 
-        if (!locationService.canGetLocation())
+        if (!mActivity.checkDeviceGPS() || !mActivity.checkNetworkGPS())
             viewModel.putUserRegion(getString(R.string.text_taipei))
 
         binding.paddingTop = mActivity.getStatusBarHeight()
@@ -85,8 +86,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        doInitialize()
-        setListener()
+        dialog.showLoadingDialog(mActivity, false)
+        view.delayOnLifecycle(1000L) {
+            // 為了取的第一次的經緯度
+            doInitialize()
+            setListener()
+        }
     }
 
     private fun doInitialize() {
@@ -116,8 +121,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         dialog.cancelAllDialog()
                         this@HomeFragment.region = region
                         regionID = regionList.indexOf(region)
-                        viewModel.nearSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
-                        viewModel.popularSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()),
+                        viewModel.nearSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude))
+                        viewModel.popularSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude),
                             if (isRecentPopularSearch) 0 else 1)
                     }
                 }
@@ -277,11 +282,19 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 }
             }
 
+            imgPopularForward.setOnClickListener {
+                vpPopular.currentItem += 1
+            }
+
+            imgPopularBack.setOnClickListener {
+                vpPopular.currentItem -= 1
+            }
+
             imgRefresh.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
                     if (::region.isInitialized) {
-                        viewModel.nearSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
-                        viewModel.popularSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()),
+                        viewModel.nearSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude))
+                        viewModel.popularSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude),
                             if (isRecentPopularSearch) 0 else 1)
                     }
                 }
@@ -292,12 +305,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             }
 
             tvViewMore.setOnClickListener {
-                if (!locationService.canGetLocation()) {
+                if (!mActivity.checkDeviceGPS() || !mActivity.checkNetworkGPS()) {
                     displayNotGpsDialog()
                     return@setOnClickListener
                 }
                 Bundle().also { b ->
-                    val latLng: LatLng = Method.getCurrentLatLng(region, LatLng(locationService.getLatitude(), locationService.getLongitude()))
+                    val latLng: LatLng = Method.getCurrentLatLng(region, LatLng(mActivity.myLatitude, mActivity.myLongitude))
                     b.putString(KEYWORD, region)
                     b.putBoolean(IS_NEAR_SEARCH, true)
                     b.putDouble(LATITUDE, latLng.latitude)
@@ -311,9 +324,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private fun togglePopularSearch(isRecentPopularSearch: Boolean) {
         binding.isPopularSearch = isRecentPopularSearch
         if (isRecentPopularSearch)
-            viewModel.popularSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()), mode = 0)
+            viewModel.popularSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude), mode = 0)
         else
-            viewModel.popularSearch(region, LatLng(locationService.getLatitude(), locationService.getLongitude()), mode = 1)
+            viewModel.popularSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude), mode = 1)
     }
 
     private fun displayRegionDialog() {
@@ -339,13 +352,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 listItem.layoutManager?.startSmoothScroll(smoothScroller)
                 // listener
                 regionSelectAdapter.onItemClick = { region ->
-                    if (!locationService.canGetLocation() && region == getString(R.string.hint_near_region))
+                    if (!mActivity.checkDeviceGPS() || !mActivity.checkNetworkGPS() && region == getString(R.string.hint_near_region))
                         displayNotGpsDialog()
-                    else {
-                        initLocationService()
+                    else if (region != regionList[regionID]) {
+                        mActivity.initLocationService()
                         viewModel.putUserRegion(region)
                         dialog.showLoadingDialog(mActivity, false)
-                    }
+                    } else
+                        mActivity.initLocationService()
                 }
             }
         }
@@ -355,7 +369,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         popularSearchAdapter = PopularSearchAdapter()
         val compositePageTransformer = CompositePageTransformer()
         compositePageTransformer.apply {
-            addTransformer(MarginPageTransformer(10))
+            addTransformer(MarginPageTransformer(40))
             addTransformer { page, position ->
                 val r = 1 - abs(position)
                 page.scaleY = 0.85f + (r * 0.15f)
@@ -370,8 +384,22 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             adapter = popularSearchAdapter
             if (drawCardRes.result.placeList.size > 0) {
                 popularSearchAdapter.setData(drawCardRes.result.placeList)
-                popularSearchAdapter.setMyLocation(LatLng(locationService.getLatitude(), locationService.getLongitude()))
+                popularSearchAdapter.setMyLocation(LatLng(mActivity.myLatitude, mActivity.myLongitude))
             }
+
+            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    when (currentItem) {
+                        0 -> binding.imgPopularBack.gone()
+                        popularSearchAdapter.getDataSize() - 1 ->  binding.imgPopularForward.gone()
+                        else -> {
+                            binding.imgPopularBack.display()
+                            binding.imgPopularForward.display()
+                        }
+                    }
+                }
+            })
         }
 
         popularSearchAdapter.onItemClick = { placeId ->

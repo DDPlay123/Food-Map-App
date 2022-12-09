@@ -15,7 +15,7 @@ import com.side.project.foodmap.util.tools.AES
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -30,37 +30,37 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     /**
      * 資料流
      */
-    private val _userAccount = MutableStateFlow("")
-    val userAccount: StateFlow<String>
+    private val _userAccount = MutableLiveData<String>()
+    val userAccount: LiveData<String>
         get() = _userAccount
 
-    private val _userPassword = MutableStateFlow("")
-    val userPassword: StateFlow<String>
+    private val _userPassword = MutableLiveData<String>()
+    val userPassword: LiveData<String>
         get() = _userPassword
 
     private val _accessKey = MutableStateFlow("")
-    val accessKey: StateFlow<String>
-        get() = _accessKey
+    val accessKey
+        get() = _accessKey.asStateFlow()
 
     private val _deviceId = MutableStateFlow("")
-    val deviceId: StateFlow<String>
-        get() = _deviceId
+    val deviceId
+        get() = _deviceId.asStateFlow()
 
     private val _userUID = MutableStateFlow("")
-    val userUID: StateFlow<String>
-        get() = _userUID
+    val userUID
+        get() = _userUID.asStateFlow()
 
     private val _userRegion = MutableStateFlow("")
-    val userRegion: StateFlow<String>
-        get() = _userRegion
+    val userRegion
+        get() = _userRegion.asStateFlow()
 
     private val _userName = MutableStateFlow("")
-    val userName: StateFlow<String>
-        get() = _userName
+    val userName
+        get() = _userName.asStateFlow()
 
     private val _userPicture = MutableStateFlow("")
-    val userPicture: StateFlow<String>
-        get() = _userPicture
+    val userPicture
+        get() = _userPicture.asStateFlow()
 
     private val _userIsLogin = MutableLiveData<Boolean>()
     val userIsLogin: LiveData<Boolean>
@@ -91,7 +91,7 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     }
 
     fun getUserAccountFromDataStore() = viewModelScope.launch(Dispatchers.IO) {
-        _userAccount.emit(dataStoreRepo.getAccount())
+        _userAccount.postValue(dataStoreRepo.getAccount())
     }
 
     fun putUserPassword(password: String) = viewModelScope.launch(Dispatchers.IO) {
@@ -101,7 +101,7 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
 
     fun getUserPasswordFromDataStore() = viewModelScope.launch(Dispatchers.IO) {
         val decrypt = AES.decrypt("MMSLAB", dataStoreRepo.getPassword())
-        _userPassword.emit(decrypt)
+        _userPassword.postValue(decrypt)
     }
 
     fun putAccessKey(accessKey: String) = viewModelScope.launch(Dispatchers.IO) {

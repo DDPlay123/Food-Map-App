@@ -18,7 +18,6 @@ import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.MainViewModel
 import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
-import com.side.project.foodmap.util.tools.Coroutines
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -29,7 +28,7 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
     private lateinit var map: GoogleMap
 
     override fun FragmentMapsBinding.initialize() {
-        initLocationService()
+        mActivity.initLocationService()
     }
 
     private val callback = OnMapReadyCallback { googleMap ->
@@ -37,8 +36,9 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
         initGoogleMap()
     }
 
-    @SuppressLint("MissingPermission")
     private fun initGoogleMap() {
+        if (!requestPermission() || !::map.isInitialized)
+            return
         map.apply {
             uiSettings.setAllGesturesEnabled(true)
             isMyLocationEnabled = true
@@ -103,6 +103,7 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
 
     private fun setMapMarkers(distanceSearchRes: DistanceSearchRes) {
         lifecycleScope.launch(Dispatchers.Main) {
+            if (!::map.isInitialized) return@launch
             distanceSearchRes.result.placeList.forEach { index ->
                 val markerOption = MarkerOptions().apply {
                     position(LatLng(index.location.lat, index.location.lng))
@@ -115,9 +116,10 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
 
     private fun setMyLocation(region: String) {
         lifecycleScope.launch(Dispatchers.Main) {
+            if (!::map.isInitialized) return@launch
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(
                 if (region.getLocation().first == 0.0)
-                    LatLng(locationService.getLatitude(), locationService.getLongitude())
+                    LatLng(mActivity.myLatitude, mActivity.myLongitude)
                 else
                     LatLng(region.getLocation().first, region.getLocation().second),
                 DEFAULT_ZOOM

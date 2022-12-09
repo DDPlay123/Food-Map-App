@@ -6,5 +6,7 @@
     <corners
         android:topLeftRadius="@dimen/_25sdp"
         android:topRightRadius="@dimen/_25sdp"/>
+    <stroke android:width="@dimen/_3sdp"
+        android:color="@color/blur" />
 
 </shape>

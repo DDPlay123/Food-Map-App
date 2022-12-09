@@ -35,6 +35,8 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
 
     fun getData(position: Int): PlaceList = differ.currentList[position]
 
+    fun getDataSize(): Int = differ.currentList.size
+
     private lateinit var myLocation: LatLng
     fun setMyLocation(startLatLng: LatLng) {
         myLocation = startLatLng
