@@ -11,13 +11,14 @@ import com.side.project.foodmap.util.Constants
 
 class LocationGet(var context: Context) : LiveData<Location>() {
     companion object {
-        private const val ONE_MINUTE: Long = 1000
-        val locationRequest: LocationRequest =
-            LocationRequest.create().apply {
-                interval = ONE_MINUTE
-                fastestInterval = ONE_MINUTE / 4
-                priority = Priority.PRIORITY_HIGH_ACCURACY
-            }
+        private const val INTERVAL_MILLIS: Long = 5000
+        private val locationRequest: LocationRequest =
+            LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, INTERVAL_MILLIS)
+                .apply {
+                    setWaitForAccurateLocation(false)
+                    setMinUpdateIntervalMillis(INTERVAL_MILLIS / 2)
+                    setMaxUpdateDelayMillis(INTERVAL_MILLIS)
+                }.build()
     }
 
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
