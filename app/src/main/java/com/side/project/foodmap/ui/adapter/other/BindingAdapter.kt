@@ -13,7 +13,6 @@ import coil.transform.RoundedCornersTransformation
 import com.side.project.foodmap.R
 import com.side.project.foodmap.helper.appInfo
 import com.side.project.foodmap.helper.display
-import com.side.project.foodmap.helper.gone
 import com.side.project.foodmap.helper.hidden
 import com.side.project.foodmap.util.tools.Method
 import java.text.SimpleDateFormat

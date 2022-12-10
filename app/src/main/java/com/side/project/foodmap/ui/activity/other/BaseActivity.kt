@@ -35,8 +35,8 @@ abstract class BaseActivity : AppCompatActivity() {
     val dialog: DialogManager by inject()
 
     private val networkConnection: NetworkConnection by inject()
-    private val locationGet: LocationGet by inject()
 
+    val locationGet: LocationGet by inject()
     var myLatitude: Double = DEFAULT_LATITUDE
     var myLongitude: Double = DEFAULT_LONGITUDE
 

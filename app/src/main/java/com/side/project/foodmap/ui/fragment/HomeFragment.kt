@@ -16,6 +16,7 @@ import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.R
+import com.side.project.foodmap.data.remote.api.Location
 import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
 import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.databinding.DialogPromptSelectBinding
@@ -38,6 +39,7 @@ import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.tools.Method.logE
 import com.side.project.foodmap.util.Resource
+import com.side.project.foodmap.util.tools.Method.getDistance
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import kotlin.Exception
@@ -55,6 +57,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private var isRecentPopularSearch: Boolean = true
 
     private lateinit var popularSearchAdapter: PopularSearchAdapter
+
+    private lateinit var oldLatLng: Location
 
     init {
         Method.getFcmToken { token -> viewModel.putFcmToken(token) }
@@ -237,6 +241,23 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                 return@observe
                             }
                             else -> Unit
+                        }
+                    }
+                }
+                // 自動更新
+                launch {
+                    mActivity.locationGet.observe(viewLifecycleOwner) { location ->
+                        if (!::oldLatLng.isInitialized) {
+                            oldLatLng = location
+                            return@observe
+                        }
+                        if (getDistance(LatLng(location.lat, location.lng), LatLng(oldLatLng.lat,oldLatLng.lng)) * 1000 > 100) {
+                            oldLatLng = location
+                            if (::region.isInitialized) {
+                                viewModel.nearSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude))
+                                viewModel.popularSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude),
+                                    if (isRecentPopularSearch) 0 else 1)
+                            }
                         }
                     }
                 }
