@@ -322,6 +322,8 @@
                 android:paddingStart="@dimen/_50sdp"
                 android:paddingEnd="@dimen/_50sdp"
                 android:visibility="invisible"
+                android:clickable="true"
+                android:focusable="true"
                 app:layout_constraintBottom_toTopOf="@id/tvAllRestaurant"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

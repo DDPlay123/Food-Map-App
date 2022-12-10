@@ -300,6 +300,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 it.setAnimClick(anim, AnimState.Start) {
                     isRecentPopularSearch = !isRecentPopularSearch
                     togglePopularSearch(isRecentPopularSearch)
+                    binding.imgPopularBack.gone()
+                    binding.imgPopularForward.display()
                 }
             }
 
@@ -411,9 +413,21 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
+                    if (popularSearchAdapter.getDataSize() == 1) {
+                        binding.imgPopularBack.gone()
+                        binding.imgPopularForward.gone()
+                    }
                     when (currentItem) {
-                        0 -> binding.imgPopularBack.gone()
-                        popularSearchAdapter.getDataSize() - 1 ->  binding.imgPopularForward.gone()
+                        0 -> {
+                            binding.imgPopularBack.gone()
+                            if (popularSearchAdapter.getDataSize() == 2)
+                                binding.imgPopularForward.display()
+                        }
+                        popularSearchAdapter.getDataSize() - 1 ->  {
+                            binding.imgPopularForward.gone()
+                            if (popularSearchAdapter.getDataSize() == 2)
+                                binding.imgPopularBack.display()
+                        }
                         else -> {
                             binding.imgPopularBack.display()
                             binding.imgPopularForward.display()
