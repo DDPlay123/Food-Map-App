@@ -139,7 +139,7 @@ class DetailActivity : BaseActivity() {
             detailFavorite = placesDetail.isFavorite
             data.reviews?.let { reviewsList -> initRvReviews(reviewsList) }
             data.photos?.let { photoList -> initPhotoSlider(photoList) }
-            data.opening_hours?.weekday_text?.let { it -> workday = it }
+            data.current_opening_hours?.weekday_text?.let { it -> workday = it }
             data.url?.let { it -> googleUrl = it }
             data.website?.let { it -> website = it }
             data.formatted_phone_number?.let { it -> phone = it }

@@ -378,8 +378,8 @@
                         android:layout_marginStart="@dimen/_8sdp"
                         android:fontFamily="@font/poppins_thin"
                         android:includeFontPadding="false"
-                        android:text="@{detail.opening_hours.open_now ? @string/text_open_now : @string/text_close_now, default=@string/text_null}"
-                        android:textColor="@{detail.opening_hours.open_now ? @color/green : @color/red , default=@color/g_yellow}"
+                        android:text="@{detail.current_opening_hours.open_now ? @string/text_open_now : @string/text_close_now, default=@string/text_null}"
+                        android:textColor="@{detail.current_opening_hours.open_now ? @color/green : @color/red , default=@color/g_yellow}"
                         android:textSize="@dimen/_12ssp" />
 
                 </androidx.appcompat.widget.LinearLayoutCompat>
