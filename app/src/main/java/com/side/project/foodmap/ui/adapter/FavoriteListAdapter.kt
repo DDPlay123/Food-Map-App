@@ -18,7 +18,7 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
 
     private val itemCallback = object : DiffUtil.ItemCallback<FavoriteList>() {
         override fun areItemsTheSame(oldItem: FavoriteList, newItem: FavoriteList): Boolean {
-            return oldItem.placeId == newItem.placeId
+            return oldItem.place_id == newItem.place_id
         }
 
         override fun areContentsTheSame(oldItem: FavoriteList, newItem: FavoriteList): Boolean {
@@ -51,16 +51,16 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
             binding.root.setOnClickListener { onItemClick.invoke(getData(adapterPosition)) }
             binding.imgSetFavorite.setOnClickListener { onItemPullFavorite.invoke(getData(adapterPosition)) }
             binding.btnWebsite.setOnClickListener { onItemWebsite.invoke(getData(adapterPosition).website) }
-            binding.btnDetail.setOnClickListener { onItemDetail.invoke(getData(adapterPosition).placeId) }
+            binding.btnDetail.setOnClickListener { onItemDetail.invoke(getData(adapterPosition).place_id) }
             binding.btnPhone.setOnClickListener { onItemPhone.invoke(getData(adapterPosition).phone) }
             binding.btnShare.setOnClickListener { onItemShare.invoke(getData(adapterPosition).url) }
 
-            if (getData(adapterPosition).photos.isNotEmpty()) {
+            if (getData(adapterPosition).photos != null) {
                 val favoritePhotosListAdapter = FavoritePhotosListAdapter()
                 binding.rvPhotos.apply {
                     layoutManager = LinearLayoutManager(binding.root.context, LinearLayoutManager.HORIZONTAL, false)
                     adapter = favoritePhotosListAdapter
-                    favoritePhotosListAdapter.setPhotosList(getData(adapterPosition).photos)
+                    getData(adapterPosition).photos?.let { favoritePhotosListAdapter.setPhotosList(it) }
                     display()
                 }
             } else

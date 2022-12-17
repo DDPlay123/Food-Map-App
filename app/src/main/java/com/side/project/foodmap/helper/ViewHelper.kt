@@ -10,6 +10,7 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import coil.imageLoader
 import coil.load
+import coil.size.Scale
 import com.google.android.material.snackbar.Snackbar
 import com.side.project.foodmap.util.tools.Method
 import kotlinx.coroutines.*
@@ -20,14 +21,13 @@ fun View.displayErrorShortSnackBar(message: String) =
 fun View.displayErrorLongSnackBar(message: String) =
     Snackbar.make(this, "Error：${message}", Snackbar.LENGTH_LONG).show()
 
-fun View.getString(stringResId: Int): String
-    = resources.getString(stringResId)
+fun View.getString(stringResId: Int): String = resources.getString(stringResId)
 
 fun View.delayOnLifecycle(
     durationMillis: Long,
     dispatcher: CoroutineDispatcher = Dispatchers.Main,
     block: () -> Unit
-) : Job? = findViewTreeLifecycleOwner()?.let { lifecycleOwner: LifecycleOwner ->
+): Job? = findViewTreeLifecycleOwner()?.let { lifecycleOwner: LifecycleOwner ->
     lifecycleOwner.lifecycle.coroutineScope.launch(dispatcher) {
         delay(durationMillis)
         block()
@@ -63,5 +63,16 @@ fun AppCompatImageView.loadFromGoogle(photo_reference: String) {
         "https://maps.googleapis.com/maps/api/place/photo?maxwidth=$maxWidth&photoreference=" +
                 "$photo_reference&key=${this.context.appInfo().metaData["GOOGLE_KEY"].toString()}",
         imageLoader = this.context.imageLoader
-    )
+    ) {
+        scale(Scale.FILL)
+    }
+}
+
+fun AppCompatImageView.loadFromApi(photoId: String) {
+    Method.logE("PHOTO", photoId)
+    this.load("http://kkhomeserver.ddns.net:33000/api/place/get_html_photo/$photoId",
+        imageLoader = this.context.imageLoader
+    ) {
+        scale(Scale.FILL)
+    }
 }

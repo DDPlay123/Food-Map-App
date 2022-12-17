@@ -41,9 +41,9 @@ class ListActivity : BaseActivity() {
     private lateinit var restaurantListAdapter: RestaurantListAdapter
 
     // Parameter
-    private var alreadyCalledNum: Long = 0
-    private var repeatNum: Long = 0
-    private var totalCount: Long = 0
+    private var alreadyCalledNum: Int = 0
+    private var repeatNum: Int = 0
+    private var totalCount: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -169,7 +169,7 @@ class ListActivity : BaseActivity() {
                             alreadyCalledNum++
 
                         if (isNearSearch)
-                            viewModel.nearSearch(keyword, LatLng(latitude, longitude), distance = 5000, skip = (50 * alreadyCalledNum).toInt(), limit = 50)
+                            viewModel.nearSearch(keyword, LatLng(latitude, longitude), distance = 5000, skip = (50 * alreadyCalledNum), limit = 50)
                         else
                             viewModel.keywordSearch()
                     }

@@ -12,7 +12,7 @@
     <com.side.project.foodmap.util.customView.SquareImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:loadSquareImageFromGoogle="@{photo_reference}"
+        android:loadImageFromApi="@{photo_reference}"
         android:scaleType="fitXY"/>
 
 </layout>

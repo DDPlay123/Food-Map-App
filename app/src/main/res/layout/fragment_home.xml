@@ -166,7 +166,7 @@
                         android:id="@+id/imgAllRestaurant"
                         android:layout_width="@dimen/_80sdp"
                         android:layout_height="@dimen/_80sdp"
-                        android:loadImageFromGoogle='@{nearSearch.result.placeList[0].photos[0].photo_reference != null ? nearSearch.result.placeList[0].photos[0].photo_reference : ""}'
+                        android:loadImageFromApi='@{nearSearch.result.placeList[0].photos[0] != null ? nearSearch.result.placeList[0].photos[0] : ""}'
                         android:scaleType="centerCrop"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"

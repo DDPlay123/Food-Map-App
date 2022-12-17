@@ -339,7 +339,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                     titleText = getString(R.string.hint_prompt_remove_favorite_title)
                     tvCancel.setOnClickListener { dialog.cancelCenterDialog() }
                     tvConfirm.setOnClickListener {
-                        viewModel.pullFavorite(arrayListOf(favoriteList.placeId))
+                        viewModel.pullFavorite(arrayListOf(favoriteList.place_id))
                         dialog.cancelCenterDialog()
                     }
                 }

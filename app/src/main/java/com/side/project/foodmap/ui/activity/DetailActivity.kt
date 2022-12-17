@@ -16,10 +16,8 @@ import androidx.viewpager2.widget.ViewPager2
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.data.remote.api.Location
-import com.side.project.foodmap.data.remote.google.placesDetails.Photo
-import com.side.project.foodmap.data.remote.google.placesDetails.PlacesDetails
-import com.side.project.foodmap.data.remote.google.placesDetails.Result
-import com.side.project.foodmap.data.remote.google.placesDetails.Review
+import com.side.project.foodmap.data.remote.api.Review
+import com.side.project.foodmap.data.remote.api.restaurant.DetailsByPlaceIdRes
 import com.side.project.foodmap.databinding.ActivityDetailBinding
 import com.side.project.foodmap.databinding.DialogPromptSelectBinding
 import com.side.project.foodmap.helper.*
@@ -42,15 +40,10 @@ class DetailActivity : BaseActivity() {
     private val animManager: AnimManager by inject()
 
     // Data
-    private lateinit var placesDetails: Result
+    private lateinit var placesDetails: DetailsByPlaceIdRes.Result
     private lateinit var placeId: String
-    private lateinit var googleUrl: String
-    private lateinit var website: String
-    private lateinit var phone: String
-    private var photo: MutableList<String> = ArrayList()
-    private var workday: List<String> = emptyList()
 
-    // Wait push favorite list
+    // Wait push favorite list to Database
     private lateinit var favoriteList: FavoriteList
 
     // Tool
@@ -97,6 +90,7 @@ class DetailActivity : BaseActivity() {
                                 Method.logE("Search Detail", "Success")
                                 dialog.cancelLoadingDialog()
                                 it.data?.result?.let { data ->
+                                    placesDetails = data
                                     setupData(data)
                                 }
                             }
@@ -131,18 +125,11 @@ class DetailActivity : BaseActivity() {
         }
     }
 
-    private fun setupData(placesDetail: PlacesDetails) {
-        val data = placesDetail.result
+    private fun setupData(data: DetailsByPlaceIdRes.Result) {
         binding.run {
             detail = data
-            placesDetails = data
-            detailFavorite = placesDetail.isFavorite
-            data.reviews?.let { reviewsList -> initRvReviews(reviewsList) }
-            data.photos?.let { photoList -> initPhotoSlider(photoList) }
-            data.current_opening_hours?.weekday_text?.let { it -> workday = it }
-            data.url?.let { it -> googleUrl = it }
-            data.website?.let { it -> website = it }
-            data.formatted_phone_number?.let { it -> phone = it }
+            data.place.reviews?.let { reviewsList -> initRvReviews(reviewsList) }
+            data.place.photos?.let { photoList -> initPhotoSlider(photoList) }
         }
     }
 
@@ -153,7 +140,7 @@ class DetailActivity : BaseActivity() {
 
             tvTime.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    if (workday.isEmpty()) {
+                    if (::placesDetails.isInitialized && placesDetails.place.opening_hours.weekday_text == null) {
                         displayShortToast(getString(R.string.text_null))
                         return@setAnimClick
                     }
@@ -163,9 +150,9 @@ class DetailActivity : BaseActivity() {
 
             tvGoogle.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    if (::googleUrl.isInitialized && googleUrl.isNotEmpty()) {
+                    if (::placesDetails.isInitialized && placesDetails.place.url != null) {
                         Intent(Intent.ACTION_VIEW).also { i ->
-                            i.data = Uri.parse(googleUrl)
+                            i.data = Uri.parse(placesDetails.place.url)
                             startActivity(i)
                         }
                     } else
@@ -175,9 +162,9 @@ class DetailActivity : BaseActivity() {
 
             btnWebsite.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    if (::website.isInitialized && website.isNotEmpty()) {
+                    if (::placesDetails.isInitialized && placesDetails.place.website != null) {
                         Intent(Intent.ACTION_VIEW).also { i ->
-                            i.data = Uri.parse(website)
+                            i.data = Uri.parse(placesDetails.place.website)
                             startActivity(i)
                         }
                     } else
@@ -188,38 +175,40 @@ class DetailActivity : BaseActivity() {
             btnNavigation.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
                     // TODO(導航)
+                    if (::placesDetails.isInitialized) {
 
+                    }
                 }
             }
 
             btnFavorite.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
                     favoriteList = FavoriteList(
-                        placeId = placeId,
-                        photos = photo,
-                        name = placesDetails.name ?: "",
-                        location = Location(placesDetails.geometry?.location?.lat ?: 0.0, placesDetails.geometry?.location?.lng ?: 0.0),
-                        price_level = placesDetails.price_level ?: 0,
-                        url = placesDetails.url ?: "",
-                        vicinity = placesDetails.vicinity ?: "",
-                        workDay = workday,
-                        dine_in = placesDetails.dine_in ?: false,
-                        takeout = placesDetails.takeout ?: false,
-                        delivery = placesDetails.delivery ?: false,
-                        website = placesDetails.website ?: "",
-                        phone = placesDetails.formatted_phone_number ?: "",
-                        rating = (placesDetails.rating ?: 0.0).toFloat(),
-                        ratings_total = (placesDetails.user_ratings_total ?: 0).toLong()
+                        place_id = placesDetails.place.place_id,
+                        photos = placesDetails.place.photos,
+                        name = placesDetails.place.name,
+                        vicinity = placesDetails.place.vicinity,
+                        workDay = placesDetails.place.opening_hours.weekday_text ?: emptyList(),
+                        dine_in = placesDetails.place.dine_in ?: false,
+                        takeout = placesDetails.place.takeout ?: false,
+                        delivery = placesDetails.place.delivery ?: false,
+                        website = placesDetails.place.website ?: "",
+                        phone = placesDetails.place.phone ?: "",
+                        rating = placesDetails.place.rating,
+                        ratings_total = placesDetails.place.ratings_total,
+                        price_level = placesDetails.place.price_level ?: 0,
+                        location = Location(placesDetails.place.location.lat, placesDetails.place.location.lng),
+                        url = placesDetails.place.url ?: ""
                     )
-                    viewModel.pushFavorite(arrayListOf(favoriteList))
+                    viewModel.pushFavorite(arrayListOf(placeId))
                 }
             }
 
             btnPhone.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    if (::phone.isInitialized && phone.isNotEmpty()) {
+                    if (::placesDetails.isInitialized && placesDetails.place.phone != null) {
                         Intent(Intent.ACTION_DIAL).also { i ->
-                            i.data = Uri.parse("tel:$phone")
+                            i.data = Uri.parse("tel:${placesDetails.place.phone}")
                             startActivity(i)
                         }
                     } else
@@ -241,7 +230,9 @@ class DetailActivity : BaseActivity() {
                 listItem.apply {
                     layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
                     adapter = workDayAdapter
-                    workDayAdapter.setWorkdayList(workday)
+                    placesDetails.place.opening_hours.weekday_text?.let {
+                        workDayAdapter.setWorkdayList(it)
+                    }
                 }
             }
         }
@@ -263,23 +254,20 @@ class DetailActivity : BaseActivity() {
         }
     }
 
-    private fun initPhotoSlider(photos: List<Photo>) {
+    private fun initPhotoSlider(photoIdList: List<String>) {
         detailPhotoAdapter = DetailPhotoAdapter()
         binding.vpPhoto.apply {
             offscreenPageLimit = 1
             adapter = detailPhotoAdapter
-            detailPhotoAdapter.setData(photos)
-            setupSliderIndicators(photos.size)
+            detailPhotoAdapter.setPhotoIdList(photoIdList)
+            setupSliderIndicators(photoIdList.size)
 
-            if (photos.isEmpty()) {
+            if (photoIdList.isEmpty()) {
                 binding.imgPlaceHolder.display()
                 binding.vpPhoto.hidden()
             } else {
                 binding.imgPlaceHolder.hidden()
                 binding.vpPhoto.display()
-                photos.forEach { data ->
-                    photo.add(data.photo_reference)
-                }
             }
 
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {

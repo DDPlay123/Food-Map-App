@@ -30,7 +30,7 @@ abstract class BaseRvAdapter<T : ViewDataBinding, R : Any>(@LayoutRes val layout
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder<T>, position: Int) =
-        bind(holder.binding, data[position], position)
+        bind(holder.binding, data[holder.adapterPosition], holder.adapterPosition)
 
     override fun getItemCount(): Int = data.size
 

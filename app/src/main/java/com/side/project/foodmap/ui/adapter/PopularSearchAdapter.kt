@@ -18,7 +18,7 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
     private val itemCallback = object : DiffUtil.ItemCallback<PlaceList>() {
         // 比對新舊 Item
         override fun areItemsTheSame(oldItem: PlaceList, newItem: PlaceList): Boolean {
-            return oldItem.uid == newItem.uid
+            return oldItem.place_id == newItem.place_id
         }
 
         // 比對新舊 Item 內容
@@ -50,7 +50,7 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
             try {
                 binding.data = getData(adapterPosition)
                 binding.photoReference = if (getData(adapterPosition).photos != null && (getData(adapterPosition).photos?.size ?: 0) > 0)
-                    getData(adapterPosition).photos?.get(0)?.photo_reference
+                    getData(adapterPosition).photos?.get(0)
                 else
                     ""
 
@@ -60,7 +60,7 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
                 } else
                     binding.tvDistance.gone()
 
-                binding.root.setOnClickListener { onItemClick.invoke(getData(adapterPosition).uid) }
+                binding.root.setOnClickListener { onItemClick.invoke(getData(adapterPosition).place_id) }
             } catch (ignored: IOException) {
             }
         }

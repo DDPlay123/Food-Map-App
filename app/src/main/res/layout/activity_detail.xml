@@ -11,11 +11,7 @@
 
         <variable
             name="detail"
-            type="com.side.project.foodmap.data.remote.google.placesDetails.Result" />
-
-        <variable
-            name="detailFavorite"
-            type="Boolean" />
+            type="com.side.project.foodmap.data.remote.api.restaurant.DetailsByPlaceIdRes.Result" />
 
         <variable
             name="isFavorite"
@@ -97,7 +93,7 @@
                     android:fontFamily="@font/poppins_thin"
                     android:includeFontPadding="false"
                     android:maxLines="1"
-                    android:text="@{detail.name}"
+                    android:text="@{detail.place.name}"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_18ssp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -120,7 +116,7 @@
                     android:gravity="center_vertical"
                     android:includeFontPadding="false"
                     android:maxLines="1"
-                    android:text="@{detail.formatted_address}"
+                    android:text="@{detail.place.vicinity}"
                     android:textColor="@color/g_gray700"
                     android:textSize="@dimen/_12ssp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -165,7 +161,7 @@
                         android:id="@+id/tvDineIn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:drawableStart="@{detail.dine_in ? @drawable/ic_green_done : @drawable/ic_red_close, default=@drawable/ic_red_close }"
+                        android:drawableStart="@{detail.place.dine_in ? @drawable/ic_green_done : @drawable/ic_red_close, default=@drawable/ic_red_close }"
                         android:fontFamily="@font/poppins_light"
                         android:includeFontPadding="false"
                         android:text="@string/text_dine_in"
@@ -188,7 +184,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/_8sdp"
-                        android:drawableStart="@{detail.takeout ? @drawable/ic_green_done : @drawable/ic_red_close, default=@drawable/ic_red_close }"
+                        android:drawableStart="@{detail.place.takeout ? @drawable/ic_green_done : @drawable/ic_red_close, default=@drawable/ic_red_close }"
                         android:fontFamily="@font/poppins_thin"
                         android:includeFontPadding="false"
                         android:text="@string/text_takeout"
@@ -210,7 +206,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/_8sdp"
-                        android:drawableStart="@{detail.delivery ? @drawable/ic_green_done : @drawable/ic_red_close, default=@drawable/ic_red_close }"
+                        android:drawableStart="@{detail.place.delivery ? @drawable/ic_green_done : @drawable/ic_red_close, default=@drawable/ic_red_close }"
                         android:fontFamily="@font/poppins_thin"
                         android:includeFontPadding="false"
                         android:text="@string/text_delivery"
@@ -275,7 +271,7 @@
                         android:layout_weight="1"
                         android:autoSizeTextType="uniform"
                         android:background="@drawable/background_google_yellow_button"
-                        android:drawableEnd="@{detailFavorite | isFavorite ? @drawable/ic_favorite : @drawable/ic_favorite_border, default=@drawable/ic_favorite_border}"
+                        android:drawableEnd="@{detail.isFavorite | isFavorite ? @drawable/ic_favorite : @drawable/ic_favorite_border, default=@drawable/ic_favorite_border}"
                         android:ellipsize="end"
                         android:fontFamily="@font/poppins_thin"
                         android:gravity="center"
@@ -333,7 +329,7 @@
                         android:layout_marginStart="@dimen/_5sdp"
                         android:fontFamily="@font/poppins_light"
                         android:includeFontPadding="false"
-                        android:text='@{detail.rating != null ? String.valueOf(detail.rating) : "0", default="0"}'
+                        android:text='@{detail.place.rating > 0 ? String.valueOf(detail.place.rating) : "0", default="0"}'
                         android:textColor="@color/black"
                         android:textSize="@dimen/_12ssp" />
 
@@ -357,7 +353,7 @@
                         android:fontFamily="@font/poppins_thin"
                         android:foreground="?android:attr/selectableItemBackgroundBorderless"
                         android:includeFontPadding="false"
-                        android:text='@{detail.user_ratings_total != null ? detail.user_ratings_total+@string/hint_google_ratings_total : "0"+@string/hint_google_ratings_total, default=@string/text_null }'
+                        android:text='@{detail.place.ratings_total > 0 ? detail.place.ratings_total+@string/hint_google_ratings_total : "0"+@string/hint_google_ratings_total, default=@string/text_null }'
                         android:textColor="@color/black"
                         android:textSize="@dimen/_12ssp" />
 
@@ -378,8 +374,8 @@
                         android:layout_marginStart="@dimen/_8sdp"
                         android:fontFamily="@font/poppins_thin"
                         android:includeFontPadding="false"
-                        android:text="@{detail.current_opening_hours.open_now ? @string/text_open_now : @string/text_close_now, default=@string/text_null}"
-                        android:textColor="@{detail.current_opening_hours.open_now ? @color/green : @color/red , default=@color/g_yellow}"
+                        android:text="@{detail.place.opening_hours.open_now ? @string/text_open_now : @string/text_close_now, default=@string/text_null}"
+                        android:textColor="@{detail.place.opening_hours.open_now ? @color/green : @color/red , default=@color/g_yellow}"
                         android:textSize="@dimen/_12ssp" />
 
                 </androidx.appcompat.widget.LinearLayoutCompat>

@@ -2,6 +2,10 @@ package com.side.project.foodmap.util
 
 object Constants {
     /**
+     * AES Key
+     */
+    const val MMSLAB = "MMSLAB"
+    /**
      * Permission
      */
     const val PERMISSION_CAMERA = android.Manifest.permission.CAMERA

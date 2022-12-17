@@ -230,7 +230,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                 dialog.cancelLoadingDialog()
                                 resource.data?.let { data ->
                                     binding.nearSearch = data
-                                    placeId = data.result.placeList[0].uid
+                                    placeId = data.result.placeList[0].place_id
                                 }
                                 return@observe
                             }

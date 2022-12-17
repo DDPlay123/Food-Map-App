@@ -11,6 +11,7 @@ import com.side.project.foodmap.data.remote.api.restaurant.DrawCardReq
 import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
 import com.side.project.foodmap.data.remote.api.user.*
 import com.side.project.foodmap.network.ApiClient
+import com.side.project.foodmap.util.Constants.MMSLAB
 import com.side.project.foodmap.util.RegisterLoginFieldsState
 import com.side.project.foodmap.util.RegisterLoginValidation
 import com.side.project.foodmap.util.tools.Method
@@ -238,7 +239,7 @@ class MainViewModel : BaseViewModel() {
         val setPasswordReq = SetPasswordReq(
             accessKey = accessKey.value,
             userId = userUID.value,
-            password = AES.encrypt("MMSLAB", password)
+            password = AES.encrypt(MMSLAB, password)
         )
         if (checkValidation(password)) {
             viewModelScope.launch { _setPasswordState.emit(Resource.Loading()) }

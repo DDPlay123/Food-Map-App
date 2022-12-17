@@ -20,9 +20,7 @@ import com.side.project.foodmap.ui.other.DialogManager
 import com.side.project.foodmap.util.tools.NetworkConnection
 import com.side.project.foodmap.util.Constants
 import com.side.project.foodmap.util.Constants.PERMISSION_CODE
-import com.side.project.foodmap.util.Constants.permission
 import com.side.project.foodmap.util.tools.LocationGet
-import com.side.project.foodmap.util.tools.Method
 import org.koin.android.ext.android.inject
 
 abstract class BaseActivity : AppCompatActivity() {

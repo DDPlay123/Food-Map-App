@@ -2,7 +2,6 @@ package com.side.project.foodmap.ui.viewModel
 
 import androidx.annotation.NonNull
 import androidx.lifecycle.viewModelScope
-import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.data.remote.api.restaurant.DetailsByPlaceIdReq
 import com.side.project.foodmap.data.remote.api.restaurant.DetailsByPlaceIdRes
 import com.side.project.foodmap.data.remote.api.user.PushFavoriteReq
@@ -63,11 +62,11 @@ class DetailViewModel : BaseViewModel() {
         })
     }
 
-    fun pushFavorite(favoriteList: ArrayList<FavoriteList>) {
+    fun pushFavorite(placeIdList: ArrayList<String>) {
         val pushFavoriteReq = PushFavoriteReq(
             accessKey = accessKey.value,
             userId = userUID.value,
-            favoriteList = favoriteList
+            favoriteList = placeIdList
         )
         ApiClient.getAPI.apiPushFavorite(pushFavoriteReq).enqueue(object : Callback<PushFavoriteRes> {
             override fun onResponse(

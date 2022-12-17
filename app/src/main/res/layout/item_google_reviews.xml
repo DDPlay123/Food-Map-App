@@ -7,7 +7,7 @@
 
         <variable
             name="reviews"
-            type="com.side.project.foodmap.data.remote.google.placesDetails.Review" />
+            type="com.side.project.foodmap.data.remote.api.Review" />
 
     </data>
 

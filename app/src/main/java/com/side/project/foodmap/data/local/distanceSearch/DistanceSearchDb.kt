@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 
-@Database(entities = [DistanceSearchRes::class], version = 1, exportSchema = false)
+@Database(entities = [DistanceSearchRes::class], version = 2, exportSchema = false)
 @TypeConverters(DistanceSearchConverter::class)
 abstract class DistanceSearchDb: RoomDatabase() {
     abstract fun distanceSearchDao(): DistanceSearchDao

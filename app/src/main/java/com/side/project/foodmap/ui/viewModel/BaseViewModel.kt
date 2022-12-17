@@ -11,6 +11,7 @@ import com.side.project.foodmap.data.repo.DataStoreRepo
 import com.side.project.foodmap.data.repo.DistanceSearchRepo
 import com.side.project.foodmap.data.repo.DrawCardRepo
 import com.side.project.foodmap.data.repo.GetFavoriteRepo
+import com.side.project.foodmap.util.Constants.MMSLAB
 import com.side.project.foodmap.util.tools.AES
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.Dispatchers
@@ -100,7 +101,7 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     }
 
     fun getUserPasswordFromDataStore() = viewModelScope.launch(Dispatchers.IO) {
-        val decrypt = AES.decrypt("MMSLAB", dataStoreRepo.getPassword())
+        val decrypt = AES.decrypt(MMSLAB, dataStoreRepo.getPassword())
         _userPassword.postValue(decrypt)
     }
 

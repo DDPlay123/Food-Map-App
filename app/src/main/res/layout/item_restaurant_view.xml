@@ -40,7 +40,7 @@
                 android:id="@+id/imgPicture"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:loadImageFromGoogle='@{photoReference != null ? photoReference : ""}'
+                android:loadImageFromApi='@{photoReference != null ? photoReference : ""}'
                 android:scaleType="fitXY"
                 app:layout_constraintDimensionRatio="2:1.6"
                 app:layout_constraintEnd_toEndOf="parent"

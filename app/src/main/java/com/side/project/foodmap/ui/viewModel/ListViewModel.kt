@@ -77,7 +77,7 @@ class ListViewModel : BaseViewModel() {
         })
     }
 
-    private fun setObserveSearchData(placeList: ArrayList<PlaceList>, totalCount: Long) {
+    private fun setObserveSearchData(placeList: ArrayList<PlaceList>, totalCount: Int) {
         if (searchData.size.toLong() >= totalCount)
             _observeSearchData.value = Resource.Error("ERROR")
         else {
