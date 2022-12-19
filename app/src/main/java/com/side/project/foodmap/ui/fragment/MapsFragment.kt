@@ -44,7 +44,7 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
     }
 
     private fun initGoogleMap() {
-        if (!requestPermission() || !::map.isInitialized)
+        if (!requestLocationPermission() || !::map.isInitialized)
             return
         map.apply {
             uiSettings.setAllGesturesEnabled(true)

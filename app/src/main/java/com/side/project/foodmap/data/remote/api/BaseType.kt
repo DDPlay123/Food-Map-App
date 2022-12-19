@@ -71,14 +71,14 @@ data class Place(
     val name: String,
     val photos: ArrayList<String>? = null,
     val place_id: String,
-    val rating: Float,
+    val rating: Float? = null,
     val reviews: List<Review>? = null,
     val delivery: Boolean? = null,
     val dine_in: Boolean? = null,
     val takeout: Boolean? = null,
     val price_level: Int? = null,
     val url: String? = null,
-    val ratings_total: Long,
+    val ratings_total: Long? = null,
     val vicinity: String,
     val website: String? = null
 )

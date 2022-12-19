@@ -43,12 +43,14 @@
     <string name="hint_select_region">請選擇地區</string>
     <string name="hint_near_region">附近的餐廳</string>
     <string name="hint_not_location_permission">請開啟定位權限</string>
+    <string name="hint_not_camera_permission">請開啟相機權限</string>
     <string name="hint_not_gps">請開啟定位功能</string>
     <string name="hint_not_provider_gps">目前無可用的定位</string>
     <string name="hint_quick_view">快速瀏覽</string>
     <string name="hint_view_all">查看全部</string>
     <string name="hint_view_more">查看更多</string>
     <string name="hint_error">發生一些錯誤</string>
+    <string name="hint_crop_cancel">取消相片選取</string>
     <string name="hint_now_register">立即註冊</string>
     <string name="hint_now_login">立即登入</string>
     <string name="hint_hello_new">你好，新使用者 ～\n註冊以享用更多服務！</string>
@@ -66,10 +68,12 @@
     <string name="hint_email_wrong_format">錯誤的Email格式</string>
     <string name="hint_password_is_empty">密碼不能為空</string>
     <string name="hint_password_less_char">密碼至少要6位數</string>
+    <string name="hint_password_more_char">密碼不要超過30位數</string>
     <string name="hint_password_less_alphabet">請至少包含一個英文字母</string>
     <string name="hint_account_is_empty">帳號不能為空</string>
-    <string name="hint_account_less_char">帳號至少要6位數</string>
-    <string name="hint_account_not_format">帳號必須包含英文及數字</string>
+    <string name="hint_account_less_char">帳號至少要4位數</string>
+    <string name="hint_account_more_char">帳號不要超過15位數</string>
+    <string name="hint_account_not_format">帳號必須包含英文</string>
     <string name="hint_register_prompt_title">查無此帳號</string>
     <string name="hint_register_prompt_subtitle">請問是否要註冊此帳號？</string>
     <string name="hint_register_success">註冊成功</string>
@@ -90,18 +94,25 @@
     <string name="hint_prompt_delete_account_title">是否要刪除帳號</string>
     <string name="hint_prompt_delete_account_subtitle">刪除帳號後就無法進行恢復</string>
     <string name="hint_prompt_remove_favorite_title">是否要移除最愛</string>
+    <string name="hint_prompt_add_black_list_title">是否要新增至黑名單</string>
+    <string name="hint_prompt_remove_black_list_title">是否要移除黑名單</string>
     <string name="hint_prompt_not_gps_title">請開啟GPS定位</string>
     <string name="hint_share_url_title">分享餐廳</string>
     <string name="hint_success_push_favorite">成功新增最愛</string>
     <string name="hint_success_pull_favorite">成功移除最愛</string>
     <string name="hint_failed_push_favorite">無法新增最愛</string>
     <string name="hint_failed_pull_favorite">無法移除最愛</string>
+    <string name="hint_success_push_black_list">成功新增黑名單</string>
+    <string name="hint_success_pull_black_list">成功移除黑名單</string>
+    <string name="hint_failed_push_black_list">無法新增黑名單</string>
+    <string name="hint_failed_pull_black_list">無法移除黑名單</string>
     <string name="hint_prompt_search_in_here">請在此輸入</string>
     <string name="hint_prompt_set_password">修改密碼</string>
     <string name="hint_set_password_success">修改成功</string>
     <string name="hint_user_setting">使用者設定</string>
     <string name="hint_in_here_search">在這裡搜尋</string>
     <string name="hint_history_page">歷史紀錄</string>
+    <string name="hint_black_list">黑名單列表</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>

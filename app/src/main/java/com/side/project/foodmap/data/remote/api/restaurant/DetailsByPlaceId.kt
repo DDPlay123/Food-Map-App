@@ -14,6 +14,7 @@ data class DetailsByPlaceIdRes(
     data class Result(
         val updated: Boolean,
         val isFavorite: Boolean,
+        val isBlackList: Boolean,
         val updateTime: String,
         val place: Place
     )

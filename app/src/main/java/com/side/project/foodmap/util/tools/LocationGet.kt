@@ -25,7 +25,7 @@ class LocationGet(var context: Context) : LiveData<Location>() {
 
     override fun onActive() {
         super.onActive()
-        if (!Method.hasPermissions(context, *Constants.permission) && (!context.checkDeviceGPS() || !context.checkNetworkGPS()))
+        if (!Method.hasPermissions(context, *Constants.location_permission) && (!context.checkDeviceGPS() || !context.checkNetworkGPS()))
             return
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             location?.let {
@@ -35,7 +35,7 @@ class LocationGet(var context: Context) : LiveData<Location>() {
     }
 
     internal fun startLocationUpdates() {
-        if (!Method.hasPermissions(context, *Constants.permission) && (!context.checkDeviceGPS() || !context.checkNetworkGPS()))
+        if (!Method.hasPermissions(context, *Constants.location_permission) && (!context.checkDeviceGPS() || !context.checkNetworkGPS()))
             return
         fusedLocationClient.requestLocationUpdates(
             locationRequest,

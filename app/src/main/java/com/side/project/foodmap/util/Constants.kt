@@ -1,5 +1,8 @@
 package com.side.project.foodmap.util
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+
 object Constants {
     /**
      * AES Key
@@ -8,11 +11,19 @@ object Constants {
     /**
      * Permission
      */
+    @RequiresApi(33)
+    const val PERMISSION_MEDIA_IMAGES = android.Manifest.permission.READ_MEDIA_IMAGES
     const val PERMISSION_CAMERA = android.Manifest.permission.CAMERA
+    const val PERMISSION_WRITE_EXTERNAL_STORAGE = android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+    const val PERMISSION_READ_EXTERNAL_STORAGE = android.Manifest.permission.READ_EXTERNAL_STORAGE
     const val PERMISSION_FINE_LOCATION =  android.Manifest.permission.ACCESS_FINE_LOCATION
     const val PERMISSION_COARSE_LOCATION =  android.Manifest.permission.ACCESS_COARSE_LOCATION
 
-    val permission = arrayOf(PERMISSION_FINE_LOCATION, PERMISSION_COARSE_LOCATION)
+    val location_permission = arrayOf(PERMISSION_FINE_LOCATION, PERMISSION_COARSE_LOCATION)
+    val camera_permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        arrayOf(PERMISSION_MEDIA_IMAGES, PERMISSION_CAMERA, PERMISSION_WRITE_EXTERNAL_STORAGE, PERMISSION_READ_EXTERNAL_STORAGE)
+    else
+        arrayOf(PERMISSION_CAMERA, PERMISSION_WRITE_EXTERNAL_STORAGE, PERMISSION_READ_EXTERNAL_STORAGE)
 
     /**
      * Permission Code
@@ -54,7 +65,6 @@ object Constants {
      */
     // Detail Activity
     const val PLACE_ID = "PLACE_ID"
-    const val IS_FAVORITE = "IS_FAVORITE"
 
     // List Activity
     const val KEYWORD = "KEYWORD"

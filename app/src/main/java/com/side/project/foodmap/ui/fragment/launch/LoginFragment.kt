@@ -190,7 +190,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
         binding.btnStart.setOnClickListener {
             val anim = animManager.smallToLarge
             it.setAnimClick(anim, AnimState.End) {
-                if (!requestPermission())
+                if (!requestLocationPermission())
                     return@setAnimClick
                 viewModel.login(
                     account = binding.edUsername.text.toString().trim(),

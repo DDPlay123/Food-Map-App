@@ -76,7 +76,7 @@ class AnimatedPolyline(
         renderedPolyline = newPolyline
     }
 
-    override fun onAnimationUpdate(animation: ValueAnimator?) {
+    override fun onAnimationUpdate(animation: ValueAnimator) {
         val fraction = animator.animatedValue as Float
         val pathSection = totalPathDistance * fraction / 100
         renderPolylineOnMap(

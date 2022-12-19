@@ -2,7 +2,6 @@ package com.side.project.foodmap.ui.fragment
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -66,7 +65,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
     }
 
     private fun initGoogleMap() {
-        if (!requestPermission() || !::map.isInitialized)
+        if (!requestLocationPermission() || !::map.isInitialized)
             return
         map.apply {
             uiSettings.setAllGesturesEnabled(true)
@@ -267,7 +266,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                             duration = 1000,
                             interpolator = DecelerateInterpolator(),
                             animatorListenerAdapter = object : AnimatorListenerAdapter() {
-                                override fun onAnimationEnd(animation: Animator?) {
+                                override fun onAnimationEnd(animation: Animator) {
                                     super.onAnimationEnd(animation)
                                     animatedPolyline.start()
                                 }

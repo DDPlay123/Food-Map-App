@@ -13,7 +13,8 @@ import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.ui.activity.other.BaseActivity
 import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.DialogManager
-import com.side.project.foodmap.util.Constants.permission
+import com.side.project.foodmap.util.Constants.camera_permission
+import com.side.project.foodmap.util.Constants.location_permission
 import com.side.project.foodmap.util.tools.Method
 import org.koin.android.ext.android.inject
 
@@ -51,9 +52,17 @@ open class BaseFragment<T : ViewDataBinding>(@LayoutRes val layoutRes: Int) : Fr
         _binding = null
     }
 
-    fun requestPermission(): Boolean {
-        if (!Method.requestPermission(mActivity, *permission)) {
+    fun requestLocationPermission(): Boolean {
+        if (!Method.requestPermission(mActivity, *location_permission)) {
             mActivity.displayShortToast(getString(R.string.hint_not_location_permission))
+            return false
+        }
+        return true
+    }
+
+    fun requestCameraPermission(): Boolean {
+        if (!Method.requestPermission(mActivity, *camera_permission)) {
+            mActivity.displayShortToast(getString(R.string.hint_not_camera_permission))
             return false
         }
         return true

@@ -3,11 +3,15 @@ package com.side.project.foodmap.ui.activity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavDirections
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.ActivityMainBinding
+import com.side.project.foodmap.helper.display
+import com.side.project.foodmap.helper.gone
 import com.side.project.foodmap.ui.activity.other.BaseActivity
 import com.side.project.foodmap.ui.viewModel.MainViewModel
 
@@ -27,6 +31,13 @@ class MainActivity : BaseActivity() {
 
     fun switchFragment(target: Int) {
         bottomNavigationView.selectedItemId = target
+    }
+
+    fun isHiddenNavigationBar(isHiddenBar: Boolean) {
+        if (isHiddenBar)
+            bottomNavigationView.gone()
+        else
+            bottomNavigationView.display()
     }
 
     private fun doInitialize() {

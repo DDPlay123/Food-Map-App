@@ -120,6 +120,43 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvBlackList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_thin"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:paddingStart="@dimen/_15sdp"
+                android:paddingTop="@dimen/_8sdp"
+                android:paddingEnd="0dp"
+                android:paddingBottom="@dimen/_8sdp"
+                android:text="@string/hint_black_list"
+                android:textColor="@color/g_gray700"
+                android:textSize="@dimen/_14ssp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvUserSetting" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/_15sdp"
+                android:src="@drawable/ic_arrow_forward"
+                app:layout_constraintBottom_toBottomOf="@+id/tvBlackList"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tvBlackList"
+                app:tint="@color/red" />
+
+            <View
+                android:id="@+id/supportLine1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gray"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvBlackList" />
+
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvSetPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -135,7 +172,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvUserSetting" />
+                app:layout_constraintTop_toBottomOf="@+id/tvBlackList" />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="wrap_content"

@@ -271,7 +271,7 @@
                         android:layout_weight="1"
                         android:autoSizeTextType="uniform"
                         android:background="@drawable/background_google_yellow_button"
-                        android:drawableEnd="@{detail.isFavorite | isFavorite ? @drawable/ic_favorite : @drawable/ic_favorite_border, default=@drawable/ic_favorite_border}"
+                        android:drawableEnd="@{isFavorite ? @drawable/ic_favorite : @drawable/ic_favorite_border, default=@drawable/ic_favorite_border}"
                         android:ellipsize="end"
                         android:fontFamily="@font/poppins_thin"
                         android:gravity="center"
@@ -457,6 +457,19 @@
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/layoutBack" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgReport"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:layout_marginEnd="@dimen/_8sdp"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:padding="@dimen/_4sdp"
+                android:src="@drawable/ic_report"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/g_gray700" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -166,11 +166,15 @@ object Method {
     fun validateAccount(account: String): RegisterLoginValidation {
         if (account.isEmpty())
             return RegisterLoginValidation.Failed(R.string.hint_account_is_empty)
-        if (account.length < 6)
+        if (account.length < 4)
             return RegisterLoginValidation.Failed(R.string.hint_account_less_char)
-        if ((!account.matches(Regex(".*[a-z]+.*")) && !account.matches(Regex(".*[A-Z]+.*")))
-            || !account.matches(Regex(".*[0-9]+.*"))
-        ) return RegisterLoginValidation.Failed(R.string.hint_account_not_format)
+        if (account.length > 15)
+            return RegisterLoginValidation.Failed(R.string.hint_account_more_char)
+        if (!account.matches(Regex(".*[a-z]+.*")) && !account.matches(Regex(".*[A-Z]+.*")))
+            return RegisterLoginValidation.Failed(R.string.hint_account_not_format)
+//        if ((!account.matches(Regex(".*[a-z]+.*")) && !account.matches(Regex(".*[A-Z]+.*")))
+//            || !account.matches(Regex(".*[0-9]+.*")))
+//            return RegisterLoginValidation.Failed(R.string.hint_account_not_format)
 
         return RegisterLoginValidation.Success
     }
@@ -180,8 +184,10 @@ object Method {
             return RegisterLoginValidation.Failed(R.string.hint_password_is_empty)
         if (password.length < 6)
             return RegisterLoginValidation.Failed(R.string.hint_password_less_char)
-        if (!password.matches(Regex(".*[a-z]+.*")) && !password.matches(Regex(".*[A-Z]+.*")))
-            return RegisterLoginValidation.Failed(R.string.hint_password_less_alphabet)
+        if (password.length > 30)
+            return RegisterLoginValidation.Failed(R.string.hint_password_more_char)
+//        if (!password.matches(Regex(".*[a-z]+.*")) && !password.matches(Regex(".*[A-Z]+.*")))
+//            return RegisterLoginValidation.Failed(R.string.hint_password_less_alphabet)
 
         return RegisterLoginValidation.Success
     }
