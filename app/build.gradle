@@ -58,6 +58,7 @@ android {
     kapt {
         correctErrorTypes true
     }
+    namespace 'com.side.project.foodmap'
 }
 
 dependencies {

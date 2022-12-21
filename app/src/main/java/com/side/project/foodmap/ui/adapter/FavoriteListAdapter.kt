@@ -1,13 +1,13 @@
 package com.side.project.foodmap.ui.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.side.project.foodmap.data.remote.api.FavoriteList
-import com.side.project.foodmap.data.remote.api.Location
 import com.side.project.foodmap.databinding.ItemFavoriteBinding
 import com.side.project.foodmap.helper.gone
 import com.side.project.foodmap.helper.display
@@ -28,6 +28,7 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
 
     private val differ = AsyncListDiffer(this, itemCallback)
 
+    lateinit var onPhotoItemClick: ((View, List<String>, String, Int) -> Unit)
     lateinit var onItemClick: ((FavoriteList) -> Unit)
     lateinit var onItemPullFavorite: ((FavoriteList) -> Unit)
     lateinit var onItemWebsite: ((String) -> Unit)
@@ -62,6 +63,10 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
                     adapter = favoritePhotosListAdapter
                     getData(adapterPosition).photos?.let { favoritePhotosListAdapter.setPhotosList(it) }
                     display()
+
+                    favoritePhotosListAdapter.onItemClick = { imgView, photos, photo, position ->
+                        onPhotoItemClick.invoke(imgView, photos, photo, position)
+                    }
                 }
             } else
                 binding.rvPhotos.gone()

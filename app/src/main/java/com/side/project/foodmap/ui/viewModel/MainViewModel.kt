@@ -36,6 +36,10 @@ class MainViewModel : BaseViewModel() {
         getUserNameFromDataStore()
         getUserPictureFromDataStore()
     }
+    /**
+     * 參數
+     */
+    var isOpenAlbum: Boolean = false // 用於避免開啟圖片預覽後，Fragment重新載入。
 
     /**
      * 資料流
@@ -385,7 +389,7 @@ class MainViewModel : BaseViewModel() {
                         when (it.status) {
                             0 -> {
                                 _getFavoriteListState.postValue(Resource.Success(it))
-                                trySend(it.result)
+                                trySend(it.result.placeList)
                             }
                             else ->_getFavoriteListState.value = Resource.Error(it.errMsg.toString())
                         }

@@ -19,6 +19,8 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.databinding.DialogPromptBinding
@@ -28,7 +30,9 @@ import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.helper.getStatusBarHeight
 import com.side.project.foodmap.helper.hidden
 import com.side.project.foodmap.ui.activity.DetailActivity
+import com.side.project.foodmap.ui.activity.MainActivity
 import com.side.project.foodmap.ui.adapter.FavoriteListAdapter
+import com.side.project.foodmap.ui.fragment.other.AlbumFragment
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.MainViewModel
 import com.side.project.foodmap.util.Constants
@@ -112,7 +116,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                                 logE("Get Favorite List", "Success")
                                 dialog.cancelLoadingDialog()
                                 resource.data?.let { data ->
-                                    if (data.result.isNotEmpty()) {
+                                    if (data.result.placeList.isNotEmpty()) {
                                         binding.layoutOption.rvFavorites.display()
                                         binding.layoutOption.lottieNoData.hidden()
                                     } else {
@@ -273,6 +277,30 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                             }
                         )
                         animatedPolyline.startWithDelay(1000)
+                    }
+                }
+            }
+
+            onPhotoItemClick = { imgView, photos, _, position ->
+                Bundle().also {
+                    val type = object : TypeToken<List<String>>() {}.type
+                    it.putString(Constants.ALBUM_IMAGE_RESOURCE, Gson().toJson(photos, type))
+                    it.putInt(Constants.IMAGE_POSITION, position)
+//                    val extras = FragmentNavigatorExtras(imgView to imgView.transitionName)
+//                    findNavController().navigate(
+//                        R.id.action_favoritesFragment_to_albumFragment,
+//                        it, null, extras
+//                    )
+                    val ft = mActivity.supportFragmentManager.beginTransaction()
+                    val albumDialog = AlbumFragment()
+                    albumDialog.arguments = it
+                    val prevDialog = mActivity.supportFragmentManager.findFragmentByTag(Constants.DIALOG_ALBUM)
+                    if (prevDialog != null) ft.remove(prevDialog)
+                    albumDialog.show(ft, Constants.DIALOG_ALBUM)
+
+                    (mActivity as MainActivity).isHiddenNavigationBar(true)
+                    albumDialog.onDismissListener = {
+                        (mActivity as MainActivity).isHiddenNavigationBar(false)
                     }
                 }
             }

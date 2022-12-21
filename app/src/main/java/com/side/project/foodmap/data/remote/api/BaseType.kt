@@ -50,6 +50,14 @@ data class OpeningHours(
     val weekday_text: List<String>? = null
 )
 
+data class Info(
+    val successCount: Int? = null,
+    val placeNotFoundCount: Int? = null,
+    val favoriteExistCount: Int? = null,
+    val blackListExistCount: Int? = null,
+    val deleteCount: Int? = null
+)
+
 data class Review(
     val author_name: String,
     val author_url: String,

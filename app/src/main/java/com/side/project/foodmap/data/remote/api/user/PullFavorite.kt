@@ -2,6 +2,7 @@ package com.side.project.foodmap.data.remote.api.user
 
 import com.side.project.foodmap.data.remote.api.BaseRequest
 import com.side.project.foodmap.data.remote.api.BaseResponse
+import com.side.project.foodmap.data.remote.api.Info
 
 data class PullFavoriteReq(
     override val accessKey: String,
@@ -12,5 +13,8 @@ data class PullFavoriteReq(
 data class PullFavoriteRes(
     val result: Result? = null
 ) : BaseResponse() {
-    data class Result(val msg: String)
+    data class Result(
+        val msg: String,
+        val info: Info
+    )
 }

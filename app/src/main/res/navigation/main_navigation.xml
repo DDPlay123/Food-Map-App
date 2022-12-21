@@ -9,20 +9,86 @@
         android:id="@+id/homeFragment"
         android:name="com.side.project.foodmap.ui.fragment.HomeFragment"
         android:label="fragment_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_albumFragment"
+            app:destination="@id/albumFragment"
+            app:enterAnim="@anim/hide_to_large"
+            app:exitAnim="@anim/large_to_hide"
+            app:popEnterAnim="@anim/hide_to_large"
+            app:popExitAnim="@anim/large_to_hide" />
+    </fragment>
     <fragment
         android:id="@+id/mapsFragment"
         android:name="com.side.project.foodmap.ui.fragment.MapsFragment"
         android:label="fragment_maps"
-        tools:layout="@layout/fragment_maps" />
+        tools:layout="@layout/fragment_maps">
+        <action
+            android:id="@+id/action_mapsFragment_to_albumFragment"
+            app:destination="@id/albumFragment"
+            app:enterAnim="@anim/hide_to_large"
+            app:exitAnim="@anim/large_to_hide"
+            app:popEnterAnim="@anim/hide_to_large"
+            app:popExitAnim="@anim/large_to_hide" />
+    </fragment>
     <fragment
         android:id="@+id/favoritesFragment"
         android:name="com.side.project.foodmap.ui.fragment.FavoritesFragment"
         android:label="fragment_favorites"
-        tools:layout="@layout/fragment_favorites" />
+        tools:layout="@layout/fragment_favorites">
+        <action
+            android:id="@+id/action_favoritesFragment_to_albumFragment"
+            app:destination="@id/albumFragment"
+            app:enterAnim="@anim/hide_to_large"
+            app:exitAnim="@anim/large_to_hide"
+            app:popEnterAnim="@anim/hide_to_large"
+            app:popExitAnim="@anim/large_to_hide" />
+    </fragment>
     <fragment
         android:id="@+id/profilesFragment"
         android:name="com.side.project.foodmap.ui.fragment.ProfilesFragment"
         android:label="ProfilesFragment"
-        tools:layout="@layout/fragment_profiles"/>
+        tools:layout="@layout/fragment_profiles">
+        <action
+            android:id="@+id/action_profilesFragment_to_albumFragment"
+            app:destination="@id/albumFragment"
+            app:enterAnim="@anim/hide_to_large"
+            app:exitAnim="@anim/large_to_hide"
+            app:popEnterAnim="@anim/hide_to_large"
+            app:popExitAnim="@anim/large_to_hide" />
+    </fragment>
+    <fragment
+        android:id="@+id/albumFragment"
+        android:name="com.side.project.foodmap.ui.fragment.other.AlbumFragment"
+        android:label="AlbumFragment"
+        tools:layout="@layout/fragment_album">
+        <action
+            android:id="@+id/action_albumFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:enterAnim="@anim/hide_to_large"
+            app:exitAnim="@anim/large_to_hide"
+            app:popEnterAnim="@anim/hide_to_large"
+            app:popExitAnim="@anim/large_to_hide" />
+        <action
+            android:id="@+id/action_albumFragment_to_mapsFragment"
+            app:destination="@id/mapsFragment"
+            app:enterAnim="@anim/hide_to_large"
+            app:exitAnim="@anim/large_to_hide"
+            app:popEnterAnim="@anim/hide_to_large"
+            app:popExitAnim="@anim/large_to_hide" />
+        <action
+            android:id="@+id/action_albumFragment_to_favoritesFragment"
+            app:destination="@id/favoritesFragment"
+            app:enterAnim="@anim/hide_to_large"
+            app:exitAnim="@anim/large_to_hide"
+            app:popEnterAnim="@anim/hide_to_large"
+            app:popExitAnim="@anim/large_to_hide" />
+        <action
+            android:id="@+id/action_albumFragment_to_profilesFragment"
+            app:destination="@id/profilesFragment"
+            app:enterAnim="@anim/hide_to_large"
+            app:exitAnim="@anim/large_to_hide"
+            app:popEnterAnim="@anim/hide_to_large"
+            app:popExitAnim="@anim/large_to_hide" />
+    </fragment>
 </navigation>

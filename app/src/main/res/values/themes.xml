@@ -98,4 +98,18 @@
         <item name="android:minHeight">16dp</item>
         <item name="android:maxHeight">16dp</item>
     </style>
+    <!--  Dialog Fragment Style  -->
+    <style name="BaseDialogStyle" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:statusBarColor">@color/black</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowTranslucentStatus">true</item><!-- 全屏狀態欄變黑 -->
+        <item name="android:backgroundDimEnabled">true</item>   <!-- 是否允許背景模糊 -->
+        <item name="android:windowIsTranslucent">true</item>    <!-- 是否半透明 -->
+        <item name="android:windowIsFloating">true</item>       <!-- 懸浮在Activity上 -->
+        <item name="android:windowContentOverlay">@null</item>  <!-- 是否有遮蓋 -->
+        <item name="android:backgroundDimAmount">0.8</item>     <!-- 背景模糊的透明度-->
+    </style>
 </resources>

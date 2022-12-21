@@ -10,5 +10,10 @@ data class GetFavoriteReq(
 ) : BaseRequest()
 
 data class GetFavoriteRes(
-    val result: ArrayList<FavoriteList>
-) : BaseResponse()
+    val result: Result
+) : BaseResponse() {
+    data class Result(
+        val placeCount: Int,
+        val placeList: ArrayList<FavoriteList>
+    )
+}

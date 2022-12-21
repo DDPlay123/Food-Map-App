@@ -11,16 +11,10 @@ import coil.size.Scale
 import coil.transform.CircleCropTransformation
 import coil.transform.RoundedCornersTransformation
 import com.side.project.foodmap.R
-import com.side.project.foodmap.data.remote.api.restaurant.GetPhotoReq
-import com.side.project.foodmap.data.remote.api.restaurant.GetPhotoRes
 import com.side.project.foodmap.helper.appInfo
 import com.side.project.foodmap.helper.display
 import com.side.project.foodmap.helper.hidden
-import com.side.project.foodmap.network.ApiClient
 import com.side.project.foodmap.util.tools.Method
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -83,41 +77,6 @@ class BindingAdapter {
             }
         }
 
-        @BindingAdapter("android:loadImageFromApi")
-        @kotlin.jvm.JvmStatic
-        fun setLoadImageFromApi(imageView: ImageView, photoId: String) {
-            try {
-                val getPhotoReq = GetPhotoReq(
-                    userId = "639c4533a4701cd07fa27123",
-                    accessKey = "670e6d62a5315578f8b0f7d5a3e867d",
-                    photoId = photoId
-                )
-                ApiClient.getAPI.apiGetPhoto(getPhotoReq).enqueue(object : Callback<GetPhotoRes> {
-                    override fun onResponse(
-                        call: Call<GetPhotoRes>,
-                        response: Response<GetPhotoRes>
-                    ) {
-                        response.body()?.let {
-                            imageView.load(Method.decodeImage(it.result.data), imageLoader = imageView.context.imageLoader
-                            ) {
-                                transformations(RoundedCornersTransformation(25f))
-                                scale(Scale.FILL)
-                            }
-                        }
-                    }
-
-                    override fun onFailure(call: Call<GetPhotoRes>, t: Throwable) {
-                        imageView.load("", imageLoader = imageView.context.imageLoader
-                        ) {
-                            transformations(RoundedCornersTransformation(25f))
-                            scale(Scale.FILL)
-                        }
-                    }
-                })
-            } catch (ignored: Exception) {
-            }
-        }
-
         @BindingAdapter("android:loadSquareImageFromGoogle")
         @kotlin.jvm.JvmStatic
         fun setLoadSquareImageFromGoogle(imageView: ImageView, photoReference: String) {
@@ -134,12 +93,26 @@ class BindingAdapter {
             }
         }
 
+        @BindingAdapter("android:loadImageFromApi")
+        @kotlin.jvm.JvmStatic
+        fun setLoadImageFromApi(imageView: ImageView, photoId: String) {
+            try {
+                val userID = ""
+                imageView.load("http://kkhomeserver.ddns.net:33000/api/place/get_html_photo/$photoId?userId=$userID", imageLoader = imageView.context.imageLoader
+                ) {
+                    transformations(RoundedCornersTransformation(25f))
+                    scale(Scale.FILL)
+                }
+            } catch (ignored: Exception) {
+            }
+        }
+
         @BindingAdapter("android:loadSquareImageFromApi")
         @kotlin.jvm.JvmStatic
         fun setLoadSquareImageFromApi(imageView: ImageView, photoId: String) {
             try {
-                imageView.load("http://kkhomeserver.ddns.net:33000/api/place/get_html_photo/$photoId",
-                    imageLoader = imageView.context.imageLoader
+                val userID = ""
+                imageView.load("http://kkhomeserver.ddns.net:33000/api/place/get_html_photo/$photoId?userId=$userID", imageLoader = imageView.context.imageLoader
                 ) {
                     scale(Scale.FILL)
                 }
