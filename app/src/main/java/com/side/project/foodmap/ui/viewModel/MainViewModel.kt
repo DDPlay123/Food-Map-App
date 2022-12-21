@@ -5,11 +5,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.data.remote.api.FavoriteList
+import com.side.project.foodmap.data.remote.api.HistorySearch
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchReq
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 import com.side.project.foodmap.data.remote.api.restaurant.DrawCardReq
 import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
 import com.side.project.foodmap.data.remote.api.user.*
+import com.side.project.foodmap.data.remote.google.placesAutoComplete.AutoComplete
 import com.side.project.foodmap.network.ApiClient
 import com.side.project.foodmap.util.Constants.MMSLAB
 import com.side.project.foodmap.util.RegisterLoginFieldsState
@@ -39,7 +41,7 @@ class MainViewModel : BaseViewModel() {
     /**
      * 參數
      */
-    var isOpenAlbum: Boolean = false // 用於避免開啟圖片預覽後，Fragment重新載入。
+
 
     /**
      * 資料流
@@ -56,6 +58,14 @@ class MainViewModel : BaseViewModel() {
     private val _nearSearchState = MutableLiveData<Resource<DistanceSearchRes>>()
     val nearSearchState: LiveData<Resource<DistanceSearchRes>>
         get() = _nearSearchState
+
+    private val _autoCompleteState = MutableLiveData<Resource<List<HistorySearch>>>()
+    val autoCompleteState: LiveData<Resource<List<HistorySearch>>>
+        get() = _autoCompleteState
+
+    private var _historySearchList = MutableLiveData<List<HistorySearch>>()
+    val historySearchList: LiveData<List<HistorySearch>>
+        get() = _historySearchList
 
     // Favorite Page
     private val _currentFavoriteList = MutableLiveData<List<FavoriteList>>()
@@ -200,6 +210,43 @@ class MainViewModel : BaseViewModel() {
                 }
             }
         })
+    }
+
+    fun autoComplete(input: String, region: String, latLng: LatLng, radius: Long, key: String) {
+        if (input.isEmpty())
+            return
+        val currentLatLng = Method.getCurrentLatLng(region, latLng)
+        viewModelScope.launch { _autoCompleteState.postValue(Resource.Loading()) }
+        ApiClient.googlePlaces.getPlacesAutoComplete(
+            input = input,
+            location = "${currentLatLng.latitude},${currentLatLng.longitude}",
+            radius = radius.toString(),
+            key = key
+        ).enqueue(object : Callback<AutoComplete> {
+            override fun onResponse(call: Call<AutoComplete>, response: Response<AutoComplete>) {
+                response.body()?.let {
+                    val historySearch: MutableList<HistorySearch> = ArrayList()
+                    it.predictions.forEach { prediction ->
+                        historySearch.add(HistorySearch(
+                            place_id = prediction.place_id,
+                            name = prediction.structured_formatting.main_text,
+                            address = prediction.structured_formatting.secondary_text
+                        ))
+                    }
+                    _autoCompleteState.postValue(Resource.Success(historySearch))
+                }
+            }
+
+            override fun onFailure(call: Call<AutoComplete>, t: Throwable) {
+                viewModelScope.launch {
+                    _autoCompleteState.value = Resource.Error(t.message.toString())
+                }
+            }
+        })
+    }
+
+    fun getHistorySearchData() {
+        _historySearchList.postValue(getHistoryData())
     }
 
     fun getSyncFavoriteList() {

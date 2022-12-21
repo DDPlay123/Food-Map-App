@@ -2,7 +2,11 @@ package com.side.project.foodmap.ui.fragment
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.Lifecycle
@@ -28,6 +32,7 @@ import com.side.project.foodmap.ui.activity.ListActivity
 import com.side.project.foodmap.ui.activity.MainActivity
 import com.side.project.foodmap.ui.adapter.PopularSearchAdapter
 import com.side.project.foodmap.ui.adapter.RegionSelectAdapter
+import com.side.project.foodmap.ui.adapter.SearchAndHistoryAdapter
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.MainViewModel
@@ -42,6 +47,8 @@ import com.side.project.foodmap.util.Resource
 import com.side.project.foodmap.util.tools.Method.getDistance
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import java.util.Timer
+import java.util.TimerTask
 import kotlin.Exception
 import kotlin.collections.ArrayList
 import kotlin.math.abs
@@ -53,9 +60,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private lateinit var region: String
     private lateinit var placeId: String
     private var regionID: Int = 0
+    private var keyword: String = ""
 
     private var isRecentPopularSearch: Boolean = true
 
+    private lateinit var searchAndHistoryAdapter: SearchAndHistoryAdapter
     private lateinit var popularSearchAdapter: PopularSearchAdapter
 
     private lateinit var oldLatLng: Location
@@ -259,6 +268,41 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                     if (isRecentPopularSearch) 0 else 1)
                             }
                         }
+                    }
+                }
+                // 搜尋結果
+                launch {
+                    viewModel.autoCompleteState.observe(viewLifecycleOwner) { resource ->
+                        when (resource) {
+                            is Resource.Loading -> {
+                                logE("Search Result", "Loading")
+                                dialog.showLoadingDialog(mActivity, false)
+                                return@observe
+                            }
+                            is Resource.Success -> {
+                                logE("Search Result", "Success")
+                                dialog.cancelLoadingDialog()
+                                resource.data?.let { data ->
+                                    if (::searchAndHistoryAdapter.isInitialized)
+                                        searchAndHistoryAdapter.setSearchList(false, keyword, data)
+                                }
+                                return@observe
+                            }
+                            is Resource.Error -> {
+                                logE("Search Result", "Error:${resource.message.toString()}")
+                                dialog.cancelLoadingDialog()
+                                requireActivity().displayShortToast(getString(R.string.hint_error))
+                                return@observe
+                            }
+                            else -> Unit
+                        }
+                    }
+                }
+                // 歷史紀錄
+                launch {
+                    viewModel.historySearchList.observe(viewLifecycleOwner) { historySearchList ->
+                        if (::searchAndHistoryAdapter.isInitialized && keyword == "")
+                            searchAndHistoryAdapter.setSearchList(true, keyword, historySearchList)
                     }
                 }
             }
@@ -478,9 +522,75 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
     private fun displaySearchDialog() {
         val dialogBinding = DialogSearchBinding.inflate(layoutInflater)
+        var timer: Timer? = null
         dialog.showBottomDialog(mActivity, dialogBinding, true).let {
             dialogBinding.run {
+                initSearchRv(dialogBinding)
+                isHistory = true
+                viewModel.getHistorySearchData()
 
+                imgBack.setOnClickListener { dialog.cancelBottomDialog() }
+
+                imgCameraSearchOrClear.setOnClickListener {
+                    mActivity.displayShortToast("Camera")
+                }
+
+                imgSoundSearchOrClear.setOnClickListener {
+                    mActivity.displayShortToast("Sound")
+                }
+
+                tvClear.setOnClickListener {
+                    viewModel.deleteAllHistoryData()
+                    searchAndHistoryAdapter.setSearchList(true, keyword, emptyList())
+                }
+
+                edSearch.addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                    }
+
+                    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                        timer?.cancel()
+                    }
+
+                    override fun afterTextChanged(editable: Editable?) {
+                        keyword = editable.toString().trim()
+                        if (keyword.isNotEmpty()) {
+                            timer = Timer()
+                            timer?.schedule(object : TimerTask() {
+                                override fun run() {
+                                    Handler(Looper.getMainLooper()).post {
+                                        isHistory = false
+                                        viewModel.autoComplete(
+                                            keyword,
+                                            region,
+                                            LatLng(mActivity.myLatitude, mActivity.myLongitude),
+                                            10000,
+                                            requireContext().appInfo().metaData["GOOGLE_KEY"].toString()
+                                        )
+
+                                    }
+                                }
+                            }, 500)
+                        } else {
+                            isHistory = true
+                            viewModel.getHistorySearchData()
+                        }
+                    }
+                })
+            }
+        }
+    }
+
+    private fun initSearchRv(dialogBinding: DialogSearchBinding) {
+        searchAndHistoryAdapter = SearchAndHistoryAdapter()
+        dialogBinding.rvResultAndHistory.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+            adapter = searchAndHistoryAdapter
+
+            searchAndHistoryAdapter.onItemClick = { historySearch ->
+                viewModel.insertHistoryData(historySearch)
+                if (historySearch.place_id != "")
+                    watchDetail(historySearch.place_id)
             }
         }
     }

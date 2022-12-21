@@ -3,6 +3,7 @@ package com.side.project.foodmap.data.remote.api
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.side.project.foodmap.util.Constants.GET_FAVORITE_MODEL
+import com.side.project.foodmap.util.Constants.HISTORY_SEARCH
 import java.net.URL
 
 /**
@@ -125,4 +126,12 @@ data class FavoriteList(
     val price_level: Int,
     val location: Location,
     val url: String
+)
+
+@Entity(tableName = HISTORY_SEARCH)
+data class HistorySearch(
+    @PrimaryKey
+    val place_id: String,
+    val name: String,
+    val address: String
 )

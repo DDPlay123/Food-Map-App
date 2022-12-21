@@ -46,6 +46,7 @@ object Constants {
     const val DISTANCE_SEARCH_MODEL = "DISTANCE_SEARCH_MODEL"
     const val DRAW_CARD_MODEL = "DRAW_CARD_MODEL"
     const val GET_FAVORITE_MODEL = "GET_FAVORITE_MODEL"
+    const val HISTORY_SEARCH = "HISTORY_SEARCH"
 
     /**
      * User Preference
