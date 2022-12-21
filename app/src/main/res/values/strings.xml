@@ -160,6 +160,14 @@
     <string name="text_number_meter">距離 %,.1f 公尺</string>
     <string name="text_number_kilometer">距離 %,.1f 公里</string>
 
+    <!--  下載狀態  -->
+    <string name="download_status_failed">下載失敗，請重新嘗試</string>
+    <string name="download_status_paused">下載暫停</string>
+    <string name="download_status_pending">準備中</string>
+    <string name="download_status_running">下載中\.\.\.</string>
+    <string name="download_status_successful">下載成功</string>
+    <string name="download_status_nothing">無法進行下載</string>
+
     <!--  特殊  -->
     <string name="menu_enable_pan">Pan</string>
     <string name="menu_enable_zoom">Zoom</string>
