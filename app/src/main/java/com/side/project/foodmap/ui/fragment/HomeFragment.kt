@@ -7,6 +7,7 @@ import android.os.Looper
 import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MotionEvent
 import android.view.View
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
@@ -43,16 +44,13 @@ import com.side.project.foodmap.util.Constants.KEYWORD
 import com.side.project.foodmap.util.Constants.LATITUDE
 import com.side.project.foodmap.util.Constants.LONGITUDE
 import com.side.project.foodmap.util.Constants.PLACE_ID
-import com.side.project.foodmap.util.tools.Method
-import com.side.project.foodmap.util.tools.Method.logE
 import com.side.project.foodmap.util.Resource
+import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.tools.Method.getDistance
+import com.side.project.foodmap.util.tools.Method.logE
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
-import java.util.Timer
-import java.util.TimerTask
-import kotlin.Exception
-import kotlin.collections.ArrayList
+import java.util.*
 import kotlin.math.abs
 
 class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
@@ -63,6 +61,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private lateinit var placeId: String
     private var regionID: Int = 0
     private var keyword: String = ""
+
+    private var startY = 0
 
     private var isRecentPopularSearch: Boolean = true
 
@@ -387,6 +387,28 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     mActivity.start(ListActivity::class.java, b)
                 }
             }
+
+            // 暫保留
+//            vpPopular.setOnTouchListener { _, event ->
+//                when (event.action) {
+//                    MotionEvent.ACTION_DOWN ->
+//                        // 手指按下
+//                        // 記錄當前的Y坐標
+//                        startY = event.y.toInt()
+//                    MotionEvent.ACTION_MOVE -> {
+//                        // 手指移動
+//                        val endY = event.y
+//                        val distanceY = endY - startY
+//                        // 如果手指向下滑動
+//                        scrollView.isNestedScrollingEnabled = distanceY <= 0
+//                    }
+//                    MotionEvent.ACTION_UP ->
+//                        // 手指抬起
+//                        // 允許NestedScrollView滾動
+//                        scrollView.isNestedScrollingEnabled = true
+//                }
+//                false
+//            }
         }
     }
 
