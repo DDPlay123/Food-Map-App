@@ -12,6 +12,7 @@ object Constants {
     const val ALBUM_IMAGE_RESOURCE = "ALBUM_IMAGE_RESOURCE"
     const val IMAGE_RESOURCE = "IMAGE_RESOURCE" // Album Image Key
     const val IMAGE_POSITION = "IMAGE_POSITION"
+
     /**
      * Permission
      */

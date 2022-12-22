@@ -6,6 +6,10 @@
     <data>
 
         <variable
+            name="distance"
+            type="String" />
+
+        <variable
             name="isHistory"
             type="Boolean" />
 
@@ -90,24 +94,52 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvHotKey"
-            android:layout_width="0dp"
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvDistance"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:drawableStart="@drawable/ic_tune"
+            android:text="@string/text_distance"
+            android:textSize="@dimen/_12ssp"
+            android:textStyle="bold"
+            app:drawableTint="#97aabd"
             app:layout_constraintStart_toStartOf="@id/guidelineLeft"
             app:layout_constraintTop_toBottomOf="@+id/searchBar" />
+
+        <androidx.appcompat.widget.AppCompatSeekBar
+            android:id="@+id/seekBarRange"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:progressBackgroundTint="@color/primary"
+            android:thumbTint="@color/primary"
+            app:layout_constraintBottom_toBottomOf="@+id/tvDistance"
+            app:layout_constraintEnd_toStartOf="@+id/tvIntDistance"
+            app:layout_constraintStart_toEndOf="@+id/tvDistance"
+            app:layout_constraintTop_toTopOf="@+id/tvDistance" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvIntDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{distance + @string/text_kilometer}"
+            android:textSize="@dimen/_10ssp"
+            android:textStyle="bold"
+            app:drawableTint="#97aabd"
+            app:layout_constraintBottom_toBottomOf="@+id/tvDistance"
+            app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
+            app:layout_constraintTop_toTopOf="@+id/tvDistance"
+            tools:text="01公里" />
 
         <View
             android:id="@+id/supportView"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_5sdp"
+            android:layout_marginTop="@dimen/_5sdp"
             android:background="@color/gray"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/rvHotKey" />
+            app:layout_constraintTop_toBottomOf="@+id/tvDistance" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvHistory"
@@ -143,11 +175,12 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvResultAndHistory"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginTop="@dimen/_10sdp"
             app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
             app:layout_constraintStart_toStartOf="@id/guidelineLeft"
             app:layout_constraintTop_toBottomOf="@+id/tvHistory"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:listitem="@layout/item_search" />
 
         <androidx.constraintlayout.widget.Guideline

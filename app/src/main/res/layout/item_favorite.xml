@@ -114,6 +114,34 @@
                 tools:text="(17)" />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/priceLevelDot"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:fontFamily="@font/poppins_thin"
+                android:includeFontPadding="false"
+                android:text="@string/u2022"
+                android:textColor="@color/primary"
+                android:textSize="@dimen/_13ssp"
+                app:layout_constraintBottom_toBottomOf="@+id/tvRatingTotal"
+                app:layout_constraintStart_toEndOf="@+id/tvRatingTotal"
+                app:layout_constraintTop_toTopOf="@+id/tvRatingTotal" />
+
+            <RatingBar
+                android:id="@+id/priceLevel"
+                style="@style/priceLevel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:isIndicator="true"
+                android:numStars="5"
+                android:rating="@{placeDetail.price_level}"
+                app:layout_constraintBottom_toBottomOf="@+id/tvRatingTotal"
+                app:layout_constraintStart_toEndOf="@+id/priceLevelDot"
+                app:layout_constraintTop_toTopOf="@+id/tvRatingTotal"
+                tools:rating="1" />
+
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvVicinity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -131,30 +159,15 @@
                 app:layout_constraintTop_toBottomOf="@id/rating"
                 tools:text="台北市大安區" />
 
-            <RatingBar
-                android:id="@+id/priceLevel"
-                style="@style/priceLevel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_5sdp"
-                android:isIndicator="true"
-                android:numStars="5"
-                android:rating="@{placeDetail.price_level}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvVicinity"
-                tools:rating="1" />
-
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvWorkday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_5sdp"
                 android:drawableStart="@drawable/ic_access_time"
+                android:drawablePadding="@dimen/_4sdp"
                 android:gravity="center_vertical"
                 android:includeFontPadding="false"
-                android:drawablePadding="@dimen/_4sdp"
                 android:text="@{placeDetail.workDay.size > 0 ? placeDetail.workDay[today] : @string/hint_workday_null, default=@string/hint_workday_null}"
                 android:textColor="@color/g_gray700"
                 android:textSize="@dimen/_12ssp"
@@ -163,7 +176,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/priceLevel"
+                app:layout_constraintTop_toBottomOf="@+id/tvVicinity"
                 tools:text="星期一：早上 11:30 – 早上 1:30" />
 
             <androidx.appcompat.widget.LinearLayoutCompat

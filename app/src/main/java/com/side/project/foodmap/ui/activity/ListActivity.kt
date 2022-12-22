@@ -15,7 +15,6 @@ import com.side.project.foodmap.databinding.ActivityListBinding
 import com.side.project.foodmap.helper.*
 import com.side.project.foodmap.ui.activity.other.BaseActivity
 import com.side.project.foodmap.ui.adapter.RestaurantListAdapter
-import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.viewModel.ListViewModel
 import com.side.project.foodmap.util.Constants.IS_NEAR_SEARCH
 import com.side.project.foodmap.util.Constants.KEYWORD
@@ -25,12 +24,10 @@ import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.Resource
 import com.side.project.foodmap.util.tools.Method
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
 
 class ListActivity : BaseActivity() {
     private lateinit var binding: ActivityListBinding
     private lateinit var viewModel: ListViewModel
-    private val animManager: AnimManager by inject()
 
     // Data
     private lateinit var keyword: String
@@ -76,7 +73,7 @@ class ListActivity : BaseActivity() {
         if (isNearSearch)
             viewModel.nearSearch(keyword, LatLng(latitude, longitude), distance = 5000, skip = 0, limit = 50)
         else
-            viewModel.keywordSearch()
+            viewModel.keywordSearch(keyword, LatLng(latitude, longitude), keyword = keyword, skip = 0, limit = 50)
 
         binding.title = keyword
 
@@ -101,6 +98,33 @@ class ListActivity : BaseActivity() {
                             }
                             is Resource.Error -> {
                                 Method.logE("Near Search", "Error:${resource.message.toString()}")
+                                dialog.cancelLoadingDialog()
+                                displayShortToast(getString(R.string.hint_error))
+                                viewModel.getDistanceSearchData()
+                            }
+                            else -> Unit
+                        }
+                    }
+                }
+                // 關鍵字搜尋
+                launch {
+                    viewModel.keywordSearchState.observe(this@ListActivity) {resource ->
+                        when (resource) {
+                            is Resource.Loading -> {
+                                Method.logE("Keyword Search", "Loading")
+                                dialog.showLoadingDialog(mActivity, false)
+                            }
+                            is Resource.Success -> {
+                                Method.logE("Keyword Search", "Success")
+                                dialog.cancelLoadingDialog()
+                                resource.data?.let { data ->
+                                    totalCount = data.result.placeCount
+                                    repeatNum = totalCount / 50
+                                }
+                                return@observe
+                            }
+                            is Resource.Error -> {
+                                Method.logE("Keyword Search", "Error:${resource.message.toString()}")
                                 dialog.cancelLoadingDialog()
                                 displayShortToast(getString(R.string.hint_error))
                                 viewModel.getDistanceSearchData()
@@ -171,7 +195,7 @@ class ListActivity : BaseActivity() {
                         if (isNearSearch)
                             viewModel.nearSearch(keyword, LatLng(latitude, longitude), distance = 5000, skip = (50 * alreadyCalledNum), limit = 50)
                         else
-                            viewModel.keywordSearch()
+                            viewModel.keywordSearch(keyword, LatLng(latitude, longitude), keyword = keyword, skip = 0, limit = 50)
                     }
                 }
 

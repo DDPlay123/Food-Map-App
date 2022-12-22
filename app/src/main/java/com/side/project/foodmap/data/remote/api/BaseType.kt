@@ -130,8 +130,8 @@ data class FavoriteList(
 
 @Entity(tableName = HISTORY_SEARCH)
 data class HistorySearch(
-    @PrimaryKey
     val place_id: String,
+    @PrimaryKey
     val name: String,
     val address: String
 )

@@ -8,5 +8,5 @@
         android:drawable="@drawable/white_background" />
     <item
         android:id="@android:id/progress"
-        android:drawable="@drawable/baseline_attach_money_black_18" />
+        android:drawable="@drawable/ic_monetization_on" />
 </layer-list>

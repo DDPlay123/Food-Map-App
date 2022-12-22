@@ -8,6 +8,8 @@ import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -284,7 +286,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 //                                dialog.cancelLoadingDialog()
                                 resource.data?.let { data ->
                                     if (::searchAndHistoryAdapter.isInitialized)
-                                        searchAndHistoryAdapter.setSearchList(false, keyword, data)
+                                        searchAndHistoryAdapter.setData(false, keyword, data)
                                 }
                                 return@observe
                             }
@@ -302,7 +304,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 launch {
                     viewModel.historySearchList.observe(viewLifecycleOwner) { historySearchList ->
                         if (::searchAndHistoryAdapter.isInitialized && keyword.isEmpty())
-                            searchAndHistoryAdapter.setSearchList(true, keyword, historySearchList)
+                            searchAndHistoryAdapter.setData(true, keyword, historySearchList.reversed())
                     }
                 }
             }
@@ -525,8 +527,48 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         var timer: Timer? = null
         dialog.showBottomDialog(mActivity, dialogBinding, true).let {
             dialogBinding.run {
+                var radius: Long = 1000
+                distance = "01"
                 initSearchRv(dialogBinding)
+                keyword = ""
                 isHistory = true
+                viewModel.getHistorySearchData()
+
+                seekBarRange.max = (30 - 1) / 1 // (MAX - MIN) / STEP
+                seekBarRange.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                    override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+                        val value = 1 + p1 * 1 // MIN + VALUE * STEP
+                        distance = if (value < 10) "0$value" else "$value"
+                        radius = (value * 1000).toLong()
+                    }
+
+                    override fun onStartTrackingTouch(p0: SeekBar?) {
+                    }
+
+                    override fun onStopTrackingTouch(p0: SeekBar?) {
+                        keyword = edSearch.text.toString().trim()
+                        if (keyword.isNotEmpty()) {
+                            timer = Timer()
+                            timer?.schedule(object : TimerTask() {
+                                override fun run() {
+                                    Handler(Looper.getMainLooper()).post {
+                                        isHistory = false
+                                        viewModel.autoComplete(
+                                            input = keyword,
+                                            region = region,
+                                            latLng = LatLng(mActivity.myLatitude, mActivity.myLongitude),
+                                            radius = radius
+                                        )
+
+                                    }
+                                }
+                            }, 500)
+                        } else {
+                            isHistory = true
+                            viewModel.getHistorySearchData()
+                        }
+                    }
+                })
 
                 imgBack.setOnClickListener { dialog.cancelBottomDialog() }
 
@@ -540,7 +582,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
                 tvClear.setOnClickListener {
                     viewModel.deleteAllHistoryData()
-                    searchAndHistoryAdapter.setSearchList(true, keyword, emptyList())
+                    searchAndHistoryAdapter.setData(true, keyword, emptyList())
                 }
 
                 edSearch.addTextChangedListener(object : TextWatcher {
@@ -563,7 +605,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                             input = keyword,
                                             region = region,
                                             latLng = LatLng(mActivity.myLatitude, mActivity.myLongitude),
-                                            radius = 10000
+                                            radius = radius
                                         )
 
                                     }
@@ -584,11 +626,20 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         dialogBinding.rvResultAndHistory.apply {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             adapter = searchAndHistoryAdapter
-            viewModel.getHistorySearchData()
+
             searchAndHistoryAdapter.onItemClick = { historySearch ->
                 viewModel.insertHistoryData(historySearch)
                 if (historySearch.place_id != "")
                     watchDetail(historySearch.place_id)
+                else
+                    Bundle().also { b ->
+                        val latLng: LatLng = Method.getCurrentLatLng(keyword, LatLng(mActivity.myLatitude, mActivity.myLongitude))
+                        b.putString(KEYWORD, historySearch.name)
+                        b.putBoolean(IS_NEAR_SEARCH, false)
+                        b.putDouble(LATITUDE, latLng.latitude)
+                        b.putDouble(LONGITUDE, latLng.longitude)
+                        mActivity.start(ListActivity::class.java, b)
+                    }
             }
         }
     }
