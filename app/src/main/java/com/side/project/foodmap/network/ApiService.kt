@@ -35,6 +35,10 @@ interface ApiService {
     @POST("api/place/get_photo")
     fun apiGetPhoto(@Body getPhotoReq: GetPhotoReq): Call<GetPhotoRes>
 
+    @Headers("Content-Type: application/json")
+    @POST("api/place/autocomplete")
+    fun apiAutoComplete(@Body autoCompleteReq: AutoCompleteReq): Call<AutoCompleteRes>
+
     /**
      * User API Server
      */

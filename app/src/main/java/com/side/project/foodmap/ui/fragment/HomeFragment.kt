@@ -276,12 +276,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         when (resource) {
                             is Resource.Loading -> {
                                 logE("Search Result", "Loading")
-                                dialog.showLoadingDialog(mActivity, false)
+//                                dialog.showLoadingDialog(mActivity, false)
                                 return@observe
                             }
                             is Resource.Success -> {
                                 logE("Search Result", "Success")
-                                dialog.cancelLoadingDialog()
+//                                dialog.cancelLoadingDialog()
                                 resource.data?.let { data ->
                                     if (::searchAndHistoryAdapter.isInitialized)
                                         searchAndHistoryAdapter.setSearchList(false, keyword, data)
@@ -290,7 +290,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                             }
                             is Resource.Error -> {
                                 logE("Search Result", "Error:${resource.message.toString()}")
-                                dialog.cancelLoadingDialog()
+//                                dialog.cancelLoadingDialog()
                                 requireActivity().displayShortToast(getString(R.string.hint_error))
                                 return@observe
                             }
@@ -301,7 +301,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 // 歷史紀錄
                 launch {
                     viewModel.historySearchList.observe(viewLifecycleOwner) { historySearchList ->
-                        if (::searchAndHistoryAdapter.isInitialized && keyword == "")
+                        if (::searchAndHistoryAdapter.isInitialized && keyword.isEmpty())
                             searchAndHistoryAdapter.setSearchList(true, keyword, historySearchList)
                     }
                 }
@@ -527,7 +527,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             dialogBinding.run {
                 initSearchRv(dialogBinding)
                 isHistory = true
-                viewModel.getHistorySearchData()
 
                 imgBack.setOnClickListener { dialog.cancelBottomDialog() }
 
@@ -561,11 +560,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                     Handler(Looper.getMainLooper()).post {
                                         isHistory = false
                                         viewModel.autoComplete(
-                                            keyword,
-                                            region,
-                                            LatLng(mActivity.myLatitude, mActivity.myLongitude),
-                                            10000,
-                                            requireContext().appInfo().metaData["GOOGLE_KEY"].toString()
+                                            input = keyword,
+                                            region = region,
+                                            latLng = LatLng(mActivity.myLatitude, mActivity.myLongitude),
+                                            radius = 10000
                                         )
 
                                     }
@@ -586,7 +584,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         dialogBinding.rvResultAndHistory.apply {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             adapter = searchAndHistoryAdapter
-
+            viewModel.getHistorySearchData()
             searchAndHistoryAdapter.onItemClick = { historySearch ->
                 viewModel.insertHistoryData(historySearch)
                 if (historySearch.place_id != "")

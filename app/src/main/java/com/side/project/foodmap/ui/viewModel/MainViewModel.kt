@@ -6,10 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.data.remote.api.HistorySearch
-import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchReq
-import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
-import com.side.project.foodmap.data.remote.api.restaurant.DrawCardReq
-import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
+import com.side.project.foodmap.data.remote.api.restaurant.*
 import com.side.project.foodmap.data.remote.api.user.*
 import com.side.project.foodmap.data.remote.google.placesAutoComplete.AutoComplete
 import com.side.project.foodmap.network.ApiClient
@@ -212,32 +209,33 @@ class MainViewModel : BaseViewModel() {
         })
     }
 
-    fun autoComplete(input: String, region: String, latLng: LatLng, radius: Long, key: String) {
+    fun autoComplete(input: String, region: String, latLng: LatLng, radius: Long) {
         if (input.isEmpty())
             return
         val currentLatLng = Method.getCurrentLatLng(region, latLng)
+        val autoCompleteReq = AutoCompleteReq(
+            accessKey = accessKey.value,
+            userId = userUID.value,
+            latitude = currentLatLng.latitude,
+            longitude = currentLatLng.longitude,
+            radius = radius,
+            input = input
+        )
         viewModelScope.launch { _autoCompleteState.postValue(Resource.Loading()) }
-        ApiClient.googlePlaces.getPlacesAutoComplete(
-            input = input,
-            location = "${currentLatLng.latitude},${currentLatLng.longitude}",
-            radius = radius.toString(),
-            key = key
-        ).enqueue(object : Callback<AutoComplete> {
-            override fun onResponse(call: Call<AutoComplete>, response: Response<AutoComplete>) {
+        ApiClient.getAPI.apiAutoComplete(autoCompleteReq).enqueue(object : Callback<AutoCompleteRes> {
+            override fun onResponse(
+                call: Call<AutoCompleteRes>,
+                response: Response<AutoCompleteRes>
+            ) {
                 response.body()?.let {
-                    val historySearch: MutableList<HistorySearch> = ArrayList()
-                    it.predictions.forEach { prediction ->
-                        historySearch.add(HistorySearch(
-                            place_id = prediction.place_id,
-                            name = prediction.structured_formatting.main_text,
-                            address = prediction.structured_formatting.secondary_text
-                        ))
+                    when (it.status) {
+                        0 -> _autoCompleteState.postValue(Resource.Success(it.result))
+                        else -> _autoCompleteState.value = Resource.Error(it.errMsg.toString())
                     }
-                    _autoCompleteState.postValue(Resource.Success(historySearch))
                 }
             }
 
-            override fun onFailure(call: Call<AutoComplete>, t: Throwable) {
+            override fun onFailure(call: Call<AutoCompleteRes>, t: Throwable) {
                 viewModelScope.launch {
                     _autoCompleteState.value = Resource.Error(t.message.toString())
                 }
