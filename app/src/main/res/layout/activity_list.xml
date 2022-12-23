@@ -14,6 +14,10 @@
             type="String" />
 
         <variable
+            name="total"
+            type="String" />
+
+        <variable
             name="title"
             type="String" />
 
@@ -47,7 +51,7 @@
             android:layout_margin="@dimen/_5sdp"
             android:layout_marginTop="@dimen/_5sdp"
             android:fontFamily="@font/poppins_thin"
-            android:text='@{title + "(" + count + ")"}'
+            android:text='@{title != null &amp;&amp; count != null &amp;&amp; total != null ? title + "(" + count + "/" + total + ")" : @string/app_name}'
             android:textColor="@color/accent"
             android:textSize="@dimen/_16ssp"
             app:layout_constraintEnd_toEndOf="parent"

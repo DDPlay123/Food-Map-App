@@ -94,6 +94,7 @@ class ListActivity : BaseActivity() {
                                 Method.logE("Near Search", "Success")
                                 dialog.cancelLoadingDialog()
                                 resource.data?.let { data ->
+                                    binding.total = data.result.placeCount.toString()
                                     totalCount = data.result.placeCount
                                     repeatNum = totalCount / 50
                                 }
@@ -121,6 +122,7 @@ class ListActivity : BaseActivity() {
                                 Method.logE("Keyword Search", "Success")
                                 dialog.cancelLoadingDialog()
                                 resource.data?.let { data ->
+                                    binding.total = data.result.placeCount.toString()
                                     totalCount = data.result.placeCount
                                     repeatNum = totalCount / 50
                                 }
