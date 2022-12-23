@@ -50,11 +50,14 @@ class ListActivity : BaseActivity() {
 
         checkNetWork { onBackPressed() }
 
-        getArguments()
-        initLocationService()
-        doInitialize()
-        initRvRestaurant()
-        setListener()
+        dialog.showLoadingDialog(mActivity, false)
+        binding.root.delayOnLifecycle(1000L) {
+            getArguments()
+            initLocationService()
+            doInitialize()
+            initRvRestaurant()
+            setListener()
+        }
     }
 
     private fun getArguments() {
@@ -71,7 +74,7 @@ class ListActivity : BaseActivity() {
         if (!::keyword.isInitialized) return
 
         if (isNearSearch)
-            viewModel.nearSearch(keyword, LatLng(latitude, longitude), distance = 5000, skip = 0, limit = 50)
+            viewModel.nearSearch(keyword, LatLng(myLatitude, myLongitude), distance = 5000, skip = 0, limit = 50)
         else
             viewModel.keywordSearch(keyword, LatLng(latitude, longitude), keyword = keyword, skip = 0, limit = 50)
 
@@ -157,6 +160,16 @@ class ListActivity : BaseActivity() {
 
     private fun setListener() {
         binding.run {
+            pullRefresh.setColorSchemeResources(R.color.primary)
+            pullRefresh.setOnRefreshListener {
+                viewModel.searchData.clear()
+                if (isNearSearch)
+                    viewModel.nearSearch(keyword, LatLng(myLatitude, myLongitude), distance = 5000, skip = 0, limit = 50)
+                else
+                    viewModel.keywordSearch(keyword, LatLng(latitude, longitude), keyword = keyword, skip = 0, limit = 50)
+                pullRefresh.isRefreshing = false
+            }
+
             imgBack.setOnClickListener { onBackPressed() }
 
             fabUpTool.setOnClickListener {
@@ -193,7 +206,7 @@ class ListActivity : BaseActivity() {
                             alreadyCalledNum++
 
                         if (isNearSearch)
-                            viewModel.nearSearch(keyword, LatLng(latitude, longitude), distance = 5000, skip = (50 * alreadyCalledNum), limit = 50)
+                            viewModel.nearSearch(keyword, LatLng(myLatitude, myLongitude), distance = 5000, skip = (50 * alreadyCalledNum), limit = 50)
                         else
                             viewModel.keywordSearch(keyword, LatLng(latitude, longitude), keyword = keyword, skip = 0, limit = 50)
                     }

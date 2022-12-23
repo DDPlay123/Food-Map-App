@@ -63,16 +63,24 @@
             android:background="@color/accent"
             app:layout_constraintTop_toBottomOf="@id/imgBack" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvRestaurants"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/pullRefresh"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="@dimen/_5sdp"
-            android:layoutAnimation="@anim/layout_animation_fade_in"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/supportLine" />
+            app:layout_constraintTop_toBottomOf="@id/supportLine">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvRestaurants"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layoutAnimation="@anim/layout_animation_fade_in" />
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabUpTool"

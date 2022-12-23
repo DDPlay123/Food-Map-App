@@ -27,7 +27,7 @@ class ListViewModel : BaseViewModel() {
     /**
      * 參數
      */
-    private var searchData: MutableList<PlaceList> = ArrayList()
+    var searchData: MutableList<PlaceList> = ArrayList()
 
     /**
      * 資料流
