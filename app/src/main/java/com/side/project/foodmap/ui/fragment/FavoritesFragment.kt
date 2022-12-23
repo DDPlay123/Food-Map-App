@@ -210,7 +210,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                 isFitToContents = false
                 halfExpandedRatio = 0.5f
                 expandedOffset = mActivity.getStatusBarHeight()
-                state = BottomSheetBehavior.STATE_HALF_EXPANDED
+                state = BottomSheetBehavior.STATE_EXPANDED
 
                 layoutOption.tvTitle.setOnClickListener {
                     state = if (state == BottomSheetBehavior.STATE_COLLAPSED)

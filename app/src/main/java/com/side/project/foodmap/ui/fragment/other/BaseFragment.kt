@@ -49,6 +49,7 @@ open class BaseFragment<T : ViewDataBinding>(@LayoutRes val layoutRes: Int) : Fr
 
     override fun onDestroyView() {
         super.onDestroyView()
+        dialog.cancelAllDialog()
         _binding = null
     }
 
