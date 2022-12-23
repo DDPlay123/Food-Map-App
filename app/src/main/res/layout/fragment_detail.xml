@@ -57,7 +57,7 @@
                     android:layout_height="0dp"
                     android:orientation="horizontal"
                     android:visibility="invisible"
-                    app:layout_constraintDimensionRatio="3:2"
+                    app:layout_constraintDimensionRatio="16:9"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -213,6 +213,32 @@
                         android:textColor="@color/g_gray700"
                         android:textSize="@dimen/_12ssp" />
 
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_8sdp"
+                        android:fontFamily="@font/poppins_thin"
+                        android:includeFontPadding="false"
+                        android:text="@string/u2022"
+                        android:textColor="@color/primary"
+                        android:textSize="@dimen/_13ssp" />
+
+                    <RatingBar
+                        android:id="@+id/priceLevel"
+                        style="@style/priceLevel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_5sdp"
+                        android:isIndicator="true"
+                        android:numStars="5"
+                        android:rating="@{detail.place.price_level}"
+                        app:layout_constraintBottom_toBottomOf="@+id/tvRatingTotal"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0"
+                        app:layout_constraintStart_toEndOf="@+id/priceLevelDot"
+                        app:layout_constraintTop_toTopOf="@+id/tvRatingTotal"
+                        tools:rating="1" />
+
                 </androidx.appcompat.widget.LinearLayoutCompat>
 
                 <androidx.appcompat.widget.LinearLayoutCompat
@@ -220,6 +246,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_12sdp"
+                    android:layout_marginBottom="@dimen/_12sdp"
                     android:orientation="horizontal"
                     android:weightSum="4"
                     app:divider="@drawable/divider"
@@ -231,7 +258,7 @@
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnWebsite"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:autoSizeTextType="uniform"
                         android:background="@drawable/background_google_blue_button"
@@ -249,7 +276,7 @@
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnNavigation"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:autoSizeTextType="uniform"
                         android:background="@drawable/background_google_green_button"
@@ -267,7 +294,7 @@
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnFavorite"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:autoSizeTextType="uniform"
                         android:background="@drawable/background_google_yellow_button"
@@ -285,7 +312,7 @@
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnPhone"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:autoSizeTextType="uniform"
                         android:background="@drawable/background_google_red_button"
@@ -460,10 +487,11 @@
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/imgReport"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
                 android:layout_marginTop="@dimen/_8sdp"
                 android:layout_marginEnd="@dimen/_8sdp"
+                android:background="@drawable/background_back_button"
                 android:foreground="?android:attr/selectableItemBackgroundBorderless"
                 android:padding="@dimen/_4sdp"
                 android:src="@drawable/ic_report"

@@ -50,7 +50,7 @@
                 android:id="@+id/edSearch"
                 android:layout_width="0dp"
                 android:layout_height="60dp"
-                android:background="@drawable/white_background"
+                android:background="@drawable/transparent_background"
                 android:hint="@string/hint_in_here_search"
                 android:imeOptions="actionDone"
                 android:inputType="text"

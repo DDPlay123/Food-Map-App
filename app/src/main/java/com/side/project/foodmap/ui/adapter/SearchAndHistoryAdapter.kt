@@ -55,8 +55,8 @@ class SearchAndHistoryAdapter : RecyclerView.Adapter<SearchAndHistoryAdapter.Vie
         holder.binding.apply {
             isFirst = position == 0
             isHistory = this@SearchAndHistoryAdapter.isHistory
-            name = getData(holder.adapterPosition).name
-            address = getData(holder.adapterPosition).address
+            name = getData(holder.absoluteAdapterPosition).name
+            address = getData(holder.absoluteAdapterPosition).address
 
             if (this@SearchAndHistoryAdapter.isHistory)
                 imgIcon.setImageResource(R.drawable.ic_history)
@@ -67,7 +67,7 @@ class SearchAndHistoryAdapter : RecyclerView.Adapter<SearchAndHistoryAdapter.Vie
                     imgIcon.setImageResource(R.drawable.ic_location)
             }
 
-            root.setOnClickListener { onItemClick.invoke(getData(holder.adapterPosition)) }
+            root.setOnClickListener { onItemClick.invoke(getData(holder.absoluteAdapterPosition)) }
         }
     }
 

@@ -9,11 +9,11 @@
         
     </data>
 
-    <com.side.project.foodmap.util.customView.SquareImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/imgPicture"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:loadSquareImageFromApi="@{photo_reference}"
-        android:scaleType="fitXY"/>
+        android:scaleType="centerCrop"/>
 
 </layout>

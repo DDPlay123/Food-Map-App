@@ -48,19 +48,19 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.apply {
             try {
-                binding.data = getData(adapterPosition)
-                binding.photoReference = if (getData(adapterPosition).photos != null && (getData(adapterPosition).photos?.size ?: 0) > 0)
-                    getData(adapterPosition).photos?.get(0)
+                binding.data = getData(absoluteAdapterPosition)
+                binding.photoReference = if (getData(absoluteAdapterPosition).photos != null && (getData(absoluteAdapterPosition).photos?.size ?: 0) > 0)
+                    getData(absoluteAdapterPosition).photos?.get(0)
                 else
                     ""
 
                 if (::myLocation.isInitialized && (myLocation.latitude != 0.0 || myLocation.longitude != 0.0)) {
-                    binding.distance = Method.getDistance(myLocation, LatLng(getData(adapterPosition).location.lat, getData(adapterPosition).location.lng))
+                    binding.distance = Method.getDistance(myLocation, LatLng(getData(absoluteAdapterPosition).location.lat, getData(absoluteAdapterPosition).location.lng))
                     binding.tvDistance.display()
                 } else
                     binding.tvDistance.gone()
 
-                binding.root.setOnClickListener { onItemClick.invoke(getData(adapterPosition).place_id) }
+                binding.root.setOnClickListener { onItemClick.invoke(getData(absoluteAdapterPosition).place_id) }
             } catch (ignored: IOException) {
             }
         }

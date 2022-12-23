@@ -7,10 +7,12 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.databinding.ItemFavoriteBinding
 import com.side.project.foodmap.helper.gone
 import com.side.project.foodmap.helper.display
+import com.side.project.foodmap.helper.getDrawableCompat
 import com.side.project.foodmap.util.tools.Method
 import java.util.*
 
@@ -46,22 +48,29 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.apply {
             binding.executePendingBindings()
-            binding.placeDetail = getData(adapterPosition)
+            binding.placeDetail = getData(absoluteAdapterPosition)
             binding.today = Method.getWeekOfDate(Date()) - 1
 
-            binding.root.setOnClickListener { onItemClick.invoke(getData(adapterPosition)) }
-            binding.imgSetFavorite.setOnClickListener { onItemPullFavorite.invoke(getData(adapterPosition)) }
-            binding.btnWebsite.setOnClickListener { onItemWebsite.invoke(getData(adapterPosition).website) }
-            binding.btnDetail.setOnClickListener { onItemDetail.invoke(getData(adapterPosition).place_id) }
-            binding.btnPhone.setOnClickListener { onItemPhone.invoke(getData(adapterPosition).phone) }
-            binding.btnShare.setOnClickListener { onItemShare.invoke(getData(adapterPosition).url) }
+            binding.apply {
+                if (getData(absoluteAdapterPosition).website.isEmpty())
+                    btnWebsite.background = btnWebsite.context.getDrawableCompat(R.drawable.background_google_gray_button)
+                if (getData(absoluteAdapterPosition).phone.isEmpty())
+                    btnPhone.background = btnPhone.context.getDrawableCompat(R.drawable.background_google_gray_button)
+            }
 
-            if (getData(adapterPosition).photos != null) {
+            binding.root.setOnClickListener { onItemClick.invoke(getData(absoluteAdapterPosition)) }
+            binding.imgSetFavorite.setOnClickListener { onItemPullFavorite.invoke(getData(absoluteAdapterPosition)) }
+            binding.btnWebsite.setOnClickListener { onItemWebsite.invoke(getData(absoluteAdapterPosition).website) }
+            binding.btnDetail.setOnClickListener { onItemDetail.invoke(getData(absoluteAdapterPosition).place_id) }
+            binding.btnPhone.setOnClickListener { onItemPhone.invoke(getData(absoluteAdapterPosition).phone) }
+            binding.btnShare.setOnClickListener { onItemShare.invoke(getData(absoluteAdapterPosition).url) }
+
+            if (!getData(absoluteAdapterPosition).photos.isNullOrEmpty()) {
                 val favoritePhotosListAdapter = FavoritePhotosListAdapter()
                 binding.rvPhotos.apply {
                     layoutManager = LinearLayoutManager(binding.root.context, LinearLayoutManager.HORIZONTAL, false)
                     adapter = favoritePhotosListAdapter
-                    getData(adapterPosition).photos?.let { favoritePhotosListAdapter.setPhotosList(it) }
+                    getData(absoluteAdapterPosition).photos?.let { favoritePhotosListAdapter.setPhotosList(it) }
                     display()
 
                     favoritePhotosListAdapter.onItemClick = { imgView, photos, photo, position ->

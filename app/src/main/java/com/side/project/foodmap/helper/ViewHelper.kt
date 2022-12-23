@@ -7,10 +7,8 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.findViewTreeLifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import coil.imageLoader
 import coil.load
-import coil.size.Scale
 import com.google.android.material.snackbar.Snackbar
 import com.side.project.foodmap.util.tools.Method
 import kotlinx.coroutines.*
@@ -63,16 +61,12 @@ fun AppCompatImageView.loadFromGoogle(photo_reference: String) {
         "https://maps.googleapis.com/maps/api/place/photo?maxwidth=$maxWidth&photoreference=" +
                 "$photo_reference&key=${this.context.appInfo().metaData["GOOGLE_KEY"].toString()}",
         imageLoader = this.context.imageLoader
-    ) {
-        scale(Scale.FILL)
-    }
+    )
 }
 
 fun AppCompatImageView.loadFromApi(photoId: String) {
     Method.logE("PHOTO", photoId)
     this.load("http://kkhomeserver.ddns.net:33000/api/place/get_html_photo/$photoId",
         imageLoader = this.context.imageLoader
-    ) {
-        scale(Scale.FILL)
-    }
+    )
 }

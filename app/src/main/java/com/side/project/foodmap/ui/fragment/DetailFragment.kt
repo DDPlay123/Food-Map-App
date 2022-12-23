@@ -183,13 +183,23 @@ class DetailFragment : BaseFragment<FragmentDetailBinding>(R.layout.fragment_det
     }
 
     private fun setupData(data: DetailsByPlaceIdRes.Result) {
-        binding.run {
+        binding.apply {
+            setupToolButton(data)
             detail = data
             checkFavorite = placesDetails.isFavorite
             checkBlackList = placesDetails.isBlackList
             isFavorite = checkFavorite
             data.place.reviews?.let { reviewsList -> initRvReviews(reviewsList) }
             data.place.photos?.let { photoList -> initPhotoSlider(photoList) }
+        }
+    }
+
+    private fun setupToolButton(data: DetailsByPlaceIdRes.Result) {
+        binding.apply {
+            if (data.place.website.isNullOrEmpty())
+                btnWebsite.background = requireContext().getDrawableCompat(R.drawable.background_google_gray_button)
+            if (data.place.phone.isNullOrEmpty())
+                btnPhone.background = requireContext().getDrawableCompat(R.drawable.background_google_gray_button)
         }
     }
 

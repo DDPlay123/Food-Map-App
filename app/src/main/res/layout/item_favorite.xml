@@ -131,6 +131,7 @@
                 android:id="@+id/priceLevel"
                 style="@style/priceLevel"
                 android:layout_width="wrap_content"
+                app:layout_constraintHorizontal_bias="0"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/_5sdp"
                 android:isIndicator="true"
@@ -138,6 +139,7 @@
                 android:rating="@{placeDetail.price_level}"
                 app:layout_constraintBottom_toBottomOf="@+id/tvRatingTotal"
                 app:layout_constraintStart_toEndOf="@+id/priceLevelDot"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tvRatingTotal"
                 tools:rating="1" />
 
@@ -264,9 +266,11 @@
                 android:orientation="horizontal"
                 android:weightSum="4"
                 app:divider="@drawable/divider"
+                app:layout_constraintVertical_bias="0"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/layoutService"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:showDividers="middle">
 
                 <androidx.appcompat.widget.AppCompatButton
