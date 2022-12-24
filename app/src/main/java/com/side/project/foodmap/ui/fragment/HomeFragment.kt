@@ -505,6 +505,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             })
         }
 
+        popularSearchAdapter.onItemFavoriteClick = {
+
+        }
+
         popularSearchAdapter.onItemClick = { placeId ->
             watchDetail(placeId)
         }

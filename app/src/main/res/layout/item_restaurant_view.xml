@@ -10,6 +10,10 @@
             type="com.side.project.foodmap.data.remote.api.PlaceList" />
 
         <variable
+            name="isFavorite"
+            type="Boolean" />
+
+        <variable
             name="photoReference"
             type="String" />
 
@@ -118,11 +122,27 @@
                 app:layout_constraintTop_toBottomOf="@id/rating"
                 tools:text="台北市大安區" />
 
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgFavorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:padding="@dimen/_1sdp"
+                android:src="@{isFavorite ? @drawable/ic_favorite : @drawable/ic_favorite_border, default=@drawable/ic_favorite_border}"
+                android:tint="@color/primary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvVicinity"
+                app:layout_constraintVertical_bias="1" />
+
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvDistance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_4sdp"
                 android:ellipsize="end"
                 android:fontFamily="@font/poppins_light"
                 android:maxLines="1"

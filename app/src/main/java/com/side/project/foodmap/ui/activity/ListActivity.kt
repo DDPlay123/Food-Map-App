@@ -239,5 +239,9 @@ class ListActivity : BaseActivity() {
                 displayShortToast(getString(R.string.hint_error))
             }
         }
+
+        restaurantListAdapter.onItemFavoriteClick = { placeId ->
+
+        }
     }
 }
