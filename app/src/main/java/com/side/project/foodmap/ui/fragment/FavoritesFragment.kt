@@ -286,14 +286,11 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                     val type = object : TypeToken<List<String>>() {}.type
                     it.putString(Constants.ALBUM_IMAGE_RESOURCE, Gson().toJson(photos, type))
                     it.putInt(Constants.IMAGE_POSITION, position)
-//                    val extras = FragmentNavigatorExtras(imgView to imgView.transitionName)
-//                    findNavController().navigate(
-//                        R.id.action_favoritesFragment_to_albumFragment,
-//                        it, null, extras
-//                    )
+
                     val ft = mActivity.supportFragmentManager.beginTransaction()
                     val albumDialog = AlbumFragment()
                     albumDialog.arguments = it
+
                     val prevDialog = mActivity.supportFragmentManager.findFragmentByTag(Constants.DIALOG_ALBUM)
                     if (prevDialog != null) ft.remove(prevDialog)
                     albumDialog.show(ft, Constants.DIALOG_ALBUM)

@@ -102,6 +102,7 @@
     <string name="hint_success_pull_favorite">成功移除最愛</string>
     <string name="hint_failed_push_favorite">無法新增最愛</string>
     <string name="hint_failed_pull_favorite">無法移除最愛</string>
+    <string name="hint_already_push_favorite">已經加入至最愛</string>
     <string name="hint_success_push_black_list">成功新增黑名單</string>
     <string name="hint_success_pull_black_list">成功移除黑名單</string>
     <string name="hint_failed_push_black_list">無法新增黑名單</string>

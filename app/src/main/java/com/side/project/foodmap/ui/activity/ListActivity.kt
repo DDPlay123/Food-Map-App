@@ -240,8 +240,14 @@ class ListActivity : BaseActivity() {
             }
         }
 
-        restaurantListAdapter.onItemFavoriteClick = { placeId ->
-
+        restaurantListAdapter.onItemFavoriteClick = { placeId, isFavorite ->
+            if (isFavorite) {
+                viewModel.quickPullFavorite(arrayListOf(placeId))
+                false
+            } else {
+                viewModel.quickPushFavorite(arrayListOf(placeId))
+                true
+            }
         }
     }
 }

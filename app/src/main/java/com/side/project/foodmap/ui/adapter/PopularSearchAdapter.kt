@@ -27,10 +27,11 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
         }
     }
 
+    private var modifyFavorite = Pair("", false)
     private val differ = AsyncListDiffer(this, itemCallback)
 
     lateinit var onItemClick: ((String) -> Unit)
-    lateinit var onItemFavoriteClick: ((String) -> Unit)
+    lateinit var onItemFavoriteClick: ((String, Boolean) -> Boolean)
 
     fun setData(placeList: ArrayList<PlaceList>) = differ.submitList(placeList)
 
@@ -62,8 +63,11 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
                 } else
                     binding.tvDistance.gone()
 
-                binding.imgFavorite.setOnClickListener { onItemFavoriteClick.invoke(getData(absoluteAdapterPosition).place_id) }
                 binding.root.setOnClickListener { onItemClick.invoke(getData(absoluteAdapterPosition).place_id) }
+                binding.imgFavorite.setOnClickListener {
+                    binding.isFavorite = onItemFavoriteClick.invoke(getData(absoluteAdapterPosition).place_id, getData(absoluteAdapterPosition).isFavorite)
+                }
+
             } catch (ignored: IOException) {
             }
         }

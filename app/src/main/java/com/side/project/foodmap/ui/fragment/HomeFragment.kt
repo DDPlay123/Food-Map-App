@@ -7,7 +7,6 @@ import android.os.Looper
 import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.MotionEvent
 import android.view.View
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
@@ -75,15 +74,16 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         Method.getFcmToken { token -> viewModel.putFcmToken(token) }
     }
 
-    private val openGps = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        result?.let {
-            try {
-                mActivity.initLocationService()
-            } catch (e: Exception) {
-                e.printStackTrace()
+    private val openGps =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            result?.let {
+                try {
+                    mActivity.initLocationService()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
-    }
 
     override fun FragmentHomeBinding.initialize() {
         mActivity.initLocationService()
@@ -136,9 +136,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         dialog.cancelAllDialog()
                         this@HomeFragment.region = region
                         regionID = regionList.indexOf(region)
-                        viewModel.nearSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude))
-                        viewModel.popularSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude),
-                            if (isRecentPopularSearch) 0 else 1)
+                        viewModel.nearSearch(
+                            region,
+                            LatLng(mActivity.myLatitude, mActivity.myLongitude)
+                        )
+                        viewModel.popularSearch(
+                            region, LatLng(mActivity.myLatitude, mActivity.myLongitude),
+                            if (isRecentPopularSearch) 0 else 1
+                        )
                     }
                 }
                 // 人氣餐廳
@@ -262,12 +267,21 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                             oldLatLng = location
                             return@observe
                         }
-                        if (getDistance(LatLng(location.lat, location.lng), LatLng(oldLatLng.lat,oldLatLng.lng)) * 1000 > 100) {
+                        if (getDistance(
+                                LatLng(location.lat, location.lng),
+                                LatLng(oldLatLng.lat, oldLatLng.lng)
+                            ) * 1000 > 100
+                        ) {
                             oldLatLng = location
                             if (::region.isInitialized) {
-                                viewModel.nearSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude))
-                                viewModel.popularSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude),
-                                    if (isRecentPopularSearch) 0 else 1)
+                                viewModel.nearSearch(
+                                    region,
+                                    LatLng(mActivity.myLatitude, mActivity.myLongitude)
+                                )
+                                viewModel.popularSearch(
+                                    region, LatLng(mActivity.myLatitude, mActivity.myLongitude),
+                                    if (isRecentPopularSearch) 0 else 1
+                                )
                             }
                         }
                     }
@@ -304,7 +318,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 launch {
                     viewModel.historySearchList.observe(viewLifecycleOwner) { historySearchList ->
                         if (::searchAndHistoryAdapter.isInitialized && keyword.isEmpty())
-                            searchAndHistoryAdapter.setData(true, keyword, historySearchList.reversed())
+                            searchAndHistoryAdapter.setData(
+                                true,
+                                keyword,
+                                historySearchList.reversed()
+                            )
                     }
                 }
             }
@@ -362,9 +380,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             imgRefresh.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
                     if (::region.isInitialized) {
-                        viewModel.nearSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude))
-                        viewModel.popularSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude),
-                            if (isRecentPopularSearch) 0 else 1)
+                        viewModel.nearSearch(
+                            region,
+                            LatLng(mActivity.myLatitude, mActivity.myLongitude)
+                        )
+                        viewModel.popularSearch(
+                            region, LatLng(mActivity.myLatitude, mActivity.myLongitude),
+                            if (isRecentPopularSearch) 0 else 1
+                        )
                     }
                 }
             }
@@ -379,7 +402,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     return@setOnClickListener
                 }
                 Bundle().also { b ->
-                    val latLng: LatLng = Method.getCurrentLatLng(region, LatLng(mActivity.myLatitude, mActivity.myLongitude))
+                    val latLng: LatLng = Method.getCurrentLatLng(
+                        region,
+                        LatLng(mActivity.myLatitude, mActivity.myLongitude)
+                    )
                     b.putString(KEYWORD, region)
                     b.putBoolean(IS_NEAR_SEARCH, true)
                     b.putDouble(LATITUDE, latLng.latitude)
@@ -415,9 +441,17 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private fun togglePopularSearch(isRecentPopularSearch: Boolean) {
         binding.isPopularSearch = isRecentPopularSearch
         if (isRecentPopularSearch)
-            viewModel.popularSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude), mode = 0)
+            viewModel.popularSearch(
+                region,
+                LatLng(mActivity.myLatitude, mActivity.myLongitude),
+                mode = 0
+            )
         else
-            viewModel.popularSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude), mode = 1)
+            viewModel.popularSearch(
+                region,
+                LatLng(mActivity.myLatitude, mActivity.myLongitude),
+                mode = 1
+            )
     }
 
     private fun displayRegionDialog() {
@@ -443,7 +477,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 listItem.layoutManager?.startSmoothScroll(smoothScroller)
                 // listener
                 regionSelectAdapter.onItemClick = { region ->
-                    if (!mActivity.checkDeviceGPS() || !mActivity.checkNetworkGPS() && region == getString(R.string.hint_near_region))
+                    if (!mActivity.checkDeviceGPS() || !mActivity.checkNetworkGPS() && region == getString(
+                            R.string.hint_near_region
+                        ))
                         displayNotGpsDialog()
                     else if (region != regionList[regionID]) {
                         mActivity.initLocationService()
@@ -475,7 +511,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             adapter = popularSearchAdapter
             if (drawCardRes.result.placeList.size > 0) {
                 popularSearchAdapter.setData(drawCardRes.result.placeList)
-                popularSearchAdapter.setMyLocation(LatLng(mActivity.myLatitude, mActivity.myLongitude))
+                popularSearchAdapter.setMyLocation(
+                    LatLng(
+                        mActivity.myLatitude,
+                        mActivity.myLongitude
+                    )
+                )
             }
 
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -491,7 +532,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                             if (popularSearchAdapter.getDataSize() == 2)
                                 binding.imgPopularForward.display()
                         }
-                        popularSearchAdapter.getDataSize() - 1 ->  {
+                        popularSearchAdapter.getDataSize() - 1 -> {
                             binding.imgPopularForward.gone()
                             if (popularSearchAdapter.getDataSize() == 2)
                                 binding.imgPopularBack.display()
@@ -505,8 +546,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             })
         }
 
-        popularSearchAdapter.onItemFavoriteClick = {
-
+        popularSearchAdapter.onItemFavoriteClick = { placeId, isFavorite ->
+            if (isFavorite) {
+                viewModel.quickPullFavorite(arrayListOf(placeId))
+                false
+            } else {
+                viewModel.quickPushFavorite(arrayListOf(placeId))
+                true
+            }
         }
 
         popularSearchAdapter.onItemClick = { placeId ->
@@ -582,7 +629,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                         viewModel.autoComplete(
                                             input = keyword,
                                             region = region,
-                                            latLng = LatLng(mActivity.myLatitude, mActivity.myLongitude),
+                                            latLng = LatLng(
+                                                mActivity.myLatitude,
+                                                mActivity.myLongitude
+                                            ),
                                             radius = radius
                                         )
 
@@ -630,7 +680,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                         viewModel.autoComplete(
                                             input = keyword,
                                             region = region,
-                                            latLng = LatLng(mActivity.myLatitude, mActivity.myLongitude),
+                                            latLng = LatLng(
+                                                mActivity.myLatitude,
+                                                mActivity.myLongitude
+                                            ),
                                             radius = radius
                                         )
 
@@ -659,7 +712,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     watchDetail(historySearch.place_id)
                 else
                     Bundle().also { b ->
-                        val latLng: LatLng = Method.getCurrentLatLng(keyword, LatLng(mActivity.myLatitude, mActivity.myLongitude))
+                        val latLng: LatLng = Method.getCurrentLatLng(
+                            keyword,
+                            LatLng(mActivity.myLatitude, mActivity.myLongitude)
+                        )
                         b.putString(KEYWORD, historySearch.name)
                         b.putBoolean(IS_NEAR_SEARCH, false)
                         b.putDouble(LATITUDE, latLng.latitude)

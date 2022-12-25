@@ -9,6 +9,10 @@ import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchReq
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 import com.side.project.foodmap.data.remote.api.restaurant.KeywordSearchReq
 import com.side.project.foodmap.data.remote.api.restaurant.KeywordSearchRes
+import com.side.project.foodmap.data.remote.api.user.PullFavoriteReq
+import com.side.project.foodmap.data.remote.api.user.PullFavoriteRes
+import com.side.project.foodmap.data.remote.api.user.PushFavoriteReq
+import com.side.project.foodmap.data.remote.api.user.PushFavoriteRes
 import com.side.project.foodmap.network.ApiClient
 import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
@@ -115,6 +119,42 @@ class ListViewModel : BaseViewModel() {
                 viewModelScope.launch {
                     _keywordSearchState.value = Resource.Error(t.message.toString())
                 }
+            }
+        })
+    }
+
+    fun quickPushFavorite(placeIdList: ArrayList<String>) {
+        val pushFavoriteReq = PushFavoriteReq(
+            accessKey = accessKey.value,
+            userId = userUID.value,
+            favoriteList = placeIdList
+        )
+        ApiClient.getAPI.apiPushFavorite(pushFavoriteReq).enqueue(object : Callback<PushFavoriteRes> {
+            override fun onResponse(
+                call: Call<PushFavoriteRes>,
+                response: Response<PushFavoriteRes>
+            ) {
+            }
+
+            override fun onFailure(call: Call<PushFavoriteRes>, t: Throwable) {
+            }
+        })
+    }
+
+    fun quickPullFavorite(placeIdList: ArrayList<String>) {
+        val pullFavoriteReq = PullFavoriteReq(
+            accessKey = accessKey.value,
+            userId = userUID.value,
+            favoriteIdList = placeIdList
+        )
+        ApiClient.getAPI.apiPullFavorite(pullFavoriteReq).enqueue(object : Callback<PullFavoriteRes> {
+            override fun onResponse(
+                call: Call<PullFavoriteRes>,
+                response: Response<PullFavoriteRes>
+            ) {
+            }
+
+            override fun onFailure(call: Call<PullFavoriteRes>, t: Throwable) {
             }
         })
     }

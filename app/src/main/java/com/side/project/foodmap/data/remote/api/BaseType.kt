@@ -104,8 +104,8 @@ data class PlaceList(
     val icon: Icon,
     val types: List<String>,
     val opening_hours: OpeningHours,
-    val distance: Double? = null,
-    val isFavorite: Boolean? = null
+    val distance: Double,
+    val isFavorite: Boolean
 )
 
 @Entity(tableName = GET_FAVORITE_MODEL)

@@ -8,7 +8,6 @@ import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.data.remote.api.HistorySearch
 import com.side.project.foodmap.data.remote.api.restaurant.*
 import com.side.project.foodmap.data.remote.api.user.*
-import com.side.project.foodmap.data.remote.google.placesAutoComplete.AutoComplete
 import com.side.project.foodmap.network.ApiClient
 import com.side.project.foodmap.util.Constants.MMSLAB
 import com.side.project.foodmap.util.RegisterLoginFieldsState
@@ -253,6 +252,42 @@ class MainViewModel : BaseViewModel() {
                 _currentFavoriteList.postValue(favoriteLists)
             }
         }
+    }
+
+    fun quickPushFavorite(placeIdList: ArrayList<String>) {
+        val pushFavoriteReq = PushFavoriteReq(
+            accessKey = accessKey.value,
+            userId = userUID.value,
+            favoriteList = placeIdList
+        )
+        ApiClient.getAPI.apiPushFavorite(pushFavoriteReq).enqueue(object : Callback<PushFavoriteRes> {
+            override fun onResponse(
+                call: Call<PushFavoriteRes>,
+                response: Response<PushFavoriteRes>
+            ) {
+            }
+
+            override fun onFailure(call: Call<PushFavoriteRes>, t: Throwable) {
+            }
+        })
+    }
+
+    fun quickPullFavorite(placeIdList: ArrayList<String>) {
+        val pullFavoriteReq = PullFavoriteReq(
+            accessKey = accessKey.value,
+            userId = userUID.value,
+            favoriteIdList = placeIdList
+        )
+        ApiClient.getAPI.apiPullFavorite(pullFavoriteReq).enqueue(object : Callback<PullFavoriteRes> {
+            override fun onResponse(
+                call: Call<PullFavoriteRes>,
+                response: Response<PullFavoriteRes>
+            ) {
+            }
+
+            override fun onFailure(call: Call<PullFavoriteRes>, t: Throwable) {
+            }
+        })
     }
 
     fun pullFavorite(placeIdList: ArrayList<String>) {
