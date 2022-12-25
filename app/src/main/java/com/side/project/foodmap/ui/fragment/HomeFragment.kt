@@ -2,7 +2,6 @@ package com.side.project.foodmap.ui.fragment
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -64,6 +63,7 @@ import com.side.project.foodmap.util.Constants.LONGITUDE
 import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.Resource
 import com.side.project.foodmap.util.tools.CoilEngine
+import com.side.project.foodmap.util.tools.Coroutines
 import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.tools.Method.getDistance
 import com.side.project.foodmap.util.tools.Method.logE
@@ -801,7 +801,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                             timer = Timer()
                             timer?.schedule(object : TimerTask() {
                                 override fun run() {
-                                    Handler(Looper.getMainLooper()).post {
+                                    Coroutines.main {
                                         isHistory = false
                                         viewModel.autoComplete(
                                             input = keyword,
@@ -812,7 +812,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                             ),
                                             radius = radius
                                         )
-
                                     }
                                 }
                             }, 500)

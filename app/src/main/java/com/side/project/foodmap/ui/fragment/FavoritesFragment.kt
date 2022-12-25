@@ -5,6 +5,8 @@ import android.animation.AnimatorListenerAdapter
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import androidx.lifecycle.Lifecycle
@@ -38,11 +40,13 @@ import com.side.project.foodmap.ui.viewModel.MainViewModel
 import com.side.project.foodmap.util.Constants
 import com.side.project.foodmap.util.Resource
 import com.side.project.foodmap.util.animPolyline.AnimatedPolyline
+import com.side.project.foodmap.util.tools.Coroutines
 import com.side.project.foodmap.util.tools.Method.logE
 import com.side.project.foodmap.util.tools.NetworkConnection
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import java.util.*
 
 class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragment_favorites) {
     private val viewModel: MainViewModel by activityViewModel()
@@ -52,7 +56,8 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
     private lateinit var map: GoogleMap
     private lateinit var animatedPolyline: AnimatedPolyline
 
-    // Toole
+    // Tools
+    private lateinit var timer: Timer
     private lateinit var favoriteListAdapter: FavoriteListAdapter
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
@@ -92,6 +97,12 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
         doInitialize()
         initLayoutOption()
         setListener()
+    }
+
+    override fun onDestroyView() {
+        if (::timer.isInitialized)
+            timer.cancel()
+        super.onDestroyView()
     }
 
     private fun doInitialize() {
@@ -145,6 +156,10 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                             binding.layoutOption.rvFavorites.display()
                             binding.layoutOption.lottieNoData.hidden()
                             setMapMarkers(favoriteLists)
+                            binding.layoutOption.edSearch.text.toString().trim().let {
+                                if (it.isNotEmpty())
+                                    filter(it)
+                            }
                         } else {
                             binding.layoutOption.rvFavorites.hidden()
                             binding.layoutOption.lottieNoData.display()
@@ -184,7 +199,34 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                 smoothScroller.targetPosition = 0
                 layoutOption.rvFavorites.layoutManager?.startSmoothScroll(smoothScroller)
             }
+
+            layoutOption.edSearch.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                }
+
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                    if (::timer.isInitialized)
+                        timer.cancel()
+                }
+
+                override fun afterTextChanged(editable: Editable?) {
+                    val text = editable.toString().trim()
+                    timer = Timer()
+                    timer.schedule(object : TimerTask() {
+                        override fun run() {
+                            Coroutines.main {
+                                filter(text)
+                            }
+                        }
+                    }, 500)
+                }
+            })
         }
+    }
+
+    private fun filter(text: String) {
+        if (::favoriteListAdapter.isInitialized)
+            favoriteListAdapter.filter.filter(text)
     }
 
     private fun setMapMarkers(favoriteLists: List<FavoriteList>) {
@@ -281,7 +323,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                 }
             }
 
-            onPhotoItemClick = { imgView, photos, _, position ->
+            onPhotoItemClick = { _, photos, _, position ->
                 Bundle().also {
                     val type = object : TypeToken<List<String>>() {}.type
                     it.putString(Constants.ALBUM_IMAGE_RESOURCE, Gson().toJson(photos, type))

@@ -2,6 +2,8 @@ package com.side.project.foodmap.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -13,7 +15,7 @@ import com.side.project.foodmap.helper.display
 import com.side.project.foodmap.util.tools.Method
 import java.io.IOException
 
-class RestaurantListAdapter : RecyclerView.Adapter<RestaurantListAdapter.ViewHolder>() {
+class RestaurantListAdapter : RecyclerView.Adapter<RestaurantListAdapter.ViewHolder>(), Filterable {
 
     private val itemCallback = object : DiffUtil.ItemCallback<PlaceList>() {
         // 比對新舊 Item
@@ -27,12 +29,16 @@ class RestaurantListAdapter : RecyclerView.Adapter<RestaurantListAdapter.ViewHol
         }
     }
 
+    private var placeList = listOf<PlaceList>()
     private val differ = AsyncListDiffer(this, itemCallback)
 
     lateinit var onItemClick: ((String) -> Unit)
     lateinit var onItemFavoriteClick: ((String, Boolean) -> Boolean)
 
-    fun setData(placeList: List<PlaceList>) = differ.submitList(placeList)
+    fun setData(placeList: List<PlaceList>) {
+        this.placeList = placeList
+        differ.submitList(placeList)
+    }
 
     fun getData(position: Int): PlaceList = differ.currentList[position]
 
@@ -76,6 +82,30 @@ class RestaurantListAdapter : RecyclerView.Adapter<RestaurantListAdapter.ViewHol
     }
 
     override fun getItemCount(): Int = differ.currentList.size
+
+    override fun getFilter(): Filter = customFilter
+
+    private val customFilter = object : Filter() {
+        override fun performFiltering(constraint: CharSequence): FilterResults {
+            val filteredList = mutableListOf<PlaceList>()
+            val filterPattern = constraint.toString().lowercase().trim()
+            if (constraint.isEmpty() || filterPattern == "")
+                filteredList.addAll(placeList)
+            else
+                placeList.forEach { item ->
+                    if (item.name.lowercase().trim().contains(filterPattern))
+                        filteredList.add(item)
+                }
+
+            val results = FilterResults()
+            results.values = filteredList
+            return results
+        }
+
+        override fun publishResults(constraint: CharSequence, filterResults: FilterResults) {
+            differ.submitList(filterResults.values as MutableList<PlaceList>)
+        }
+    }
 
     class ViewHolder(val binding: ItemRestaurantViewBinding) : RecyclerView.ViewHolder(binding.root)
 }

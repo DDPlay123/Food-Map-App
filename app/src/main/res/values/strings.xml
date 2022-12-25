@@ -159,6 +159,7 @@
     <string name="text_kilometer">公里</string>
     <string name="text_meter">公尺</string>
     <string name="text_delete">刪除</string>
+    <string name="text_query">查詢</string>
 
     <!--  特殊符號  -->
     <string name="u2022">•</string>
