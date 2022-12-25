@@ -129,7 +129,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/tvDistance"
             app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
             app:layout_constraintTop_toTopOf="@+id/tvDistance"
-            tools:text="01公里" />
+            tools:text=" 1公里" />
 
         <View
             android:id="@+id/supportView"

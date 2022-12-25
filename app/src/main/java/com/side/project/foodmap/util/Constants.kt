@@ -76,6 +76,7 @@ object Constants {
 
     // List Activity
     const val KEYWORD = "KEYWORD"
+    const val DISTANCE = "DISTANCE"
     const val IS_NEAR_SEARCH = "IS_NEAR_SEARCH"
     const val LATITUDE = "LATITUDE"
     const val LONGITUDE = "LONGITUDE"

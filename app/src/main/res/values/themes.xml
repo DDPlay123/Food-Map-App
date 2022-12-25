@@ -112,4 +112,31 @@
         <item name="android:windowContentOverlay">@null</item>  <!-- 是否有遮蓋 -->
         <item name="android:backgroundDimAmount">0.8</item>     <!-- 背景模糊的透明度-->
     </style>
+    <!--  Top Corners CardView  -->
+    <style name="CustomCardTopCorners" parent="@style/Widget.MaterialComponents.CardView">
+        <item name="shapeAppearanceOverlay">@style/Top_corners</item>
+    </style>
+    <style name="Top_corners" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">@dimen/_10sdp</item>
+        <item name="cornerSizeTopRight">@dimen/_10sdp</item>
+    </style>
+    <!--  Bottom Corners CardView  -->
+    <style name="CustomCardBottomCorners" parent="@style/Widget.MaterialComponents.CardView">
+        <item name="shapeAppearanceOverlay">@style/Bottom_corners</item>
+    </style>
+    <style name="Bottom_corners" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeBottomLeft">@dimen/_10sdp</item>
+        <item name="cornerSizeBottomRight">@dimen/_10sdp</item>
+    </style>
+    <!--  Center Corners CardView  -->
+    <style name="CustomCardCenterCorners" parent="@style/Widget.MaterialComponents.CardView">
+        <item name="shapeAppearanceOverlay">@style/Center_corners</item>
+    </style>
+    <style name="Center_corners" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
 </resources>

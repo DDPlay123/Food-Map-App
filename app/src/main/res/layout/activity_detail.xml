@@ -220,6 +220,7 @@
                         android:fontFamily="@font/poppins_thin"
                         android:includeFontPadding="false"
                         android:text="@string/u2022"
+                        android:visibility="@{detail.place.price_level > 0 ? View.VISIBLE : View.GONE, default=gone}"
                         android:textColor="@color/primary"
                         android:textSize="@dimen/_13ssp" />
 

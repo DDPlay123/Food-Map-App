@@ -1,6 +1,9 @@
 package com.side.project.foodmap.ui.activity
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.widget.SeekBar
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +19,7 @@ import com.side.project.foodmap.helper.*
 import com.side.project.foodmap.ui.activity.other.BaseActivity
 import com.side.project.foodmap.ui.adapter.RestaurantListAdapter
 import com.side.project.foodmap.ui.viewModel.ListViewModel
+import com.side.project.foodmap.util.Constants.DISTANCE
 import com.side.project.foodmap.util.Constants.IS_NEAR_SEARCH
 import com.side.project.foodmap.util.Constants.KEYWORD
 import com.side.project.foodmap.util.Constants.LATITUDE
@@ -24,6 +28,7 @@ import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.Resource
 import com.side.project.foodmap.util.tools.Method
 import kotlinx.coroutines.launch
+import java.util.*
 
 class ListActivity : BaseActivity() {
     private lateinit var binding: ActivityListBinding
@@ -31,6 +36,7 @@ class ListActivity : BaseActivity() {
 
     // Data
     private lateinit var keyword: String
+    private var currentDistance: Int = 1000
     private var isNearSearch: Boolean = true
     private var latitude = DEFAULT_LATITUDE
     private var longitude = DEFAULT_LONGITUDE
@@ -57,12 +63,14 @@ class ListActivity : BaseActivity() {
             doInitialize()
             initRvRestaurant()
             setListener()
+            setDistanceListener()
         }
     }
 
     private fun getArguments() {
         intent.extras?.let {
             keyword = it.getString(KEYWORD, "") ?: ""
+            currentDistance = it.getInt(DISTANCE, 1000)
             isNearSearch = it.getBoolean(IS_NEAR_SEARCH, true)
             latitude = it.getDouble(LATITUDE, 0.0)
             longitude = it.getDouble(LONGITUDE, 0.0)
@@ -73,11 +81,7 @@ class ListActivity : BaseActivity() {
         // 初始化
         if (!::keyword.isInitialized) return
 
-        if (isNearSearch)
-            viewModel.nearSearch(keyword, LatLng(myLatitude, myLongitude), distance = 5000, skip = 0, limit = 50)
-        else
-            viewModel.keywordSearch(keyword, LatLng(latitude, longitude), keyword = keyword, skip = 0, limit = 50)
-
+        initData()
         binding.title = keyword
 
         lifecycleScope.launch {
@@ -150,7 +154,12 @@ class ListActivity : BaseActivity() {
                                 }
                             }
                             is Resource.Error -> {
-                                displayShortToast(getString(R.string.hint_no_more_data))
+                                if (resource.message.equals("EMPTY")) {
+                                    binding.count = "0"
+                                    restaurantListAdapter.setData(emptyList())
+                                    restaurantListAdapter.setMyLocation(LatLng(myLatitude, myLongitude))
+                                } else
+                                    displayShortToast(getString(R.string.hint_no_more_data))
                             }
                             else -> Unit
                         }
@@ -160,15 +169,19 @@ class ListActivity : BaseActivity() {
         }
     }
 
+    private fun initData() {
+        viewModel.searchData.clear()
+        if (isNearSearch)
+            viewModel.nearSearch(keyword, LatLng(myLatitude, myLongitude), distance = currentDistance, skip = 0, limit = 50)
+        else
+            viewModel.keywordSearch(keyword, LatLng(latitude, longitude), distance = currentDistance, keyword = keyword, skip = 0, limit = 50)
+    }
+
     private fun setListener() {
         binding.run {
             pullRefresh.setColorSchemeResources(R.color.primary)
             pullRefresh.setOnRefreshListener {
-                viewModel.searchData.clear()
-                if (isNearSearch)
-                    viewModel.nearSearch(keyword, LatLng(myLatitude, myLongitude), distance = 5000, skip = 0, limit = 50)
-                else
-                    viewModel.keywordSearch(keyword, LatLng(latitude, longitude), keyword = keyword, skip = 0, limit = 50)
+                initData()
                 pullRefresh.isRefreshing = false
             }
 
@@ -182,6 +195,30 @@ class ListActivity : BaseActivity() {
                 smoothScroller.targetPosition = 0
                 rvRestaurants.layoutManager?.startSmoothScroll(smoothScroller)
             }
+        }
+    }
+
+    private fun setDistanceListener() {
+        binding.run {
+            (currentDistance / 1000).let { value ->
+                seekBarRange.progress = value
+                distance = " $value"
+            }
+            seekBarRange.max = (30 - 1) / 1 // (MAX - MIN) / STEP
+            seekBarRange.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+                    val value = 1 + p1 * 1 // MIN + VALUE * STEP
+                    distance = if (value < 10) " $value" else "$value"
+                    currentDistance = value * 1000
+                }
+
+                override fun onStartTrackingTouch(p0: SeekBar?) {
+                }
+
+                override fun onStopTrackingTouch(p0: SeekBar?) {
+                    initData()
+                }
+            })
         }
     }
 
@@ -208,9 +245,9 @@ class ListActivity : BaseActivity() {
                             alreadyCalledNum++
 
                         if (isNearSearch)
-                            viewModel.nearSearch(keyword, LatLng(myLatitude, myLongitude), distance = 5000, skip = (50 * alreadyCalledNum), limit = 50)
+                            viewModel.nearSearch(keyword, LatLng(myLatitude, myLongitude), distance = currentDistance, skip = (50 * alreadyCalledNum), limit = 50)
                         else
-                            viewModel.keywordSearch(keyword, LatLng(latitude, longitude), keyword = keyword, skip = 0, limit = 50)
+                            viewModel.keywordSearch(keyword, LatLng(latitude, longitude), distance = currentDistance, keyword = keyword, skip = 0, limit = 50)
                     }
                 }
 

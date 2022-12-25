@@ -87,13 +87,14 @@ class ListViewModel : BaseViewModel() {
         })
     }
 
-    fun keywordSearch(region: String, latLng: LatLng, keyword: String, skip: Int = 0, limit: Int = 50) {
+    fun keywordSearch(region: String, latLng: LatLng, distance: Int = 5000, keyword: String, skip: Int = 0, limit: Int = 50) {
         val currentLatLng = Method.getCurrentLatLng(region, latLng)
         val keywordSearchReq = KeywordSearchReq(
             accessKey = accessKey.value,
             userId = userUID.value,
             latitude = currentLatLng.latitude,
             longitude = currentLatLng.longitude,
+            distance = distance,
             keyword = keyword,
             skip = skip,
             limit = limit
@@ -161,7 +162,10 @@ class ListViewModel : BaseViewModel() {
 
     private fun setObserveSearchData(placeList: ArrayList<PlaceList>, totalCount: Int) {
         if (searchData.size.toLong() >= totalCount)
-            _observeSearchData.value = Resource.Error("ERROR")
+            if (totalCount == 0)
+                _observeSearchData.value = Resource.Error("EMPTY")
+            else
+                _observeSearchData.value = Resource.Error("ERROR")
         else {
             searchData.addAll(placeList)
             _observeSearchData.postValue(Resource.Success(searchData))

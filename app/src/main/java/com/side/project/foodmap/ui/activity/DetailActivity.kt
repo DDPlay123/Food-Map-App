@@ -21,6 +21,7 @@ import com.side.project.foodmap.data.remote.api.Location
 import com.side.project.foodmap.data.remote.api.Review
 import com.side.project.foodmap.data.remote.api.restaurant.DetailsByPlaceIdRes
 import com.side.project.foodmap.databinding.ActivityDetailBinding
+import com.side.project.foodmap.databinding.DialogNavigationModeBinding
 import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.databinding.DialogPromptSelectBinding
 import com.side.project.foodmap.helper.*
@@ -33,7 +34,6 @@ import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.DetailViewModel
 import com.side.project.foodmap.util.Constants
-import com.side.project.foodmap.util.Constants.IS_FAVORITE
 import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.Resource
 import com.side.project.foodmap.util.tools.Method
@@ -265,10 +265,8 @@ class DetailActivity : BaseActivity() {
 
             btnNavigation.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    // TODO(導航)
-                    if (::placesDetails.isInitialized) {
-
-                    }
+                    if (::placesDetails.isInitialized)
+                        displayNavigationModeDialog()
                 }
             }
 
@@ -309,6 +307,45 @@ class DetailActivity : BaseActivity() {
                     } else
                         mActivity.displayShortToast(getString(R.string.hint_no_phone))
                 }
+            }
+        }
+    }
+
+    private fun displayNavigationModeDialog() {
+        // d:開車, b:單車, l:機車, w:步行
+        val dialogBinding = DialogNavigationModeBinding.inflate(layoutInflater)
+        dialog.showBottomDialog(mActivity, dialogBinding, true).let {
+            dialogBinding.run {
+                cardDrive.setOnClickListener {
+                    goNavigation("d")
+                    dialog.cancelBottomDialog()
+                }
+                cardBike.setOnClickListener {
+                    goNavigation("b")
+                    dialog.cancelBottomDialog()
+                }
+                cardMotorcycle.setOnClickListener {
+                    goNavigation("l")
+                    dialog.cancelBottomDialog()
+                }
+                cardWalk.setOnClickListener {
+                    goNavigation("w")
+                    dialog.cancelBottomDialog()
+                }
+                cardCancel.setOnClickListener { dialog.cancelBottomDialog() }
+            }
+        }
+    }
+
+    private fun goNavigation(mode: String) {
+        Intent(Intent.ACTION_VIEW).also { i ->
+            i.data = Uri.parse(
+                "google.navigation:q=" +
+                        "${placesDetails.place.location.lat},${placesDetails.place.location.lng}" +
+                        "&mode=$mode")
+            i.`package` = "com.google.android.apps.maps"
+            i.resolveActivity(applicationContext.packageManager)?.let {
+                startActivity(i)
             }
         }
     }
@@ -373,7 +410,7 @@ class DetailActivity : BaseActivity() {
             })
         }
 
-        detailPhotoAdapter.onItemClick = { imgView, photos, _, position ->
+        detailPhotoAdapter.onItemClick = { _, photos, _, position ->
             Bundle().also {
                 val type = object : TypeToken<List<String>>() {}.type
                 it.putString(Constants.ALBUM_IMAGE_RESOURCE, Gson().toJson(photos, type))

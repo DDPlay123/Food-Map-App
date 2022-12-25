@@ -7,6 +7,7 @@ data class KeywordSearchReq(
     override val userId: String,
     val latitude: Double,
     val longitude: Double,
+    val distance: Int = 100,
     val keyword: String,
     val skip: Int = 20,
     val limit: Int = 100

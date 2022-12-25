@@ -40,6 +40,8 @@ import com.side.project.foodmap.ui.adapter.SearchAndHistoryAdapter
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.MainViewModel
+import com.side.project.foodmap.util.Constants
+import com.side.project.foodmap.util.Constants.DISTANCE
 import com.side.project.foodmap.util.Constants.IS_NEAR_SEARCH
 import com.side.project.foodmap.util.Constants.KEYWORD
 import com.side.project.foodmap.util.Constants.LATITUDE
@@ -603,7 +605,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         dialog.showBottomDialog(mActivity, dialogBinding, true).let {
             dialogBinding.run {
                 var radius: Long = 1000
-                distance = "01"
+                distance = " 1"
                 initSearchRv(dialogBinding)
                 keyword = ""
                 isHistory = true
@@ -613,7 +615,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 seekBarRange.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
                     override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
                         val value = 1 + p1 * 1 // MIN + VALUE * STEP
-                        distance = if (value < 10) "0$value" else "$value"
+                        distance = if (value < 10) " $value" else "$value"
                         radius = (value * 1000).toLong()
                     }
 
@@ -719,6 +721,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                             LatLng(mActivity.myLatitude, mActivity.myLongitude)
                         )
                         b.putString(KEYWORD, historySearch.name)
+                        b.putInt(DISTANCE, (dialogBinding.seekBarRange.progress + 1) * 1000)
                         b.putBoolean(IS_NEAR_SEARCH, false)
                         b.putDouble(LATITUDE, latLng.latitude)
                         b.putDouble(LONGITUDE, latLng.longitude)

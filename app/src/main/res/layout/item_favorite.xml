@@ -123,6 +123,7 @@
                 android:text="@string/u2022"
                 android:textColor="@color/primary"
                 android:textSize="@dimen/_13ssp"
+                android:visibility="@{placeDetail.price_level > 0 ? View.VISIBLE : View.GONE, default=gone}"
                 app:layout_constraintBottom_toBottomOf="@+id/tvRatingTotal"
                 app:layout_constraintStart_toEndOf="@+id/tvRatingTotal"
                 app:layout_constraintTop_toTopOf="@+id/tvRatingTotal" />
