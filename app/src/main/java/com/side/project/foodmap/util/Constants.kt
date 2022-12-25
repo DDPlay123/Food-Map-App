@@ -19,6 +19,7 @@ object Constants {
     @RequiresApi(33)
     const val PERMISSION_MEDIA_IMAGES = android.Manifest.permission.READ_MEDIA_IMAGES
     const val PERMISSION_CAMERA = android.Manifest.permission.CAMERA
+    const val PERMISSION_RECORD_AUDIO = android.Manifest.permission.RECORD_AUDIO
     const val PERMISSION_WRITE_EXTERNAL_STORAGE = android.Manifest.permission.WRITE_EXTERNAL_STORAGE
     const val PERMISSION_READ_EXTERNAL_STORAGE = android.Manifest.permission.READ_EXTERNAL_STORAGE
     const val PERMISSION_FINE_LOCATION =  android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -27,9 +28,10 @@ object Constants {
     val location_permission = arrayOf(PERMISSION_FINE_LOCATION, PERMISSION_COARSE_LOCATION)
     val download_permission = arrayOf(PERMISSION_WRITE_EXTERNAL_STORAGE)
     val camera_permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-        arrayOf(PERMISSION_MEDIA_IMAGES, PERMISSION_CAMERA, PERMISSION_WRITE_EXTERNAL_STORAGE, PERMISSION_READ_EXTERNAL_STORAGE)
+        arrayOf(PERMISSION_MEDIA_IMAGES, PERMISSION_CAMERA)
     else
         arrayOf(PERMISSION_CAMERA, PERMISSION_WRITE_EXTERNAL_STORAGE, PERMISSION_READ_EXTERNAL_STORAGE)
+    val audio_permission = arrayOf(PERMISSION_RECORD_AUDIO)
 
     /**
      * Permission Code

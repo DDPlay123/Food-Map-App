@@ -58,39 +58,56 @@
                 android:singleLine="true"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imgSoundSearchOrClear"
+                app:layout_constraintEnd_toStartOf="@+id/imgSoundSearch"
                 app:layout_constraintStart_toEndOf="@id/imgBack"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/imgCameraSearchOrClear"
+                android:id="@+id/imgCameraSearch"
                 android:layout_width="@dimen/_20sdp"
                 android:layout_height="@dimen/_20sdp"
                 android:layout_marginEnd="@dimen/_10sdp"
                 android:clickable="true"
-                android:edImgCameraTool="@{edSearch}"
+                android:edImgHideTool="@{edSearch}"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_camera"
+                android:src="@drawable/ic_translate"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imgSoundSearchOrClear"
+                app:layout_constraintEnd_toStartOf="@+id/imgSoundSearch"
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="#97aabd" />
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/imgSoundSearchOrClear"
+                android:id="@+id/imgSoundSearch"
                 android:layout_width="@dimen/_20sdp"
                 android:layout_height="@dimen/_20sdp"
                 android:layout_marginEnd="@dimen/_10sdp"
                 android:clickable="true"
-                android:edImgSoundTool="@{edSearch}"
+                android:edImgHideTool="@{edSearch}"
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_microphone"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/imgClear"
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="#97aabd" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgClear"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:clickable="true"
+                android:edImgClear="@{edSearch}"
+                android:visibility="gone"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_cancel"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="#97aabd"
+                tools:visibility="gone"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

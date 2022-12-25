@@ -12,6 +12,7 @@ import coil.transform.RoundedCornersTransformation
 import com.side.project.foodmap.R
 import com.side.project.foodmap.helper.appInfo
 import com.side.project.foodmap.helper.display
+import com.side.project.foodmap.helper.gone
 import com.side.project.foodmap.helper.hidden
 import com.side.project.foodmap.util.tools.Method
 import java.text.SimpleDateFormat
@@ -136,9 +137,9 @@ class BindingAdapter {
             }
         }
 
-        @BindingAdapter("android:edImgCameraTool")
+        @BindingAdapter("android:edImgHideTool")
         @JvmStatic
-        fun edImgCameraTool(imageView: ImageView, editText: EditText) {
+        fun edImgHideTool(imageView: ImageView, editText: EditText) {
             try {
                 // track
                 editText.addTextChangedListener {
@@ -162,7 +163,7 @@ class BindingAdapter {
                     if (it?.isNotEmpty() == true)
                         imageView.display()
                     else
-                        imageView.hidden()
+                        imageView.gone()
                 }
             } catch (e: Exception) {
             }

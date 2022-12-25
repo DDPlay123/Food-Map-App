@@ -17,11 +17,11 @@ class SearchAndHistoryAdapter : RecyclerView.Adapter<SearchAndHistoryAdapter.Vie
     private val itemCallback = object : DiffUtil.ItemCallback<HistorySearch>() {
 
         override fun areItemsTheSame(oldItem: HistorySearch, newItem: HistorySearch): Boolean {
-            return oldItem.name == newItem.name
+            return oldItem.name == newItem.name && isHistory
         }
 
         override fun areContentsTheSame(oldItem: HistorySearch, newItem: HistorySearch): Boolean {
-            return oldItem == newItem
+            return oldItem == newItem && isHistory
         }
     }
 

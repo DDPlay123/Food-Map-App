@@ -132,4 +132,6 @@ dependencies {
     implementation 'io.github.lucksiege:camerax:v3.10.7'
     // Image Cropper (https://github.com/CanHub/Android-Image-Cropper)
     implementation("com.vanniktech:android-image-cropper:4.5.0")
+    // ML Kit text recognition (https://github.com/MuHongWeiWei/RecognizeTextDemo)
+    implementation 'com.google.mlkit:text-recognition-chinese:16.0.0-beta6'
 }

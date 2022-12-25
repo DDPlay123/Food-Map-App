@@ -1,18 +1,22 @@
 package com.side.project.foodmap.ui.fragment
 
+import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
+import android.speech.RecognizerIntent
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.PopupMenu
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -22,7 +26,19 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
+import com.canhub.cropper.CropImageContract
+import com.canhub.cropper.CropImageContractOptions
+import com.canhub.cropper.CropImageOptions
 import com.google.android.gms.maps.model.LatLng
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.chinese.ChineseTextRecognizerOptions
+import com.luck.picture.lib.basic.PictureSelector
+import com.luck.picture.lib.config.PictureMimeType
+import com.luck.picture.lib.config.SelectMimeType
+import com.luck.picture.lib.config.SelectModeConfig
+import com.luck.picture.lib.entity.LocalMedia
+import com.luck.picture.lib.interfaces.OnResultCallbackListener
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.Location
 import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
@@ -40,7 +56,6 @@ import com.side.project.foodmap.ui.adapter.SearchAndHistoryAdapter
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.MainViewModel
-import com.side.project.foodmap.util.Constants
 import com.side.project.foodmap.util.Constants.DISTANCE
 import com.side.project.foodmap.util.Constants.IS_NEAR_SEARCH
 import com.side.project.foodmap.util.Constants.KEYWORD
@@ -48,11 +63,14 @@ import com.side.project.foodmap.util.Constants.LATITUDE
 import com.side.project.foodmap.util.Constants.LONGITUDE
 import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.Resource
+import com.side.project.foodmap.util.tools.CoilEngine
 import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.tools.Method.getDistance
 import com.side.project.foodmap.util.tools.Method.logE
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import java.io.File
+import java.io.FileNotFoundException
 import java.util.*
 import kotlin.math.abs
 
@@ -354,13 +372,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
             imgCameraSearch.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    mActivity.displayShortToast("Camera")
+                    pictureSelector()
                 }
             }
 
             imgSoundSearch.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    mActivity.displayShortToast("Sound")
+                    displaySpeechRecognizer()
                 }
             }
 
@@ -599,7 +617,89 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         }
     }
 
-    private fun displaySearchDialog() {
+    private val getTextFromSpeechRecognizer = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            try {
+                val getText = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.let {
+                    it[0]
+                }.toString()
+                displaySearchDialog(getText)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                mActivity.displayShortToast(getString(R.string.hint_error))
+            }
+        }
+    }
+
+    private fun displaySpeechRecognizer() {
+        if (!requestAudioPermission())
+            return
+        Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).also { i ->
+            i.putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            )
+            getTextFromSpeechRecognizer.launch(i)
+        }
+    }
+
+    private val cropImage = registerForActivityResult(CropImageContract()) { result ->
+        if (result.isSuccessful) {
+            val uriContent: Uri = result.uriContent as Uri
+            val chinese = TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
+            val image = InputImage.fromFilePath(requireContext(), uriContent)
+            chinese.process(image)
+                .addOnSuccessListener { getText ->
+                    logE("Text Recognition", "Success")
+                    displaySearchDialog(getText.text)
+                }
+                .addOnFailureListener { e ->
+                    logE("Text Recognition", "Error:${e.message.toString()}")
+                }
+        } else
+            pictureSelector()
+    }
+
+    private fun pictureSelector() {
+        if (!requestCameraPermission())
+            return
+        PictureSelector.create(this)
+            .openGallery(SelectMimeType.ofImage())
+            .setMaxSelectNum(1)
+            .setCameraImageFormat(PictureMimeType.PNG)
+            .setImageEngine(CoilEngine())
+            .setImageSpanCount(3)
+            .setSelectionMode(SelectModeConfig.SINGLE)
+            .setRecyclerAnimationMode(R.anim.layout_animation_random)
+            .isPageStrategy(true)
+            .isCameraRotateImage(true)
+            .isGif(false)
+            .isFastSlidingSelect(true)
+            .isDirectReturnSingle(true)
+            .forResult(object: OnResultCallbackListener<LocalMedia> {
+                override fun onResult(result: ArrayList<LocalMedia>?) {
+                    val imageFile = File(result?.first()?.realPath ?: "")
+                    try {
+                        cropImage.launch(
+                            CropImageContractOptions(
+                                uri = imageFile.toUri(),
+                                cropImageOptions = CropImageOptions(
+                                    initialCropWindowPaddingRatio = 0f
+                                )
+                            )
+                        )
+                    } catch (e: FileNotFoundException) {
+                        e.printStackTrace()
+                    }
+                }
+
+                override fun onCancel() {
+                    mActivity.displayShortToast(getString(R.string.hint_crop_cancel))
+                }
+            })
+    }
+
+    private fun displaySearchDialog(setText: String = "") {
         val dialogBinding = DialogSearchBinding.inflate(layoutInflater)
         var timer: Timer? = null
         dialog.showBottomDialog(mActivity, dialogBinding, true).let {
@@ -652,13 +752,35 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
                 imgBack.setOnClickListener { dialog.cancelBottomDialog() }
 
-                imgCameraSearchOrClear.setOnClickListener {
-                    mActivity.displayShortToast("Camera")
+                if (setText != "") {
+                    keyword = setText
+                    edSearch.setText(setText)
+                    imgCameraSearch.gone()
+                    imgSoundSearch.gone()
+                    imgClear.display()
+                    timer = Timer()
+                    timer?.schedule(object : TimerTask() {
+                        override fun run() {
+                            Handler(Looper.getMainLooper()).post {
+                                isHistory = false
+                                viewModel.autoComplete(
+                                    input = setText,
+                                    region = region,
+                                    latLng = LatLng(
+                                        mActivity.myLatitude,
+                                        mActivity.myLongitude
+                                    ),
+                                    radius = radius
+                                )
+
+                            }
+                        }
+                    }, 500)
                 }
 
-                imgSoundSearchOrClear.setOnClickListener {
-                    mActivity.displayShortToast("Sound")
-                }
+                imgCameraSearch.setOnClickListener { pictureSelector() }
+
+                imgSoundSearch.setOnClickListener { displaySpeechRecognizer() }
 
                 tvClear.setOnClickListener {
                     viewModel.deleteAllHistoryData()

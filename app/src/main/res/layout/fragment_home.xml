@@ -129,7 +129,7 @@
                     android:background="@drawable/search_box_background"
                     android:backgroundTint="@color/support"
                     android:padding="@dimen/_10sdp"
-                    android:src="@drawable/ic_camera" />
+                    android:src="@drawable/ic_translate" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/imgSoundSearch"
