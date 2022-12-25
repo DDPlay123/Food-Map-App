@@ -8,8 +8,10 @@ import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.widget.PopupMenu
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -658,7 +660,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
                 tvClear.setOnClickListener {
                     viewModel.deleteAllHistoryData()
-                    searchAndHistoryAdapter.setData(true, keyword, emptyList())
+                    viewModel.getHistorySearchData()
                 }
 
                 edSearch.addTextChangedListener(object : TextWatcher {
@@ -722,6 +724,21 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         b.putDouble(LONGITUDE, latLng.longitude)
                         mActivity.start(ListActivity::class.java, b)
                     }
+            }
+
+            searchAndHistoryAdapter.onItemLongClick = { view, historySearch ->
+                val popupMenu = PopupMenu(requireContext(), view)
+                popupMenu.menuInflater.inflate(R.menu.item_history_menu, popupMenu.menu)
+                popupMenu.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.action_delete -> {
+                            viewModel.deleteHistoryData(historySearch)
+                            viewModel.getHistorySearchData()
+                        }
+                    }
+                    true
+                }
+                popupMenu.show()
             }
         }
     }

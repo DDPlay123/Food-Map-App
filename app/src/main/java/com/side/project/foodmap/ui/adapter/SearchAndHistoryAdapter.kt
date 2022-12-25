@@ -1,6 +1,7 @@
 package com.side.project.foodmap.ui.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -27,6 +28,7 @@ class SearchAndHistoryAdapter : RecyclerView.Adapter<SearchAndHistoryAdapter.Vie
     private val differ = AsyncListDiffer(this, itemCallback)
 
     lateinit var onItemClick: ((HistorySearch) -> Unit)
+    lateinit var onItemLongClick: ((View, HistorySearch) -> Unit)
 
     fun setData(isHistory: Boolean, keyword: String, historySearchList: List<HistorySearch>) {
         this.isHistory = isHistory
@@ -68,6 +70,11 @@ class SearchAndHistoryAdapter : RecyclerView.Adapter<SearchAndHistoryAdapter.Vie
             }
 
             root.setOnClickListener { onItemClick.invoke(getData(holder.absoluteAdapterPosition)) }
+            root.setOnLongClickListener {
+                if (this@SearchAndHistoryAdapter.isHistory)
+                    onItemLongClick.invoke(root, getData(holder.absoluteAdapterPosition))
+                true
+            }
         }
     }
 

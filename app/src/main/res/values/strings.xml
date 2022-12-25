@@ -157,6 +157,7 @@
     <string name="text_distance">距離</string>
     <string name="text_kilometer">公里</string>
     <string name="text_meter">公尺</string>
+    <string name="text_delete">刪除</string>
 
     <!--  特殊符號  -->
     <string name="u2022">•</string>
