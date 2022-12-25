@@ -27,7 +27,6 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
         }
     }
 
-    private var modifyFavorite = Pair("", false)
     private val differ = AsyncListDiffer(this, itemCallback)
 
     lateinit var onItemClick: ((String) -> Unit)
@@ -67,7 +66,6 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
                 binding.imgFavorite.setOnClickListener {
                     binding.isFavorite = onItemFavoriteClick.invoke(getData(absoluteAdapterPosition).place_id, getData(absoluteAdapterPosition).isFavorite)
                 }
-
             } catch (ignored: IOException) {
             }
         }

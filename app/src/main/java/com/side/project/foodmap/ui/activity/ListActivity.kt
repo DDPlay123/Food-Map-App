@@ -1,8 +1,8 @@
 package com.side.project.foodmap.ui.activity
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.SeekBar
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Lifecycle
@@ -26,6 +26,7 @@ import com.side.project.foodmap.util.Constants.LATITUDE
 import com.side.project.foodmap.util.Constants.LONGITUDE
 import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.Resource
+import com.side.project.foodmap.util.tools.Coroutines
 import com.side.project.foodmap.util.tools.Method
 import kotlinx.coroutines.launch
 import java.util.*
@@ -41,6 +42,7 @@ class ListActivity : BaseActivity() {
     private var latitude = DEFAULT_LATITUDE
     private var longitude = DEFAULT_LONGITUDE
     // Tool
+    private lateinit var timer: Timer
     private lateinit var restaurantListAdapter: RestaurantListAdapter
 
     // Parameter
@@ -65,6 +67,12 @@ class ListActivity : BaseActivity() {
             setListener()
             setDistanceListener()
         }
+    }
+
+    override fun onDestroy() {
+        if (::timer.isInitialized)
+            timer.cancel()
+        super.onDestroy()
     }
 
     private fun getArguments() {
@@ -151,6 +159,10 @@ class ListActivity : BaseActivity() {
                                     binding.count = placeList.size.toString()
                                     restaurantListAdapter.setData(placeList.toMutableList())
                                     restaurantListAdapter.setMyLocation(LatLng(myLatitude, myLongitude))
+                                    binding.edSearch.text.toString().trim().let {
+                                        if (it.isNotEmpty())
+                                            filter(it)
+                                    }
                                 }
                             }
                             is Resource.Error -> {
@@ -195,7 +207,34 @@ class ListActivity : BaseActivity() {
                 smoothScroller.targetPosition = 0
                 rvRestaurants.layoutManager?.startSmoothScroll(smoothScroller)
             }
+
+            edSearch.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                }
+
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                    if (::timer.isInitialized)
+                        timer.cancel()
+                }
+
+                override fun afterTextChanged(editable: Editable?) {
+                    val text = editable.toString().trim()
+                    timer = Timer()
+                    timer.schedule(object : TimerTask() {
+                        override fun run() {
+                            Coroutines.main {
+                                filter(text)
+                            }
+                        }
+                    }, 500)
+                }
+            })
         }
+    }
+
+    private fun filter(text: String) {
+        if (::restaurantListAdapter.isInitialized)
+            restaurantListAdapter.filter.filter(text)
     }
 
     private fun setDistanceListener() {

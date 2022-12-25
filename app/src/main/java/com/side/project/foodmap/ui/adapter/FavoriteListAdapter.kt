@@ -3,6 +3,8 @@ package com.side.project.foodmap.ui.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,7 +18,7 @@ import com.side.project.foodmap.helper.getDrawableCompat
 import com.side.project.foodmap.util.tools.Method
 import java.util.*
 
-class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>() {
+class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>(), Filterable {
 
     private val itemCallback = object : DiffUtil.ItemCallback<FavoriteList>() {
         override fun areItemsTheSame(oldItem: FavoriteList, newItem: FavoriteList): Boolean {
@@ -28,6 +30,7 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
         }
     }
 
+    private var favoriteList = listOf<FavoriteList>()
     private val differ = AsyncListDiffer(this, itemCallback)
 
     lateinit var onPhotoItemClick: ((View, List<String>, String, Int) -> Unit)
@@ -38,7 +41,10 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
     lateinit var onItemPhone: ((String) -> Unit)
     lateinit var onItemShare: ((String) -> Unit)
 
-    fun setData(favoriteList: List<FavoriteList>) = differ.submitList(favoriteList)
+    fun setData(favoriteList: List<FavoriteList>) {
+        this.favoriteList = favoriteList
+        differ.submitList(favoriteList)
+    }
 
     fun getData(position: Int): FavoriteList = differ.currentList[position]
 
@@ -83,6 +89,30 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
     }
 
     override fun getItemCount(): Int = differ.currentList.size
+
+    override fun getFilter(): Filter = customFilter
+
+    private val customFilter = object : Filter() {
+        override fun performFiltering(constraint: CharSequence): FilterResults {
+            val filteredList = mutableListOf<FavoriteList>()
+            val filterPattern = constraint.toString().lowercase().trim()
+            if (constraint.isEmpty() || filterPattern == "")
+                filteredList.addAll(favoriteList)
+            else
+                favoriteList.forEach { item ->
+                    if (item.name.lowercase().trim().contains(filterPattern))
+                        filteredList.add(item)
+                }
+
+            val results = FilterResults()
+            results.values = filteredList
+            return results
+        }
+
+        override fun publishResults(constraint: CharSequence, filterResults: FilterResults) {
+            differ.submitList(filterResults.values as MutableList<FavoriteList>)
+        }
+    }
 
     class ViewHolder(val binding: ItemFavoriteBinding) : RecyclerView.ViewHolder(binding.root)
 }
