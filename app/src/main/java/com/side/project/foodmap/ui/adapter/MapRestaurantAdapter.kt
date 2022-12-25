@@ -5,15 +5,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.data.remote.api.PlaceList
-import com.side.project.foodmap.databinding.ItemRestaurantViewBinding
-import com.side.project.foodmap.helper.gone
-import com.side.project.foodmap.helper.display
-import com.side.project.foodmap.util.tools.Method
+import com.side.project.foodmap.databinding.ItemMapRestaurantViewBinding
 import java.io.IOException
 
-class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolder>() {
+class MapRestaurantAdapter : RecyclerView.Adapter<MapRestaurantAdapter.ViewHolder>() {
 
     private val itemCallback = object : DiffUtil.ItemCallback<PlaceList>() {
         // 比對新舊 Item
@@ -30,42 +26,24 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
     private val differ = AsyncListDiffer(this, itemCallback)
 
     lateinit var onItemClick: ((String) -> Unit)
-    lateinit var onItemFavoriteClick: ((String, Boolean) -> Boolean)
 
     fun setData(placeList: ArrayList<PlaceList>) = differ.submitList(placeList)
 
     fun getData(position: Int): PlaceList = differ.currentList[position]
 
-    fun getDataSize(): Int = differ.currentList.size
-
-    private lateinit var myLocation: LatLng
-    fun setMyLocation(startLatLng: LatLng) {
-        myLocation = startLatLng
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-        ViewHolder(ItemRestaurantViewBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        ViewHolder(ItemMapRestaurantViewBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.apply {
             try {
                 binding.data = getData(absoluteAdapterPosition)
-                binding.isFavorite = getData(absoluteAdapterPosition).isFavorite
                 binding.photoReference = if (getData(absoluteAdapterPosition).photos != null && (getData(absoluteAdapterPosition).photos?.size ?: 0) > 0)
                     getData(absoluteAdapterPosition).photos?.get(0)
                 else
                     ""
 
-                if (::myLocation.isInitialized && (myLocation.latitude != 0.0 || myLocation.longitude != 0.0)) {
-                    binding.distance = Method.getDistance(myLocation, LatLng(getData(absoluteAdapterPosition).location.lat, getData(absoluteAdapterPosition).location.lng))
-                    binding.tvDistance.display()
-                } else
-                    binding.tvDistance.gone()
-
                 binding.root.setOnClickListener { onItemClick.invoke(getData(absoluteAdapterPosition).place_id) }
-                binding.imgFavorite.setOnClickListener {
-                    binding.isFavorite = onItemFavoriteClick.invoke(getData(absoluteAdapterPosition).place_id, getData(absoluteAdapterPosition).isFavorite)
-                }
             } catch (ignored: IOException) {
             }
         }
@@ -73,5 +51,5 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
 
     override fun getItemCount(): Int = differ.currentList.size
 
-    class ViewHolder(val binding: ItemRestaurantViewBinding) : RecyclerView.ViewHolder(binding.root)
+    class ViewHolder(val binding: ItemMapRestaurantViewBinding) : RecyclerView.ViewHolder(binding.root)
 }

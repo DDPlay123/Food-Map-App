@@ -5,6 +5,10 @@ import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.CompositePageTransformer
+import androidx.viewpager2.widget.MarginPageTransformer
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
@@ -12,15 +16,20 @@ import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.Location
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 import com.side.project.foodmap.databinding.FragmentMapsBinding
+import com.side.project.foodmap.helper.delayOnLifecycle
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.helper.getLocation
+import com.side.project.foodmap.ui.activity.DetailActivity
+import com.side.project.foodmap.ui.adapter.MapRestaurantAdapter
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.MainViewModel
+import com.side.project.foodmap.util.Constants
 import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import kotlin.math.abs
 
 class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
     private val viewModel: MainViewModel by activityViewModel()
@@ -32,6 +41,8 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
     private lateinit var map: GoogleMap
 
     private lateinit var oldLatLng: Location
+
+    private lateinit var mapRestaurantAdapter: MapRestaurantAdapter
 
     override fun FragmentMapsBinding.initialize() {
         mActivity.initLocationService()
@@ -61,6 +72,7 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
         mapFragment?.getMapAsync(callback)
 
         doInitialize()
+        initRestaurantVp()
         setListener()
     }
 
@@ -103,7 +115,11 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
                             is Resource.Success -> {
                                 Method.logE("Near Search Room", "Success")
                                 dialog.cancelLoadingDialog()
-                                resource.data?.let { data -> setMapMarkers(data) }
+                                resource.data?.let { data ->
+                                    setMapMarkers(data)
+                                    if (::mapRestaurantAdapter.isInitialized)
+                                        mapRestaurantAdapter.setData(data.result.placeList)
+                                }
                                 return@observe
                             }
                             is Resource.Error -> {
@@ -171,6 +187,66 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
                     LatLng(region.getLocation().first, region.getLocation().second),
                 DEFAULT_ZOOM
             ))
+        }
+    }
+
+    private fun setCenterLocation(latLng: LatLng) {
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(
+            LatLng(latLng.latitude, latLng.longitude),
+            DEFAULT_ZOOM
+        ))
+    }
+
+    private fun initRestaurantVp() {
+        mapRestaurantAdapter = MapRestaurantAdapter()
+        val compositePageTransformer = CompositePageTransformer()
+        compositePageTransformer.apply {
+            addTransformer(MarginPageTransformer(20))
+        }
+        binding.vpRestaurant.apply {
+            clipToPadding = false
+            clipChildren = false
+            offscreenPageLimit = 3
+            getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+            setPageTransformer(compositePageTransformer)
+            adapter = mapRestaurantAdapter
+            setVpItemListener()
+
+            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    delayOnLifecycle(500) {
+                        setCenterLocation(
+                            LatLng(
+                                mapRestaurantAdapter.getData(position).location.lat,
+                                mapRestaurantAdapter.getData(position).location.lng
+                            )
+                        )
+                    }
+                }
+            })
+        }
+    }
+
+    private fun setVpItemListener() {
+        mapRestaurantAdapter.apply {
+            onItemClick = { placeId ->
+                watchDetail(placeId)
+            }
+        }
+    }
+
+    private fun watchDetail(placeId: String) {
+        if (placeId.isEmpty()) return
+        try {
+            Method.logE("Watch Detail", "Success")
+            Bundle().also { b ->
+                b.putString(Constants.PLACE_ID, placeId)
+                mActivity.start(DetailActivity::class.java, b)
+            }
+        } catch (e: Exception) {
+            Method.logE("Watch Detail", "Error")
+            requireActivity().displayShortToast(getString(R.string.hint_error))
         }
     }
 
