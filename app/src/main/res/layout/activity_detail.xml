@@ -11,11 +11,7 @@
 
         <variable
             name="detail"
-            type="com.side.project.foodmap.data.remote.google.placesDetails.Result" />
-
-        <variable
-            name="detailFavorite"
-            type="Boolean" />
+            type="com.side.project.foodmap.data.remote.api.restaurant.DetailsByPlaceIdRes.Result" />
 
         <variable
             name="isFavorite"
@@ -61,7 +57,7 @@
                     android:layout_height="0dp"
                     android:orientation="horizontal"
                     android:visibility="invisible"
-                    app:layout_constraintDimensionRatio="3:2"
+                    app:layout_constraintDimensionRatio="16:9"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -97,7 +93,7 @@
                     android:fontFamily="@font/poppins_thin"
                     android:includeFontPadding="false"
                     android:maxLines="1"
-                    android:text="@{detail.name}"
+                    android:text="@{detail.place.name}"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_18ssp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -117,9 +113,10 @@
                     android:drawableTint="@color/red"
                     android:ellipsize="end"
                     android:fontFamily="@font/poppins_thin"
+                    android:gravity="center_vertical"
                     android:includeFontPadding="false"
                     android:maxLines="1"
-                    android:text="@{detail.formatted_address}"
+                    android:text="@{detail.place.vicinity}"
                     android:textColor="@color/g_gray700"
                     android:textSize="@dimen/_12ssp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -139,6 +136,7 @@
                     android:drawablePadding="@dimen/_2sdp"
                     android:drawableTint="@color/red"
                     android:fontFamily="@font/poppins_thin"
+                    android:gravity="center_vertical"
                     android:includeFontPadding="false"
                     android:text="@string/text_workday"
                     android:textColor="@color/g_gray700"
@@ -163,7 +161,7 @@
                         android:id="@+id/tvDineIn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:drawableStart="@{detail.dine_in ? @drawable/ic_green_done : @drawable/ic_red_close, default=@drawable/ic_red_close }"
+                        android:drawableStart="@{detail.place.dine_in ? @drawable/ic_green_done : @drawable/ic_red_close, default=@drawable/ic_red_close }"
                         android:fontFamily="@font/poppins_light"
                         android:includeFontPadding="false"
                         android:text="@string/text_dine_in"
@@ -186,7 +184,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/_8sdp"
-                        android:drawableStart="@{detail.takeout ? @drawable/ic_green_done : @drawable/ic_red_close, default=@drawable/ic_red_close }"
+                        android:drawableStart="@{detail.place.takeout ? @drawable/ic_green_done : @drawable/ic_red_close, default=@drawable/ic_red_close }"
                         android:fontFamily="@font/poppins_thin"
                         android:includeFontPadding="false"
                         android:text="@string/text_takeout"
@@ -208,12 +206,39 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/_8sdp"
-                        android:drawableStart="@{detail.delivery ? @drawable/ic_green_done : @drawable/ic_red_close, default=@drawable/ic_red_close }"
+                        android:drawableStart="@{detail.place.delivery ? @drawable/ic_green_done : @drawable/ic_red_close, default=@drawable/ic_red_close }"
                         android:fontFamily="@font/poppins_thin"
                         android:includeFontPadding="false"
                         android:text="@string/text_delivery"
                         android:textColor="@color/g_gray700"
                         android:textSize="@dimen/_12ssp" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_8sdp"
+                        android:fontFamily="@font/poppins_thin"
+                        android:includeFontPadding="false"
+                        android:text="@string/u2022"
+                        android:visibility="@{detail.place.price_level > 0 ? View.VISIBLE : View.GONE, default=gone}"
+                        android:textColor="@color/primary"
+                        android:textSize="@dimen/_13ssp" />
+
+                    <RatingBar
+                        android:id="@+id/priceLevel"
+                        style="@style/priceLevel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_5sdp"
+                        android:isIndicator="true"
+                        android:numStars="5"
+                        android:rating="@{detail.place.price_level}"
+                        app:layout_constraintBottom_toBottomOf="@+id/tvRatingTotal"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0"
+                        app:layout_constraintStart_toEndOf="@+id/priceLevelDot"
+                        app:layout_constraintTop_toTopOf="@+id/tvRatingTotal"
+                        tools:rating="1" />
 
                 </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -222,6 +247,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_12sdp"
+                    android:layout_marginBottom="@dimen/_12sdp"
                     android:orientation="horizontal"
                     android:weightSum="4"
                     app:divider="@drawable/divider"
@@ -233,7 +259,7 @@
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnWebsite"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:autoSizeTextType="uniform"
                         android:background="@drawable/background_google_blue_button"
@@ -251,7 +277,7 @@
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnNavigation"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:autoSizeTextType="uniform"
                         android:background="@drawable/background_google_green_button"
@@ -269,11 +295,11 @@
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnFavorite"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:autoSizeTextType="uniform"
                         android:background="@drawable/background_google_yellow_button"
-                        android:drawableEnd="@{detailFavorite | isFavorite ? @drawable/ic_favorite : @drawable/ic_favorite_border, default=@drawable/ic_favorite_border}"
+                        android:drawableEnd="@{isFavorite ? @drawable/ic_favorite : @drawable/ic_favorite_border, default=@drawable/ic_favorite_border}"
                         android:ellipsize="end"
                         android:fontFamily="@font/poppins_thin"
                         android:gravity="center"
@@ -287,7 +313,7 @@
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnPhone"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:autoSizeTextType="uniform"
                         android:background="@drawable/background_google_red_button"
@@ -331,7 +357,7 @@
                         android:layout_marginStart="@dimen/_5sdp"
                         android:fontFamily="@font/poppins_light"
                         android:includeFontPadding="false"
-                        android:text='@{detail.rating != null ? String.valueOf(detail.rating) : "0", default="0"}'
+                        android:text='@{detail.place.rating > 0 ? String.valueOf(detail.place.rating) : "0", default="0"}'
                         android:textColor="@color/black"
                         android:textSize="@dimen/_12ssp" />
 
@@ -355,7 +381,7 @@
                         android:fontFamily="@font/poppins_thin"
                         android:foreground="?android:attr/selectableItemBackgroundBorderless"
                         android:includeFontPadding="false"
-                        android:text='@{detail.user_ratings_total != null ? detail.user_ratings_total+@string/hint_google_ratings_total : "0"+@string/hint_google_ratings_total, default=@string/text_null }'
+                        android:text='@{detail.place.ratings_total > 0 ? detail.place.ratings_total+@string/hint_google_ratings_total : "0"+@string/hint_google_ratings_total, default=@string/text_null }'
                         android:textColor="@color/black"
                         android:textSize="@dimen/_12ssp" />
 
@@ -376,8 +402,8 @@
                         android:layout_marginStart="@dimen/_8sdp"
                         android:fontFamily="@font/poppins_thin"
                         android:includeFontPadding="false"
-                        android:text="@{detail.opening_hours.open_now ? @string/text_open_now : @string/text_close_now, default=@string/text_null}"
-                        android:textColor="@{detail.opening_hours.open_now ? @color/green : @color/red , default=@color/g_yellow}"
+                        android:text="@{detail.place.opening_hours.open_now ? @string/text_open_now : @string/text_close_now, default=@string/text_null}"
+                        android:textColor="@{detail.place.opening_hours.open_now ? @color/green : @color/red , default=@color/g_yellow}"
                         android:textSize="@dimen/_12ssp" />
 
                 </androidx.appcompat.widget.LinearLayoutCompat>
@@ -459,6 +485,20 @@
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/layoutBack" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgReport"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:layout_marginEnd="@dimen/_8sdp"
+                android:background="@drawable/background_back_button"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:padding="@dimen/_4sdp"
+                android:src="@drawable/ic_report"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/red" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

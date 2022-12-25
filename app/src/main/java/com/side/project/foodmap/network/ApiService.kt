@@ -31,6 +31,14 @@ interface ApiService {
     @POST("api/place/draw_card")
     fun apiDrawCard(@Body drawCardReq: DrawCardReq): Call<DrawCardRes>
 
+    @Headers("Content-Type: application/json")
+    @POST("api/place/get_photo")
+    fun apiGetPhoto(@Body getPhotoReq: GetPhotoReq): Call<GetPhotoRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/place/autocomplete")
+    fun apiAutoComplete(@Body autoCompleteReq: AutoCompleteReq): Call<AutoCompleteRes>
+
     /**
      * User API Server
      */
@@ -77,6 +85,18 @@ interface ApiService {
     @Headers("Content-Type: application/json")
     @POST("api/user/get_favorite")
     fun apiGetFavorite(@Body getFavoriteReq: GetFavoriteReq): Call<GetFavoriteRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/push_black_list")
+    fun apiPushBlackList(@Body pushBlackListReq: PushBlackListReq): Call<PushBlackListRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/pull_black_list")
+    fun apiPullBlackList(@Body pullBlackListReq: PullBlackListReq): Call<PullBlackListRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/get_black_list")
+    fun apiGetBlackList(@Body getBlackListReq: GetBlackListReq): Call<GetBlackListRes>
 
     /********************** 以下未用到 ************************/
     /**

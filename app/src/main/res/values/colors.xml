@@ -38,4 +38,6 @@
     <color name="google_yellow">#F8E538</color>
     <color name="google_red">#E64444</color>
 
+    <color name="blur">#80EEEEEE</color>
+
 </resources>

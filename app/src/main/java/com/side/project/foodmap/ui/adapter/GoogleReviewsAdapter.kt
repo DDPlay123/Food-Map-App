@@ -2,7 +2,7 @@ package com.side.project.foodmap.ui.adapter
 
 import android.annotation.SuppressLint
 import com.side.project.foodmap.R
-import com.side.project.foodmap.data.remote.google.placesDetails.Review
+import com.side.project.foodmap.data.remote.api.Review
 import com.side.project.foodmap.databinding.ItemGoogleReviewsBinding
 import com.side.project.foodmap.ui.adapter.other.BaseRvAdapter
 

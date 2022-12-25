@@ -7,11 +7,13 @@ import androidx.core.widget.addTextChangedListener
 import androidx.databinding.BindingAdapter
 import coil.imageLoader
 import coil.load
-import coil.size.Scale
 import coil.transform.CircleCropTransformation
 import coil.transform.RoundedCornersTransformation
 import com.side.project.foodmap.R
 import com.side.project.foodmap.helper.appInfo
+import com.side.project.foodmap.helper.display
+import com.side.project.foodmap.helper.gone
+import com.side.project.foodmap.helper.hidden
 import com.side.project.foodmap.util.tools.Method
 import java.text.SimpleDateFormat
 import java.util.*
@@ -19,32 +21,29 @@ import java.util.*
 class BindingAdapter {
     companion object {
         @BindingAdapter("android:loadAnyImage")
-        @kotlin.jvm.JvmStatic
+        @JvmStatic
         fun setLoadImage(imageView: ImageView, any: Any) {
             try {
-                imageView.load(any, imageLoader = imageView.context.imageLoader) {
-                    scale(Scale.FILL)
-                }
+                imageView.load(any, imageLoader = imageView.context.imageLoader)
             } catch (ignored: Exception) {
             }
         }
 
         @BindingAdapter("android:loadUserCircleAnyImage")
-        @kotlin.jvm.JvmStatic
+        @JvmStatic
         fun setLoadUserCircleImage(imageView: ImageView, any: Any) {
             try {
                 imageView.load(any, imageLoader = imageView.context.imageLoader) {
                     transformations(CircleCropTransformation())
                     placeholder(R.drawable.img_user)
                     error(R.drawable.img_user)
-                    scale(Scale.FILL)
                 }
             } catch (ignored: Exception) {
             }
         }
 
         @BindingAdapter("android:loadUserPicture")
-        @kotlin.jvm.JvmStatic
+        @JvmStatic
         fun setLoadUserPicture(imageView: ImageView, picture: String) {
             try {
                 val image = Method.decodeImage(picture)
@@ -52,14 +51,13 @@ class BindingAdapter {
                     transformations(CircleCropTransformation())
                     placeholder(R.drawable.img_user)
                     error(R.drawable.img_user)
-                    scale(Scale.FILL)
                 }
             } catch (ignored: Exception) {
             }
         }
 
         @BindingAdapter("android:loadImageFromGoogle")
-        @kotlin.jvm.JvmStatic
+        @JvmStatic
         fun setLoadImageFromGoogle(imageView: ImageView, photoReference: String) {
             try {
                 val maxWidth = 400
@@ -69,14 +67,13 @@ class BindingAdapter {
                     imageLoader = imageView.context.imageLoader
                 ) {
                     transformations(RoundedCornersTransformation(25f))
-                    scale(Scale.FILL)
                 }
             } catch (ignored: Exception) {
             }
         }
 
         @BindingAdapter("android:loadSquareImageFromGoogle")
-        @kotlin.jvm.JvmStatic
+        @JvmStatic
         fun setLoadSquareImageFromGoogle(imageView: ImageView, photoReference: String) {
             try {
                 val maxWidth = 400
@@ -84,15 +81,37 @@ class BindingAdapter {
                     "https://maps.googleapis.com/maps/api/place/photo?maxwidth=$maxWidth&photoreference=" +
                             "$photoReference&key=${imageView.context.appInfo().metaData["GOOGLE_KEY"].toString()}",
                     imageLoader = imageView.context.imageLoader
+                )
+            } catch (ignored: Exception) {
+            }
+        }
+
+        @BindingAdapter("android:loadImageFromApi")
+        @JvmStatic
+        fun setLoadImageFromApi(imageView: ImageView, photoId: String) {
+            try {
+                val userID = ""
+                imageView.load("http://kkhomeserver.ddns.net:33000/api/place/get_html_photo/$photoId?userId=$userID", imageLoader = imageView.context.imageLoader
                 ) {
-                    scale(Scale.FILL)
+                    transformations(RoundedCornersTransformation(25f))
                 }
             } catch (ignored: Exception) {
             }
         }
 
+        @BindingAdapter("android:loadSquareImageFromApi")
+        @JvmStatic
+        fun setLoadSquareImageFromApi(imageView: ImageView, photoId: String) {
+            try {
+                val userID = ""
+                imageView.load("http://kkhomeserver.ddns.net:33000/api/place/get_html_photo/$photoId?userId=$userID", imageLoader = imageView.context.imageLoader
+                )
+            } catch (ignored: Exception) {
+            }
+        }
+
         @BindingAdapter("android:getDateFormat")
-        @kotlin.jvm.JvmStatic
+        @JvmStatic
         fun getDataFormat(textView: TextView, unixTime: String) {
             try {
                 val simpleDate = SimpleDateFormat("yyyy/MM/dd hh:mm", Locale.TAIWAN)
@@ -101,9 +120,9 @@ class BindingAdapter {
             }
         }
 
-        @BindingAdapter("android:edImgTool")
-        @kotlin.jvm.JvmStatic
-        fun edImgTool(imageView: ImageView, editText: EditText) {
+        @BindingAdapter("android:edImgSoundTool")
+        @JvmStatic
+        fun edImgSoundTool(imageView: ImageView, editText: EditText) {
             try {
                 // init
                 imageView.setOnClickListener { editText.setText("") }
@@ -118,8 +137,40 @@ class BindingAdapter {
             }
         }
 
+        @BindingAdapter("android:edImgHideTool")
+        @JvmStatic
+        fun edImgHideTool(imageView: ImageView, editText: EditText) {
+            try {
+                // track
+                editText.addTextChangedListener {
+                    if (it?.isNotEmpty() == true)
+                        imageView.hidden()
+                    else
+                        imageView.display()
+                }
+            } catch (e: Exception) {
+            }
+        }
+
+        @BindingAdapter("android:edImgClear")
+        @JvmStatic
+        fun edImgClear(imageView: ImageView, editText: EditText) {
+            try {
+                // init
+                imageView.setOnClickListener { editText.setText("") }
+                // track
+                editText.addTextChangedListener {
+                    if (it?.isNotEmpty() == true)
+                        imageView.display()
+                    else
+                        imageView.gone()
+                }
+            } catch (e: Exception) {
+            }
+        }
+
         @BindingAdapter("android:showDistance")
-        @kotlin.jvm.JvmStatic
+        @JvmStatic
         fun showDistance(textView: TextView, distance: Double) {
             try {
                 textView.text = String.format(

@@ -5,20 +5,11 @@
 
     <data>
 
-        <variable
-            name="paddingTop"
-            type="Integer" />
-
-        <variable
-            name="paddingBottom"
-            type="Integer" />
-
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="@{paddingTop}"
         tools:context=".ui.activity.MainActivity">
 
         <androidx.fragment.app.FragmentContainerView

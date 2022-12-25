@@ -18,6 +18,9 @@ import com.side.project.foodmap.util.Constants.PERMISSION_COARSE_LOCATION
 import com.side.project.foodmap.util.Constants.PERMISSION_FINE_LOCATION
 import com.side.project.foodmap.util.tools.Method.logE
 
+/**
+ * 不好用，暫時廢棄。
+ */
 class LocationService : Service(), LocationListenerCompat {
     companion object {
         // For Some Parameter

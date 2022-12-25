@@ -5,6 +5,16 @@
 
     <data>
 
+        <variable
+            name="distance"
+            type="String" />
+
+        <variable
+            name="isHistory"
+            type="Boolean" />
+
+        <import type="android.view.View" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -27,6 +37,9 @@
                 android:layout_width="@dimen/_20sdp"
                 android:layout_height="@dimen/_20sdp"
                 android:layout_marginStart="@dimen/_10sdp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_arrow_back"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -37,49 +50,113 @@
                 android:id="@+id/edSearch"
                 android:layout_width="0dp"
                 android:layout_height="60dp"
-                android:background="@drawable/white_background"
-                android:hint="在這裡搜尋"
-                android:imeOptions="actionNext"
+                android:background="@drawable/transparent_background"
+                android:hint="@string/hint_in_here_search"
+                android:imeOptions="actionDone"
                 android:inputType="text"
                 android:paddingStart="@dimen/_10sdp"
                 android:singleLine="true"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imgSoundSearchOrClear"
+                app:layout_constraintEnd_toStartOf="@+id/imgSoundSearch"
                 app:layout_constraintStart_toEndOf="@id/imgBack"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/imgSoundSearchOrClear"
+                android:id="@+id/imgCameraSearch"
                 android:layout_width="@dimen/_20sdp"
                 android:layout_height="@dimen/_20sdp"
                 android:layout_marginEnd="@dimen/_10sdp"
-                android:edImgTool="@{edSearch}"
-                android:src="@drawable/ic_microphone"
+                android:clickable="true"
+                android:edImgHideTool="@{edSearch}"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_translate"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/imgSoundSearch"
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="#97aabd" />
 
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgSoundSearch"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:clickable="true"
+                android:edImgHideTool="@{edSearch}"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_microphone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/imgClear"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="#97aabd" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgClear"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:clickable="true"
+                android:edImgClear="@{edSearch}"
+                android:visibility="gone"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_cancel"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="#97aabd"
+                tools:visibility="gone"/>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvHotKey"
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:drawableStart="@drawable/ic_tune"
+            android:text="@string/text_distance"
+            android:textSize="@dimen/_12ssp"
+            android:textStyle="bold"
+            app:drawableTint="#97aabd"
+            app:layout_constraintStart_toStartOf="@id/guidelineLeft"
+            app:layout_constraintTop_toBottomOf="@+id/searchBar" />
+
+        <androidx.appcompat.widget.AppCompatSeekBar
+            android:id="@+id/seekBarRange"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_10sdp"
+            android:progressBackgroundTint="@color/primary"
+            android:thumbTint="@color/primary"
+            app:layout_constraintBottom_toBottomOf="@+id/tvDistance"
+            app:layout_constraintEnd_toStartOf="@+id/tvIntDistance"
+            app:layout_constraintStart_toEndOf="@+id/tvDistance"
+            app:layout_constraintTop_toTopOf="@+id/tvDistance" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvIntDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{distance + @string/text_kilometer}"
+            android:textSize="@dimen/_10ssp"
+            android:textStyle="bold"
+            app:drawableTint="#97aabd"
+            app:layout_constraintBottom_toBottomOf="@+id/tvDistance"
             app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
-            app:layout_constraintStart_toStartOf="@id/guidelineLeft"
-            app:layout_constraintTop_toBottomOf="@+id/searchBar"/>
+            app:layout_constraintTop_toTopOf="@+id/tvDistance"
+            tools:text=" 1公里" />
 
         <View
             android:id="@+id/supportView"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_5sdp"
+            android:layout_marginTop="@dimen/_5sdp"
             android:background="@color/gray"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/rvHotKey"/>
+            app:layout_constraintTop_toBottomOf="@+id/tvDistance" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvHistory"
@@ -87,21 +164,41 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_10sdp"
             android:fontFamily="@font/poppins_thin"
-            android:text="歷史紀錄"
+            android:text="@string/hint_history_page"
             android:textColor="@color/black"
             android:textSize="@dimen/_12ssp"
             android:textStyle="bold"
+            android:visibility="@{isHistory ? View.VISIBLE : View.GONE, default=gone}"
             app:layout_constraintStart_toStartOf="@id/guidelineLeft"
-            app:layout_constraintTop_toBottomOf="@id/supportView" />
+            app:layout_constraintTop_toBottomOf="@id/supportView"
+            tools:visibility="visible" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvClear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_thin"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:text="@string/hint_clear_history_search"
+            android:textColor="@color/red"
+            android:textSize="@dimen/_8ssp"
+            android:textStyle="bold"
+            android:visibility="@{isHistory ? View.VISIBLE : View.GONE, default=gone}"
+            app:layout_constraintBottom_toBottomOf="@+id/tvHistory"
+            app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
+            app:layout_constraintTop_toTopOf="@+id/tvHistory"
+            tools:visibility="visible" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvHistory"
+            android:id="@+id/rvResultAndHistory"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginTop="@dimen/_10sdp"
             app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
             app:layout_constraintStart_toStartOf="@id/guidelineLeft"
-            app:layout_constraintTop_toBottomOf="@+id/tvHistory"/>
+            app:layout_constraintTop_toBottomOf="@+id/tvHistory"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:listitem="@layout/item_search" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineTop"

@@ -18,7 +18,7 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
     private val itemCallback = object : DiffUtil.ItemCallback<PlaceList>() {
         // 比對新舊 Item
         override fun areItemsTheSame(oldItem: PlaceList, newItem: PlaceList): Boolean {
-            return oldItem.uid == newItem.uid
+            return oldItem.place_id == newItem.place_id
         }
 
         // 比對新舊 Item 內容
@@ -27,13 +27,17 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
         }
     }
 
+    private var modifyFavorite = Pair("", false)
     private val differ = AsyncListDiffer(this, itemCallback)
 
     lateinit var onItemClick: ((String) -> Unit)
+    lateinit var onItemFavoriteClick: ((String, Boolean) -> Boolean)
 
     fun setData(placeList: ArrayList<PlaceList>) = differ.submitList(placeList)
 
     fun getData(position: Int): PlaceList = differ.currentList[position]
+
+    fun getDataSize(): Int = differ.currentList.size
 
     private lateinit var myLocation: LatLng
     fun setMyLocation(startLatLng: LatLng) {
@@ -46,19 +50,24 @@ class PopularSearchAdapter : RecyclerView.Adapter<PopularSearchAdapter.ViewHolde
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.apply {
             try {
-                binding.data = getData(adapterPosition)
-                binding.photoReference = if (getData(adapterPosition).photos != null && (getData(adapterPosition).photos?.size ?: 0) > 0)
-                    getData(adapterPosition).photos?.get(0)?.photo_reference
+                binding.data = getData(absoluteAdapterPosition)
+                binding.isFavorite = getData(absoluteAdapterPosition).isFavorite
+                binding.photoReference = if (getData(absoluteAdapterPosition).photos != null && (getData(absoluteAdapterPosition).photos?.size ?: 0) > 0)
+                    getData(absoluteAdapterPosition).photos?.get(0)
                 else
                     ""
 
                 if (::myLocation.isInitialized && (myLocation.latitude != 0.0 || myLocation.longitude != 0.0)) {
-                    binding.distance = Method.getDistance(myLocation, LatLng(getData(adapterPosition).location.lat, getData(adapterPosition).location.lng))
+                    binding.distance = Method.getDistance(myLocation, LatLng(getData(absoluteAdapterPosition).location.lat, getData(absoluteAdapterPosition).location.lng))
                     binding.tvDistance.display()
                 } else
                     binding.tvDistance.gone()
 
-                binding.root.setOnClickListener { onItemClick.invoke(getData(adapterPosition).uid) }
+                binding.root.setOnClickListener { onItemClick.invoke(getData(absoluteAdapterPosition).place_id) }
+                binding.imgFavorite.setOnClickListener {
+                    binding.isFavorite = onItemFavoriteClick.invoke(getData(absoluteAdapterPosition).place_id, getData(absoluteAdapterPosition).isFavorite)
+                }
+
             } catch (ignored: IOException) {
             }
         }

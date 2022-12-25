@@ -19,11 +19,11 @@
         android:paddingEnd="@dimen/_3sdp"
         android:paddingBottom="@dimen/_5sdp">
 
-        <com.side.project.foodmap.util.customView.SquareImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/imgPhoto"
             android:layout_width="@dimen/_100sdp"
             android:layout_height="@dimen/_100sdp"
-            android:loadImageFromGoogle="@{photo_reference}"
+            android:loadImageFromApi="@{photo_reference}"
             android:scaleType="fitXY"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"

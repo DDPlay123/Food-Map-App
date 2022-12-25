@@ -1,21 +1,18 @@
 package com.side.project.foodmap.ui.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.AppCompatImageView
-import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.FavoriteList
-import com.side.project.foodmap.data.remote.api.Location
 import com.side.project.foodmap.databinding.ItemFavoriteBinding
-import com.side.project.foodmap.helper.getDrawableCompat
 import com.side.project.foodmap.helper.gone
 import com.side.project.foodmap.helper.display
+import com.side.project.foodmap.helper.getDrawableCompat
 import com.side.project.foodmap.util.tools.Method
 import java.util.*
 
@@ -23,7 +20,7 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
 
     private val itemCallback = object : DiffUtil.ItemCallback<FavoriteList>() {
         override fun areItemsTheSame(oldItem: FavoriteList, newItem: FavoriteList): Boolean {
-            return oldItem.placeId == newItem.placeId
+            return oldItem.place_id == newItem.place_id
         }
 
         override fun areContentsTheSame(oldItem: FavoriteList, newItem: FavoriteList): Boolean {
@@ -33,10 +30,11 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
 
     private val differ = AsyncListDiffer(this, itemCallback)
 
-    lateinit var onItemClick: ((String) -> Unit)
+    lateinit var onPhotoItemClick: ((View, List<String>, String, Int) -> Unit)
+    lateinit var onItemClick: ((FavoriteList) -> Unit)
     lateinit var onItemPullFavorite: ((FavoriteList) -> Unit)
     lateinit var onItemWebsite: ((String) -> Unit)
-    lateinit var onItemNavigation: ((Location) -> Unit)
+    lateinit var onItemDetail: ((String) -> Unit)
     lateinit var onItemPhone: ((String) -> Unit)
     lateinit var onItemShare: ((String) -> Unit)
 
@@ -50,37 +48,34 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.apply {
             binding.executePendingBindings()
-            binding.placeDetail = getData(adapterPosition)
+            binding.placeDetail = getData(absoluteAdapterPosition)
             binding.today = Method.getWeekOfDate(Date()) - 1
 
-            // Price Level
-            val indicators: Array<AppCompatImageView?> = arrayOfNulls(getData(adapterPosition).price_level)
-            val layoutParams: LinearLayoutCompat.LayoutParams = LinearLayoutCompat.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            layoutParams.setMargins(0, 0, 0, 0)
-            indicators.forEachIndexed { id, _ ->
-                indicators[id] = AppCompatImageView(binding.root.context)
-                indicators[id]?.setImageDrawable(binding.root.context.getDrawableCompat(R.drawable.ic_money))
-
-                indicators[id]?.layoutParams = layoutParams
-                binding.priceLevelIndicators.addView(indicators[id])
+            binding.apply {
+                if (getData(absoluteAdapterPosition).website.isEmpty())
+                    btnWebsite.background = btnWebsite.context.getDrawableCompat(R.drawable.background_google_gray_button)
+                if (getData(absoluteAdapterPosition).phone.isEmpty())
+                    btnPhone.background = btnPhone.context.getDrawableCompat(R.drawable.background_google_gray_button)
             }
 
-            binding.root.setOnClickListener { onItemClick.invoke(getData(adapterPosition).placeId) }
-            binding.imgSetFavorite.setOnClickListener { onItemPullFavorite.invoke(getData(adapterPosition)) }
-            binding.btnWebsite.setOnClickListener { onItemWebsite.invoke(getData(adapterPosition).website) }
-            binding.btnNavigation.setOnClickListener { onItemNavigation.invoke(getData(adapterPosition).location) }
-            binding.btnPhone.setOnClickListener { onItemPhone.invoke(getData(adapterPosition).phone) }
-            binding.btnShare.setOnClickListener { onItemShare.invoke(getData(adapterPosition).url) }
+            binding.root.setOnClickListener { onItemClick.invoke(getData(absoluteAdapterPosition)) }
+            binding.imgSetFavorite.setOnClickListener { onItemPullFavorite.invoke(getData(absoluteAdapterPosition)) }
+            binding.btnWebsite.setOnClickListener { onItemWebsite.invoke(getData(absoluteAdapterPosition).website) }
+            binding.btnDetail.setOnClickListener { onItemDetail.invoke(getData(absoluteAdapterPosition).place_id) }
+            binding.btnPhone.setOnClickListener { onItemPhone.invoke(getData(absoluteAdapterPosition).phone) }
+            binding.btnShare.setOnClickListener { onItemShare.invoke(getData(absoluteAdapterPosition).url) }
 
-            if (getData(adapterPosition).photos.isNotEmpty()) {
+            if (!getData(absoluteAdapterPosition).photos.isNullOrEmpty()) {
                 val favoritePhotosListAdapter = FavoritePhotosListAdapter()
                 binding.rvPhotos.apply {
                     layoutManager = LinearLayoutManager(binding.root.context, LinearLayoutManager.HORIZONTAL, false)
                     adapter = favoritePhotosListAdapter
-                    favoritePhotosListAdapter.setPhotosList(getData(adapterPosition).photos)
+                    getData(absoluteAdapterPosition).photos?.let { favoritePhotosListAdapter.setPhotosList(it) }
                     display()
+
+                    favoritePhotosListAdapter.onItemClick = { imgView, photos, photo, position ->
+                        onPhotoItemClick.invoke(imgView, photos, photo, position)
+                    }
                 }
             } else
                 binding.rvPhotos.gone()

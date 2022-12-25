@@ -8,9 +8,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.databinding.FragmentLoginBinding
-import com.side.project.foodmap.helper.displayShortToast
-import com.side.project.foodmap.helper.hideKeyboard
-import com.side.project.foodmap.helper.setAnimClick
+import com.side.project.foodmap.helper.*
 import com.side.project.foodmap.ui.activity.MainActivity
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.LoginViewModel
@@ -27,7 +25,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
     private val viewModel: LoginViewModel by viewModel()
 
     override fun FragmentLoginBinding.initialize() {
-        binding.vm = viewModel
+        viewModel.getUserAccountFromDataStore()
+        viewModel.getUserPasswordFromDataStore()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -40,6 +39,13 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
     private fun doInitialize() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
+                // 紀錄上次登入資料
+                launch {
+                    viewModel.userAccount.observe(viewLifecycleOwner) { binding.account = it }
+                }
+                launch {
+                    viewModel.userPassword.observe(viewLifecycleOwner) { binding.password = it }
+                }
                 // 驗證輸入
                 launch {
                     viewModel.validation.collect { validation ->
@@ -114,9 +120,11 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                             is Resource.Success -> {
                                 Method.logE("Register", "Success")
                                 dialog.cancelLoadingDialog()
-                                binding.edUsername.isFocusableInTouchMode = true
-                                binding.edPassword.isFocusableInTouchMode = true
-                                requireActivity().displayShortToast(getString(R.string.hint_register_success))
+                                viewModel.login(
+                                    account = binding.edUsername.text.toString().trim(),
+                                    password = binding.edPassword.text.toString().trim(),
+                                    deviceId = mActivity.getDeviceId()
+                                )
                             }
                             is Resource.Error -> {
                                 Method.logE("Register", "Error:${it.message.toString()}")
@@ -181,25 +189,37 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
     }
 
     private fun setListener() {
-        binding.btnStart.setOnClickListener {
-            val anim = animManager.smallToLarge
-            it.setAnimClick(anim, AnimState.End) {
-                if (!requestPermission())
-                    return@setAnimClick
-                viewModel.login(
-                    account = binding.edUsername.text.toString().trim(),
-                    password = binding.edPassword.text.toString().trim(),
-                    deviceId = mActivity.getDeviceId()
-                )
+        binding.run {
+            btnStart.setOnClickListener {
+                val anim = animManager.smallToLarge
+                it.setAnimClick(anim, AnimState.End) {
+                    if (!requestLocationPermission())
+                        return@setAnimClick
+                    viewModel.login(
+                        account = binding.edUsername.text.toString().trim(),
+                        password = binding.edPassword.text.toString().trim(),
+                        deviceId = mActivity.getDeviceId()
+                    )
+                }
+            }
+
+            edUsername.setOnFocusChangeListener { view, b ->
+                if (b)
+                    view.delayOnLifecycle(300) {
+                        scrollView.post {
+                            scrollView.scrollY = scrollView.bottom
+                        }
+                    }
+            }
+
+            edPassword.setOnFocusChangeListener { view, b ->
+                if (b)
+                    view.delayOnLifecycle(300) {
+                        scrollView.post {
+                            scrollView.scrollY = scrollView.bottom
+                        }
+                    }
             }
         }
-    }
-
-    private fun requestPermission(): Boolean {
-        if (!Method.requestPermission(mActivity, *permission)) {
-            mActivity.displayShortToast(getString(R.string.hint_not_location_permission))
-            return false
-        }
-        return true
     }
 }

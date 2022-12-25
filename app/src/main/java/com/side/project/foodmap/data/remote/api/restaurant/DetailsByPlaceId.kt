@@ -1,8 +1,6 @@
 package com.side.project.foodmap.data.remote.api.restaurant
 
-import com.side.project.foodmap.data.remote.api.BaseRequest
-import com.side.project.foodmap.data.remote.api.BaseResponse
-import com.side.project.foodmap.data.remote.google.placesDetails.PlacesDetails
+import com.side.project.foodmap.data.remote.api.*
 
 data class DetailsByPlaceIdReq(
     override val accessKey: String,
@@ -11,5 +9,13 @@ data class DetailsByPlaceIdReq(
 ) : BaseRequest()
 
 data class DetailsByPlaceIdRes(
-    val result: PlacesDetails? = null
-) : BaseResponse()
+    val result: Result
+) : BaseResponse() {
+    data class Result(
+        val updated: Boolean,
+        val isFavorite: Boolean,
+        val isBlackList: Boolean,
+        val updateTime: String,
+        val place: Place
+    )
+}

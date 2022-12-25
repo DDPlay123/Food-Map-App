@@ -14,7 +14,15 @@
             type="String" />
 
         <variable
+            name="total"
+            type="String" />
+
+        <variable
             name="title"
+            type="String" />
+
+        <variable
+            name="distance"
             type="String" />
 
     </data>
@@ -47,7 +55,7 @@
             android:layout_margin="@dimen/_5sdp"
             android:layout_marginTop="@dimen/_5sdp"
             android:fontFamily="@font/poppins_thin"
-            android:text='@{title + "(" + count + ")"}'
+            android:text='@{title != null &amp;&amp; count != null &amp;&amp; total != null ? title + "(" + count + "/" + total + ")" : @string/app_name}'
             android:textColor="@color/accent"
             android:textSize="@dimen/_16ssp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -63,16 +71,71 @@
             android:background="@color/accent"
             app:layout_constraintTop_toBottomOf="@id/imgBack" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvRestaurants"
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:drawableStart="@drawable/ic_tune"
+            android:text="@string/text_distance"
+            android:textSize="@dimen/_12ssp"
+            android:textStyle="bold"
+            app:drawableTint="#97aabd"
+            app:layout_constraintStart_toStartOf="@id/guidelineLeft"
+            app:layout_constraintTop_toBottomOf="@+id/supportLine" />
+
+        <androidx.appcompat.widget.AppCompatSeekBar
+            android:id="@+id/seekBarRange"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:progressBackgroundTint="@color/primary"
+            android:thumbTint="@color/primary"
+            app:layout_constraintBottom_toBottomOf="@+id/tvDistance"
+            app:layout_constraintEnd_toStartOf="@+id/tvIntDistance"
+            app:layout_constraintStart_toEndOf="@+id/tvDistance"
+            app:layout_constraintTop_toTopOf="@+id/tvDistance" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvIntDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@{distance != null ? distance + @string/text_kilometer : " 1公里", default=" 1公里"}'
+            android:textSize="@dimen/_10ssp"
+            android:textStyle="bold"
+            app:drawableTint="#97aabd"
+            app:layout_constraintBottom_toBottomOf="@+id/tvDistance"
+            app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
+            app:layout_constraintTop_toTopOf="@+id/tvDistance"
+            tools:text=" 1公里" />
+
+        <View
+            android:id="@+id/supportView"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_5sdp"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:background="@color/gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvDistance" />
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/pullRefresh"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="@dimen/_5sdp"
-            android:layoutAnimation="@anim/layout_animation_fade_in"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/supportLine" />
+            app:layout_constraintTop_toBottomOf="@id/supportView">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvRestaurants"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layoutAnimation="@anim/layout_animation_fade_in" />
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabUpTool"
@@ -89,6 +152,20 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:tint="@color/white" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.05" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.95" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

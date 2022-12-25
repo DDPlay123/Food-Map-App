@@ -5,15 +5,18 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.data.remote.api.FavoriteList
-import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchReq
-import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
-import com.side.project.foodmap.data.remote.api.restaurant.DrawCardReq
-import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
+import com.side.project.foodmap.data.remote.api.HistorySearch
+import com.side.project.foodmap.data.remote.api.restaurant.*
 import com.side.project.foodmap.data.remote.api.user.*
 import com.side.project.foodmap.network.ApiClient
+import com.side.project.foodmap.util.Constants.MMSLAB
+import com.side.project.foodmap.util.RegisterLoginFieldsState
+import com.side.project.foodmap.util.RegisterLoginValidation
 import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
+import com.side.project.foodmap.util.tools.AES
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -31,6 +34,10 @@ class MainViewModel : BaseViewModel() {
         getUserNameFromDataStore()
         getUserPictureFromDataStore()
     }
+    /**
+     * 參數
+     */
+
 
     /**
      * 資料流
@@ -47,6 +54,14 @@ class MainViewModel : BaseViewModel() {
     private val _nearSearchState = MutableLiveData<Resource<DistanceSearchRes>>()
     val nearSearchState: LiveData<Resource<DistanceSearchRes>>
         get() = _nearSearchState
+
+    private val _autoCompleteState = MutableLiveData<Resource<List<HistorySearch>>>()
+    val autoCompleteState: LiveData<Resource<List<HistorySearch>>>
+        get() = _autoCompleteState
+
+    private var _historySearchList = MutableLiveData<List<HistorySearch>>()
+    val historySearchList: LiveData<List<HistorySearch>>
+        get() = _historySearchList
 
     // Favorite Page
     private val _currentFavoriteList = MutableLiveData<List<FavoriteList>>()
@@ -73,6 +88,14 @@ class MainViewModel : BaseViewModel() {
     private val _setUserImageState = MutableStateFlow<Resource<SetUserImageRes>>(Resource.Unspecified())
     val setUserImageState
         get() = _setUserImageState.asStateFlow()
+
+    private val _setPasswordState = MutableSharedFlow<Resource<SetPasswordRes>>()
+    val setPasswordState
+        get() = _setPasswordState.asSharedFlow()
+
+    private val _validation = Channel<RegisterLoginFieldsState>()
+    val validation
+        get() = _validation.receiveAsFlow()
 
     /**
      * 可呼叫方法
@@ -185,12 +208,86 @@ class MainViewModel : BaseViewModel() {
         })
     }
 
+    fun autoComplete(input: String, region: String, latLng: LatLng, radius: Long) {
+        if (input.isEmpty())
+            return
+        val currentLatLng = Method.getCurrentLatLng(region, latLng)
+        val autoCompleteReq = AutoCompleteReq(
+            accessKey = accessKey.value,
+            userId = userUID.value,
+            latitude = currentLatLng.latitude,
+            longitude = currentLatLng.longitude,
+            radius = radius,
+            input = input
+        )
+        viewModelScope.launch { _autoCompleteState.postValue(Resource.Loading()) }
+        ApiClient.getAPI.apiAutoComplete(autoCompleteReq).enqueue(object : Callback<AutoCompleteRes> {
+            override fun onResponse(
+                call: Call<AutoCompleteRes>,
+                response: Response<AutoCompleteRes>
+            ) {
+                response.body()?.let {
+                    when (it.status) {
+                        0 -> _autoCompleteState.postValue(Resource.Success(it.result))
+                        else -> _autoCompleteState.value = Resource.Error(it.errMsg.toString())
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<AutoCompleteRes>, t: Throwable) {
+                viewModelScope.launch {
+                    _autoCompleteState.value = Resource.Error(t.message.toString())
+                }
+            }
+        })
+    }
+
+    fun getHistorySearchData() {
+        _historySearchList.postValue(getHistoryData())
+    }
+
     fun getSyncFavoriteList() {
         viewModelScope.launch(Dispatchers.IO) {
             syncFavoriteList().distinctUntilChanged().collect { favoriteLists ->
                 _currentFavoriteList.postValue(favoriteLists)
             }
         }
+    }
+
+    fun quickPushFavorite(placeIdList: ArrayList<String>) {
+        val pushFavoriteReq = PushFavoriteReq(
+            accessKey = accessKey.value,
+            userId = userUID.value,
+            favoriteList = placeIdList
+        )
+        ApiClient.getAPI.apiPushFavorite(pushFavoriteReq).enqueue(object : Callback<PushFavoriteRes> {
+            override fun onResponse(
+                call: Call<PushFavoriteRes>,
+                response: Response<PushFavoriteRes>
+            ) {
+            }
+
+            override fun onFailure(call: Call<PushFavoriteRes>, t: Throwable) {
+            }
+        })
+    }
+
+    fun quickPullFavorite(placeIdList: ArrayList<String>) {
+        val pullFavoriteReq = PullFavoriteReq(
+            accessKey = accessKey.value,
+            userId = userUID.value,
+            favoriteIdList = placeIdList
+        )
+        ApiClient.getAPI.apiPullFavorite(pullFavoriteReq).enqueue(object : Callback<PullFavoriteRes> {
+            override fun onResponse(
+                call: Call<PullFavoriteRes>,
+                response: Response<PullFavoriteRes>
+            ) {
+            }
+
+            override fun onFailure(call: Call<PullFavoriteRes>, t: Throwable) {
+            }
+        })
     }
 
     fun pullFavorite(placeIdList: ArrayList<String>) {
@@ -220,6 +317,46 @@ class MainViewModel : BaseViewModel() {
                 }
             }
         })
+    }
+
+    fun setPassword(password: String) {
+        val setPasswordReq = SetPasswordReq(
+            accessKey = accessKey.value,
+            userId = userUID.value,
+            password = AES.encrypt(MMSLAB, password)
+        )
+        if (checkValidation(password)) {
+            viewModelScope.launch { _setPasswordState.emit(Resource.Loading()) }
+            ApiClient.getAPI.apiSetUserPassword(setPasswordReq).enqueue(object : Callback<SetPasswordRes> {
+                override fun onResponse(
+                    call: Call<SetPasswordRes>,
+                    response: Response<SetPasswordRes>
+                ) {
+                    viewModelScope.launch {
+                        response.body()?.let {
+                            when (it.status) {
+                                0 -> _setPasswordState.emit(Resource.Success(it))
+                                else -> _setPasswordState.emit(Resource.Error(it.errMsg.toString()))
+                            }
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<SetPasswordRes>, t: Throwable) {
+                    viewModelScope.launch {
+                        _setPasswordState.emit(Resource.Error(t.message.toString()))
+                    }
+                }
+            })
+        } else {
+            viewModelScope.launch {
+                _validation.send(
+                    RegisterLoginFieldsState(
+                        password = Method.validatePassword(password)
+                    )
+                )
+            }
+        }
     }
 
     fun logout() {
@@ -332,7 +469,7 @@ class MainViewModel : BaseViewModel() {
                         when (it.status) {
                             0 -> {
                                 _getFavoriteListState.postValue(Resource.Success(it))
-                                trySend(it.result)
+                                trySend(it.result.placeList)
                             }
                             else ->_getFavoriteListState.value = Resource.Error(it.errMsg.toString())
                         }
@@ -357,5 +494,10 @@ class MainViewModel : BaseViewModel() {
                 if (favoriteLists != favoriteList)
                     insertAllFavoriteData(favoriteLists)
             }
+    }
+
+    private fun checkValidation(password: String): Boolean {
+        val validPassword = Method.validatePassword(password)
+        return validPassword is RegisterLoginValidation.Success
     }
 }

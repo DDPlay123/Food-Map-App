@@ -7,6 +7,6 @@ sealed class RegisterLoginValidation {
 }
 
 data class RegisterLoginFieldsState(
-    val account: RegisterLoginValidation,
-    val password: RegisterLoginValidation
+    val account: RegisterLoginValidation? = null,
+    val password: RegisterLoginValidation? = null
 )

@@ -1,10 +1,12 @@
 package com.side.project.foodmap.helper
 
+import android.app.Service
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.Point
 import android.graphics.drawable.Drawable
+import android.location.LocationManager
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -29,4 +31,18 @@ fun Context.getWindowManager() =
 
 fun Context.getDisplaySize() = Point().apply {
     getWindowManager().defaultDisplay.getSize(this)
+}
+
+fun Context.checkDeviceGPS(): Boolean {
+    (this.getSystemService(Service.LOCATION_SERVICE) as LocationManager).apply {
+        // get GPS status
+        return isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
+}
+
+fun Context.checkNetworkGPS(): Boolean {
+    (this.getSystemService(Service.LOCATION_SERVICE) as LocationManager).apply {
+        // get Network provider status
+        return isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
 }

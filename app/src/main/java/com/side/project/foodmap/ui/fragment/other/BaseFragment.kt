@@ -10,22 +10,19 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.side.project.foodmap.R
 import com.side.project.foodmap.helper.displayShortToast
-import com.side.project.foodmap.service.LocationService
 import com.side.project.foodmap.ui.activity.other.BaseActivity
 import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.DialogManager
-import com.side.project.foodmap.util.Constants.PERMISSION_COARSE_LOCATION
-import com.side.project.foodmap.util.Constants.PERMISSION_FINE_LOCATION
+import com.side.project.foodmap.util.Constants.audio_permission
+import com.side.project.foodmap.util.Constants.camera_permission
+import com.side.project.foodmap.util.Constants.location_permission
+import com.side.project.foodmap.util.tools.Method
 import org.koin.android.ext.android.inject
 
 open class BaseFragment<T : ViewDataBinding>(@LayoutRes val layoutRes: Int) : Fragment() {
     private var _binding: T? = null
     val binding : T get() = _binding!!
     val animManager: AnimManager by inject()
-
-    lateinit var locationService: LocationService
-    var myLatitude: Double = DEFAULT_LATITUDE
-    var myLongitude: Double = DEFAULT_LONGITUDE
 
     lateinit var mActivity: BaseActivity
     lateinit var dialog: DialogManager
@@ -37,17 +34,6 @@ open class BaseFragment<T : ViewDataBinding>(@LayoutRes val layoutRes: Int) : Fr
     }
 
     open fun T.initialize() {}
-
-    fun initLocationService() {
-        locationService = LocationService()
-        locationService.startListener(mActivity)
-        if (!locationService.canGetLocation()) {
-            mActivity.displayShortToast(getString(R.string.hint_not_provider_gps))
-            return
-        }
-        locationService.latitude.observe(viewLifecycleOwner) { myLatitude = it }
-        locationService.longitude.observe(viewLifecycleOwner) { myLongitude = it }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -64,14 +50,31 @@ open class BaseFragment<T : ViewDataBinding>(@LayoutRes val layoutRes: Int) : Fr
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (::locationService.isInitialized)
-            locationService.stopListener(mActivity)
+        dialog.cancelAllDialog()
         _binding = null
     }
 
-    companion object {
-        val permission = arrayOf(PERMISSION_FINE_LOCATION, PERMISSION_COARSE_LOCATION)
-        private const val DEFAULT_LATITUDE = 25.043871531367014
-        private const val DEFAULT_LONGITUDE = 121.53453374432904
+    fun requestLocationPermission(): Boolean {
+        if (!Method.requestPermission(mActivity, *location_permission)) {
+            mActivity.displayShortToast(getString(R.string.hint_not_location_permission))
+            return false
+        }
+        return true
+    }
+
+    fun requestCameraPermission(): Boolean {
+        if (!Method.requestPermission(mActivity, *camera_permission)) {
+            mActivity.displayShortToast(getString(R.string.hint_not_camera_permission))
+            return false
+        }
+        return true
+    }
+
+    fun requestAudioPermission(): Boolean {
+        if (!Method.requestPermission(mActivity, *audio_permission)) {
+            mActivity.displayShortToast(getString(R.string.hint_not_audio_permission))
+            return false
+        }
+        return true
     }
 }

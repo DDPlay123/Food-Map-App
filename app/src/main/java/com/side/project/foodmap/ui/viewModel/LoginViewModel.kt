@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.side.project.foodmap.data.remote.api.user.*
 import com.side.project.foodmap.network.ApiClient
 import com.side.project.foodmap.util.*
+import com.side.project.foodmap.util.Constants.MMSLAB
 import com.side.project.foodmap.util.tools.AES
 import com.side.project.foodmap.util.tools.Method
 import kotlinx.coroutines.channels.Channel
@@ -16,10 +17,6 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class LoginViewModel : BaseViewModel() {
-    init {
-        getUserAccountFromDataStore()
-        getUserPasswordFromDataStore()
-    }
 
     /**
      * 資料流
@@ -46,7 +43,7 @@ class LoginViewModel : BaseViewModel() {
     fun login(account: String, password: String, deviceId: String) {
         val loginReq = LoginReq(
             username = account,
-            password = AES.encrypt("MMSLAB", password),
+            password = AES.encrypt(MMSLAB, password),
             deviceId = deviceId
         )
         if (checkValidation(account, password)) {
@@ -77,8 +74,8 @@ class LoginViewModel : BaseViewModel() {
             viewModelScope.launch {
                 _validation.send(
                     RegisterLoginFieldsState(
-                        Method.validateAccount(account),
-                        Method.validatePassword(password)
+                        account = Method.validateAccount(account),
+                        password = Method.validatePassword(password)
                     )
                 )
             }
@@ -89,7 +86,7 @@ class LoginViewModel : BaseViewModel() {
         if (checkValidation(account, password)) {
             val registerReq = RegisterReq(
                 username = account,
-                password = AES.encrypt("MMSLAB", password),
+                password = AES.encrypt(MMSLAB, password),
                 deviceId = deviceId
             )
             viewModelScope.launch { _registerState.emit(Resource.Loading()) }
@@ -115,8 +112,8 @@ class LoginViewModel : BaseViewModel() {
             viewModelScope.launch {
                 _validation.send(
                     RegisterLoginFieldsState(
-                        Method.validateAccount(account),
-                        Method.validatePassword(password)
+                        account = Method.validateAccount(account),
+                        password = Method.validatePassword(password)
                     )
                 )
             }

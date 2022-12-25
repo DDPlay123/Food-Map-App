@@ -1,6 +1,5 @@
 package com.side.project.foodmap.ui.fragment
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Lifecycle
@@ -10,24 +9,33 @@ import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.side.project.foodmap.R
+import com.side.project.foodmap.data.remote.api.Location
 import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
 import com.side.project.foodmap.databinding.FragmentMapsBinding
 import com.side.project.foodmap.helper.displayShortToast
+import com.side.project.foodmap.helper.getLocation
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.MainViewModel
 import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.Resource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
     private val viewModel: MainViewModel by activityViewModel()
 
-    private var map: GoogleMap? = null
-    private lateinit var distanceSearchRes: DistanceSearchRes
+    private lateinit var regionList: ArrayList<String>
+    private lateinit var region: String
+    private var regionID: Int = 0
+
+    private lateinit var map: GoogleMap
+
+    private lateinit var oldLatLng: Location
 
     override fun FragmentMapsBinding.initialize() {
-        initLocationService()
+        mActivity.initLocationService()
+        regionList = ArrayList(listOf(*resources.getStringArray(R.array.search_type)))
     }
 
     private val callback = OnMapReadyCallback { googleMap ->
@@ -35,19 +43,14 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
         initGoogleMap()
     }
 
-    @SuppressLint("MissingPermission")
     private fun initGoogleMap() {
-        map?.apply {
+        if (!requestLocationPermission() || !::map.isInitialized)
+            return
+        map.apply {
             uiSettings.setAllGesturesEnabled(true)
             isMyLocationEnabled = true
             uiSettings.isMyLocationButtonEnabled = false
             uiSettings.isMapToolbarEnabled = false
-            map?.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                LatLng(myLatitude, myLongitude), DEFAULT_ZOOM
-            ))
-
-            if (::distanceSearchRes.isInitialized)
-                setMapMarkers()
         }
     }
 
@@ -64,6 +67,30 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
     private fun doInitialize() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
+                // 附近搜尋
+                launch {
+                    viewModel.nearSearchState.observe(viewLifecycleOwner) { resource ->
+                        when (resource) {
+                            is Resource.Loading -> {
+                                Method.logE("Near Search", "Loading")
+                                dialog.showLoadingDialog(mActivity, false)
+                                return@observe
+                            }
+                            is Resource.Success -> {
+                                Method.logE("Near Search", "Success")
+                                return@observe
+                            }
+                            is Resource.Error -> {
+                                Method.logE("Near Search", "Error:${resource.message.toString()}")
+                                dialog.cancelLoadingDialog()
+                                requireActivity().displayShortToast(getString(R.string.hint_error))
+                                viewModel.getDistanceSearchData()
+                                return@observe
+                            }
+                            else -> Unit
+                        }
+                    }
+                }
                 // 附近搜尋 From Room
                 launch {
                     viewModel.getDistanceSearch.observe(viewLifecycleOwner) { resource ->
@@ -76,7 +103,7 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
                             is Resource.Success -> {
                                 Method.logE("Near Search Room", "Success")
                                 dialog.cancelLoadingDialog()
-                                resource.data?.let { data -> distanceSearchRes = data }
+                                resource.data?.let { data -> setMapMarkers(data) }
                                 return@observe
                             }
                             is Resource.Error -> {
@@ -89,23 +116,61 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
                         }
                     }
                 }
+                // 取得使用者區域設定
+                launch {
+                    viewModel.userRegion.collect { region ->
+                        this@MapsFragment.region = region
+                        regionID = regionList.indexOf(region)
+                        setMyLocation(region)
+                    }
+                }
+                // 自動更新
+                launch {
+                    mActivity.locationGet.observe(viewLifecycleOwner) { location ->
+                        if (!::oldLatLng.isInitialized) {
+                            oldLatLng = location
+                            return@observe
+                        }
+                        if (Method.getDistance(LatLng(location.lat, location.lng), LatLng(oldLatLng.lat, oldLatLng.lng)) * 1000 > 100) {
+                            oldLatLng = location
+                            if (::region.isInitialized)
+                                viewModel.nearSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude))
+                        }
+                    }
+                }
             }
-        }
-    }
-
-    private fun setMapMarkers() {
-        distanceSearchRes.result.placeList.forEach { index ->
-            val markerOption = MarkerOptions().apply {
-                position(LatLng(index.location.lat, index.location.lng))
-                title(index.name)
-            }
-            map?.addMarker(markerOption)
         }
     }
 
     private fun setListener() {
         binding.run {
 
+        }
+    }
+
+    private fun setMapMarkers(distanceSearchRes: DistanceSearchRes) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            if (!::map.isInitialized) return@launch
+            distanceSearchRes.result.placeList.forEach { index ->
+                val markerOption = MarkerOptions().apply {
+                    position(LatLng(index.location.lat, index.location.lng))
+                    title(index.name)
+                }
+                map.addMarker(markerOption)
+            }
+        }
+    }
+
+    private fun setMyLocation(region: String) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            if (!::map.isInitialized) return@launch
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                if (region.getLocation().first == 0.0)
+                    LatLng(mActivity.myLatitude, mActivity.myLongitude)
+                else
+                    LatLng(region.getLocation().first, region.getLocation().second),
+                DEFAULT_ZOOM
+            ))
         }
     }
 
