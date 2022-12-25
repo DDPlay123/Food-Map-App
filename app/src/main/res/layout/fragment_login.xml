@@ -16,6 +16,7 @@
     </data>
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
@@ -126,7 +127,7 @@
                 style="@style/checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked='@{password != ""}'
+                android:checked='@{password != "" ? true : false, default=false}'
                 android:paddingStart="@dimen/_5sdp"
                 android:text="@string/hint_remember_me"
                 app:layout_constraintStart_toStartOf="@id/guidelineLeft"

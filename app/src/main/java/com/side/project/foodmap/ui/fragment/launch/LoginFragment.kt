@@ -120,9 +120,11 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                             is Resource.Success -> {
                                 Method.logE("Register", "Success")
                                 dialog.cancelLoadingDialog()
-                                binding.edUsername.isFocusableInTouchMode = true
-                                binding.edPassword.isFocusableInTouchMode = true
-                                requireActivity().displayShortToast(getString(R.string.hint_register_success))
+                                viewModel.login(
+                                    account = binding.edUsername.text.toString().trim(),
+                                    password = binding.edPassword.text.toString().trim(),
+                                    deviceId = mActivity.getDeviceId()
+                                )
                             }
                             is Resource.Error -> {
                                 Method.logE("Register", "Error:${it.message.toString()}")
@@ -187,18 +189,37 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
     }
 
     private fun setListener() {
-        binding.btnStart.setOnClickListener {
-            val anim = animManager.smallToLarge
-            it.setAnimClick(anim, AnimState.End) {
-                if (!requestLocationPermission())
-                    return@setAnimClick
-                viewModel.login(
-                    account = binding.edUsername.text.toString().trim(),
-                    password = binding.edPassword.text.toString().trim(),
-                    deviceId = mActivity.getDeviceId()
-                )
+        binding.run {
+            btnStart.setOnClickListener {
+                val anim = animManager.smallToLarge
+                it.setAnimClick(anim, AnimState.End) {
+                    if (!requestLocationPermission())
+                        return@setAnimClick
+                    viewModel.login(
+                        account = binding.edUsername.text.toString().trim(),
+                        password = binding.edPassword.text.toString().trim(),
+                        deviceId = mActivity.getDeviceId()
+                    )
+                }
             }
-//            throw RuntimeException("Test Crash") // Force a crash
+
+            edUsername.setOnFocusChangeListener { view, b ->
+                if (b)
+                    view.delayOnLifecycle(300) {
+                        scrollView.post {
+                            scrollView.scrollY = scrollView.bottom
+                        }
+                    }
+            }
+
+            edPassword.setOnFocusChangeListener { view, b ->
+                if (b)
+                    view.delayOnLifecycle(300) {
+                        scrollView.post {
+                            scrollView.scrollY = scrollView.bottom
+                        }
+                    }
+            }
         }
     }
 }
