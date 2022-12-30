@@ -157,7 +157,7 @@ class ListActivity : BaseActivity() {
                             is Resource.Success -> {
                                 resource.data?.let { placeList ->
                                     binding.count = placeList.size.toString()
-                                    restaurantListAdapter.setData(placeList.toMutableList())
+                                    restaurantListAdapter.submitList(placeList.toMutableList())
                                     restaurantListAdapter.setMyLocation(LatLng(myLatitude, myLongitude))
                                     binding.edSearch.text.toString().trim().let {
                                         if (it.isNotEmpty())
@@ -168,7 +168,7 @@ class ListActivity : BaseActivity() {
                             is Resource.Error -> {
                                 if (resource.message.equals("EMPTY")) {
                                     binding.count = "0"
-                                    restaurantListAdapter.setData(emptyList())
+                                    restaurantListAdapter.submitList(emptyList())
                                     restaurantListAdapter.setMyLocation(LatLng(myLatitude, myLongitude))
                                 } else
                                     displayShortToast(getString(R.string.hint_no_more_data))

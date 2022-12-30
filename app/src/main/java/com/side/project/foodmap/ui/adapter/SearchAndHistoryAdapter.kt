@@ -1,66 +1,25 @@
 package com.side.project.foodmap.ui.adapter
 
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.recyclerview.widget.AsyncListDiffer
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.HistorySearch
 import com.side.project.foodmap.databinding.ItemSearchBinding
+import com.side.project.foodmap.ui.adapter.other.BaseRvListAdapter
 
-class SearchAndHistoryAdapter : RecyclerView.Adapter<SearchAndHistoryAdapter.ViewHolder>() {
-    private lateinit var keyword: String
-    private var isHistory: Boolean = false
-
-    private val itemCallback = object : DiffUtil.ItemCallback<HistorySearch>() {
-
-        override fun areItemsTheSame(oldItem: HistorySearch, newItem: HistorySearch): Boolean {
-            return oldItem.name == newItem.name && isHistory
-        }
-
-        override fun areContentsTheSame(oldItem: HistorySearch, newItem: HistorySearch): Boolean {
-            return oldItem == newItem && isHistory
-        }
-    }
-
-    private val differ = AsyncListDiffer(this, itemCallback)
+class SearchAndHistoryAdapter : BaseRvListAdapter<ItemSearchBinding, HistorySearch>(R.layout.item_search) {
 
     lateinit var onItemClick: ((HistorySearch) -> Unit)
     lateinit var onItemLongClick: ((View, HistorySearch) -> Unit)
 
-    fun setData(isHistory: Boolean, keyword: String, historySearchList: List<HistorySearch>) {
-        this.isHistory = isHistory
-        this.keyword = keyword
-
-        val firstItem = HistorySearch(
-            place_id = "",
-            name = keyword,
-            address = ""
-        )
-
-        val mPredictionList = if (isHistory)
-            historySearchList
-        else
-            listOf(firstItem) + historySearchList
-
-        differ.submitList(mPredictionList)
-    }
-
-    fun getData(position: Int): HistorySearch = differ.currentList[position]
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-        ViewHolder(ItemSearchBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.binding.apply {
+    override fun bind(item: HistorySearch, binding: ItemSearchBinding, position: Int) {
+        super.bind(item, binding, position)
+        binding.apply {
             isFirst = position == 0
-            isHistory = this@SearchAndHistoryAdapter.isHistory
-            name = getData(holder.absoluteAdapterPosition).name
-            address = getData(holder.absoluteAdapterPosition).address
+            isHistory = !item.isSearch
+            name = item.name
+            address = item.address
 
-            if (this@SearchAndHistoryAdapter.isHistory)
+            if (!item.isSearch)
                 imgIcon.setImageResource(R.drawable.ic_history)
             else {
                 if (position == 0)
@@ -69,16 +28,12 @@ class SearchAndHistoryAdapter : RecyclerView.Adapter<SearchAndHistoryAdapter.Vie
                     imgIcon.setImageResource(R.drawable.ic_location)
             }
 
-            root.setOnClickListener { onItemClick.invoke(getData(holder.absoluteAdapterPosition)) }
+            root.setOnClickListener { onItemClick.invoke(item) }
             root.setOnLongClickListener {
-                if (this@SearchAndHistoryAdapter.isHistory)
-                    onItemLongClick.invoke(root, getData(holder.absoluteAdapterPosition))
+                if (!item.isSearch)
+                    onItemLongClick.invoke(root, item)
                 true
             }
         }
     }
-
-    override fun getItemCount(): Int = differ.currentList.size
-
-    class ViewHolder(val binding: ItemSearchBinding) : RecyclerView.ViewHolder(binding.root)
 }

@@ -1,26 +1,23 @@
 package com.side.project.foodmap.ui.adapter
 
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
-import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.FavoriteList
 import com.side.project.foodmap.databinding.ItemFavoriteBinding
 import com.side.project.foodmap.helper.gone
 import com.side.project.foodmap.helper.display
 import com.side.project.foodmap.helper.getDrawableCompat
+import com.side.project.foodmap.ui.adapter.other.BaseRvListAdapter
 import com.side.project.foodmap.util.tools.Method
 import java.util.*
 
-class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>(), Filterable {
+class FavoriteListAdapter :
+    BaseRvListAdapter<ItemFavoriteBinding, FavoriteList>(R.layout.item_favorite, ItemCallback()), Filterable {
 
-    private val itemCallback = object : DiffUtil.ItemCallback<FavoriteList>() {
+    class ItemCallback : DiffUtil.ItemCallback<FavoriteList>() {
         override fun areItemsTheSame(oldItem: FavoriteList, newItem: FavoriteList): Boolean {
             return oldItem.place_id == newItem.place_id
         }
@@ -30,10 +27,7 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
         }
     }
 
-    private var favoriteList = listOf<FavoriteList>()
-    private val differ = AsyncListDiffer(this, itemCallback)
-
-    lateinit var onPhotoItemClick: ((View, List<String>, String, Int) -> Unit)
+    lateinit var onPhotoItemClick: ((List<String>, Int) -> Unit)
     lateinit var onItemClick: ((FavoriteList) -> Unit)
     lateinit var onItemPullFavorite: ((FavoriteList) -> Unit)
     lateinit var onItemWebsite: ((String) -> Unit)
@@ -41,54 +35,43 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
     lateinit var onItemPhone: ((String) -> Unit)
     lateinit var onItemShare: ((String) -> Unit)
 
-    fun setData(favoriteList: List<FavoriteList>) {
-        this.favoriteList = favoriteList
-        differ.submitList(favoriteList)
-    }
+    override fun bind(item: FavoriteList, binding: ItemFavoriteBinding, position: Int) {
+        super.bind(item, binding, position)
+        binding.apply {
+            executePendingBindings()
+            placeDetail = item
+            today = Method.getWeekOfDate(Date()) - 1
 
-    fun getData(position: Int): FavoriteList = differ.currentList[position]
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-        ViewHolder(ItemFavoriteBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.apply {
-            binding.executePendingBindings()
-            binding.placeDetail = getData(absoluteAdapterPosition)
-            binding.today = Method.getWeekOfDate(Date()) - 1
-
-            binding.apply {
-                if (getData(absoluteAdapterPosition).website.isEmpty())
+            apply {
+                if (item.website.isEmpty())
                     btnWebsite.background = btnWebsite.context.getDrawableCompat(R.drawable.background_google_gray_button)
-                if (getData(absoluteAdapterPosition).phone.isEmpty())
+                if (item.phone.isEmpty())
                     btnPhone.background = btnPhone.context.getDrawableCompat(R.drawable.background_google_gray_button)
             }
 
-            binding.root.setOnClickListener { onItemClick.invoke(getData(absoluteAdapterPosition)) }
-            binding.imgSetFavorite.setOnClickListener { onItemPullFavorite.invoke(getData(absoluteAdapterPosition)) }
-            binding.btnWebsite.setOnClickListener { onItemWebsite.invoke(getData(absoluteAdapterPosition).website) }
-            binding.btnDetail.setOnClickListener { onItemDetail.invoke(getData(absoluteAdapterPosition).place_id) }
-            binding.btnPhone.setOnClickListener { onItemPhone.invoke(getData(absoluteAdapterPosition).phone) }
-            binding.btnShare.setOnClickListener { onItemShare.invoke(getData(absoluteAdapterPosition).url) }
+            root.setOnClickListener { onItemClick.invoke(item) }
+            imgSetFavorite.setOnClickListener { onItemPullFavorite.invoke(item) }
+            btnWebsite.setOnClickListener { onItemWebsite.invoke(item.website) }
+            btnDetail.setOnClickListener { onItemDetail.invoke(item.place_id) }
+            btnPhone.setOnClickListener { onItemPhone.invoke(item.phone) }
+            btnShare.setOnClickListener { onItemShare.invoke(item.url) }
 
-            if (!getData(absoluteAdapterPosition).photos.isNullOrEmpty()) {
+            if (!item.photos.isNullOrEmpty()) {
                 val favoritePhotosListAdapter = FavoritePhotosListAdapter()
-                binding.rvPhotos.apply {
-                    layoutManager = LinearLayoutManager(binding.root.context, LinearLayoutManager.HORIZONTAL, false)
+                rvPhotos.apply {
+                    layoutManager = LinearLayoutManager(root.context, LinearLayoutManager.HORIZONTAL, false)
                     adapter = favoritePhotosListAdapter
-                    getData(absoluteAdapterPosition).photos?.let { favoritePhotosListAdapter.setPhotosList(it) }
+                    item.photos.let { favoritePhotosListAdapter.submitList(it.toMutableList()) }
                     display()
 
-                    favoritePhotosListAdapter.onItemClick = { imgView, photos, photo, position ->
-                        onPhotoItemClick.invoke(imgView, photos, photo, position)
+                    favoritePhotosListAdapter.onItemClick = { photos, position ->
+                        onPhotoItemClick.invoke(photos, position)
                     }
                 }
             } else
-                binding.rvPhotos.gone()
+                rvPhotos.gone()
         }
     }
-
-    override fun getItemCount(): Int = differ.currentList.size
 
     override fun getFilter(): Filter = customFilter
 
@@ -97,9 +80,9 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
             val filteredList = mutableListOf<FavoriteList>()
             val filterPattern = constraint.toString().lowercase().trim()
             if (constraint.isEmpty() || filterPattern == "")
-                filteredList.addAll(favoriteList)
+                filteredList.addAll(currentList)
             else
-                favoriteList.forEach { item ->
+                currentList.forEach { item ->
                     if (item.name.lowercase().trim().contains(filterPattern))
                         filteredList.add(item)
                 }
@@ -110,9 +93,7 @@ class FavoriteListAdapter : RecyclerView.Adapter<FavoriteListAdapter.ViewHolder>
         }
 
         override fun publishResults(constraint: CharSequence, filterResults: FilterResults) {
-            differ.submitList(filterResults.values as MutableList<FavoriteList>)
+            submitList(filterResults.values as MutableList<FavoriteList>)
         }
     }
-
-    class ViewHolder(val binding: ItemFavoriteBinding) : RecyclerView.ViewHolder(binding.root)
 }

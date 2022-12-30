@@ -150,7 +150,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                 // 取的最愛清單 (已同步的)
                 launch {
                     viewModel.currentFavoriteList.observe(viewLifecycleOwner) { favoriteLists ->
-                        favoriteLists.let { favoriteListAdapter.setData(it) }
+                        favoriteLists.let { favoriteListAdapter.submitList(it.toMutableList()) }
 
                         if (favoriteLists.isNotEmpty()) {
                             binding.layoutOption.rvFavorites.display()
@@ -323,7 +323,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                 }
             }
 
-            onPhotoItemClick = { _, photos, _, position ->
+            onPhotoItemClick = { photos, position ->
                 Bundle().also {
                     val type = object : TypeToken<List<String>>() {}.type
                     it.putString(Constants.ALBUM_IMAGE_RESOURCE, Gson().toJson(photos, type))

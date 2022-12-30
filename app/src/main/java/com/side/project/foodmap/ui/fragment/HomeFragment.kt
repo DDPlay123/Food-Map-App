@@ -39,6 +39,7 @@ import com.luck.picture.lib.config.SelectModeConfig
 import com.luck.picture.lib.entity.LocalMedia
 import com.luck.picture.lib.interfaces.OnResultCallbackListener
 import com.side.project.foodmap.R
+import com.side.project.foodmap.data.remote.api.HistorySearch
 import com.side.project.foodmap.data.remote.api.Location
 import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
 import com.side.project.foodmap.databinding.DialogPromptBinding
@@ -82,8 +83,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private lateinit var placeId: String
     private var regionID: Int = 0
     private var keyword: String = ""
-
-    private var startY = 0
 
     private var isRecentPopularSearch: Boolean = true
 
@@ -322,7 +321,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 //                                dialog.cancelLoadingDialog()
                                 resource.data?.let { data ->
                                     if (::searchAndHistoryAdapter.isInitialized)
-                                        searchAndHistoryAdapter.setData(false, keyword, data)
+                                        searchAndHistoryAdapter.submitList(data.toMutableList())
                                 }
                                 return@observe
                             }
@@ -340,11 +339,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 launch {
                     viewModel.historySearchList.observe(viewLifecycleOwner) { historySearchList ->
                         if (::searchAndHistoryAdapter.isInitialized && keyword.isEmpty())
-                            searchAndHistoryAdapter.setData(
-                                true,
-                                keyword,
-                                historySearchList.reversed()
-                            )
+                            searchAndHistoryAdapter.submitList(historySearchList.toMutableList().reversed())
                     }
                 }
             }
@@ -435,28 +430,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     mActivity.start(ListActivity::class.java, b)
                 }
             }
-
-            // 暫保留
-//            vpPopular.setOnTouchListener { _, event ->
-//                when (event.action) {
-//                    MotionEvent.ACTION_DOWN ->
-//                        // 手指按下
-//                        // 記錄當前的Y坐標
-//                        startY = event.y.toInt()
-//                    MotionEvent.ACTION_MOVE -> {
-//                        // 手指移動
-//                        val endY = event.y
-//                        val distanceY = endY - startY
-//                        // 如果手指向下滑動
-//                        scrollView.isNestedScrollingEnabled = distanceY <= 0
-//                    }
-//                    MotionEvent.ACTION_UP ->
-//                        // 手指抬起
-//                        // 允許NestedScrollView滾動
-//                        scrollView.isNestedScrollingEnabled = true
-//                }
-//                false
-//            }
         }
     }
 
@@ -489,7 +462,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
                     adapter = regionSelectAdapter
                 }
-                regionSelectAdapter.setRegionList(regionList, regionID)
+                regionSelectAdapter.submitList(regionList.toMutableList())
+                regionSelectAdapter.setSelectPosition(regionID)
                 // auto scroll to top
                 val smoothScroller: RecyclerView.SmoothScroller =
                     object : LinearSmoothScroller(context) {
@@ -532,7 +506,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             setPageTransformer(compositePageTransformer)
             adapter = popularSearchAdapter
             if (drawCardRes.result.placeList.size > 0) {
-                popularSearchAdapter.setData(drawCardRes.result.placeList)
+                popularSearchAdapter.submitList(drawCardRes.result.placeList.toMutableList())
                 popularSearchAdapter.setMyLocation(
                     LatLng(
                         mActivity.myLatitude,
@@ -544,19 +518,19 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
-                    if (popularSearchAdapter.getDataSize() == 1) {
+                    if (popularSearchAdapter.currentList.size == 1) {
                         binding.imgPopularBack.gone()
                         binding.imgPopularForward.gone()
                     }
                     when (currentItem) {
                         0 -> {
                             binding.imgPopularBack.gone()
-                            if (popularSearchAdapter.getDataSize() == 2)
+                            if (popularSearchAdapter.currentList.size == 2)
                                 binding.imgPopularForward.display()
                         }
-                        popularSearchAdapter.getDataSize() - 1 -> {
+                        popularSearchAdapter.currentList.size - 1 -> {
                             binding.imgPopularForward.gone()
-                            if (popularSearchAdapter.getDataSize() == 2)
+                            if (popularSearchAdapter.currentList.size == 2)
                                 binding.imgPopularBack.display()
                         }
                         else -> {
@@ -832,7 +806,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             adapter = searchAndHistoryAdapter
 
             searchAndHistoryAdapter.onItemClick = { historySearch ->
-                viewModel.insertHistoryData(historySearch)
+                viewModel.insertHistoryData(
+                    HistorySearch(
+                        place_id = historySearch.place_id,
+                        name = historySearch.name,
+                        address = historySearch.address,
+                        isSearch = false
+                    )
+                )
                 if (historySearch.place_id != "")
                     watchDetail(historySearch.place_id)
                 else

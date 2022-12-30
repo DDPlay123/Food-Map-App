@@ -29,7 +29,6 @@ import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
-import kotlin.math.abs
 
 class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
     private val viewModel: MainViewModel by activityViewModel()
@@ -118,7 +117,7 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
                                 resource.data?.let { data ->
                                     setMapMarkers(data)
                                     if (::mapRestaurantAdapter.isInitialized)
-                                        mapRestaurantAdapter.setData(data.result.placeList)
+                                        mapRestaurantAdapter.submitList(data.result.placeList.toMutableList())
                                 }
                                 return@observe
                             }
@@ -218,8 +217,8 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
                     delayOnLifecycle(500) {
                         setCenterLocation(
                             LatLng(
-                                mapRestaurantAdapter.getData(position).location.lat,
-                                mapRestaurantAdapter.getData(position).location.lng
+                                mapRestaurantAdapter.currentList[position].location.lat,
+                                mapRestaurantAdapter.currentList[position].location.lng
                             )
                         )
                     }

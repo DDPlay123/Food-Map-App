@@ -363,7 +363,7 @@ class DetailActivity : BaseActivity() {
                     layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
                     adapter = workDayAdapter
                     placesDetails.place.opening_hours.weekday_text?.let {
-                        workDayAdapter.setWorkdayList(it)
+                        workDayAdapter.submitList(it.toMutableList())
                     }
                 }
             }
@@ -375,7 +375,7 @@ class DetailActivity : BaseActivity() {
         binding.rvReviews.apply {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             adapter = googleReviewsAdapter
-            googleReviewsAdapter.setReviewList(review)
+            googleReviewsAdapter.submitList(review.toMutableList())
         }
 
         googleReviewsAdapter.onItemClick = {
@@ -391,7 +391,7 @@ class DetailActivity : BaseActivity() {
         binding.vpPhoto.apply {
             offscreenPageLimit = 1
             adapter = detailPhotoAdapter
-            detailPhotoAdapter.setPhotoIdList(photoIdList)
+            detailPhotoAdapter.submitList(photoIdList.toMutableList())
             setupSliderIndicators(photoIdList.size)
 
             if (photoIdList.isEmpty()) {
@@ -410,10 +410,10 @@ class DetailActivity : BaseActivity() {
             })
         }
 
-        detailPhotoAdapter.onItemClick = { _, photos, _, position ->
+        detailPhotoAdapter.onItemClick = { position ->
             Bundle().also {
                 val type = object : TypeToken<List<String>>() {}.type
-                it.putString(Constants.ALBUM_IMAGE_RESOURCE, Gson().toJson(photos, type))
+                it.putString(Constants.ALBUM_IMAGE_RESOURCE, Gson().toJson(detailPhotoAdapter.currentList, type))
                 it.putInt(Constants.IMAGE_POSITION, position)
 
                 val ft = mActivity.supportFragmentManager.beginTransaction()

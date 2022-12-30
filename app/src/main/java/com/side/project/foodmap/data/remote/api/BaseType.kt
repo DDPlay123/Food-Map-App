@@ -133,5 +133,6 @@ data class HistorySearch(
     val place_id: String,
     @PrimaryKey
     val name: String,
-    val address: String
+    val address: String,
+    val isSearch: Boolean
 )

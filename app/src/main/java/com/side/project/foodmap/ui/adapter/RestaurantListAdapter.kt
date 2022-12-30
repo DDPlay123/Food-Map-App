@@ -1,87 +1,67 @@
 package com.side.project.foodmap.ui.adapter
 
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
-import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.model.LatLng
+import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.api.PlaceList
 import com.side.project.foodmap.databinding.ItemRestaurantViewBinding
 import com.side.project.foodmap.helper.gone
 import com.side.project.foodmap.helper.display
+import com.side.project.foodmap.ui.adapter.other.BaseRvListAdapter
 import com.side.project.foodmap.util.tools.Method
-import java.io.IOException
 
-class RestaurantListAdapter : RecyclerView.Adapter<RestaurantListAdapter.ViewHolder>(), Filterable {
+class RestaurantListAdapter :
+    BaseRvListAdapter<ItemRestaurantViewBinding, PlaceList>(R.layout.item_restaurant_view, ItemCallback()), Filterable {
 
-    private val itemCallback = object : DiffUtil.ItemCallback<PlaceList>() {
-        // 比對新舊 Item
+    class ItemCallback : DiffUtil.ItemCallback<PlaceList>() {
         override fun areItemsTheSame(oldItem: PlaceList, newItem: PlaceList): Boolean {
             return oldItem.place_id == newItem.place_id
         }
 
-        // 比對新舊 Item 內容
         override fun areContentsTheSame(oldItem: PlaceList, newItem: PlaceList): Boolean {
             return oldItem == newItem
         }
     }
 
-    private var placeList = listOf<PlaceList>()
-    private val differ = AsyncListDiffer(this, itemCallback)
-
     lateinit var onItemClick: ((String) -> Unit)
     lateinit var onItemFavoriteClick: ((String, Boolean) -> Boolean)
-
-    fun setData(placeList: List<PlaceList>) {
-        this.placeList = placeList
-        differ.submitList(placeList)
-    }
-
-    fun getData(position: Int): PlaceList = differ.currentList[position]
 
     private lateinit var myLocation: LatLng
     fun setMyLocation(startLatLng: LatLng) {
         myLocation = startLatLng
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = ItemRestaurantViewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+    override fun initialize(binding: ItemRestaurantViewBinding) {
+        super.initialize(binding)
         val params = binding.cardView.layoutParams
         params.height = ViewGroup.LayoutParams.WRAP_CONTENT
         binding.cardView.layoutParams = params
-        return ViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        try {
-            holder.apply {
-                binding.executePendingBindings() // 即時更新
-                binding.data = getData(absoluteAdapterPosition)
-                binding.isFavorite = getData(absoluteAdapterPosition).isFavorite
-                binding.photoReference = if (getData(absoluteAdapterPosition).photos != null && (getData(absoluteAdapterPosition).photos?.size ?: 0) > 0)
-                    getData(absoluteAdapterPosition).photos?.get(0)
-                else
-                    ""
+    override fun bind(item: PlaceList, binding: ItemRestaurantViewBinding, position: Int) {
+        super.bind(item, binding, position)
+        binding.apply {
+            executePendingBindings() // 即時更新
+            data = item
+            isFavorite = item.isFavorite
+            photoReference = if (item.photos != null && item.photos.isNotEmpty())
+                item.photos[0]
+            else
+                ""
 
-                if (::myLocation.isInitialized && (myLocation.latitude != 0.0 || myLocation.longitude != 0.0)) {
-                    binding.distance = Method.getDistance(myLocation, LatLng(getData(absoluteAdapterPosition).location.lat, getData(absoluteAdapterPosition).location.lng))
-                    binding.tvDistance.display()
-                } else
-                    binding.tvDistance.gone()
+            if (::myLocation.isInitialized && (myLocation.latitude != 0.0 || myLocation.longitude != 0.0)) {
+                distance = Method.getDistance(myLocation, LatLng(item.location.lat, item.location.lng))
+                tvDistance.display()
+            } else
+                tvDistance.gone()
 
-                binding.root.setOnClickListener { onItemClick.invoke(getData(absoluteAdapterPosition).place_id) }
-                binding.imgFavorite.setOnClickListener {
-                    binding.isFavorite = onItemFavoriteClick.invoke(getData(absoluteAdapterPosition).place_id, getData(absoluteAdapterPosition).isFavorite)
-                }
-            }
-        } catch (ignored: IOException) {
+            root.setOnClickListener { onItemClick.invoke(item.place_id) }
+            imgFavorite.setOnClickListener { isFavorite = onItemFavoriteClick.invoke(item.place_id, item.isFavorite) }
         }
     }
-
-    override fun getItemCount(): Int = differ.currentList.size
 
     override fun getFilter(): Filter = customFilter
 
@@ -90,9 +70,9 @@ class RestaurantListAdapter : RecyclerView.Adapter<RestaurantListAdapter.ViewHol
             val filteredList = mutableListOf<PlaceList>()
             val filterPattern = constraint.toString().lowercase().trim()
             if (constraint.isEmpty() || filterPattern == "")
-                filteredList.addAll(placeList)
+                filteredList.addAll(currentList)
             else
-                placeList.forEach { item ->
+                currentList.forEach { item ->
                     if (item.name.lowercase().trim().contains(filterPattern))
                         filteredList.add(item)
                 }
@@ -103,9 +83,7 @@ class RestaurantListAdapter : RecyclerView.Adapter<RestaurantListAdapter.ViewHol
         }
 
         override fun publishResults(constraint: CharSequence, filterResults: FilterResults) {
-            differ.submitList(filterResults.values as MutableList<PlaceList>)
+            submitList(filterResults.values as MutableList<PlaceList>)
         }
     }
-
-    class ViewHolder(val binding: ItemRestaurantViewBinding) : RecyclerView.ViewHolder(binding.root)
 }

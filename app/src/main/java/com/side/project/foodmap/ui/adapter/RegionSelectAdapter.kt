@@ -1,35 +1,25 @@
 package com.side.project.foodmap.ui.adapter
 
-import android.annotation.SuppressLint
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.ItemPromptSelectBinding
-import com.side.project.foodmap.ui.adapter.other.BaseRvAdapter
+import com.side.project.foodmap.ui.adapter.other.BaseRvListAdapter
 
-class RegionSelectAdapter : BaseRvAdapter<ItemPromptSelectBinding, String>(R.layout.item_prompt_select) {
-    private var listSize = 0
+class RegionSelectAdapter : BaseRvListAdapter<ItemPromptSelectBinding, String>(R.layout.item_prompt_select) {
     private var selectPosition = -1
 
     lateinit var onItemClick: ((String) -> Unit)
 
-    @SuppressLint("NotifyDataSetChanged")
-    fun setRegionList(regionList: ArrayList<String>, position: Int) {
-        listSize = regionList.size
-        selectPosition = position
-        initData(regionList)
-        notifyDataSetChanged()
-    }
+    fun setSelectPosition(position: Int) { selectPosition = position }
 
-    override fun bind(binding: ItemPromptSelectBinding, item: String, position: Int) {
-        super.bind(binding, item, position)
-        binding.run {
+    override fun bind(item: String, binding: ItemPromptSelectBinding, position: Int) {
+        super.bind(item, binding, position)
+        binding.apply {
             // initialize
-            isFinal = position == listSize - 1
+            isFinal = position == currentList.size - 1
             itemName = item
             isCheck = selectPosition == position
             // listener
-            root.setOnClickListener {
-                onItemClick.invoke(item)
-            }
+            root.setOnClickListener { onItemClick.invoke(item) }
         }
     }
 }

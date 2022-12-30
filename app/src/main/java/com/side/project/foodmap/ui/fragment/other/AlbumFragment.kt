@@ -55,6 +55,7 @@ class AlbumFragment : BaseDialogFragment<FragmentAlbumBinding>(R.layout.fragment
                 vpAlbum.apply {
                     this.delayOnLifecycle(50) {
                         adapter = albumAdapter
+                        offscreenPageLimit = 5
                         currentItem = position
                     }
 
