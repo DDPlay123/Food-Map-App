@@ -50,11 +50,7 @@ interface DataStoreRepo {
     // 使用者是否登入
     suspend fun putUserIsLogin(isLogin: Boolean)
     suspend fun getUserIsLogin(): Boolean
-    // TDX Token
-//    suspend fun putTdxToken(token: String)
-//    suspend fun getTdxToken(): String
-//    suspend fun putTdxTokenUpdate(date: String)
-//    suspend fun getTdxTokenUpdate(): String
+    // 清空資料
     suspend fun clearData()
     suspend fun clearPublicData()
 }
@@ -126,7 +122,7 @@ class DataStoreRepoImpl(private val context: Context) : DataStoreRepo, KoinCompo
 
     override suspend fun getUserRegion(): String =
         context.userInfo.data.map {
-            it[stringPreferencesKey(USER_REGION)] ?: context.getString(R.string.hint_near_region)
+            it[stringPreferencesKey(USER_REGION)] ?: ""
         }.first()
 
     override suspend fun putUserName(name: String) {
@@ -161,28 +157,6 @@ class DataStoreRepoImpl(private val context: Context) : DataStoreRepo, KoinCompo
         context.userInfo.data.map {
             it[booleanPreferencesKey(USER_IS_LOGIN)] ?: false
         }.first()
-
-//    override suspend fun putTdxToken(token: String) {
-//        context.userInfo.edit {
-//            it[stringPreferencesKey(USER_TDX_TOKEN)] = token
-//        }
-//    }
-//
-//    override suspend fun getTdxToken(): String =
-//        context.userInfo.data.map {
-//            it[stringPreferencesKey(USER_TDX_TOKEN)] ?: "2020/12/31"
-//        }.first()
-//
-//    override suspend fun putTdxTokenUpdate(date: String) {
-//        context.userInfo.edit {
-//            it[stringPreferencesKey(USER_TDX_TOKEN_UPDATE)] = date
-//        }
-//    }
-//
-//    override suspend fun getTdxTokenUpdate(): String =
-//        context.userInfo.data.map {
-//            it[stringPreferencesKey(USER_TDX_TOKEN_UPDATE)] ?: ""
-//        }.first()
 
     override suspend fun clearData() {
         context.userInfo.edit { it.clear() }

@@ -4,6 +4,33 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Rect
 import android.view.inputmethod.InputMethodManager
+import com.side.project.foodmap.R
+import com.side.project.foodmap.util.Constants
+import com.side.project.foodmap.util.tools.Method
+
+fun Activity.requestLocationPermission(): Boolean {
+    if (!Method.requestPermission(this, *Constants.location_permission)) {
+        displayShortToast(getString(R.string.hint_not_location_permission))
+        return false
+    }
+    return true
+}
+
+fun Activity.requestCameraPermission(): Boolean {
+    if (!Method.requestPermission(this, *Constants.camera_permission)) {
+        displayShortToast(getString(R.string.hint_not_camera_permission))
+        return false
+    }
+    return true
+}
+
+fun Activity.requestAudioPermission(): Boolean {
+    if (!Method.requestPermission(this, *Constants.audio_permission)) {
+        displayShortToast(getString(R.string.hint_not_audio_permission))
+        return false
+    }
+    return true
+}
 
 fun Activity.hideKeyboard() {
     val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

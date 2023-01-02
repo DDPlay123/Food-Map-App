@@ -13,20 +13,18 @@ import com.side.project.foodmap.ui.activity.MainActivity
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.viewModel.LoginViewModel
 import com.side.project.foodmap.ui.other.AnimState
-import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.RegisterLoginValidation
 import com.side.project.foodmap.util.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login) {
-    private val viewModel: LoginViewModel by viewModel()
+    private val viewModel: LoginViewModel by activityViewModel()
 
     override fun FragmentLoginBinding.initialize() {
-        viewModel.getUserAccountFromDataStore()
-        viewModel.getUserPasswordFromDataStore()
+        binding?.vm = viewModel
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -39,27 +37,20 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
     private fun doInitialize() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
-                // 紀錄上次登入資料
-                launch {
-                    viewModel.userAccount.observe(viewLifecycleOwner) { binding.account = it }
-                }
-                launch {
-                    viewModel.userPassword.observe(viewLifecycleOwner) { binding.password = it }
-                }
                 // 驗證輸入
                 launch {
                     viewModel.validation.collect { validation ->
                         // 帳號錯誤
-                        if (validation.account is RegisterLoginValidation.Failed)
+                        if (validation.username is RegisterLoginValidation.Failed)
                             withContext(Dispatchers.Main) {
-                                binding.edUsername.apply {
-                                    error = getString(validation.account.messageID)
+                                binding?.edUsername?.apply {
+                                    error = getString(validation.username.messageID)
                                 }
                             }
                         // 密碼錯誤
                         if (validation.password is RegisterLoginValidation.Failed)
                             withContext(Dispatchers.Main) {
-                                binding.edPassword.apply {
+                                binding?.edPassword?.apply {
                                     error = getString(validation.password.messageID)
                                 }
                             }
@@ -67,39 +58,30 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                 }
                 // 登入
                 launch {
-                    viewModel.loginState.collect {
+                    viewModel.loginFlow.collect {
                         when (it) {
                             is Resource.Loading -> {
-                                Method.logE("Login", "Loading")
                                 mActivity.hideKeyboard()
                                 dialog.showLoadingDialog(mActivity, false)
-                                binding.edUsername.isFocusableInTouchMode = false
-                                binding.edPassword.isFocusableInTouchMode = false
+                                binding?.edUsername?.isFocusableInTouchMode = false
+                                binding?.edPassword?.isFocusableInTouchMode = false
                             }
                             is Resource.Success -> {
                                 if (it.data?.status == 0) {
                                     // 登入
-                                    Method.logE("Login", "Success")
-                                    viewModel.clearPublicData()
-                                    if (binding.checkbox.isChecked) {
-                                        viewModel.putUserAccount(binding.edUsername.text.toString().trim())
-                                        viewModel.putUserPassword(it.message.toString())
-                                    }
-                                    viewModel.putDeviceId(mActivity.getDeviceId())
+                                    viewModel.getUserImage()
                                 } else {
                                     // 註冊
                                     dialog.cancelLoadingDialog()
-                                    Method.logE("Login", "to Register")
-                                    binding.edUsername.isFocusableInTouchMode = true
-                                    binding.edPassword.isFocusableInTouchMode = true
+                                    binding?.edUsername?.isFocusableInTouchMode = true
+                                    binding?.edPassword?.isFocusableInTouchMode = true
                                     registerPrompt()
                                 }
                             }
                             is Resource.Error -> {
-                                Method.logE("Login", "Error:${it.message.toString()}")
                                 dialog.cancelLoadingDialog()
-                                binding.edUsername.isFocusableInTouchMode = true
-                                binding.edPassword.isFocusableInTouchMode = true
+                                binding?.edUsername?.isFocusableInTouchMode = true
+                                binding?.edPassword?.isFocusableInTouchMode = true
                                 requireActivity().displayShortToast(it.message.toString())
                             }
                             else -> Unit
@@ -108,29 +90,25 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                 }
                 // 註冊
                 launch {
-                    viewModel.registerState.collect {
+                    viewModel.registerFlow.collect {
                         when (it) {
                             is Resource.Loading -> {
-                                Method.logE("Register", "Loading")
                                 mActivity.hideKeyboard()
                                 dialog.showLoadingDialog(mActivity, false)
-                                binding.edUsername.isFocusableInTouchMode = false
-                                binding.edPassword.isFocusableInTouchMode = false
+                                binding?.edUsername?.isFocusableInTouchMode = false
+                                binding?.edPassword?.isFocusableInTouchMode = false
                             }
                             is Resource.Success -> {
-                                Method.logE("Register", "Success")
-                                dialog.cancelLoadingDialog()
                                 viewModel.login(
-                                    account = binding.edUsername.text.toString().trim(),
-                                    password = binding.edPassword.text.toString().trim(),
+                                    username = binding?.edUsername?.text.toString().trim(),
+                                    password = binding?.edPassword?.text.toString().trim(),
                                     deviceId = mActivity.getDeviceId()
                                 )
                             }
                             is Resource.Error -> {
-                                Method.logE("Register", "Error:${it.message.toString()}")
                                 dialog.cancelLoadingDialog()
-                                binding.edUsername.isFocusableInTouchMode = true
-                                binding.edPassword.isFocusableInTouchMode = true
+                                binding?.edUsername?.isFocusableInTouchMode = true
+                                binding?.edPassword?.isFocusableInTouchMode = true
                                 requireActivity().displayShortToast(it.message.toString())
                             }
                             else -> Unit
@@ -139,22 +117,20 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                 }
                 // 取得使用者照片
                 launch {
-                    viewModel.getUserImageState.observe(viewLifecycleOwner) {
+                    viewModel.getUserImageFlow.collect {
                         when (it) {
-                            is Resource.Loading -> {
-                                Method.logE("Get User Image", "Loading")
-                                dialog.showLoadingDialog(mActivity, false)
-                            }
                             is Resource.Success -> {
-                                Method.logE("Get User Image", "Success")
                                 dialog.cancelLoadingDialog()
-                                it.data?.result?.let { result ->
-                                    viewModel.putUserPicture(result.userImage)
+                                it.data?.result?.let {
+                                    // 是否記住帳號密碼
+                                    if (binding?.checkbox?.isChecked == true) {
+                                        viewModel.putUserAccount(binding?.edUsername?.text.toString().trim())
+                                        viewModel.putUserPassword(binding?.edPassword?.text.toString().trim())
+                                    }
                                     mActivity.start(MainActivity::class.java, true)
                                 }
                             }
                             is Resource.Error -> {
-                                Method.logE("Get User Image", "Error:${it.message.toString()}")
                                 dialog.cancelLoadingDialog()
                                 requireActivity().displayShortToast(getString(R.string.hint_error))
                             }
@@ -179,8 +155,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
                 tvConfirm.setOnClickListener {
                     dialog.cancelCenterDialog()
                     viewModel.register(
-                        account = binding.edUsername.text.toString().trim(),
-                        password = binding.edPassword.text.toString().trim(),
+                        username = binding?.edUsername?.text.toString().trim(),
+                        password = binding?.edPassword?.text.toString().trim(),
                         deviceId = mActivity.getDeviceId()
                     )
                 }
@@ -189,36 +165,18 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
     }
 
     private fun setListener() {
-        binding.run {
+        binding?.run {
             btnStart.setOnClickListener {
                 val anim = animManager.smallToLarge
                 it.setAnimClick(anim, AnimState.End) {
-                    if (!requestLocationPermission())
+                    if (!mActivity.requestLocationPermission() || !mActivity.checkMyDeviceGPS())
                         return@setAnimClick
                     viewModel.login(
-                        account = binding.edUsername.text.toString().trim(),
-                        password = binding.edPassword.text.toString().trim(),
+                        username = binding?.edUsername?.text.toString().trim(),
+                        password = binding?.edPassword?.text.toString().trim(),
                         deviceId = mActivity.getDeviceId()
                     )
                 }
-            }
-
-            edUsername.setOnFocusChangeListener { view, b ->
-                if (b)
-                    view.delayOnLifecycle(300) {
-                        scrollView.post {
-                            scrollView.scrollY = scrollView.bottom
-                        }
-                    }
-            }
-
-            edPassword.setOnFocusChangeListener { view, b ->
-                if (b)
-                    view.delayOnLifecycle(300) {
-                        scrollView.post {
-                            scrollView.scrollY = scrollView.bottom
-                        }
-                    }
             }
         }
     }

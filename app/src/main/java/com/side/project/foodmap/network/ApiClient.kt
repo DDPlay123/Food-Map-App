@@ -27,36 +27,36 @@ object ApiClient {
     /**
      * 取得TDX Token
      */
-    val getTdxToken: ApiService by lazy {
-        Retrofit.Builder()
-            .client(okHttpClient)
-            .baseUrl("https://tdx.transportdata.tw/auth/realms/TDXConnect/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-    }
+//    val getTdxToken: ApiService by lazy {
+//        Retrofit.Builder()
+//            .client(okHttpClient)
+//            .baseUrl("https://tdx.transportdata.tw/auth/realms/TDXConnect/")
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .build()
+//            .create(ApiService::class.java)
+//    }
 
     /**
      * 取得TDX 餐飲資料(台北目前未提供)
      */
-    val getTdxRestaurant: ApiService by lazy {
-        Retrofit.Builder()
-            .client(okHttpClient)
-            .baseUrl("https://tdx.transportdata.tw/api/basic/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-    }
+//    val getTdxRestaurant: ApiService by lazy {
+//        Retrofit.Builder()
+//            .client(okHttpClient)
+//            .baseUrl("https://tdx.transportdata.tw/api/basic/")
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .build()
+//            .create(ApiService::class.java)
+//    }
 
     /**
      * Google Places API
      */
-    val googlePlaces: ApiService by lazy {
-        Retrofit.Builder()
-            .client(okHttpClient)
-            .baseUrl("https://maps.googleapis.com/maps/api/place/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-    }
+//    val googlePlaces: ApiService by lazy {
+//        Retrofit.Builder()
+//            .client(okHttpClient)
+//            .baseUrl("https://maps.googleapis.com/maps/api/place/")
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .build()
+//            .create(ApiService::class.java)
+//    }
 }

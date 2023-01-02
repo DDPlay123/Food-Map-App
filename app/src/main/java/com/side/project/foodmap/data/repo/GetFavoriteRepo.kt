@@ -1,7 +1,7 @@
 package com.side.project.foodmap.data.repo
 
 import com.side.project.foodmap.data.local.getFavorite.GetFavoriteDao
-import com.side.project.foodmap.data.remote.api.FavoriteList
+import com.side.project.foodmap.data.remote.FavoriteList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.koin.core.component.KoinComponent

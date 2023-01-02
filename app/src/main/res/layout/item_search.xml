@@ -25,85 +25,118 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.side.project.foodmap.util.customView.SwipeRevealLayout
+        android:id="@+id/layoutSwipe"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_50sdp"
-        android:background="?android:attr/selectableItemBackground">
+        android:layout_height="wrap_content"
+        app:dragEdge="right"
+        app:mode="same_level">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/imgIcon"
-            android:layout_width="@dimen/_30sdp"
-            android:layout_height="@dimen/_30sdp"
-            android:layout_margin="@dimen/_5sdp"
-            android:background="@{isFirst ? (isHistory ? @drawable/gray_fill_circle_background : @drawable/red_fill_circle_background) : @drawable/gray_fill_circle_background, default=@drawable/gray_fill_circle_background}"
-            android:padding="@dimen/_5sdp"
-            android:src="@drawable/ic_baseline_search"
-            android:tint="@{isFirst ? (isHistory ? @color/g_gray700 : @color/red) : @color/g_gray700, default=@color/g_gray700}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        <FrameLayout
+            android:id="@+id/layoutDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/_50sdp"
+            android:background="#ffcc0000"
+            android:visibility="visible">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvName"
-            android:layout_width="0dp"
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="@dimen/_50sdp"
+                android:layout_height="match_parent"
+                android:background="@android:color/holo_red_dark"
+                android:gravity="center"
+                android:text="@string/text_delete"
+                android:textColor="@android:color/white" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/layoutBody"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/_5sdp"
-            android:layout_marginEnd="@dimen/_5sdp"
-            android:ellipsize="end"
-            android:gravity="start"
-            android:maxLines="1"
-            android:text="@{name}"
-            android:textColor="@color/dialog_subtitle"
-            android:textSize="@dimen/_16ssp"
-            android:textStyle="bold"
-            app:chainUseRtl="true"
-            app:layout_constraintBottom_toTopOf="@+id/tvAddress"
-            app:layout_constraintEnd_toStartOf="@+id/imgArrow"
-            app:layout_constraintStart_toEndOf="@id/imgIcon"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="牛排先生" />
+            android:background="?android:attr/selectableItemBackground">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvAddress"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:autoSizeTextType="uniform"
-            android:ellipsize="end"
-            android:gravity="start"
-            android:maxLines="1"
-            android:textColor="@color/dialog_subtitle"
-            android:text="@{address}"
-            android:textSize="@dimen/_10ssp"
-            android:textStyle="bold"
-            android:visibility='@{address == "" || address.isEmpty ? View.GONE : View.VISIBLE, default=gone}'
-            app:autoSizeTextType="uniform"
-            app:layout_constraintBottom_toTopOf="@+id/divider"
-            app:layout_constraintEnd_toEndOf="@+id/tvName"
-            app:layout_constraintStart_toStartOf="@+id/tvName"
-            app:layout_constraintTop_toBottomOf="@+id/tvName"
-            tools:text="台灣新北市板橋區中山路二段" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_50sdp">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/imgArrow"
-            android:layout_width="@dimen/_24sdp"
-            android:layout_height="@dimen/_24sdp"
-            android:layout_margin="@dimen/_5sdp"
-            android:src="@drawable/ic_reverse_arrow_outward"
-            android:tint="@color/g_gray700"
-            android:visibility="@{isHistory ? View.GONE : View.VISIBLE, default=gone}"
-            app:layout_constraintBottom_toBottomOf="@+id/imgIcon"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/imgIcon" />
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/imgIcon"
+                    android:layout_width="@dimen/_30sdp"
+                    android:layout_height="@dimen/_30sdp"
+                    android:layout_margin="@dimen/_5sdp"
+                    android:background="@{isFirst ? (isHistory ? @drawable/gray_fill_circle_background : @drawable/red_fill_circle_background) : @drawable/gray_fill_circle_background, default=@drawable/gray_fill_circle_background}"
+                    android:padding="@dimen/_5sdp"
+                    android:src="@drawable/ic_baseline_search"
+                    android:tint="@{isFirst ? (isHistory ? @color/g_gray700 : @color/red) : @color/g_gray700, default=@color/g_gray700}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-        <View
-            android:id="@+id/divider"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/_1sdp"
-            android:background="@color/gray"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imgIcon" />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_5sdp"
+                    android:layout_marginEnd="@dimen/_5sdp"
+                    android:ellipsize="end"
+                    android:gravity="start"
+                    android:maxLines="1"
+                    android:text="@{name}"
+                    android:textColor="@color/dialog_subtitle"
+                    android:textSize="@dimen/_16ssp"
+                    android:textStyle="bold"
+                    app:chainUseRtl="true"
+                    app:layout_constraintBottom_toTopOf="@+id/tvAddress"
+                    app:layout_constraintEnd_toStartOf="@+id/imgArrow"
+                    app:layout_constraintStart_toEndOf="@id/imgIcon"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="牛排先生" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvAddress"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:autoSizeTextType="uniform"
+                    android:ellipsize="end"
+                    android:gravity="start"
+                    android:maxLines="1"
+                    android:text="@{address}"
+                    android:textColor="@color/dialog_subtitle"
+                    android:textSize="@dimen/_10ssp"
+                    android:textStyle="bold"
+                    android:visibility='@{address == "" || address.isEmpty ? View.GONE : View.VISIBLE, default=gone}'
+                    app:autoSizeTextType="uniform"
+                    app:layout_constraintBottom_toTopOf="@+id/divider"
+                    app:layout_constraintEnd_toEndOf="@+id/tvName"
+                    app:layout_constraintStart_toStartOf="@+id/tvName"
+                    app:layout_constraintTop_toBottomOf="@+id/tvName"
+                    tools:text="台灣新北市板橋區中山路二段" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/imgArrow"
+                    android:layout_width="@dimen/_24sdp"
+                    android:layout_height="@dimen/_24sdp"
+                    android:layout_margin="@dimen/_5sdp"
+                    android:src="@drawable/ic_reverse_arrow_outward"
+                    android:tint="@color/g_gray700"
+                    android:visibility="@{isHistory ? View.GONE : View.VISIBLE, default=gone}"
+                    app:layout_constraintBottom_toBottomOf="@+id/imgIcon"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/imgIcon" />
+
+                <View
+                    android:id="@+id/divider"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/_1sdp"
+                    android:background="@color/gray"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/imgIcon" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </FrameLayout>
+
+    </com.side.project.foodmap.util.customView.SwipeRevealLayout>
 
 </layout>

@@ -21,6 +21,9 @@ class AnimManager(context: Context) {
     val fromBottom: Animation = AnimationUtils.loadAnimation(context, R.anim.from_bottom)
     val toBottom: Animation = AnimationUtils.loadAnimation(context, R.anim.to_bottom)
 
+    val fromTop: Animation = AnimationUtils.loadAnimation(context, R.anim.from_top)
+    val toTop: Animation = AnimationUtils.loadAnimation(context, R.anim.to_top)
+
     val fromEnd: Animation = AnimationUtils.loadAnimation(context, R.anim.from_end)
     val toEnd: Animation = AnimationUtils.loadAnimation(context, R.anim.to_end)
 }

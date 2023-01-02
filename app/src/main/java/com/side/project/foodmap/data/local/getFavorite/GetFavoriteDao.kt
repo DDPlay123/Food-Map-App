@@ -1,7 +1,7 @@
 package com.side.project.foodmap.data.local.getFavorite
 
 import androidx.room.*
-import com.side.project.foodmap.data.remote.api.FavoriteList
+import com.side.project.foodmap.data.remote.FavoriteList
 import com.side.project.foodmap.util.Constants.GET_FAVORITE_MODEL
 
 @Dao

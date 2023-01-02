@@ -1,8 +1,10 @@
 package com.side.project.foodmap.ui.activity
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.LinearLayoutCompat
@@ -13,13 +15,20 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.side.project.foodmap.R
-import com.side.project.foodmap.data.remote.api.FavoriteList
-import com.side.project.foodmap.data.remote.api.Location
-import com.side.project.foodmap.data.remote.api.Review
-import com.side.project.foodmap.data.remote.api.restaurant.DetailsByPlaceIdRes
+import com.side.project.foodmap.data.remote.FavoriteList
+import com.side.project.foodmap.data.remote.Location
+import com.side.project.foodmap.data.remote.Review
+import com.side.project.foodmap.data.remote.restaurant.DetailsByPlaceIdRes
 import com.side.project.foodmap.databinding.ActivityDetailBinding
 import com.side.project.foodmap.databinding.DialogNavigationModeBinding
 import com.side.project.foodmap.databinding.DialogPromptBinding
@@ -30,20 +39,22 @@ import com.side.project.foodmap.ui.adapter.DetailPhotoAdapter
 import com.side.project.foodmap.ui.adapter.GoogleReviewsAdapter
 import com.side.project.foodmap.ui.adapter.WorkDayAdapter
 import com.side.project.foodmap.ui.fragment.other.AlbumFragment
-import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.DetailViewModel
 import com.side.project.foodmap.util.Constants
+import com.side.project.foodmap.util.Constants.IS_BLACK_LIST
+import com.side.project.foodmap.util.Constants.IS_FAVORITE
 import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.Resource
+import com.side.project.foodmap.util.customView.AnchorSheetBehavior
 import com.side.project.foodmap.util.tools.Method
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
 
 class DetailActivity : BaseActivity() {
     private lateinit var binding: ActivityDetailBinding
     private lateinit var viewModel: DetailViewModel
-    private val animManager: AnimManager by inject()
+    private lateinit var map: GoogleMap
 
     // Data
     private lateinit var placesDetails: DetailsByPlaceIdRes.Result
@@ -57,6 +68,7 @@ class DetailActivity : BaseActivity() {
     private var checkBlackList: Boolean = false
     private lateinit var detailPhotoAdapter: DetailPhotoAdapter
     private lateinit var googleReviewsAdapter: GoogleReviewsAdapter
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,12 +76,31 @@ class DetailActivity : BaseActivity() {
         viewModel = ViewModelProvider(this)[DetailViewModel::class.java]
         binding.paddingTop = getStatusBarHeight()
 
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(callback)
+
         checkNetWork { onBackPressed() }
 
         getArguments()
+        initLayoutOption()
         initLocationService()
         doInitialize()
         setListener()
+    }
+
+    override fun onBackPressed() {
+        Intent().apply {
+            putExtra(PLACE_ID, placeId)
+            putExtra(IS_FAVORITE, checkFavorite)
+            putExtra(IS_BLACK_LIST, checkBlackList)
+            setResult(RESULT_OK, this)
+        }
+        super.onBackPressed()
+    }
+
+    override fun onDestroy() {
+        map.clear()
+        super.onDestroy()
     }
 
     private fun getArguments() {
@@ -78,33 +109,94 @@ class DetailActivity : BaseActivity() {
         }
     }
 
+    private val callback = OnMapReadyCallback { googleMap ->
+        map = googleMap
+        initGoogleMap()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun initGoogleMap() {
+        if (!mActivity.requestLocationPermission() || !::map.isInitialized)
+            return
+        setMyLocation()
+        map.apply {
+            uiSettings.setAllGesturesEnabled(true)
+            isMyLocationEnabled = true
+            uiSettings.isMyLocationButtonEnabled = false
+            uiSettings.isMapToolbarEnabled = false
+            uiSettings.isCompassEnabled = false
+        }
+    }
+
+    private fun setMyLocation() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            if (!::map.isInitialized) return@launch
+            map.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(
+                        mActivity.myLatitude,
+                        mActivity.myLongitude
+                    ), DEFAULT_ZOOM
+                )
+            )
+            val markerOption = MarkerOptions().apply {
+                position(LatLng(mActivity.myLatitude, mActivity.myLongitude))
+            }
+            map.addMarker(markerOption)
+        }
+    }
+
+    private fun initLayoutOption() {
+        binding.apply {
+            bottomSheetBehavior = BottomSheetBehavior.from(binding.layoutOption.layoutDetail)
+            with(bottomSheetBehavior) {
+                skipCollapsed = true
+                state = BottomSheetBehavior.STATE_COLLAPSED
+                addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                    override fun onStateChanged(bottomSheet: View, newState: Int) {
+                        when (newState) {
+                            BottomSheetBehavior.STATE_COLLAPSED -> {
+                                layoutOption.scrollView.post {
+                                    layoutOption.scrollView.apply {
+                                        fling(0)
+                                        scrollTo(0, 0)
+                                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                                    }
+                                }
+                            }
+                            else -> Unit
+                        }
+                    }
+
+                    override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    }
+                })
+            }
+        }
+    }
+
     private fun doInitialize() {
         if (::placeId.isInitialized)
             viewModel.searchDetail(placeId)
 
         checkFavorite = false
-        binding.isFavorite = checkFavorite
+        binding.layoutOption.isFavorite = checkFavorite
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 // 搜尋詳細資料
                 launch {
-                    viewModel.searchDetailState.collect {
+                    viewModel.placeDetailFlow.collect {
                         when (it) {
-                            is Resource.Loading -> {
-                                Method.logE("Search Detail", "Loading")
-                                dialog.showLoadingDialog(mActivity, false)
-                            }
+                            is Resource.Loading -> dialog.showLoadingDialog(mActivity, false)
                             is Resource.Success -> {
-                                Method.logE("Search Detail", "Success")
-                                dialog.cancelLoadingDialog()
                                 it.data?.result?.let { data ->
                                     placesDetails = data
                                     setupData(data)
                                 }
+                                dialog.cancelLoadingDialog()
                             }
                             is Resource.Error -> {
-                                Method.logE("Search Detail", "Error:${it.message.toString()}")
                                 dialog.cancelLoadingDialog()
                                 mActivity.displayShortToast(getString(R.string.hint_error))
                             }
@@ -114,16 +206,13 @@ class DetailActivity : BaseActivity() {
                 }
                 // 加入黑名單
                 launch {
-                    viewModel.pushBlackListState.collect {
+                    viewModel.pushBlackListFlow.collect {
                         when (it) {
                             is Resource.Success -> {
-                                Method.logE("Push Black List", "Success")
                                 mActivity.displayShortToast(getString(R.string.hint_success_push_black_list))
                                 checkBlackList = true
-//                                onBackPressed()
                             }
                             is Resource.Error -> {
-                                Method.logE("Push Black List", "Error:${it.message.toString()}")
                                 mActivity.displayShortToast(getString(R.string.hint_failed_push_black_list))
                                 checkBlackList = false
                             }
@@ -133,7 +222,7 @@ class DetailActivity : BaseActivity() {
                 }
                 // 刪除黑名單
                 launch {
-                    viewModel.pullBlackListState.collect {
+                    viewModel.pullBlackListFlow.collect {
                         when (it) {
                             is Resource.Success -> {
                                 Method.logE("Pull Black List", "Success")
@@ -151,14 +240,14 @@ class DetailActivity : BaseActivity() {
                 }
                 // 加入至最愛清單
                 launch {
-                    viewModel.pushFavoriteState.collect {
+                    viewModel.pushFavoriteListFlow.collect {
                         when (it) {
                             is Resource.Success -> {
                                 Method.logE("Push Favorite", "Success")
                                 mActivity.displayShortToast(getString(R.string.hint_success_push_favorite))
                                 viewModel.insertFavoriteData(favoriteList)
                                 checkFavorite = true
-                                binding.isFavorite = checkFavorite
+                                binding.layoutOption.isFavorite = checkFavorite
                             }
                             is Resource.Error -> {
                                 Method.logE("Push Favorite", "Error:${it.message.toString()}")
@@ -171,13 +260,13 @@ class DetailActivity : BaseActivity() {
                 }
                 // 刪除最愛
                 launch {
-                    viewModel.pullFavoriteState.collect {
+                    viewModel.pullFavoriteListFlow.collect {
                         when (it) {
                             is Resource.Success -> {
                                 Method.logE("Pull Favorite", "Success")
                                 mActivity.displayShortToast(getString(R.string.hint_success_pull_favorite))
                                 checkFavorite = false
-                                binding.isFavorite = checkFavorite
+                                binding.layoutOption.isFavorite = checkFavorite
                             }
                             is Resource.Error -> {
                                 Method.logE("Pull Favorite", "Error:${it.message.toString()}")
@@ -193,23 +282,41 @@ class DetailActivity : BaseActivity() {
     }
 
     private fun setupData(data: DetailsByPlaceIdRes.Result) {
-        binding.apply {
+        binding.layoutOption.apply {
             setupToolButton(data)
+            doMarketPolyLine()
             detail = data
             checkFavorite = placesDetails.isFavorite
             checkBlackList = placesDetails.isBlackList
             isFavorite = checkFavorite
             data.place.reviews?.let { reviewsList -> initRvReviews(reviewsList) }
-            data.place.photos?.let { photoList -> initPhotoSlider(photoList) }
+            data.place.photos.let { photoList -> initPhotoSlider(photoList) }
+        }
+    }
+
+    private fun doMarketPolyLine() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            placesDetails.place.apply {
+                if (!::map.isInitialized) return@launch
+                val markerOption = MarkerOptions().apply {
+                    position(LatLng(location.lat, location.lng))
+                    title(name)
+                }
+                map.addMarker(markerOption)
+            }
         }
     }
 
     private fun setupToolButton(data: DetailsByPlaceIdRes.Result) {
-        binding.apply {
-            if (data.place.website.isNullOrEmpty())
+        binding.layoutOption.apply {
+            if (data.place.website.isNullOrEmpty()) {
                 btnWebsite.background = getDrawableCompat(R.drawable.background_google_gray_button)
-            if (data.place.phone.isNullOrEmpty())
+                btnWebsite.isClickable = false
+            }
+            if (data.place.phone.isNullOrEmpty()) {
                 btnPhone.background = getDrawableCompat(R.drawable.background_google_gray_button)
+                btnPhone.isClickable = false
+            }
         }
     }
 
@@ -229,6 +336,19 @@ class DetailActivity : BaseActivity() {
                     displayModifyBlackListDialog(true)
             }
 
+            imgMyLocation.setOnClickListener {
+                setMyLocation()
+                layoutOption.scrollView.post {
+                    layoutOption.scrollView.apply {
+                        fling(0)
+                        scrollTo(0, 0)
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                    }
+                }
+            }
+        }
+
+        binding.layoutOption.run {
             tvTime.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
                     if (::placesDetails.isInitialized && placesDetails.place.opening_hours.weekday_text == emptyList<String>()) {
@@ -241,7 +361,7 @@ class DetailActivity : BaseActivity() {
 
             tvGoogle.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    if (::placesDetails.isInitialized && placesDetails.place.url != null) {
+                    if (::placesDetails.isInitialized) {
                         Intent(Intent.ACTION_VIEW).also { i ->
                             i.data = Uri.parse(placesDetails.place.url)
                             startActivity(i)
@@ -253,7 +373,7 @@ class DetailActivity : BaseActivity() {
 
             btnWebsite.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    if (::placesDetails.isInitialized && placesDetails.place.website != null) {
+                    if (::placesDetails.isInitialized) {
                         Intent(Intent.ACTION_VIEW).also { i ->
                             i.data = Uri.parse(placesDetails.place.website)
                             startActivity(i)
@@ -280,7 +400,7 @@ class DetailActivity : BaseActivity() {
                             photos = placesDetails.place.photos,
                             name = placesDetails.place.name,
                             vicinity = placesDetails.place.vicinity,
-                            workDay = placesDetails.place.opening_hours.weekday_text ?: emptyList(),
+                            workDay = placesDetails.place.opening_hours.weekday_text,
                             dine_in = placesDetails.place.dine_in ?: false,
                             takeout = placesDetails.place.takeout ?: false,
                             delivery = placesDetails.place.delivery ?: false,
@@ -289,7 +409,10 @@ class DetailActivity : BaseActivity() {
                             rating = placesDetails.place.rating ?: 0F,
                             ratings_total = placesDetails.place.ratings_total ?: 0,
                             price_level = placesDetails.place.price_level ?: 0,
-                            location = Location(placesDetails.place.location.lat, placesDetails.place.location.lng),
+                            location = Location(
+                                placesDetails.place.location.lat,
+                                placesDetails.place.location.lng
+                            ),
                             url = placesDetails.place.url ?: ""
                         )
                         viewModel.pushFavorite(arrayListOf(placeId))
@@ -299,7 +422,7 @@ class DetailActivity : BaseActivity() {
 
             btnPhone.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    if (::placesDetails.isInitialized && placesDetails.place.phone != null) {
+                    if (::placesDetails.isInitialized) {
                         Intent(Intent.ACTION_DIAL).also { i ->
                             i.data = Uri.parse("tel:${placesDetails.place.phone}")
                             startActivity(i)
@@ -342,7 +465,8 @@ class DetailActivity : BaseActivity() {
             i.data = Uri.parse(
                 "google.navigation:q=" +
                         "${placesDetails.place.location.lat},${placesDetails.place.location.lng}" +
-                        "&mode=$mode")
+                        "&mode=$mode"
+            )
             i.`package` = "com.google.android.apps.maps"
             i.resolveActivity(applicationContext.packageManager)?.let {
                 startActivity(i)
@@ -360,10 +484,11 @@ class DetailActivity : BaseActivity() {
                 hideCancel = true
                 hideConfirm = true
                 listItem.apply {
-                    layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+                    layoutManager =
+                        LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
                     adapter = workDayAdapter
-                    placesDetails.place.opening_hours.weekday_text?.let {
-                        workDayAdapter.setWorkdayList(it)
+                    placesDetails.place.opening_hours.weekday_text.let {
+                        workDayAdapter.submitList(it.toMutableList())
                     }
                 }
             }
@@ -372,10 +497,10 @@ class DetailActivity : BaseActivity() {
 
     private fun initRvReviews(review: List<Review>) {
         googleReviewsAdapter = GoogleReviewsAdapter()
-        binding.rvReviews.apply {
+        binding.layoutOption.rvReviews.apply {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             adapter = googleReviewsAdapter
-            googleReviewsAdapter.setReviewList(review)
+            googleReviewsAdapter.submitList(review.toMutableList())
         }
 
         googleReviewsAdapter.onItemClick = {
@@ -388,19 +513,20 @@ class DetailActivity : BaseActivity() {
 
     private fun initPhotoSlider(photoIdList: List<String>) {
         detailPhotoAdapter = DetailPhotoAdapter()
-        binding.vpPhoto.apply {
+        binding.layoutOption.vpPhoto.apply {
             offscreenPageLimit = 1
             adapter = detailPhotoAdapter
-            detailPhotoAdapter.setPhotoIdList(photoIdList)
-            setupSliderIndicators(photoIdList.size)
-
-            if (photoIdList.isEmpty()) {
-                binding.imgPlaceHolder.display()
-                binding.vpPhoto.hidden()
-            } else {
-                binding.imgPlaceHolder.hidden()
-                binding.vpPhoto.display()
+            detailPhotoAdapter.submitList(photoIdList.toMutableList()) {
+                if (photoIdList.isEmpty()) {
+                    binding.layoutOption.apply {
+                        vpPhoto.animation = animManager.fromTop
+                        vpPhoto.gone()
+                        imgProgress.gone()
+                    }
+                }
             }
+
+            setupSliderIndicators(photoIdList.size)
 
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
@@ -410,17 +536,21 @@ class DetailActivity : BaseActivity() {
             })
         }
 
-        detailPhotoAdapter.onItemClick = { _, photos, _, position ->
+        detailPhotoAdapter.onItemClick = { position ->
             Bundle().also {
                 val type = object : TypeToken<List<String>>() {}.type
-                it.putString(Constants.ALBUM_IMAGE_RESOURCE, Gson().toJson(photos, type))
+                it.putString(
+                    Constants.ALBUM_IMAGE_RESOURCE,
+                    Gson().toJson(detailPhotoAdapter.currentList, type)
+                )
                 it.putInt(Constants.IMAGE_POSITION, position)
 
                 val ft = mActivity.supportFragmentManager.beginTransaction()
                 val albumDialog = AlbumFragment()
                 albumDialog.arguments = it
 
-                val prevDialog = mActivity.supportFragmentManager.findFragmentByTag(Constants.DIALOG_ALBUM)
+                val prevDialog =
+                    mActivity.supportFragmentManager.findFragmentByTag(Constants.DIALOG_ALBUM)
                 if (prevDialog != null)
                     ft.remove(prevDialog)
 
@@ -431,7 +561,7 @@ class DetailActivity : BaseActivity() {
     }
 
     private fun setupSliderIndicators(count: Int) {
-        binding.run {
+        binding.layoutOption.run {
             val indicators: Array<AppCompatImageView?> = arrayOfNulls(count)
             val layoutParams: LinearLayoutCompat.LayoutParams = LinearLayoutCompat.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
@@ -449,7 +579,7 @@ class DetailActivity : BaseActivity() {
     }
 
     private fun setCurrentSliderIndicator(position: Int) {
-        binding.run {
+        binding.layoutOption.run {
             val childCount: Int = sliderIndicators.childCount
             for (i in 0 until childCount) {
                 val imageView: AppCompatImageView =
@@ -502,5 +632,9 @@ class DetailActivity : BaseActivity() {
                 }
             }
         }
+    }
+
+    companion object {
+        private const val DEFAULT_ZOOM = 14F
     }
 }

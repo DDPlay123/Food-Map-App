@@ -7,7 +7,7 @@
 
         <variable
             name="data"
-            type="com.side.project.foodmap.data.remote.api.PlaceList" />
+            type="com.side.project.foodmap.data.remote.PlaceList" />
 
         <variable
             name="photoReference"
@@ -25,6 +25,7 @@
         android:foreground="?android:attr/selectableItemBackground"
         app:cardCornerRadius="@dimen/_8sdp"
         app:cardElevation="@dimen/_3ssp"
+        android:clipChildren="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -51,14 +52,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/_5sdp"
                 android:ellipsize="end"
-                android:fontFamily="@font/poppins_thin"
                 android:maxLines="1"
-                android:paddingTop="@dimen/_2sdp"
-                android:paddingBottom="@dimen/_2sdp"
                 android:text="@{data.name}"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_12ssp"
                 android:textStyle="bold"
+                app:layout_constraintVertical_bias="0"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/imgAllRestaurant"
                 app:layout_constraintTop_toTopOf="@+id/imgAllRestaurant"
@@ -84,7 +84,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/_5sdp"
-                android:layout_marginTop="@dimen/_4sdp"
+                android:layout_marginTop="@dimen/_2sdp"
                 android:isIndicator="true"
                 android:numStars="5"
                 android:rating="@{data.rating.star}"
@@ -95,18 +95,34 @@
                 tools:rating="4.5" />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvGoogle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_4sdp"
+                android:layout_marginTop="@dimen/_4sdp"
+                android:ellipsize="end"
+                android:fontFamily="@font/poppins_light"
+                android:maxLines="1"
+                android:text='@{data.rating.total > 0 ? data.rating.total+@string/hint_google_ratings_total : "0"+@string/hint_google_ratings_total, default=@string/text_null }'
+                android:textColor="@color/g_gray500"
+                android:textSize="@dimen/_11ssp"
+                app:layout_constraintTop_toBottomOf="@+id/rating"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/imgAllRestaurant"
+                tools:text="未提供" />
+
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvVicinity"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/_4sdp"
-                android:layout_marginTop="@dimen/_3sdp"
                 android:ellipsize="end"
                 android:fontFamily="@font/poppins_light"
                 android:maxLines="1"
                 android:text="@{data.address}"
                 android:textColor="@color/g_gray500"
                 android:textSize="@dimen/_11ssp"
-                app:layout_constraintBottom_toBottomOf="@+id/imgAllRestaurant"
+                app:layout_constraintTop_toBottomOf="@+id/tvGoogle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/imgAllRestaurant"
                 tools:text="台北市大安區" />

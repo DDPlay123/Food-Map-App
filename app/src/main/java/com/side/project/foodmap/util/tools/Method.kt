@@ -14,10 +14,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
-import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.messaging.FirebaseMessaging
 import com.side.project.foodmap.BuildConfig
 import com.side.project.foodmap.R
+import com.side.project.foodmap.data.remote.Location
 import com.side.project.foodmap.helper.getLocation
 import com.side.project.foodmap.util.Constants.PERMISSION_CODE
 import com.side.project.foodmap.util.RegisterLoginValidation
@@ -80,10 +80,10 @@ object Method {
         return Base64.encodeToString(bytes, Base64.DEFAULT)
     }
 
-    fun getCurrentLatLng(region: String, latLng: LatLng): LatLng =
-        LatLng(
-            if (region.getLocation().first != 0.00) region.getLocation().first else latLng.latitude,
-            if (region.getLocation().second != 0.00) region.getLocation().second else latLng.longitude
+    fun getCurrentLatLng(region: String, location: Location): Location =
+        Location(
+            if (region.getLocation().lat != 0.00) region.getLocation().lat else location.lat,
+            if (region.getLocation().lng != 0.00) region.getLocation().lng else location.lng
         )
 
     fun getWeekOfDate(dt: Date): Int {
@@ -96,13 +96,13 @@ object Method {
         return weekDays[w]
     }
 
-    const val EarthRadius = 6371 // 地球半徑
-    fun getDistance(start: LatLng, end: LatLng): Double {
-        val startLat = (Math.PI / 180) * start.latitude
-        val endLat = (Math.PI / 180) * end.latitude
+    private const val EarthRadius = 6371 // 地球半徑
+    fun getDistance(start: Location, end: Location): Double {
+        val startLat = (Math.PI / 180) * start.lat
+        val endLat = (Math.PI / 180) * end.lat
 
-        val startLng = (Math.PI / 180) * start.longitude
-        val endLng = (Math.PI / 180) * end.longitude
+        val startLng = (Math.PI / 180) * start.lng
+        val endLng = (Math.PI / 180) * end.lng
 
         // 回傳公里 km
         return acos(sin(startLat) * sin(endLat) + cos(startLat) * cos(endLat) * cos(startLng - endLng)) * EarthRadius

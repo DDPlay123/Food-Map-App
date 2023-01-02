@@ -7,7 +7,7 @@
 
         <variable
             name="reviews"
-            type="com.side.project.foodmap.data.remote.api.Review" />
+            type="com.side.project.foodmap.data.remote.Review" />
 
     </data>
 
@@ -85,7 +85,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_8sdp"
+                android:ellipsize="end"
                 android:fontFamily="@font/poppins_light"
+                android:includeFontPadding="false"
+                android:justificationMode="inter_word"
+                android:lineSpacingExtra="@dimen/_2sdp"
+                android:maxLines="4"
                 android:text="@{reviews.text}"
                 android:textColor="@color/black"
                 android:textIsSelectable="true"
@@ -94,6 +99,19 @@
                 app:layout_constraintStart_toStartOf="@+id/imgPicture"
                 app:layout_constraintTop_toBottomOf="@+id/rating"
                 tools:text="在安靜的小條巷子裏面\n漲過價錢，炒飯味道夠\n海鮮麵普通，蝦子新鮮\n紅燒肉很脆，醬可再多，有薑絲與香菜" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvReadMore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_3sdp"
+                android:includeFontPadding="false"
+                android:text="@string/hint_read_more"
+                android:textColor="@color/blue"
+                android:textSize="@dimen/_12ssp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvComment" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

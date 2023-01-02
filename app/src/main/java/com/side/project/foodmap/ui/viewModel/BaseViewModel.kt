@@ -4,11 +4,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.side.project.foodmap.data.remote.api.FavoriteList
-import com.side.project.foodmap.data.remote.api.HistorySearch
-import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
-import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
+import com.side.project.foodmap.data.remote.FavoriteList
+import com.side.project.foodmap.data.remote.AutoComplete
+import com.side.project.foodmap.data.remote.MyPlaceList
+import com.side.project.foodmap.data.remote.PlaceList
+import com.side.project.foodmap.data.remote.restaurant.DistanceSearchRes
+import com.side.project.foodmap.data.remote.restaurant.DrawCardRes
 import com.side.project.foodmap.data.repo.*
+import com.side.project.foodmap.data.repo.api.GeocodeApiRepo
+import com.side.project.foodmap.data.repo.api.RestaurantApiRepo
+import com.side.project.foodmap.data.repo.api.UserApiRepo
 import com.side.project.foodmap.util.Constants.MMSLAB
 import com.side.project.foodmap.util.tools.AES
 import com.side.project.foodmap.util.Resource
@@ -21,10 +26,21 @@ import org.koin.core.component.inject
 import java.io.IOException
 
 abstract class BaseViewModel : ViewModel(), KoinComponent {
+    companion object {
+        const val DEFAULT_LATITUDE = 25.043871531367014
+        const val DEFAULT_LONGITUDE = 121.53453374432904
+    }
+
+    val userApiRepo: UserApiRepo by inject()
+    val restaurantApiRepo: RestaurantApiRepo by inject()
+    val geocodeApiRepo: GeocodeApiRepo by inject()
+
     private val dataStoreRepo: DataStoreRepo by inject()
     private val distanceSearchRepo: DistanceSearchRepo by inject()
     private val drawCardRepo: DrawCardRepo by inject()
     private val getFavoriteRepo: GetFavoriteRepo by inject()
+    private val getBlackListRepo: GetBlackListRepo by inject()
+    private val getPlaceListRepo: GetPlaceListRepo by inject()
     private val historySearchRepo: HistorySearchRepo by inject()
 
     /**
@@ -66,14 +82,6 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     val userIsLogin: LiveData<Boolean>
         get() = _userIsLogin
 
-//    private val _userTdxToken = MutableLiveData<String>()
-//    val userTdxToken: LiveData<String>
-//        get() = _userTdxToken
-//
-//    private val _userTdxTokenUpdate = MutableLiveData<String>()
-//    val userTdxTokenUpdate: LiveData<String>
-//        get() = _userTdxTokenUpdate
-
     private val _getDistanceSearch = MutableLiveData<Resource<DistanceSearchRes>>()
     val getDistanceSearch: LiveData<Resource<DistanceSearchRes>>
         get() = _getDistanceSearch
@@ -100,8 +108,7 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     }
 
     fun getUserPasswordFromDataStore() = viewModelScope.launch(Dispatchers.IO) {
-        val decrypt = AES.decrypt(MMSLAB, dataStoreRepo.getPassword())
-        _userPassword.postValue(decrypt)
+        _userPassword.postValue(dataStoreRepo.getPassword())
     }
 
     fun putAccessKey(accessKey: String) = viewModelScope.launch(Dispatchers.IO) {
@@ -174,6 +181,8 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
         deleteDistanceSearchData()
         deleteDrawCardData()
         deleteAllFavoriteData()
+        deleteAllBlackListData()
+        deleteAllPlaceListData()
         deleteAllHistoryData()
     }
 
@@ -181,21 +190,16 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
         viewModelScope.launch { _getDistanceSearch.postValue(Resource.Loading()) }
         try {
             viewModelScope.launch(Dispatchers.IO) {
-                distanceSearchRepo.getData().let {
-                    _getDistanceSearch.postValue(Resource.Success(it))
-                }
+                distanceSearchRepo.getData().let { _getDistanceSearch.postValue(Resource.Success(it)) }
             }
         } catch (e: IOException) {
-            viewModelScope.launch {
-                _getDistanceSearch.value = Resource.Error("ERROR")
-            }
+            viewModelScope.launch { _getDistanceSearch.value = Resource.Error("ERROR") }
         }
     }
 
     suspend fun insertDistanceSearchData(distanceSearchRes: DistanceSearchRes) {
         deleteDistanceSearchData()
         distanceSearchRepo.insertData(distanceSearchRes)
-        getDistanceSearchData()
     }
 
     private suspend fun deleteDistanceSearchData() =
@@ -205,21 +209,16 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
         viewModelScope.launch { _getDrawCard.postValue(Resource.Loading()) }
         try {
             viewModelScope.launch(Dispatchers.IO) {
-                drawCardRepo.getData().let {
-                    _getDrawCard.postValue(Resource.Success(it))
-                }
+                drawCardRepo.getData().let { _getDrawCard.postValue(Resource.Success(it)) }
             }
         } catch (e: IOException) {
-            viewModelScope.launch {
-                _getDrawCard.value = Resource.Error("ERROR")
-            }
+            viewModelScope.launch { _getDrawCard.value = Resource.Error("ERROR") }
         }
     }
 
     suspend fun insertDrawCardData(drawCardRes: DrawCardRes) {
         deleteDrawCardData()
         drawCardRepo.insertData(drawCardRes)
-        getDrawCardData()
     }
 
     private suspend fun deleteDrawCardData() =
@@ -240,35 +239,47 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     fun deleteAllFavoriteData() =
         getFavoriteRepo.deleteAllData()
 
-    fun getHistoryData(): List<HistorySearch> =
+    fun getBlackListData(): List<PlaceList> =
+        getBlackListRepo.getData()
+
+    fun insertBlackListData(placeList: PlaceList) =
+        getBlackListRepo.insertData(placeList)
+
+    fun insertAllBlackListData(placeLists: List<PlaceList>) =
+        getBlackListRepo.insertAllData(placeLists)
+
+    fun deleteBlackListData(placeList: PlaceList) =
+        getBlackListRepo.deleteData(placeList)
+
+    fun deleteAllBlackListData() =
+        getBlackListRepo.deleteAllData()
+
+    fun getPlaceListData(): List<MyPlaceList> =
+        getPlaceListRepo.getData()
+
+    fun insertPlaceListData(placeList: MyPlaceList) =
+        getPlaceListRepo.insertData(placeList)
+
+    fun insertAllPlaceListData(placeLists: List<MyPlaceList>) =
+        getPlaceListRepo.insertAllData(placeLists)
+
+    fun deletePlaceListData(placeList: MyPlaceList) =
+        getPlaceListRepo.deleteData(placeList)
+
+    fun deleteAllPlaceListData() =
+        getPlaceListRepo.deleteAllData()
+
+    fun getHistoryData(): List<AutoComplete> =
         historySearchRepo.getData()
 
-    fun insertHistoryData(historySearch: HistorySearch) =
+    fun insertHistoryData(historySearch: AutoComplete) =
         historySearchRepo.insertData(historySearch)
 
-    fun deleteHistoryData(historySearch: HistorySearch) =
+    fun deleteHistoryData(historySearch: AutoComplete) =
         historySearchRepo.deleteData(historySearch)
 
     fun deleteAllHistoryData() =
         historySearchRepo.deleteAllData()
-
-//    fun putUserTdxToken(token: String) = viewModelScope.launch(Dispatchers.Default) {
-//        dataStoreRepo.putTdxToken(token)
-//        getUserTdxTokenFromDataStore()
-//    }
-//
-//    fun getUserTdxTokenFromDataStore() = viewModelScope.launch(Dispatchers.Default) {
-//        _userTdxToken.postValue(dataStoreRepo.getTdxToken())
-//    }
-//
-//    fun putUserTdxTokenUpdate(date: String) = viewModelScope.launch(Dispatchers.Default) {
-//        dataStoreRepo.putTdxTokenUpdate(date)
-//        getUserTdxTokenUpdate()
-//    }
-//
-//    fun getUserTdxTokenUpdate() = viewModelScope.launch(Dispatchers.Default) {
-//        _userTdxTokenUpdate.postValue(dataStoreRepo.getTdxTokenUpdate())
-//    }
 
     fun clearData() = viewModelScope.launch(Dispatchers.Default) {
         dataStoreRepo.clearData()
@@ -277,23 +288,4 @@ abstract class BaseViewModel : ViewModel(), KoinComponent {
     fun clearPublicData() = viewModelScope.launch(Dispatchers.Default) {
         dataStoreRepo.clearPublicData()
     }
-
-    /**
-     * 呼叫 API
-     */
-//    fun updateTdxToken(date: String, tdxTokenReq: TdxTokenReq) {
-//        ApiClient.getTdxToken.getToken(tdxTokenReq.grant_type, tdxTokenReq.client_id, tdxTokenReq.client_secret).enqueue(object : Callback<TdxTokenRes> {
-//            override fun onResponse(call: Call<TdxTokenRes>, response: Response<TdxTokenRes>) {
-//                response.body()?.let {
-//                    logE("Get New Token", "Success")
-//                    putUserTdxToken("Bearer ${it.access_token}")
-//                    putUserTdxTokenUpdate(date)
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<TdxTokenRes>, t: Throwable) {
-//                logE("Get New Token", "Error:${t.message.toString()}")
-//            }
-//        })
-//    }
 }

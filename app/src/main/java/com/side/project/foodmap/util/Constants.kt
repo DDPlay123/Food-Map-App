@@ -49,7 +49,9 @@ object Constants {
     const val DISTANCE_SEARCH_MODEL = "DISTANCE_SEARCH_MODEL"
     const val DRAW_CARD_MODEL = "DRAW_CARD_MODEL"
     const val GET_FAVORITE_MODEL = "GET_FAVORITE_MODEL"
-    const val HISTORY_SEARCH = "HISTORY_SEARCH"
+    const val GET_BLACK_LIST_MODEL = "GET_BLACK_LIST_MODEL"
+    const val GET_PLACE_LIST_MODEL = "GET_PLACE_LIST_MODEL"
+    const val HISTORY_SEARCH_MODEL = "HISTORY_SEARCH_MODEL"
 
     /**
      * User Preference
@@ -66,20 +68,23 @@ object Constants {
     const val USER_NAME = "USER_NAME"
     const val USER_PICTURE = "USER_PICTURE"
     const val USER_IS_LOGIN = "USER_IS_LOGIN"
-    const val USER_TDX_TOKEN = "USER_TDX_TOKEN"
-    const val USER_TDX_TOKEN_UPDATE = "USER_TDX_TOKEN_UPDATE"
 
     /**
      * Activity Parameter
      */
+    // GetLocation Activity
+    const val REGION_PLACE_ID = "REGION_PLACE_ID"
+
     // Detail Activity
     const val PLACE_ID = "PLACE_ID"
     const val IS_FAVORITE = "IS_FAVORITE" // For Result Value
+    const val IS_BLACK_LIST = "IS_BLACK_LIST" // For Result Value
 
     // List Activity
+    enum class ListType {
+        NEAR_LIST, KEYWORD_LIST, BLACK_LIST
+    }
+    const val LIST_TYPE = "ListType"
     const val KEYWORD = "KEYWORD"
     const val DISTANCE = "DISTANCE"
-    const val IS_NEAR_SEARCH = "IS_NEAR_SEARCH"
-    const val LATITUDE = "LATITUDE"
-    const val LONGITUDE = "LONGITUDE"
 }

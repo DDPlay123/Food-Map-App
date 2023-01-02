@@ -104,8 +104,7 @@ class BindingAdapter {
         fun setLoadSquareImageFromApi(imageView: ImageView, photoId: String) {
             try {
                 val userID = ""
-                imageView.load("http://kkhomeserver.ddns.net:33000/api/place/get_html_photo/$photoId?userId=$userID", imageLoader = imageView.context.imageLoader
-                )
+                imageView.load("http://kkhomeserver.ddns.net:33000/api/place/get_html_photo/$photoId?userId=$userID", imageLoader = imageView.context.imageLoader)
             } catch (ignored: Exception) {
             }
         }
@@ -133,7 +132,7 @@ class BindingAdapter {
                     else
                         imageView.setImageResource(R.drawable.ic_microphone)
                 }
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
             }
         }
 
@@ -148,7 +147,7 @@ class BindingAdapter {
                     else
                         imageView.display()
                 }
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
             }
         }
 
@@ -165,7 +164,7 @@ class BindingAdapter {
                     else
                         imageView.gone()
                 }
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
             }
         }
 
@@ -176,7 +175,7 @@ class BindingAdapter {
                 textView.text = String.format(
                     textView.context.getString(if (distance < 1) R.string.text_number_meter else R.string.text_number_kilometer),
                     if (distance < 1) distance * 1000 else distance)
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
             }
         }
     }

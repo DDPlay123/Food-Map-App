@@ -4,14 +4,11 @@ import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.provider.Settings
 import android.speech.RecognizerIntent
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.widget.PopupMenu
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,7 +25,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
-import com.google.android.gms.maps.model.LatLng
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.chinese.ChineseTextRecognizerOptions
@@ -39,34 +35,38 @@ import com.luck.picture.lib.config.SelectModeConfig
 import com.luck.picture.lib.entity.LocalMedia
 import com.luck.picture.lib.interfaces.OnResultCallbackListener
 import com.side.project.foodmap.R
-import com.side.project.foodmap.data.remote.api.Location
-import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
+import com.side.project.foodmap.data.remote.AutoComplete
+import com.side.project.foodmap.data.remote.Location
 import com.side.project.foodmap.databinding.DialogPromptBinding
-import com.side.project.foodmap.databinding.DialogPromptSelectBinding
+import com.side.project.foodmap.databinding.DialogRegionListBinding
 import com.side.project.foodmap.databinding.DialogSearchBinding
 import com.side.project.foodmap.databinding.FragmentHomeBinding
 import com.side.project.foodmap.helper.*
 import com.side.project.foodmap.ui.activity.DetailActivity
 import com.side.project.foodmap.ui.activity.ListActivity
 import com.side.project.foodmap.ui.activity.MainActivity
+import com.side.project.foodmap.ui.activity.other.GetLocationActivity
 import com.side.project.foodmap.ui.adapter.PopularSearchAdapter
 import com.side.project.foodmap.ui.adapter.RegionSelectAdapter
 import com.side.project.foodmap.ui.adapter.SearchAndHistoryAdapter
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.MainViewModel
+import com.side.project.foodmap.util.Constants
 import com.side.project.foodmap.util.Constants.DISTANCE
-import com.side.project.foodmap.util.Constants.IS_NEAR_SEARCH
+import com.side.project.foodmap.util.Constants.IS_BLACK_LIST
+import com.side.project.foodmap.util.Constants.IS_FAVORITE
 import com.side.project.foodmap.util.Constants.KEYWORD
-import com.side.project.foodmap.util.Constants.LATITUDE
-import com.side.project.foodmap.util.Constants.LONGITUDE
+import com.side.project.foodmap.util.Constants.LIST_TYPE
 import com.side.project.foodmap.util.Constants.PLACE_ID
+import com.side.project.foodmap.util.Constants.REGION_PLACE_ID
 import com.side.project.foodmap.util.Resource
 import com.side.project.foodmap.util.tools.CoilEngine
 import com.side.project.foodmap.util.tools.Coroutines
 import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.tools.Method.getDistance
 import com.side.project.foodmap.util.tools.Method.logE
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import java.io.File
@@ -77,18 +77,12 @@ import kotlin.math.abs
 class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private val viewModel: MainViewModel by activityViewModel()
 
-    private lateinit var regionList: ArrayList<String>
-    private lateinit var region: String
-    private lateinit var placeId: String
-    private var regionID: Int = 0
+    private lateinit var mPlaceId: String
     private var keyword: String = ""
 
-    private var startY = 0
-
-    private var isRecentPopularSearch: Boolean = true
-
-    private lateinit var searchAndHistoryAdapter: SearchAndHistoryAdapter
     private lateinit var popularSearchAdapter: PopularSearchAdapter
+    private lateinit var regionSelectAdapter: RegionSelectAdapter
+    private lateinit var searchAndHistoryAdapter: SearchAndHistoryAdapter
 
     private lateinit var oldLatLng: Location
 
@@ -110,23 +104,19 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     override fun FragmentHomeBinding.initialize() {
         mActivity.initLocationService()
 
-        if (!mActivity.checkDeviceGPS() || !mActivity.checkNetworkGPS())
-            viewModel.putUserRegion(getString(R.string.text_taipei))
-
-        binding.paddingTop = mActivity.getStatusBarHeight()
-
-        binding.vm = viewModel
-        binding.isPopularSearch = isRecentPopularSearch
-        regionList = ArrayList(listOf(*resources.getStringArray(R.array.search_type)))
+        binding?.vm = viewModel
+        binding?.paddingTop = mActivity.getStatusBarHeight()
+        binding?.isPopularSearch = viewModel.isRecentPopularSearch
+        dialog.showLoadingDialog(mActivity, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        dialog.showLoadingDialog(mActivity, false)
-        view.delayOnLifecycle(1000L) {
-            // 為了取的第一次的經緯度
+        binding?.root?.delayOnLifecycle(1000) {
+            viewModel.getUserRegionFromDataStore()
             doInitialize()
+            initPopularCard()
             setListener()
         }
     }
@@ -136,95 +126,112 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 // 傳送 FCM Token
                 launch {
-                    viewModel.putFcmTokenState.collect {
+                    viewModel.putFcmTokenFlow.collect {
                         when (it) {
-                            is Resource.Loading -> {
-                                logE("FCM Put", "Loading")
-                            }
-                            is Resource.Success -> {
-                                logE("FCM Put", "Success")
-                            }
-                            is Resource.Error -> {
-                                logE("FCM Put", "Error:${it.message.toString()}")
-                                requireActivity().displayShortToast(getString(R.string.hint_error))
-                            }
+                            is Resource.Error -> requireActivity().displayShortToast(getString(R.string.hint_error))
                             else -> Unit
                         }
                     }
                 }
-                // 取得使用者區域設定
+                // 取得使用者區域
                 launch {
                     viewModel.userRegion.collect { region ->
-                        dialog.cancelAllDialog()
-                        this@HomeFragment.region = region
-                        regionID = regionList.indexOf(region)
-                        viewModel.nearSearch(
-                            region,
-                            LatLng(mActivity.myLatitude, mActivity.myLongitude)
-                        )
-                        viewModel.popularSearch(
-                            region, LatLng(mActivity.myLatitude, mActivity.myLongitude),
-                            if (isRecentPopularSearch) 0 else 1
-                        )
+                        viewModel.run {
+                            regionPosition = 0
+                            regionPlaceId = region
+                            isUseMyLocation = region == ""
+                            if (regionPlaceId.isEmpty() || regionPlaceId == "")
+                                binding?.tvCategory?.text = getString(R.string.hint_near_region)
+                            getSyncPlaceList(false)
+                        }
+                    }
+                }
+                // 取的區域設定列表
+                launch {
+                    viewModel.syncPlaceListData.observe(viewLifecycleOwner) { myPlaceLists ->
+                        myPlaceLists?.let { placeLists ->
+                            viewModel.run {
+                                if (::regionSelectAdapter.isInitialized)
+                                    regionSelectAdapter.submitList(myPlaceLists.toMutableList())
+                                viewModel.myPlaceLists.clear()
+                                viewModel.myPlaceLists.addAll(myPlaceLists)
+
+                                placeLists.find { it.place_id == regionPlaceId }?.let {
+                                    regionPosition = myPlaceLists.indexOf(it)
+                                    isUseMyLocation = false
+                                    selectLatLng = it.location
+                                    if (it.name != "")
+                                        binding?.tvCategory?.text = it.name
+                                    else
+                                        binding?.tvCategory?.text = it.address
+                                }
+
+                                if (isSearchPlaceList) return@observe
+
+                                distanceSearch(
+                                    if (isUseMyLocation) Location(
+                                        mActivity.myLatitude,
+                                        mActivity.myLongitude
+                                    ) else selectLatLng
+                                )
+                                drawCard(
+                                    if (isUseMyLocation) Location(
+                                        mActivity.myLatitude,
+                                        mActivity.myLongitude
+                                    ) else selectLatLng,
+                                    isRecentPopularSearch
+                                )
+                            }
+                        }
                     }
                 }
                 // 人氣餐廳
                 launch {
-                    viewModel.popularSearchState.observe(viewLifecycleOwner) { resource ->
+                    viewModel.drawCardData.collect { resource ->
                         when (resource) {
-                            is Resource.Loading -> {
-                                logE("Popular Search", "Loading")
-                                dialog.showLoadingDialog(mActivity, false)
-                                binding.vpPopular.hidden()
-                                binding.lottieNoData.display()
-                                return@observe
-                            }
+                            is Resource.Loading -> dialog.showLoadingDialog(mActivity, false)
                             is Resource.Success -> {
-                                logE("Popular Search", "Success")
-                                return@observe
-                            }
-                            is Resource.Error -> {
-                                logE("Popular Search", "Error:${resource.message.toString()}")
-                                dialog.cancelLoadingDialog()
-                                requireActivity().displayShortToast(getString(R.string.hint_error))
-                                viewModel.getDrawCardData()
-                                return@observe
-                            }
-                            else -> Unit
-                        }
-                    }
-                }
-                // 人氣餐廳 From Room
-                launch {
-                    viewModel.getDrawCard.observe(viewLifecycleOwner) { resource ->
-                        when (resource) {
-                            is Resource.Loading -> {
-                                logE("Popular Search Room", "Loading")
-                                dialog.showLoadingDialog(mActivity, false)
-                                return@observe
-                            }
-                            is Resource.Success -> {
-                                logE("Popular Search Room", "Success")
-                                dialog.cancelLoadingDialog()
-                                binding.vpPopular.display()
-                                binding.lottieNoData.hidden()
-                                resource.data?.let { data ->
-                                    if (data.result.msg.isNullOrEmpty() && data.result.placeList.isNotEmpty())
-                                        initPopularCard(data)
-                                    else {
-                                        binding.vpPopular.hidden()
-                                        binding.lottieNoData.display()
+                                binding?.apply {
+                                    vpPopular.display()
+                                    lottieNoData.hidden()
+                                    resource.data?.let { data ->
+                                        if (data.result.msg.isNullOrEmpty() && data.result.placeList.isNotEmpty() &&
+                                            data.result.placeList.size > 0 && ::popularSearchAdapter.isInitialized
+                                        ) {
+                                            popularSearchAdapter.submitList(data.result.placeList.toMutableList()) {
+                                                vpPopular.delayOnLifecycle(100) {
+                                                    vpPopular.setCurrentItem(0, false)
+                                                }
+                                            }
+                                            popularSearchAdapter.setMyLocation(
+                                                Location(
+                                                    mActivity.myLatitude,
+                                                    mActivity.myLongitude
+                                                )
+                                            )
+
+                                            if (data.result.placeList.size > 1) {
+                                                imgPopularForward.display()
+                                                imgPopularBack.gone()
+                                            } else {
+                                                imgPopularForward.gone()
+                                                imgPopularBack.display()
+                                            }
+
+                                        } else {
+                                            vpPopular.hidden()
+                                            lottieNoData.display()
+                                        }
                                     }
+                                    delay(1000)
+                                    dialog.cancelLoadingDialog()
                                 }
-                                return@observe
                             }
                             is Resource.Error -> {
-                                logE("Popular Search Room", "Error:${resource.message.toString()}")
-                                dialog.cancelLoadingDialog()
                                 requireActivity().displayShortToast(getString(R.string.hint_error))
-                                binding.vpPopular.hidden()
-                                binding.lottieNoData.display()
-                                return@observe
+                                binding?.vpPopular?.hidden()
+                                binding?.lottieNoData?.display()
+                                dialog.cancelLoadingDialog()
                             }
                             else -> Unit
                         }
@@ -232,52 +239,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 }
                 // 附近搜尋
                 launch {
-                    viewModel.nearSearchState.observe(viewLifecycleOwner) { resource ->
+                    viewModel.distanceSearchFlow.collect { resource ->
                         when (resource) {
-                            is Resource.Loading -> {
-                                logE("Near Search", "Loading")
-                                dialog.showLoadingDialog(mActivity, false)
-                                return@observe
-                            }
                             is Resource.Success -> {
-                                logE("Near Search", "Success")
-                                return@observe
-                            }
-                            is Resource.Error -> {
-                                logE("Near Search", "Error:${resource.message.toString()}")
-                                dialog.cancelLoadingDialog()
-                                requireActivity().displayShortToast(getString(R.string.hint_error))
-                                viewModel.getDistanceSearchData()
-                                return@observe
-                            }
-                            else -> Unit
-                        }
-                    }
-                }
-                // 附近搜尋 From Room
-                launch {
-                    viewModel.getDistanceSearch.observe(viewLifecycleOwner) { resource ->
-                        when (resource) {
-                            is Resource.Loading -> {
-                                logE("Near Search Room", "Loading")
-                                dialog.showLoadingDialog(mActivity, false)
-                                return@observe
-                            }
-                            is Resource.Success -> {
-                                logE("Near Search Room", "Success")
-                                dialog.cancelLoadingDialog()
                                 resource.data?.let { data ->
-                                    binding.nearSearch = data
-                                    placeId = data.result.placeList[0].place_id
+                                    binding?.nearSearch = data
+                                    mPlaceId = data.result.placeList[0].place_id
                                 }
-                                return@observe
                             }
-                            is Resource.Error -> {
-                                logE("Near Search Room", "Error:${resource.message.toString()}")
-                                dialog.cancelLoadingDialog()
-                                requireActivity().displayShortToast(getString(R.string.hint_error))
-                                return@observe
-                            }
+                            is Resource.Error -> requireActivity().displayShortToast(getString(R.string.hint_error))
                             else -> Unit
                         }
                     }
@@ -285,24 +255,25 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 // 自動更新
                 launch {
                     mActivity.locationGet.observe(viewLifecycleOwner) { location ->
-                        if (!::oldLatLng.isInitialized) {
+                        if (!::oldLatLng.isInitialized || viewModel.regionPlaceId == "") {
                             oldLatLng = location
                             return@observe
                         }
-                        if (getDistance(
-                                LatLng(location.lat, location.lng),
-                                LatLng(oldLatLng.lat, oldLatLng.lng)
-                            ) * 1000 > 100
-                        ) {
+                        if (getDistance(location, oldLatLng) * 1000 > 100) {
                             oldLatLng = location
-                            if (::region.isInitialized) {
-                                viewModel.nearSearch(
-                                    region,
-                                    LatLng(mActivity.myLatitude, mActivity.myLongitude)
+                            viewModel.run {
+                                distanceSearch(
+                                    if (isUseMyLocation) Location(
+                                        mActivity.myLatitude,
+                                        mActivity.myLongitude
+                                    ) else selectLatLng
                                 )
-                                viewModel.popularSearch(
-                                    region, LatLng(mActivity.myLatitude, mActivity.myLongitude),
-                                    if (isRecentPopularSearch) 0 else 1
+                                drawCard(
+                                    if (isUseMyLocation) Location(
+                                        mActivity.myLatitude,
+                                        mActivity.myLongitude
+                                    ) else selectLatLng,
+                                    isRecentPopularSearch
                                 )
                             }
                         }
@@ -310,28 +281,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 }
                 // 搜尋結果
                 launch {
-                    viewModel.autoCompleteState.observe(viewLifecycleOwner) { resource ->
+                    viewModel.autoCompleteFlow.collect { resource ->
                         when (resource) {
-                            is Resource.Loading -> {
-                                logE("Search Result", "Loading")
-//                                dialog.showLoadingDialog(mActivity, false)
-                                return@observe
-                            }
                             is Resource.Success -> {
-                                logE("Search Result", "Success")
-//                                dialog.cancelLoadingDialog()
                                 resource.data?.let { data ->
                                     if (::searchAndHistoryAdapter.isInitialized)
-                                        searchAndHistoryAdapter.setData(false, keyword, data)
+                                        searchAndHistoryAdapter.submitList(data.result.placeList.toMutableList())
                                 }
-                                return@observe
                             }
-                            is Resource.Error -> {
-                                logE("Search Result", "Error:${resource.message.toString()}")
-//                                dialog.cancelLoadingDialog()
-                                requireActivity().displayShortToast(getString(R.string.hint_error))
-                                return@observe
-                            }
+                            is Resource.Error -> requireActivity().displayShortToast(getString(R.string.hint_error))
                             else -> Unit
                         }
                     }
@@ -340,22 +298,91 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 launch {
                     viewModel.historySearchList.observe(viewLifecycleOwner) { historySearchList ->
                         if (::searchAndHistoryAdapter.isInitialized && keyword.isEmpty())
-                            searchAndHistoryAdapter.setData(
-                                true,
-                                keyword,
-                                historySearchList.reversed()
+                            searchAndHistoryAdapter.submitList(
+                                historySearchList.toMutableList().reversed()
                             )
+                    }
+                }
+                // 刪除區域設定
+                launch {
+                    viewModel.pullPlaceListFlow.collect { resource ->
+                        when (resource) {
+                            is Resource.Success -> viewModel.getSyncPlaceList(true)
+                            is Resource.Error -> requireActivity().displayShortToast(getString(R.string.hint_error))
+                            else -> Unit
+                        }
                     }
                 }
             }
         }
     }
 
+    private fun initPopularCard() {
+        popularSearchAdapter = PopularSearchAdapter()
+        val compositePageTransformer = CompositePageTransformer()
+        compositePageTransformer.apply {
+            addTransformer(MarginPageTransformer(40))
+            addTransformer { page, position ->
+                val r = 1 - abs(position)
+                page.scaleY = 0.85f + (r * 0.15f)
+            }
+        }
+        binding?.vpPopular?.apply {
+            clipToPadding = false
+            clipChildren = false
+            offscreenPageLimit = 3
+            getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+            setPageTransformer(compositePageTransformer)
+            adapter = popularSearchAdapter
+
+            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    if (popularSearchAdapter.currentList.size == 1) {
+                        binding?.imgPopularBack?.gone()
+                        binding?.imgPopularForward?.gone()
+                    }
+                    when (currentItem) {
+                        0 -> {
+                            binding?.imgPopularBack?.gone()
+                            if (popularSearchAdapter.currentList.size == 2)
+                                binding?.imgPopularForward?.display()
+                        }
+                        popularSearchAdapter.currentList.size - 1 -> {
+                            binding?.imgPopularForward?.gone()
+                            if (popularSearchAdapter.currentList.size == 2)
+                                binding?.imgPopularBack?.display()
+                        }
+                        else -> {
+                            binding?.imgPopularBack?.display()
+                            binding?.imgPopularForward?.display()
+                        }
+                    }
+                }
+            })
+        }
+
+        popularSearchAdapter.onItemFavoriteClick = { placeId, isFavorite ->
+            if (isFavorite) {
+                viewModel.pullFavorite(arrayListOf(placeId))
+                false
+            } else {
+                viewModel.pushFavorite(arrayListOf(placeId))
+                true
+            }
+        }
+
+        popularSearchAdapter.onItemClick = { placeId ->
+            watchDetail(placeId)
+        }
+    }
+
     private fun setListener() {
         val anim = animManager.smallToLarge
-        binding.run {
+        binding?.run {
             tvCategory.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
+                    viewModel.getSyncPlaceList(true)
                     displayRegionDialog()
                 }
             }
@@ -384,10 +411,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
             tvPopular.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    isRecentPopularSearch = !isRecentPopularSearch
-                    togglePopularSearch(isRecentPopularSearch)
-                    binding.imgPopularBack.gone()
-                    binding.imgPopularForward.display()
+                    viewModel.run {
+                        initPopularCard()
+                        isRecentPopularSearch = !isRecentPopularSearch
+                        togglePopularSearch(isRecentPopularSearch)
+                    }
                 }
             }
 
@@ -401,195 +429,189 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
             imgRefresh.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    if (::region.isInitialized) {
-                        viewModel.nearSearch(
-                            region,
-                            LatLng(mActivity.myLatitude, mActivity.myLongitude)
+                    initPopularCard()
+                    viewModel.run {
+                        distanceSearch(
+                            if (isUseMyLocation) Location(
+                                mActivity.myLatitude,
+                                mActivity.myLongitude
+                            ) else selectLatLng
                         )
-                        viewModel.popularSearch(
-                            region, LatLng(mActivity.myLatitude, mActivity.myLongitude),
-                            if (isRecentPopularSearch) 0 else 1
+                        drawCard(
+                            if (isUseMyLocation) Location(
+                                mActivity.myLatitude,
+                                mActivity.myLongitude
+                            ) else selectLatLng,
+                            isRecentPopularSearch
                         )
                     }
                 }
             }
 
             cardAllRestaurant.setOnClickListener {
-                watchDetail(placeId)
+                watchDetail(mPlaceId)
             }
 
             tvViewMore.setOnClickListener {
-                if (!mActivity.checkDeviceGPS() || !mActivity.checkNetworkGPS()) {
+                if (!mActivity.checkDeviceGPS() && !mActivity.checkNetworkGPS()) {
                     displayNotGpsDialog()
                     return@setOnClickListener
                 }
                 Bundle().also { b ->
-                    val latLng: LatLng = Method.getCurrentLatLng(
-                        region,
-                        LatLng(mActivity.myLatitude, mActivity.myLongitude)
-                    )
-                    b.putString(KEYWORD, region)
-                    b.putBoolean(IS_NEAR_SEARCH, true)
-                    b.putDouble(LATITUDE, latLng.latitude)
-                    b.putDouble(LONGITUDE, latLng.longitude)
-                    mActivity.start(ListActivity::class.java, b)
+                    viewModel.run {
+                        b.putString(LIST_TYPE, Constants.ListType.NEAR_LIST.name)
+                        b.putString(KEYWORD, getString(R.string.hint_near_region))
+                        b.putInt(DISTANCE, 1000)
+                        mActivity.start(ListActivity::class.java, b)
+                    }
                 }
             }
+        }
+    }
 
-            // 暫保留
-//            vpPopular.setOnTouchListener { _, event ->
-//                when (event.action) {
-//                    MotionEvent.ACTION_DOWN ->
-//                        // 手指按下
-//                        // 記錄當前的Y坐標
-//                        startY = event.y.toInt()
-//                    MotionEvent.ACTION_MOVE -> {
-//                        // 手指移動
-//                        val endY = event.y
-//                        val distanceY = endY - startY
-//                        // 如果手指向下滑動
-//                        scrollView.isNestedScrollingEnabled = distanceY <= 0
-//                    }
-//                    MotionEvent.ACTION_UP ->
-//                        // 手指抬起
-//                        // 允許NestedScrollView滾動
-//                        scrollView.isNestedScrollingEnabled = true
-//                }
-//                false
-//            }
+    private val getNewAddress =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                result.data?.extras?.let {
+                    val regionId = it.getString(REGION_PLACE_ID, "")
+                    viewModel.getSyncPlaceList(true)
+                    regionSelectAdapter.setSelectRegion(regionId)
+                    viewModel.putUserRegion(regionId)
+                    viewModel.getUserRegionFromDataStore()
+                }
+            }
+        }
+
+    private fun displayRegionDialog() {
+        val dialogBinding = DialogRegionListBinding.inflate(layoutInflater)
+        dialog.showBottomDialog(mActivity, dialogBinding, false).let {
+            dialogBinding.run {
+                viewModel.run {
+                    initRvRegion(dialogBinding)
+                    tvMyLocation.setOnClickListener {
+                        if (regionPlaceId == "") {
+                            dialog.cancelBottomDialog()
+                            return@setOnClickListener
+                        }
+                        regionPosition = 0
+                        regionPlaceId = ""
+                        isUseMyLocation = true
+                        selectLatLng = Location(mActivity.myLatitude, mActivity.myLongitude)
+                        binding?.tvCategory?.text = getString(R.string.hint_near_region)
+                        viewModel.putUserRegion("")
+                        viewModel.getUserRegionFromDataStore()
+                        dialog.cancelBottomDialog()
+                    }
+
+                    tvAddRegion.setOnClickListener {
+                        Intent(mActivity, GetLocationActivity::class.java).also {
+                            getNewAddress.launch(it)
+                            dialog.cancelBottomDialog()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun initRvRegion(dialogBinding: DialogRegionListBinding) {
+        regionSelectAdapter = RegionSelectAdapter()
+        dialogBinding.rvRegion.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+            adapter = regionSelectAdapter
+
+            if (regionSelectAdapter.currentList.size <= 0)
+                regionSelectAdapter.submitList(viewModel.myPlaceLists.toMutableList())
+
+            regionSelectAdapter.setSelectRegion(viewModel.regionPlaceId)
+
+            val smoothScroller: RecyclerView.SmoothScroller =
+                object : LinearSmoothScroller(context) {
+                    override fun getVerticalSnapPreference(): Int = SNAP_TO_START
+                }
+
+            smoothScroller.targetPosition = viewModel.regionPosition
+            layoutManager?.startSmoothScroll(smoothScroller)
+        }
+
+        regionSelectAdapter.onItemClick = { myPlaceList, _ ->
+            myPlaceList.place_id.also {
+                if (myPlaceList.place_id == viewModel.regionPlaceId) {
+                    dialog.cancelBottomDialog()
+                    return@also
+                }
+                regionSelectAdapter.setSelectRegion(it)
+                if (myPlaceList.name != "")
+                    binding?.tvCategory?.text = myPlaceList.name
+                else
+                    binding?.tvCategory?.text = myPlaceList.address
+                viewModel.putUserRegion(it)
+                viewModel.getUserRegionFromDataStore()
+                dialog.cancelBottomDialog()
+            }
+        }
+
+        regionSelectAdapter.onDeleteClick = { mPlaceList, _ ->
+            viewModel.apply {
+                pullPlaceList(mPlaceList.place_id)
+                deletePlaceListData(mPlaceList)
+            }
         }
     }
 
     private fun togglePopularSearch(isRecentPopularSearch: Boolean) {
-        binding.isPopularSearch = isRecentPopularSearch
-        if (isRecentPopularSearch)
-            viewModel.popularSearch(
-                region,
-                LatLng(mActivity.myLatitude, mActivity.myLongitude),
-                mode = 0
-            )
-        else
-            viewModel.popularSearch(
-                region,
-                LatLng(mActivity.myLatitude, mActivity.myLongitude),
-                mode = 1
-            )
-    }
-
-    private fun displayRegionDialog() {
-        val dialogBinding = DialogPromptSelectBinding.inflate(layoutInflater)
-        val regionSelectAdapter = RegionSelectAdapter()
-        dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
-            dialogBinding.run {
-                // initialize
-                titleText = getString(R.string.hint_select_region)
-                hideCancel = true
-                hideConfirm = true
-                listItem.apply {
-                    layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-                    adapter = regionSelectAdapter
-                }
-                regionSelectAdapter.setRegionList(regionList, regionID)
-                // auto scroll to top
-                val smoothScroller: RecyclerView.SmoothScroller =
-                    object : LinearSmoothScroller(context) {
-                        override fun getVerticalSnapPreference(): Int = SNAP_TO_START
-                    }
-                smoothScroller.targetPosition = regionID
-                listItem.layoutManager?.startSmoothScroll(smoothScroller)
-                // listener
-                regionSelectAdapter.onItemClick = { region ->
-                    if (!mActivity.checkDeviceGPS() || !mActivity.checkNetworkGPS() && region == getString(
-                            R.string.hint_near_region
-                        ))
-                        displayNotGpsDialog()
-                    else if (region != regionList[regionID]) {
-                        mActivity.initLocationService()
-                        viewModel.putUserRegion(region)
-                        dialog.showLoadingDialog(mActivity, false)
-                    } else
-                        mActivity.initLocationService()
-                }
-            }
-        }
-    }
-
-    private fun initPopularCard(drawCardRes: DrawCardRes) {
-        popularSearchAdapter = PopularSearchAdapter()
-        val compositePageTransformer = CompositePageTransformer()
-        compositePageTransformer.apply {
-            addTransformer(MarginPageTransformer(40))
-            addTransformer { page, position ->
-                val r = 1 - abs(position)
-                page.scaleY = 0.85f + (r * 0.15f)
-            }
-        }
-        binding.vpPopular.apply {
-            clipToPadding = false
-            clipChildren = false
-            offscreenPageLimit = 3
-            getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
-            setPageTransformer(compositePageTransformer)
-            adapter = popularSearchAdapter
-            if (drawCardRes.result.placeList.size > 0) {
-                popularSearchAdapter.setData(drawCardRes.result.placeList)
-                popularSearchAdapter.setMyLocation(
-                    LatLng(
+        viewModel.run {
+            binding?.run {
+                isPopularSearch = isRecentPopularSearch
+                drawCard(
+                    if (isUseMyLocation) Location(
                         mActivity.myLatitude,
                         mActivity.myLongitude
-                    )
+                    ) else selectLatLng,
+                    isRecentPopularSearch
                 )
             }
+        }
+    }
 
-            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                override fun onPageSelected(position: Int) {
-                    super.onPageSelected(position)
-                    if (popularSearchAdapter.getDataSize() == 1) {
-                        binding.imgPopularBack.gone()
-                        binding.imgPopularForward.gone()
-                    }
-                    when (currentItem) {
-                        0 -> {
-                            binding.imgPopularBack.gone()
-                            if (popularSearchAdapter.getDataSize() == 2)
-                                binding.imgPopularForward.display()
-                        }
-                        popularSearchAdapter.getDataSize() - 1 -> {
-                            binding.imgPopularForward.gone()
-                            if (popularSearchAdapter.getDataSize() == 2)
-                                binding.imgPopularBack.display()
-                        }
-                        else -> {
-                            binding.imgPopularBack.display()
-                            binding.imgPopularForward.display()
+    private val toDetail =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                result.data?.extras?.let { b ->
+                    val mPlaceId = b.getString(PLACE_ID, "")
+                    val mIsFavorite = b.getBoolean(IS_FAVORITE, false)
+                    val mIsBlackList = b.getBoolean(IS_BLACK_LIST, false)
+                    val list = popularSearchAdapter.currentList.toMutableList()
+                    list.forEachIndexed { index, placeList ->
+                        if (placeList.place_id == mPlaceId) {
+                            if (mIsBlackList) {
+                                list.remove(placeList)
+                                popularSearchAdapter.submitList(list)
+                                popularSearchAdapter.notifyItemChanged(index)
+                                return@registerForActivityResult
+                            }
+                            if (mIsFavorite) {
+                                placeList.isFavorite = mIsFavorite
+                                popularSearchAdapter.submitList(list)
+                                popularSearchAdapter.notifyItemChanged(index)
+                                return@registerForActivityResult
+                            }
                         }
                     }
                 }
-            })
-        }
-
-        popularSearchAdapter.onItemFavoriteClick = { placeId, isFavorite ->
-            if (isFavorite) {
-                viewModel.quickPullFavorite(arrayListOf(placeId))
-                false
-            } else {
-                viewModel.quickPushFavorite(arrayListOf(placeId))
-                true
             }
         }
-
-        popularSearchAdapter.onItemClick = { placeId ->
-            watchDetail(placeId)
-        }
-    }
 
     private fun watchDetail(placeId: String) {
         if (placeId.isEmpty()) return
         try {
             logE("Watch Detail", "Success")
-            Bundle().also { b ->
-                b.putString(PLACE_ID, placeId)
-                mActivity.start(DetailActivity::class.java, b)
+            Intent(mActivity, DetailActivity::class.java).also { intent ->
+                Bundle().also { b ->
+                    b.putString(PLACE_ID, placeId)
+                    intent.putExtras(b)
+                    toDetail.launch(intent)
+                }
             }
         } catch (e: Exception) {
             logE("Watch Detail", "Error")
@@ -599,7 +621,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
     private fun displayNotGpsDialog() {
         val dialogBinding = DialogPromptBinding.inflate(layoutInflater)
-        dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
+        dialog.showCenterDialog(mActivity, false, dialogBinding, false).let {
             dialogBinding.run {
                 dialogBinding.run {
                     showIcon = true
@@ -617,22 +639,24 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         }
     }
 
-    private val getTextFromSpeechRecognizer = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            try {
-                val getText = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.let {
-                    it[0]
-                }.toString()
-                displaySearchDialog(getText)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                mActivity.displayShortToast(getString(R.string.hint_error))
+    private val getTextFromSpeechRecognizer =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                try {
+                    val getText =
+                        result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.let {
+                            it[0]
+                        }.toString()
+                    displaySearchDialog(getText)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    mActivity.displayShortToast(getString(R.string.hint_error))
+                }
             }
         }
-    }
 
     private fun displaySpeechRecognizer() {
-        if (!requestAudioPermission())
+        if (!mActivity.requestAudioPermission())
             return
         Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).also { i ->
             i.putExtra(
@@ -661,7 +685,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     }
 
     private fun pictureSelector() {
-        if (!requestCameraPermission())
+        if (!mActivity.requestCameraPermission())
             return
         PictureSelector.create(this)
             .openGallery(SelectMimeType.ofImage())
@@ -676,7 +700,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             .isGif(false)
             .isFastSlidingSelect(true)
             .isDirectReturnSingle(true)
-            .forResult(object: OnResultCallbackListener<LocalMedia> {
+            .forResult(object : OnResultCallbackListener<LocalMedia> {
                 override fun onResult(result: ArrayList<LocalMedia>?) {
                     val imageFile = File(result?.first()?.realPath ?: "")
                     try {
@@ -728,18 +752,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                             timer = Timer()
                             timer?.schedule(object : TimerTask() {
                                 override fun run() {
-                                    Handler(Looper.getMainLooper()).post {
+                                    Coroutines.main {
                                         isHistory = false
-                                        viewModel.autoComplete(
-                                            input = keyword,
-                                            region = region,
-                                            latLng = LatLng(
-                                                mActivity.myLatitude,
-                                                mActivity.myLongitude
-                                            ),
-                                            radius = radius
-                                        )
-
+                                        doSearch(radius)
                                     }
                                 }
                             }, 500)
@@ -761,18 +776,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     timer = Timer()
                     timer?.schedule(object : TimerTask() {
                         override fun run() {
-                            Handler(Looper.getMainLooper()).post {
+                            Coroutines.main {
                                 isHistory = false
-                                viewModel.autoComplete(
-                                    input = setText,
-                                    region = region,
-                                    latLng = LatLng(
-                                        mActivity.myLatitude,
-                                        mActivity.myLongitude
-                                    ),
-                                    radius = radius
-                                )
-
+                                doSearch(radius)
                             }
                         }
                     }, 500)
@@ -803,15 +809,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                 override fun run() {
                                     Coroutines.main {
                                         isHistory = false
-                                        viewModel.autoComplete(
-                                            input = keyword,
-                                            region = region,
-                                            latLng = LatLng(
-                                                mActivity.myLatitude,
-                                                mActivity.myLongitude
-                                            ),
-                                            radius = radius
-                                        )
+                                        doSearch(radius)
                                     }
                                 }
                             }, 500)
@@ -825,6 +823,17 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         }
     }
 
+    private fun doSearch(distance: Long) {
+        viewModel.autoComplete(
+            location = if (viewModel.isUseMyLocation) Location(
+                mActivity.myLatitude,
+                mActivity.myLongitude
+            ) else viewModel.selectLatLng,
+            distance = distance,
+            input = keyword
+        )
+    }
+
     private fun initSearchRv(dialogBinding: DialogSearchBinding) {
         searchAndHistoryAdapter = SearchAndHistoryAdapter()
         dialogBinding.rvResultAndHistory.apply {
@@ -832,37 +841,29 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             adapter = searchAndHistoryAdapter
 
             searchAndHistoryAdapter.onItemClick = { historySearch ->
-                viewModel.insertHistoryData(historySearch)
+                viewModel.insertHistoryData(
+                    AutoComplete(
+                        place_id = historySearch.place_id,
+                        name = historySearch.name,
+                        address = historySearch.address,
+                        description = historySearch.description,
+                        isSearch = false
+                    )
+                )
                 if (historySearch.place_id != "")
                     watchDetail(historySearch.place_id)
                 else
                     Bundle().also { b ->
-                        val latLng: LatLng = Method.getCurrentLatLng(
-                            keyword,
-                            LatLng(mActivity.myLatitude, mActivity.myLongitude)
-                        )
+                        b.putString(LIST_TYPE, Constants.ListType.KEYWORD_LIST.name)
                         b.putString(KEYWORD, historySearch.name)
                         b.putInt(DISTANCE, (dialogBinding.seekBarRange.progress + 1) * 1000)
-                        b.putBoolean(IS_NEAR_SEARCH, false)
-                        b.putDouble(LATITUDE, latLng.latitude)
-                        b.putDouble(LONGITUDE, latLng.longitude)
                         mActivity.start(ListActivity::class.java, b)
                     }
             }
 
-            searchAndHistoryAdapter.onItemLongClick = { view, historySearch ->
-                val popupMenu = PopupMenu(requireContext(), view)
-                popupMenu.menuInflater.inflate(R.menu.item_history_menu, popupMenu.menu)
-                popupMenu.setOnMenuItemClickListener { item ->
-                    when (item.itemId) {
-                        R.id.action_delete -> {
-                            viewModel.deleteHistoryData(historySearch)
-                            viewModel.getHistorySearchData()
-                        }
-                    }
-                    true
-                }
-                popupMenu.show()
+            searchAndHistoryAdapter.onDeleteClick = { historySearch ->
+                viewModel.deleteHistoryData(historySearch)
+                viewModel.getHistorySearchData()
             }
         }
     }

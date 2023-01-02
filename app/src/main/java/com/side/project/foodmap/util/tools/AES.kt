@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException
 import java.security.GeneralSecurityException
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
+import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
@@ -46,6 +47,9 @@ object AES {
         try {
             val key = generateKey(secretKey)
             val cipherText = encrypt(key, IV_BYTES, message.toByteArray(charset(CHARSET)))
+            Method.logE("KEY", Base64.encodeToString(key.encoded, Base64.DEFAULT))
+            Method.logE("cipherText", cipherText.contentToString())
+            Method.logE("password", Base64.encodeToString(cipherText, Base64.NO_WRAP))
             //NO_WRAP is important as was getting \n at the end
             return Base64.encodeToString(cipherText, Base64.NO_WRAP)
         } catch (e: UnsupportedEncodingException) {
