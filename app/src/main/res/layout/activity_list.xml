@@ -25,6 +25,12 @@
             name="distance"
             type="String" />
 
+        <variable
+            name="isHideDistance"
+            type="Boolean" />
+
+        <import type="android.view.View" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -134,6 +140,7 @@
             android:text="@string/text_distance"
             android:textSize="@dimen/_12ssp"
             android:textStyle="bold"
+            android:visibility="@{isHideDistance ? View.GONE : View.VISIBLE, default=gone}"
             app:drawableTint="#97aabd"
             app:layout_constraintStart_toStartOf="@id/guidelineLeft"
             app:layout_constraintTop_toBottomOf="@+id/searchBar" />
@@ -144,6 +151,7 @@
             android:layout_height="wrap_content"
             android:progressBackgroundTint="@color/primary"
             android:thumbTint="@color/primary"
+            android:visibility="@{isHideDistance ? View.GONE : View.VISIBLE, default=gone}"
             app:layout_constraintBottom_toBottomOf="@+id/tvDistance"
             app:layout_constraintEnd_toStartOf="@+id/tvIntDistance"
             app:layout_constraintStart_toEndOf="@+id/tvDistance"
@@ -156,6 +164,7 @@
             android:text='@{distance != null ? distance + @string/text_kilometer : " 1公里", default=" 1公里"}'
             android:textSize="@dimen/_10ssp"
             android:textStyle="bold"
+            android:visibility="@{isHideDistance ? View.GONE : View.VISIBLE, default=gone}"
             app:drawableTint="#97aabd"
             app:layout_constraintBottom_toBottomOf="@+id/tvDistance"
             app:layout_constraintEnd_toEndOf="@+id/guidelineRight"

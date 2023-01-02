@@ -1,5 +1,6 @@
 package com.side.project.foodmap.ui.fragment
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Lifecycle
@@ -13,12 +14,13 @@ import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.side.project.foodmap.R
-import com.side.project.foodmap.data.remote.api.Location
-import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
+import com.side.project.foodmap.data.remote.Location
+import com.side.project.foodmap.data.remote.restaurant.DistanceSearchRes
 import com.side.project.foodmap.databinding.FragmentMapsBinding
 import com.side.project.foodmap.helper.delayOnLifecycle
 import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.helper.getLocation
+import com.side.project.foodmap.helper.requestLocationPermission
 import com.side.project.foodmap.ui.activity.DetailActivity
 import com.side.project.foodmap.ui.adapter.MapRestaurantAdapter
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
@@ -32,20 +34,17 @@ import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
     private val viewModel: MainViewModel by activityViewModel()
-
-    private lateinit var regionList: ArrayList<String>
-    private lateinit var region: String
-    private var regionID: Int = 0
-
     private lateinit var map: GoogleMap
-
-    private lateinit var oldLatLng: Location
 
     private lateinit var mapRestaurantAdapter: MapRestaurantAdapter
 
+    private lateinit var oldLatLng: Location
+
     override fun FragmentMapsBinding.initialize() {
         mActivity.initLocationService()
-        regionList = ArrayList(listOf(*resources.getStringArray(R.array.search_type)))
+        viewModel.distanceSearch(
+            location = Location(mActivity.myLatitude, mActivity.myLongitude)
+        )
     }
 
     private val callback = OnMapReadyCallback { googleMap ->
@@ -53,9 +52,11 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
         initGoogleMap()
     }
 
+    @SuppressLint("MissingPermission")
     private fun initGoogleMap() {
-        if (!requestLocationPermission() || !::map.isInitialized)
+        if (!mActivity.requestLocationPermission() || !::map.isInitialized)
             return
+        setMyLocation()
         map.apply {
             uiSettings.setAllGesturesEnabled(true)
             isMyLocationEnabled = true
@@ -67,6 +68,8 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        dialog.showLoadingDialog(mActivity, false)
+
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
 
@@ -75,68 +78,30 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
         setListener()
     }
 
+    override fun onDestroyView() {
+        map.clear()
+        super.onDestroyView()
+    }
+
     private fun doInitialize() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 // 附近搜尋
                 launch {
-                    viewModel.nearSearchState.observe(viewLifecycleOwner) { resource ->
+                    viewModel.distanceSearchFlow.collect { resource ->
                         when (resource) {
-                            is Resource.Loading -> {
-                                Method.logE("Near Search", "Loading")
-                                dialog.showLoadingDialog(mActivity, false)
-                                return@observe
-                            }
                             is Resource.Success -> {
-                                Method.logE("Near Search", "Success")
-                                return@observe
-                            }
-                            is Resource.Error -> {
-                                Method.logE("Near Search", "Error:${resource.message.toString()}")
-                                dialog.cancelLoadingDialog()
-                                requireActivity().displayShortToast(getString(R.string.hint_error))
-                                viewModel.getDistanceSearchData()
-                                return@observe
-                            }
-                            else -> Unit
-                        }
-                    }
-                }
-                // 附近搜尋 From Room
-                launch {
-                    viewModel.getDistanceSearch.observe(viewLifecycleOwner) { resource ->
-                        when (resource) {
-                            is Resource.Loading -> {
-                                Method.logE("Near Search Room", "Loading")
-                                dialog.showLoadingDialog(mActivity, false)
-                                return@observe
-                            }
-                            is Resource.Success -> {
-                                Method.logE("Near Search Room", "Success")
-                                dialog.cancelLoadingDialog()
                                 resource.data?.let { data ->
                                     setMapMarkers(data)
                                     if (::mapRestaurantAdapter.isInitialized)
                                         mapRestaurantAdapter.submitList(data.result.placeList.toMutableList())
                                 }
-                                return@observe
                             }
                             is Resource.Error -> {
-                                Method.logE("Near Search Room", "Error:${resource.message.toString()}")
-                                dialog.cancelLoadingDialog()
                                 requireActivity().displayShortToast(getString(R.string.hint_error))
-                                return@observe
                             }
                             else -> Unit
                         }
-                    }
-                }
-                // 取得使用者區域設定
-                launch {
-                    viewModel.userRegion.collect { region ->
-                        this@MapsFragment.region = region
-                        regionID = regionList.indexOf(region)
-                        setMyLocation(region)
                     }
                 }
                 // 自動更新
@@ -146,10 +111,16 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
                             oldLatLng = location
                             return@observe
                         }
-                        if (Method.getDistance(LatLng(location.lat, location.lng), LatLng(oldLatLng.lat, oldLatLng.lng)) * 1000 > 100) {
+                        if (Method.getDistance(location, oldLatLng) * 1000 > 100) {
                             oldLatLng = location
-                            if (::region.isInitialized)
-                                viewModel.nearSearch(region, LatLng(mActivity.myLatitude, mActivity.myLongitude))
+                            viewModel.run {
+                                distanceSearch(
+                                    if (isUseMyLocation) Location(
+                                        mActivity.myLatitude,
+                                        mActivity.myLongitude
+                                    ) else selectLatLng
+                                )
+                            }
                         }
                     }
                 }
@@ -176,22 +147,19 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
         }
     }
 
-    private fun setMyLocation(region: String) {
+    private fun setMyLocation() {
         lifecycleScope.launch(Dispatchers.Main) {
             if (!::map.isInitialized) return@launch
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                if (region.getLocation().first == 0.0)
-                    LatLng(mActivity.myLatitude, mActivity.myLongitude)
-                else
-                    LatLng(region.getLocation().first, region.getLocation().second),
+                LatLng(mActivity.myLatitude, mActivity.myLongitude),
                 DEFAULT_ZOOM
             ))
         }
     }
 
-    private fun setCenterLocation(latLng: LatLng) {
+    private fun setCenterLocation(location: Location) {
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-            LatLng(latLng.latitude, latLng.longitude),
+            LatLng(location.lat, location.lng),
             DEFAULT_ZOOM
         ))
     }
@@ -202,7 +170,7 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
         compositePageTransformer.apply {
             addTransformer(MarginPageTransformer(20))
         }
-        binding.vpRestaurant.apply {
+        binding?.vpRestaurant?.apply {
             clipToPadding = false
             clipChildren = false
             offscreenPageLimit = 3
@@ -214,14 +182,7 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
-                    delayOnLifecycle(500) {
-                        setCenterLocation(
-                            LatLng(
-                                mapRestaurantAdapter.currentList[position].location.lat,
-                                mapRestaurantAdapter.currentList[position].location.lng
-                            )
-                        )
-                    }
+                    // TODO(顯示路線)
                 }
             })
         }
@@ -229,8 +190,8 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
 
     private fun setVpItemListener() {
         mapRestaurantAdapter.apply {
-            onItemClick = { placeId ->
-                watchDetail(placeId)
+            onItemClick = { placeList ->
+                setCenterLocation(placeList.location)
             }
         }
     }

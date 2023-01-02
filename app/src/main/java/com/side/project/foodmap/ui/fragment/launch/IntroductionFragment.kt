@@ -18,7 +18,7 @@ class IntroductionFragment : BaseFragment<FragmentIntroductionBinding>(R.layout.
     }
 
     private fun setListener() {
-        binding.btnNext.setOnClickListener {
+        binding?.btnNext?.setOnClickListener {
             val anim = animManager.smallToLarge
             it.setAnimClick(anim, AnimState.End) {
                 findNavController().navigate(R.id.action_introductionFragment_to_loginFragment)

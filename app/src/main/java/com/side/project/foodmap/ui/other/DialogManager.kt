@@ -14,7 +14,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.side.project.foodmap.R
 import com.side.project.foodmap.databinding.DialogLoadingBinding
 
-class DialogManager() {
+class DialogManager {
 
     interface BottomCancelListener {
         fun response()
@@ -41,6 +41,7 @@ class DialogManager() {
     }
 
     fun showLoadingDialog(activity: Activity, cancelable: Boolean) {
+        if (loadingDialog?.isShowing == true) return
         cancelLoadingDialog()
         val loadingView = DialogLoadingBinding.inflate(LayoutInflater.from(activity)).root
 

@@ -1,7 +1,7 @@
 package com.side.project.foodmap.data.local.distanceSearch
 
 import androidx.room.*
-import com.side.project.foodmap.data.remote.api.restaurant.DistanceSearchRes
+import com.side.project.foodmap.data.remote.restaurant.DistanceSearchRes
 import com.side.project.foodmap.util.Constants.DISTANCE_SEARCH_MODEL
 
 @Dao

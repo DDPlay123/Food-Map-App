@@ -116,6 +116,13 @@
     <string name="hint_history_page">歷史紀錄</string>
     <string name="hint_black_list">黑名單列表</string>
     <string name="hint_clear_history_search">清除歷史紀錄</string>
+    <string name="hint_add_address">新增地址</string>
+    <string name="hint_use_my_location">使用當前位址</string>
+    <string name="hint_confirm_address">確認地址</string>
+    <string name="hint_not_found_location">無法取的位址</string>
+    <string name="hint_read_more">閱讀更多\.\.\.</string>
+    <string name="hint_read_less">收起</string>
+    <string name="hint_no_assign_type">未指定類別</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>
@@ -160,9 +167,11 @@
     <string name="text_meter">公尺</string>
     <string name="text_delete">刪除</string>
     <string name="text_query">查詢</string>
+    <string name="text_top">TOP</string>
 
     <!--  特殊符號  -->
     <string name="u2022">•</string>
+    <string name="dot">\.\.\.</string>
 
     <!--  嵌入字  -->
     <string name="text_number_meter">距離 %,.1f 公尺</string>

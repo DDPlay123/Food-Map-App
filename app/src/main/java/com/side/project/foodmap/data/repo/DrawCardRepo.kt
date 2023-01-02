@@ -1,7 +1,7 @@
 package com.side.project.foodmap.data.repo
 
 import com.side.project.foodmap.data.local.drawCard.DrawCardDao
-import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
+import com.side.project.foodmap.data.remote.restaurant.DrawCardRes
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

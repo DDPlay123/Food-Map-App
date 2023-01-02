@@ -30,7 +30,7 @@ class AlbumFragment : BaseDialogFragment<FragmentAlbumBinding>(R.layout.fragment
     }
 
     override fun FragmentAlbumBinding.initialize() {
-        binding.paddingTop = mActivity.getStatusBarHeight()
+        binding?.paddingTop = mActivity.getStatusBarHeight()
         arguments?.let {
             val jsonString = it.getString(Constants.ALBUM_IMAGE_RESOURCE, "")
             val type = object : TypeToken<List<String>>() {}.type
@@ -47,7 +47,7 @@ class AlbumFragment : BaseDialogFragment<FragmentAlbumBinding>(R.layout.fragment
     }
 
     private fun doInitialize() {
-        binding.run {
+        binding?.run {
             if (::photoIdList.isInitialized && position >= 0) {
                 val albumAdapter = AlbumAdapter(this@AlbumFragment, photoIdList)
                 total = photoIdList.size
@@ -56,13 +56,13 @@ class AlbumFragment : BaseDialogFragment<FragmentAlbumBinding>(R.layout.fragment
                     this.delayOnLifecycle(50) {
                         adapter = albumAdapter
                         offscreenPageLimit = 5
-                        currentItem = position
+                        setCurrentItem(position, false)
                     }
 
                     registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                         override fun onPageSelected(position: Int) {
                             super.onPageSelected(position)
-                            binding.now = position
+                            now = position
                             this@AlbumFragment.position = position
                         }
                     })
@@ -73,10 +73,9 @@ class AlbumFragment : BaseDialogFragment<FragmentAlbumBinding>(R.layout.fragment
 
     private fun setListener() {
         val anim = animManager.smallToLarge
-        binding.run {
+        binding?.run {
             imgBack.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-//                    findNavController().popBackStack()
                     dismiss()
                 }
             }
@@ -85,8 +84,7 @@ class AlbumFragment : BaseDialogFragment<FragmentAlbumBinding>(R.layout.fragment
                 if (!Method.requestPermission(mActivity, *download_permission))
                     return@setOnClickListener
                 DownloadImage.downloadImage(
-                    mActivity,
-                    "http://kkhomeserver.ddns.net:33000/api/place/get_html_photo/${photoIdList[position]}"
+                    mActivity, "http://kkhomeserver.ddns.net:33000/api/place/get_html_photo/${photoIdList[position]}"
                 )
             }
         }

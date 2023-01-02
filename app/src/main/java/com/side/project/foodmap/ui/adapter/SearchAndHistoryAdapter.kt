@@ -2,16 +2,16 @@ package com.side.project.foodmap.ui.adapter
 
 import android.view.View
 import com.side.project.foodmap.R
-import com.side.project.foodmap.data.remote.api.HistorySearch
+import com.side.project.foodmap.data.remote.AutoComplete
 import com.side.project.foodmap.databinding.ItemSearchBinding
 import com.side.project.foodmap.ui.adapter.other.BaseRvListAdapter
 
-class SearchAndHistoryAdapter : BaseRvListAdapter<ItemSearchBinding, HistorySearch>(R.layout.item_search) {
+class SearchAndHistoryAdapter : BaseRvListAdapter<ItemSearchBinding, AutoComplete>(R.layout.item_search) {
 
-    lateinit var onItemClick: ((HistorySearch) -> Unit)
-    lateinit var onItemLongClick: ((View, HistorySearch) -> Unit)
+    lateinit var onItemClick: ((AutoComplete) -> Unit)
+    lateinit var onDeleteClick: ((AutoComplete) -> Unit)
 
-    override fun bind(item: HistorySearch, binding: ItemSearchBinding, position: Int) {
+    override fun bind(item: AutoComplete, binding: ItemSearchBinding, position: Int) {
         super.bind(item, binding, position)
         binding.apply {
             isFirst = position == 0
@@ -28,11 +28,11 @@ class SearchAndHistoryAdapter : BaseRvListAdapter<ItemSearchBinding, HistorySear
                     imgIcon.setImageResource(R.drawable.ic_location)
             }
 
-            root.setOnClickListener { onItemClick.invoke(item) }
-            root.setOnLongClickListener {
+            layoutSwipe.setLockDrag(item.isSearch)
+            layoutBody.setOnClickListener { onItemClick.invoke(item) }
+            layoutDelete.setOnClickListener {
                 if (!item.isSearch)
-                    onItemLongClick.invoke(root, item)
-                true
+                    onDeleteClick.invoke(item)
             }
         }
     }

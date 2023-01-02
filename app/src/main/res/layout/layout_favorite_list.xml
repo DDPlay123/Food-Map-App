@@ -5,6 +5,10 @@
 
     <data>
 
+        <variable
+            name="paddingTop"
+            type="Integer" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -39,18 +43,20 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/supportBar" />
 
-            <androidx.appcompat.widget.AppCompatImageView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/imgUpToTop"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                app:layout_constraintDimensionRatio="1:1"
-                android:padding="@dimen/_8sdp"
-                android:src="@drawable/ic_align_top"
-                android:layout_marginEnd="@dimen/_10sdp"
-                app:tint="@color/primary"
-                app:layout_constraintTop_toTopOf="@+id/tvTitle"
+                android:drawableTop="@drawable/ic_expand_circle_up"
+                android:gravity="center"
+                android:text="@string/text_top"
+                android:textColor="@color/primary"
+                android:textStyle="bold"
+                app:drawableTint="@color/primary"
                 app:layout_constraintBottom_toBottomOf="@+id/tvTitle"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
+                app:layout_constraintTop_toTopOf="@+id/tvTitle" />
 
             <View
                 android:id="@+id/supportBar"
@@ -60,7 +66,6 @@
                 android:background="@drawable/background_white_bar"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvTitle"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <View
@@ -102,6 +107,7 @@
                     android:imeOptions="actionDone"
                     android:inputType="text"
                     android:paddingStart="@dimen/_10sdp"
+                    android:paddingEnd="0dp"
                     android:singleLine="true"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -143,7 +149,6 @@
                 android:paddingStart="@dimen/_5sdp"
                 android:paddingTop="@dimen/_5sdp"
                 android:paddingEnd="@dimen/_5sdp"
-                android:paddingBottom="?attr/actionBarSize"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

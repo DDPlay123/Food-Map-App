@@ -42,7 +42,7 @@ class CoilEngine : ImageEngine {
                 builder.size(maxWidth, maxHeight)
             }
             imageView?.let { v -> builder.data(url).target(v) }
-            val request = builder.build();
+            val request = builder.build()
             context.imageLoader.enqueue(request)
         }
     }

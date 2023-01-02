@@ -8,32 +8,27 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
-import com.side.project.foodmap.R
-import com.side.project.foodmap.helper.displayShortToast
 import com.side.project.foodmap.ui.activity.other.BaseActivity
 import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.DialogManager
-import com.side.project.foodmap.util.Constants.audio_permission
-import com.side.project.foodmap.util.Constants.camera_permission
-import com.side.project.foodmap.util.Constants.location_permission
-import com.side.project.foodmap.util.tools.Method
-import org.koin.android.ext.android.inject
 
-open class BaseFragment<T : ViewDataBinding>(@LayoutRes val layoutRes: Int) : Fragment() {
-    private var _binding: T? = null
-    val binding : T get() = _binding!!
-    val animManager: AnimManager by inject()
+open class BaseFragment<VB : ViewDataBinding>(@LayoutRes val layoutRes: Int) : Fragment() {
+    private var _binding: VB? = null
+    val binding : VB?
+        get() = _binding
 
     lateinit var mActivity: BaseActivity
+    lateinit var animManager: AnimManager
     lateinit var dialog: DialogManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mActivity = activity as BaseActivity
+        animManager = mActivity.animManager
         dialog = mActivity.dialog
         super.onCreate(savedInstanceState)
     }
 
-    open fun T.initialize() {}
+    open fun VB.initialize() {}
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,39 +37,15 @@ open class BaseFragment<T : ViewDataBinding>(@LayoutRes val layoutRes: Int) : Fr
     ): View? {
         _binding = DataBindingUtil.inflate(inflater, layoutRes, container, false)
 
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.initialize()
+        binding?.lifecycleOwner = viewLifecycleOwner
+        binding?.initialize()
 
-        return binding.root
+        return binding?.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         dialog.cancelAllDialog()
         _binding = null
-    }
-
-    fun requestLocationPermission(): Boolean {
-        if (!Method.requestPermission(mActivity, *location_permission)) {
-            mActivity.displayShortToast(getString(R.string.hint_not_location_permission))
-            return false
-        }
-        return true
-    }
-
-    fun requestCameraPermission(): Boolean {
-        if (!Method.requestPermission(mActivity, *camera_permission)) {
-            mActivity.displayShortToast(getString(R.string.hint_not_camera_permission))
-            return false
-        }
-        return true
-    }
-
-    fun requestAudioPermission(): Boolean {
-        if (!Method.requestPermission(mActivity, *audio_permission)) {
-            mActivity.displayShortToast(getString(R.string.hint_not_audio_permission))
-            return false
-        }
-        return true
     }
 }

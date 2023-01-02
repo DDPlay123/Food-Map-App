@@ -75,23 +75,19 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/accent" />
         <!-- 金鑰 -->
-        <meta-data
-            android:name="GOOGLE_KEY"
-            android:value="${GOOGLE_KEY}" />
-        <meta-data
-            android:name="tdx_grant_type"
-            android:value="${tdx_grant_type}" />
-        <meta-data
-            android:name="tdx_client_id"
-            android:value="${tdx_client_id}" />
-        <meta-data
-            android:name="tdx_client_secret"
-            android:value="${tdx_client_secret}" />
+<!--         <meta-data -->
+<!--         android:name="GOOGLE_KEY" -->
+<!--         android:value="${GOOGLE_KEY}" /> -->
         <!-- Activity -->
         <activity
             android:name="com.canhub.cropper.CropImageActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Base.Theme.AppCompat"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".ui.activity.other.GetLocationActivity"
+            android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
         <activity
@@ -137,7 +133,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
     </application>
 
 </manifest>

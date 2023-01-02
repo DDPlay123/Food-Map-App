@@ -21,23 +21,26 @@ class ImageFragment : BaseFragment<FragmentImageBinding>(R.layout.fragment_image
     override fun FragmentImageBinding.initialize() {
         val photoId: String = arguments?.getString(IMAGE_RESOURCE, "") ?: ""
         initGestureView()
-        binding.imgPicture.transitionName = photoId
-        binding.photoReference = photoId
+        binding?.imgPicture?.transitionName = photoId
+        binding?.photoReference = photoId
     }
 
     private fun initGestureView() {
-        binding.imgPicture.controller.settings
-            .setMaxZoom(6f)
-            .setDoubleTapZoom(-1f) // Falls back to max zoom level
-            .setPanEnabled(true)
-            .setZoomEnabled(true)
-            .setDoubleTapEnabled(true)
-            .setRotationEnabled(false)
-            .setRestrictRotation(false)
-            .setOverscrollDistance(0f, 0f)
-            .setOverzoomFactor(2f)
-            .setFillViewport(false)
-            .setFitMethod(Settings.Fit.INSIDE)
-            .gravity = Gravity.CENTER
+        binding?.imgPicture?.controller?.settings.apply {
+            this?.let {
+                maxZoom = 6f
+                doubleTapZoom = -1f // Falls back to max zoom level
+                isPanEnabled = true
+                isZoomEnabled = true
+                isDoubleTapEnabled = true
+                isRotationEnabled = false
+                isRestrictRotation = false
+                setOverscrollDistance(0f, 0f)
+                overzoomFactor = 2f
+                isFillViewport = false
+                fitMethod = Settings.Fit.INSIDE
+                gravity = Gravity.CENTER
+            }
+        }
     }
 }

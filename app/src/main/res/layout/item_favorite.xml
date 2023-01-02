@@ -7,7 +7,7 @@
 
         <variable
             name="placeDetail"
-            type="com.side.project.foodmap.data.remote.api.FavoriteList" />
+            type="com.side.project.foodmap.data.remote.FavoriteList" />
 
         <variable
             name="today"

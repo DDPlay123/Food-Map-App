@@ -23,10 +23,12 @@ import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.databinding.DialogPromptSearchBinding
 import com.side.project.foodmap.databinding.FragmentProfilesBinding
 import com.side.project.foodmap.helper.*
+import com.side.project.foodmap.ui.activity.ListActivity
 import com.side.project.foodmap.ui.activity.launch.LoginActivity
 import com.side.project.foodmap.ui.fragment.other.BaseFragment
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.MainViewModel
+import com.side.project.foodmap.util.Constants
 import com.side.project.foodmap.util.RegisterLoginValidation
 import com.side.project.foodmap.util.Resource
 import com.side.project.foodmap.util.tools.CoilEngine
@@ -42,8 +44,8 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
     private val viewModel: MainViewModel by activityViewModel()
 
     override fun FragmentProfilesBinding.initialize() {
-        binding.paddingTop = mActivity.getStatusBarHeight()
-        binding.vm = viewModel
+        binding?.paddingTop = mActivity.getStatusBarHeight()
+        binding?.vm = viewModel
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -67,20 +69,17 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
                 }
                 // 修改密碼
                 launch {
-                    viewModel.setPasswordState.collect {
+                    viewModel.setPasswordFlow.collect {
                         when (it) {
                             is Resource.Loading -> {
-                                Method.logE("Set Password", "Loading")
                                 mActivity.hideKeyboard()
                                 dialog.showLoadingDialog(mActivity, false)
                             }
                             is Resource.Success -> {
-                                Method.logE("Set Password", "Success")
                                 dialog.cancelAllDialog()
                                 requireActivity().displayShortToast(getString(R.string.hint_set_password_success))
                             }
                             is Resource.Error -> {
-                                Method.logE("Set Password", "Error:${it.message.toString()}")
                                 dialog.cancelLoadingDialog()
                                 requireActivity().displayShortToast(it.message.toString())
                             }
@@ -90,20 +89,15 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
                 }
                 // 登出
                 launch {
-                    viewModel.logoutState.collect {
+                    viewModel.logoutFlow.collect {
                         when (it) {
-                            is Resource.Loading -> {
-                                Method.logE("Logout", "Loading")
-                                dialog.showLoadingDialog(mActivity, false)
-                            }
+                            is Resource.Loading -> dialog.showLoadingDialog(mActivity, false)
                             is Resource.Success -> {
-                                Method.logE("Logout", "Success")
                                 dialog.cancelLoadingDialog()
                                 requireActivity().displayShortToast(getString(R.string.hint_logout_success))
                                 mActivity.start(LoginActivity::class.java, true)
                             }
                             is Resource.Error -> {
-                                Method.logE("Logout", "Error:${it.message.toString()}")
                                 dialog.cancelLoadingDialog()
                                 requireActivity().displayShortToast(getString(R.string.hint_error))
                             }
@@ -113,20 +107,15 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
                 }
                 // 刪除帳號
                 launch {
-                    viewModel.deleteAccountState.collect {
+                    viewModel.deleteAccountFlow.collect {
                         when (it) {
-                            is Resource.Loading -> {
-                                Method.logE("Delete Account", "Loading")
-                                dialog.showLoadingDialog(mActivity, false)
-                            }
+                            is Resource.Loading -> dialog.showLoadingDialog(mActivity, false)
                             is Resource.Success -> {
-                                Method.logE("Delete Account", "Success")
                                 dialog.cancelLoadingDialog()
                                 requireActivity().displayShortToast(getString(R.string.hint_delete_account_success))
                                 mActivity.start(LoginActivity::class.java, true)
                             }
                             is Resource.Error -> {
-                                Method.logE("Delete Account", "Error:${it.message.toString()}")
                                 dialog.cancelLoadingDialog()
                                 requireActivity().displayShortToast(getString(R.string.hint_error))
                             }
@@ -136,21 +125,11 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
                 }
                 // 設定大頭照
                 launch {
-                    viewModel.setUserImageState.collect {
+                    viewModel.setUserImageFlow.collect {
                         when (it) {
-                            is Resource.Loading -> {
-                                Method.logE("Set User Image", "Loading")
-                                dialog.showLoadingDialog(mActivity, false)
-                            }
-                            is Resource.Success -> {
-                                Method.logE("Set User Image", "Success")
-                                dialog.cancelLoadingDialog()
-                            }
-                            is Resource.Error -> {
-                                Method.logE("Set User Image", "Error:${it.message.toString()}")
-                                dialog.cancelLoadingDialog()
-                                requireActivity().displayShortToast(getString(R.string.hint_error))
-                            }
+                            is Resource.Loading -> dialog.showLoadingDialog(mActivity, false)
+                            is Resource.Success -> dialog.cancelLoadingDialog()
+                            is Resource.Error -> requireActivity().displayShortToast(getString(R.string.hint_error))
                             else -> Unit
                         }
                     }
@@ -161,9 +140,14 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
 
     private fun setListener() {
         val anim = animManager.smallToLarge
-        binding.run {
+        binding?.run {
             tvBlackList.setOnClickListener {
-
+                Bundle().also { b ->
+                    b.putString(Constants.LIST_TYPE, Constants.ListType.BLACK_LIST.name)
+                    b.putString(Constants.KEYWORD, "")
+                    b.putInt(Constants.DISTANCE, 1000)
+                    mActivity.start(ListActivity::class.java, b)
+                }
             }
 
             tvSetPassword.setOnClickListener {
@@ -181,7 +165,7 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
             }
 
             imgUserImage.setOnClickListener {
-                if (!requestCameraPermission())
+                if (!mActivity.requestCameraPermission())
                     return@setOnClickListener
                 pictureSelector()
             }

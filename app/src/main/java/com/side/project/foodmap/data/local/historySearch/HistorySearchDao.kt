@@ -5,21 +5,21 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.side.project.foodmap.data.remote.api.HistorySearch
-import com.side.project.foodmap.util.Constants.HISTORY_SEARCH
+import com.side.project.foodmap.data.remote.AutoComplete
+import com.side.project.foodmap.util.Constants.HISTORY_SEARCH_MODEL
 
 @Dao
 interface HistorySearchDao {
 
-    @Query("SELECT * FROM $HISTORY_SEARCH")
-    fun getData(): List<HistorySearch>
+    @Query("SELECT * FROM $HISTORY_SEARCH_MODEL")
+    fun getData(): List<AutoComplete>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertData(historySearch: HistorySearch)
+    fun insertData(historySearch: AutoComplete)
 
     @Delete
-    fun deleteData(historySearch: HistorySearch)
+    fun deleteData(historySearch: AutoComplete)
 
-    @Query("DELETE FROM $HISTORY_SEARCH")
+    @Query("DELETE FROM $HISTORY_SEARCH_MODEL")
     fun deleteAllData()
 }

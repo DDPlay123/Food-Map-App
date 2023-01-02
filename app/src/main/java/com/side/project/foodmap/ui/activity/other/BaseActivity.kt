@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -16,6 +15,7 @@ import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.helper.checkDeviceGPS
 import com.side.project.foodmap.helper.checkNetworkGPS
 import com.side.project.foodmap.helper.displayShortToast
+import com.side.project.foodmap.ui.other.AnimManager
 import com.side.project.foodmap.ui.other.DialogManager
 import com.side.project.foodmap.util.tools.NetworkConnection
 import com.side.project.foodmap.util.Constants
@@ -29,10 +29,11 @@ abstract class BaseActivity : AppCompatActivity() {
         const val DEFAULT_LONGITUDE = 121.53453374432904
     }
 
+    val networkConnection: NetworkConnection by inject()
+
     lateinit var mActivity: BaseActivity
     val dialog: DialogManager by inject()
-
-    private val networkConnection: NetworkConnection by inject()
+    val animManager: AnimManager by inject()
 
     val locationGet: LocationGet by inject()
     var myLatitude: Double = DEFAULT_LATITUDE
@@ -41,7 +42,7 @@ abstract class BaseActivity : AppCompatActivity() {
     init {
         // 清空ViewModel，避免記憶體洩漏。
         lifecycle.addObserver(object : LifecycleEventObserver {
-            override fun onStateChanged(@NonNull source: LifecycleOwner, @NonNull event: Lifecycle.Event) {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
                 if (event == Lifecycle.Event.ON_STOP) {
                     window?.let {
                         if (window.peekDecorView() != null)
@@ -52,7 +53,7 @@ abstract class BaseActivity : AppCompatActivity() {
         })
 
         lifecycle.addObserver(object : LifecycleEventObserver {
-            override fun onStateChanged(@NonNull source: LifecycleOwner, @NonNull event: Lifecycle.Event) {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
                 if (event == Lifecycle.Event.ON_DESTROY) {
                     if (!isChangingConfigurations)
                         viewModelStore.clear()
@@ -71,7 +72,7 @@ abstract class BaseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mActivity = this
 
-        checkNetWork {}
+        checkNetWork { /** 執行要做的方法 **/ }
     }
 
     fun checkNetWork(work: (() -> Unit)) {
@@ -96,7 +97,8 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
-    private val openGps = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    private val openGps =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         result?.let {
             try {
                 mActivity.initLocationService()
@@ -106,8 +108,9 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
-    fun checkMYDeviceGPS(): Boolean {
-        if (!checkDeviceGPS() || !checkNetworkGPS()) {
+    fun checkMyDeviceGPS(): Boolean {
+        if (!checkDeviceGPS() && !checkNetworkGPS()) {
+            displayShortToast(getString(R.string.hint_prompt_not_gps_title))
             Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).apply {
                 openGps.launch(this)
                 return false
@@ -117,7 +120,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     fun initLocationService() {
-        if (!checkDeviceGPS() || !checkNetworkGPS()) {
+        if (!checkDeviceGPS() && !checkNetworkGPS()) {
             displayShortToast(getString(R.string.hint_not_provider_gps))
             return
         }
@@ -152,10 +155,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     fun start(next: Class<*>, bundle: Bundle?, finished: Boolean) {
-        Intent(
-            applicationContext,
-            next
-        ).also { intent ->
+        Intent(applicationContext, next).also { intent ->
             if (bundle == null)
                 intent.putExtras(Bundle())
             else

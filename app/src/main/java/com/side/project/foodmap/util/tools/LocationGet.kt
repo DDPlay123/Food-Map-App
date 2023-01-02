@@ -1,10 +1,11 @@
 package com.side.project.foodmap.util.tools
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Looper
 import androidx.lifecycle.LiveData
 import com.google.android.gms.location.*
-import com.side.project.foodmap.data.remote.api.Location
+import com.side.project.foodmap.data.remote.Location
 import com.side.project.foodmap.helper.checkDeviceGPS
 import com.side.project.foodmap.helper.checkNetworkGPS
 import com.side.project.foodmap.util.Constants
@@ -23,6 +24,7 @@ class LocationGet(var context: Context) : LiveData<Location>() {
 
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
+    @SuppressLint("MissingPermission")
     override fun onActive() {
         super.onActive()
         if (!Method.hasPermissions(context, *Constants.location_permission) && (!context.checkDeviceGPS() || !context.checkNetworkGPS()))
@@ -34,6 +36,7 @@ class LocationGet(var context: Context) : LiveData<Location>() {
         }
     }
 
+    @SuppressLint("MissingPermission")
     internal fun startLocationUpdates() {
         if (!Method.hasPermissions(context, *Constants.location_permission) && (!context.checkDeviceGPS() || !context.checkNetworkGPS()))
             return

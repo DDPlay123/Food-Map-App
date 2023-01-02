@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.side.project.foodmap.data.remote.api.restaurant.DrawCardRes
+import com.side.project.foodmap.data.remote.restaurant.DrawCardRes
 import com.side.project.foodmap.util.Constants.DRAW_CARD_MODEL
 
 @Dao

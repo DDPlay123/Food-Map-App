@@ -5,7 +5,7 @@ import android.widget.Filterable
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.side.project.foodmap.R
-import com.side.project.foodmap.data.remote.api.FavoriteList
+import com.side.project.foodmap.data.remote.FavoriteList
 import com.side.project.foodmap.databinding.ItemFavoriteBinding
 import com.side.project.foodmap.helper.gone
 import com.side.project.foodmap.helper.display
@@ -25,6 +25,12 @@ class FavoriteListAdapter :
         override fun areContentsTheSame(oldItem: FavoriteList, newItem: FavoriteList): Boolean {
             return oldItem == newItem
         }
+    }
+
+    private var placeList = listOf<FavoriteList>()
+    fun setPlaceList(placeLists: List<FavoriteList>) {
+        placeList = placeLists
+        submitList(placeList.toMutableList())
     }
 
     lateinit var onPhotoItemClick: ((List<String>, Int) -> Unit)
@@ -56,7 +62,7 @@ class FavoriteListAdapter :
             btnPhone.setOnClickListener { onItemPhone.invoke(item.phone) }
             btnShare.setOnClickListener { onItemShare.invoke(item.url) }
 
-            if (!item.photos.isNullOrEmpty()) {
+            if (item.photos.isNotEmpty()) {
                 val favoritePhotosListAdapter = FavoritePhotosListAdapter()
                 rvPhotos.apply {
                     layoutManager = LinearLayoutManager(root.context, LinearLayoutManager.HORIZONTAL, false)
@@ -80,9 +86,9 @@ class FavoriteListAdapter :
             val filteredList = mutableListOf<FavoriteList>()
             val filterPattern = constraint.toString().lowercase().trim()
             if (constraint.isEmpty() || filterPattern == "")
-                filteredList.addAll(currentList)
+                filteredList.addAll(placeList)
             else
-                currentList.forEach { item ->
+                placeList.forEach { item ->
                     if (item.name.lowercase().trim().contains(filterPattern))
                         filteredList.add(item)
                 }

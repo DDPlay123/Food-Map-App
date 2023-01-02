@@ -11,18 +11,19 @@ import com.side.project.foodmap.R
 import com.side.project.foodmap.helper.getColorCompat
 import com.side.project.foodmap.ui.activity.other.BaseActivity
 import com.side.project.foodmap.ui.other.AnimManager
-import org.koin.android.ext.android.inject
 
-open class BaseDialogFragment<T : ViewDataBinding>(@LayoutRes val layoutRes: Int) : DialogFragment() {
-    private var _binding: T? = null
-    val binding : T get() = _binding!!
-    val animManager: AnimManager by inject()
+open class BaseDialogFragment<VB : ViewDataBinding>(@LayoutRes val layoutRes: Int) : DialogFragment() {
+    private var _binding: VB? = null
+    val binding : VB?
+        get() = _binding
 
     lateinit var mActivity: BaseActivity
+    lateinit var animManager: AnimManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mActivity = activity as BaseActivity
+        animManager = mActivity.animManager
         setStyle(STYLE_NORMAL, R.style.BaseDialogStyle)
     }
 
@@ -40,7 +41,7 @@ open class BaseDialogFragment<T : ViewDataBinding>(@LayoutRes val layoutRes: Int
         }
     }
 
-    open fun T.initialize() {}
+    open fun VB.initialize() {}
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,10 +50,10 @@ open class BaseDialogFragment<T : ViewDataBinding>(@LayoutRes val layoutRes: Int
     ): View? {
         _binding = DataBindingUtil.inflate(inflater, layoutRes, container, false)
 
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.initialize()
+        binding?.lifecycleOwner = viewLifecycleOwner
+        binding?.initialize()
 
-        return binding.root
+        return binding?.root
     }
 
     override fun onDestroyView() {
