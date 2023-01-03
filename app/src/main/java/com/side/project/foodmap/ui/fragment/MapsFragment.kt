@@ -43,7 +43,10 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
     override fun FragmentMapsBinding.initialize() {
         mActivity.initLocationService()
         viewModel.distanceSearch(
-            location = Location(mActivity.myLatitude, mActivity.myLongitude)
+            if (viewModel.isUseMyLocation) Location(
+                mActivity.myLatitude,
+                mActivity.myLongitude
+            ) else viewModel.selectLatLng
         )
     }
 
@@ -148,12 +151,15 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
     }
 
     private fun setMyLocation() {
-        lifecycleScope.launch(Dispatchers.Main) {
-            if (!::map.isInitialized) return@launch
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                LatLng(mActivity.myLatitude, mActivity.myLongitude),
-                DEFAULT_ZOOM
-            ))
+        viewModel.apply {
+            lifecycleScope.launch(Dispatchers.Main) {
+                if (!::map.isInitialized) return@launch
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                    if (isUseMyLocation) LatLng(mActivity.myLatitude, mActivity.myLongitude)
+                    else LatLng(selectLatLng.lat, selectLatLng.lng),
+                    DEFAULT_ZOOM
+                ))
+            }
         }
     }
 

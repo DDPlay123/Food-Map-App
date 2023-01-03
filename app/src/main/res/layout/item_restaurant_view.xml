@@ -146,7 +146,7 @@
                 android:ellipsize="end"
                 android:fontFamily="@font/poppins_light"
                 android:maxLines="1"
-                android:showDistance="@{distance}"
+                android:showDistanceByApi="@{data.distance}"
                 android:textColor="@color/g_gray700"
                 android:textSize="@dimen/_12ssp"
                 app:layout_constraintBottom_toBottomOf="parent"

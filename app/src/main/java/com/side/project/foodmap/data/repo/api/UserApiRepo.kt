@@ -303,8 +303,8 @@ class UserApiRepo : KoinComponent {
                             response.body()?.let {
                                 when (it.status) {
                                     0 -> {
-                                        mSetUserImageFlow.emit(Resource.Success(it))
                                         dataStoreRepo.putUserPicture(userImage)
+                                        mSetUserImageFlow.emit(Resource.Success(it))
                                     }
                                     else -> mSetUserImageFlow.emit(Resource.Error(it.errMsg.toString()))
                                 }

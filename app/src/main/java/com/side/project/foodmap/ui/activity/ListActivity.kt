@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.Location
 import com.side.project.foodmap.databinding.ActivityListBinding
+import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.helper.*
 import com.side.project.foodmap.ui.activity.other.BaseActivity
 import com.side.project.foodmap.ui.adapter.RestaurantListAdapter
@@ -31,6 +32,7 @@ import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.Resource
 import com.side.project.foodmap.util.tools.Coroutines
 import com.side.project.foodmap.util.tools.Method
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -189,6 +191,27 @@ class ListActivity : BaseActivity() {
                             }
                         }
                     }
+                    // 添加黑名單
+                    launch {
+                        pushBlackListFlow.collect {
+                            when (it) {
+                                is Resource.Success -> {
+                                    mActivity.displayShortToast(getString(R.string.hint_success_push_black_list))
+                                    val list = restaurantListAdapter.currentList.toMutableList()
+                                    list.find { m -> m.place_id == blackPlaceId }?.let { placeList ->
+                                        list.remove(placeList)
+                                        restaurantListAdapter.setPlaceList(list)
+                                        totalCount -= 1
+                                        binding.total = totalCount.toString()
+                                        binding.count = list.size.toString()
+                                    }
+
+                                }
+                                is Resource.Error -> mActivity.displayShortToast(getString(R.string.hint_failed_push_black_list))
+                                else -> Unit
+                            }
+                        }
+                    }
                     // 觀察 List 資料變化
                     launch {
                         observeSearchData.observe(this@ListActivity) { resource ->
@@ -298,7 +321,8 @@ class ListActivity : BaseActivity() {
                                 list.remove(placeList)
                                 restaurantListAdapter.setPlaceList(list)
                                 restaurantListAdapter.notifyItemChanged(index)
-                                binding.total = (viewModel.totalCount - 1).toString()
+                                viewModel.totalCount -= 1
+                                binding.total = viewModel.totalCount.toString()
                                 binding.count = list.size.toString()
                                 return@registerForActivityResult
                             }
@@ -340,6 +364,10 @@ class ListActivity : BaseActivity() {
                 true
             }
         }
+
+        restaurantListAdapter.onItemBlackListClick = { placeId ->
+            displayModifyBlackListDialog(placeId)
+        }
     }
 
     private fun setDistanceListener() {
@@ -347,13 +375,17 @@ class ListActivity : BaseActivity() {
             binding.run {
                 (settingDistance / 1000).let { value ->
                     seekBarRange.progress = value
-                    distance = " $value"
+                    distance = if (value < 10 && value == 1) "NEAR"
+                    else if (value < 10) " $value"
+                    else "$value"
                 }
                 seekBarRange.max = (30 - 1) / 1 // (MAX - MIN) / STEP
                 seekBarRange.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
                         val value = 1 + p1 * 1 // MIN + VALUE * STEP
-                        distance = if (value < 10) " $value" else "$value"
+                        distance = if (value < 10 && value == 1) "NEAR"
+                        else if (value < 10) " $value"
+                        else "$value"
                         settingDistance = value * 1000
                     }
 
@@ -458,5 +490,24 @@ class ListActivity : BaseActivity() {
     private fun filter(text: String) {
         if (::restaurantListAdapter.isInitialized)
             restaurantListAdapter.filter.filter(text)
+    }
+
+    private fun displayModifyBlackListDialog(placeId: String) {
+        val dialogBinding = DialogPromptBinding.inflate(layoutInflater)
+        dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
+            dialogBinding.run {
+                dialogBinding.run {
+                    showIcon = true
+                    imgPromptIcon.setImageResource(R.drawable.ic_report)
+                    titleText = getString(R.string.hint_prompt_add_black_list_title)
+                    tvCancel.setOnClickListener { dialog.cancelCenterDialog() }
+                    tvConfirm.setOnClickListener {
+                        viewModel.blackPlaceId = placeId
+                        viewModel.pushBlackList(arrayListOf(placeId))
+                        dialog.cancelCenterDialog()
+                    }
+                }
+            }
+        }
     }
 }

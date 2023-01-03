@@ -15,6 +15,9 @@ class ListViewModel : BaseViewModel() {
     // 實際要觀察的資料(附近/關鍵字)
     var searchData: MutableList<PlaceList> = ArrayList()
 
+    // wait push blackList
+    var blackPlaceId: String = ""
+
     // 設定區域
     var regionPlaceId: String = ""
     var isUseMyLocation: Boolean = true
@@ -42,6 +45,8 @@ class ListViewModel : BaseViewModel() {
     val observeSearchData: LiveData<Resource<MutableList<PlaceList>>>
         get() = _observeSearchData
 
+    val pushBlackListFlow get() = userApiRepo.pushBlackListFlow
+
     val pushFavoriteFlow get() = userApiRepo.pushFavoriteListFlow
 
     val pullFavoriteFlow get() = userApiRepo.pullFavoriteListFlow
@@ -68,6 +73,10 @@ class ListViewModel : BaseViewModel() {
         skip: Int,
         limit: Int
     ) = restaurantApiRepo.apiRestaurantKeywordSearch(location, distance, keyword, skip, limit)
+
+    fun pushBlackList(
+        placeIdList: ArrayList<String>
+    ) = userApiRepo.apiPushBlackList(placeIdList)
 
     fun pushFavorite(
         placeIdList: ArrayList<String>

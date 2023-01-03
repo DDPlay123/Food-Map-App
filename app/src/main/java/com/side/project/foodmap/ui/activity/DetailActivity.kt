@@ -46,7 +46,6 @@ import com.side.project.foodmap.util.Constants.IS_BLACK_LIST
 import com.side.project.foodmap.util.Constants.IS_FAVORITE
 import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.Resource
-import com.side.project.foodmap.util.customView.AnchorSheetBehavior
 import com.side.project.foodmap.util.tools.Method
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -125,6 +124,10 @@ class DetailActivity : BaseActivity() {
             uiSettings.isMyLocationButtonEnabled = false
             uiSettings.isMapToolbarEnabled = false
             uiSettings.isCompassEnabled = false
+            val markerOption = MarkerOptions().apply {
+                position(LatLng(mActivity.myLatitude, mActivity.myLongitude))
+            }
+            map.addMarker(markerOption)
         }
     }
 
@@ -139,10 +142,6 @@ class DetailActivity : BaseActivity() {
                     ), DEFAULT_ZOOM
                 )
             )
-            val markerOption = MarkerOptions().apply {
-                position(LatLng(mActivity.myLatitude, mActivity.myLongitude))
-            }
-            map.addMarker(markerOption)
         }
     }
 

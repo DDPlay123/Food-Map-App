@@ -161,7 +161,7 @@
             android:id="@+id/tvIntDistance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text='@{distance != null ? distance + @string/text_kilometer : " 1公里", default=" 1公里"}'
+            android:text='@{distance != null ? (distance.equals("NEAR") ? @string/text_near : distance + @string/text_kilometer) : " 1公里", default=" 1公里"}'
             android:textSize="@dimen/_10ssp"
             android:textStyle="bold"
             android:visibility="@{isHideDistance ? View.GONE : View.VISIBLE, default=gone}"

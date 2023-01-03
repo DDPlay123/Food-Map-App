@@ -178,5 +178,16 @@ class BindingAdapter {
             } catch (ignored: Exception) {
             }
         }
+
+        @BindingAdapter("android:showDistanceByApi")
+        @JvmStatic
+        fun showDistanceByApi(textView: TextView, distance: Double) {
+            try {
+                textView.text = String.format(
+                    textView.context.getString(if (distance < 1000) R.string.text_number_meter else R.string.text_number_kilometer),
+                    if (distance < 1000) distance else distance / 1000)
+            } catch (ignored: Exception) {
+            }
+        }
     }
 }
