@@ -32,7 +32,6 @@ import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.Resource
 import com.side.project.foodmap.util.tools.Coroutines
 import com.side.project.foodmap.util.tools.Method
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -118,8 +117,8 @@ class ListActivity : BaseActivity() {
                     }
                     // 取的區域設定列表
                     launch {
-                        syncPlaceListData.observe(this@ListActivity) { myPlaceLists ->
-                            myPlaceLists?.let { placeLists ->
+                        syncPlaceListFlow.collect { myPlaceLists ->
+                            myPlaceLists.let { placeLists ->
                                 placeLists.find { it.place_id == regionPlaceId }?.let {
                                     isUseMyLocation = false
                                     selectLatLng = it.location
@@ -176,8 +175,8 @@ class ListActivity : BaseActivity() {
                     }
                     // 黑名單
                     launch {
-                        getSyncBlackListData.observe(this@ListActivity) { placeList ->
-                            placeList?.let {
+                        getSyncBlackListFlow.collect { placeList ->
+                            placeList.let {
                                 dialog.cancelLoadingDialog()
                                 binding.total = placeList.size.toString()
                                 binding.count = placeList.size.toString()

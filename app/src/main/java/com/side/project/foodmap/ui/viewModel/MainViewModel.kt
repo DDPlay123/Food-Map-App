@@ -2,15 +2,10 @@ package com.side.project.foodmap.ui.viewModel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.side.project.foodmap.data.remote.*
-import com.side.project.foodmap.data.remote.restaurant.DistanceSearchRes
-import com.side.project.foodmap.data.remote.restaurant.DrawCardRes
 import com.side.project.foodmap.util.RegisterLoginFieldsState
 import com.side.project.foodmap.util.RegisterLoginValidation
-import com.side.project.foodmap.util.Resource
-import com.side.project.foodmap.util.tools.Coroutines
 import com.side.project.foodmap.util.tools.Method
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -22,6 +17,7 @@ class MainViewModel : BaseViewModel() {
         getUserUIDFromDataStore()
         getUserNameFromDataStore()
         getUserPictureFromDataStore()
+
     }
     /**
      * 暫存
@@ -56,7 +52,7 @@ class MainViewModel : BaseViewModel() {
     private var _historySearchList = MutableLiveData<List<AutoComplete>>()
     val historySearchList: LiveData<List<AutoComplete>> get() = _historySearchList
 
-    val syncPlaceListData: LiveData<List<MyPlaceList>> get() = userApiRepo.getSyncPlaceListData
+    val syncPlaceListFlow get() = userApiRepo.getSyncPlaceListFlow
 
     val pullPlaceListFlow get() = userApiRepo.pullPlaceListFlow
 
@@ -65,7 +61,7 @@ class MainViewModel : BaseViewModel() {
     val pullBlackListFlow get() = userApiRepo.pullBlackListFlow
 
     // Favorite Page
-    val syncFavoriteListData: LiveData<List<FavoriteList>> get() = userApiRepo.getSyncFavoriteListData
+    val syncFavoriteListData get() = userApiRepo.getSyncFavoriteListFlow
 
     val pushFavoriteFlow get() = userApiRepo.pushFavoriteListFlow
 
@@ -95,9 +91,7 @@ class MainViewModel : BaseViewModel() {
         location: Location,
         isRecent: Boolean,
         num: Int = 10
-    ) {
-        restaurantApiRepo.apiDrawCard(location, if (isRecent) 0 else 1, num)
-    }
+    ) = restaurantApiRepo.apiDrawCard(location, if (isRecent) 0 else 1, num)
 
     fun distanceSearch(
         location: Location,

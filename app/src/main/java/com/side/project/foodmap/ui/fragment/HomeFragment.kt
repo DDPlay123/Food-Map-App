@@ -114,7 +114,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
 
         binding?.root?.delayOnLifecycle(1000) {
-            viewModel.getUserRegionFromDataStore()
             doInitialize()
             initPopularCard()
             setListener()
@@ -148,25 +147,24 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 }
                 // 取的區域設定列表
                 launch {
-                    viewModel.syncPlaceListData.observe(viewLifecycleOwner) { myPlaceLists ->
-                        myPlaceLists?.let { placeLists ->
-                            viewModel.run {
-                                if (::regionSelectAdapter.isInitialized)
-                                    regionSelectAdapter.submitList(myPlaceLists.toMutableList())
-                                viewModel.myPlaceLists.clear()
-                                viewModel.myPlaceLists.addAll(myPlaceLists)
+                    viewModel.syncPlaceListFlow.collect { myPlaceLists ->
+                        viewModel.apply {
+                            if (::regionSelectAdapter.isInitialized)
+                                regionSelectAdapter.submitList(myPlaceLists.toMutableList())
+                            viewModel.myPlaceLists.clear()
+                            viewModel.myPlaceLists.addAll(myPlaceLists)
 
-                                placeLists.find { it.place_id == regionPlaceId }?.let {
-                                    regionPosition = myPlaceLists.indexOf(it)
-                                    isUseMyLocation = false
-                                    selectLatLng = it.location
-                                    if (it.name != "")
-                                        binding?.tvCategory?.text = it.name
-                                    else
-                                        binding?.tvCategory?.text = it.address
-                                }
-
-                                if (isSearchPlaceList) return@observe
+                            myPlaceLists.find { it.place_id == regionPlaceId }?.let {
+                                regionPosition = myPlaceLists.indexOf(it)
+                                isUseMyLocation = false
+                                selectLatLng = it.location
+                                if (it.name != "")
+                                    binding?.tvCategory?.text = it.name
+                                else
+                                    binding?.tvCategory?.text = it.address
+                            }.apply {
+                                if (isSearchPlaceList)
+                                    return@collect
 
                                 distanceSearch(
                                     if (isUseMyLocation) Location(
@@ -174,6 +172,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                         mActivity.myLongitude
                                     ) else selectLatLng
                                 )
+
                                 drawCard(
                                     if (isUseMyLocation) Location(
                                         mActivity.myLatitude,
@@ -277,6 +276,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                 )
                             }
                         }
+                        return@observe
                     }
                 }
                 // 搜尋結果
@@ -301,6 +301,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                             searchAndHistoryAdapter.submitList(
                                 historySearchList.toMutableList().reversed()
                             )
+                        return@observe
                     }
                 }
                 // 刪除區域設定
@@ -477,7 +478,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     viewModel.getSyncPlaceList(true)
                     regionSelectAdapter.setSelectRegion(regionId)
                     viewModel.putUserRegion(regionId)
-                    viewModel.getUserRegionFromDataStore()
                 }
             }
         }
@@ -499,7 +499,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         selectLatLng = Location(mActivity.myLatitude, mActivity.myLongitude)
                         binding?.tvCategory?.text = getString(R.string.hint_near_region)
                         viewModel.putUserRegion("")
-                        viewModel.getUserRegionFromDataStore()
                         dialog.cancelBottomDialog()
                     }
 
@@ -546,7 +545,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 else
                     binding?.tvCategory?.text = myPlaceList.address
                 viewModel.putUserRegion(it)
-                viewModel.getUserRegionFromDataStore()
                 dialog.cancelBottomDialog()
             }
         }

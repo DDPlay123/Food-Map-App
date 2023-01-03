@@ -3,7 +3,6 @@ package com.side.project.foodmap.ui.viewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.side.project.foodmap.data.remote.Location
-import com.side.project.foodmap.data.remote.MyPlaceList
 import com.side.project.foodmap.data.remote.PlaceList
 import com.side.project.foodmap.util.Resource
 
@@ -35,11 +34,11 @@ class ListViewModel : BaseViewModel() {
     /**
      * 資料流
      */
-    val syncPlaceListData: LiveData<List<MyPlaceList>> get() = userApiRepo.getSyncPlaceListData
+    val syncPlaceListFlow get() = userApiRepo.getSyncPlaceListFlow
 
-    val distanceSearchFlow = restaurantApiRepo.distanceSearchFlow
+    val distanceSearchFlow get() = restaurantApiRepo.distanceSearchFlow
 
-    val keywordSearchFlow = restaurantApiRepo.keywordSearchFlow
+    val keywordSearchFlow get() = restaurantApiRepo.keywordSearchFlow
 
     private val _observeSearchData = MutableLiveData<Resource<MutableList<PlaceList>>>()
     val observeSearchData: LiveData<Resource<MutableList<PlaceList>>>
@@ -51,7 +50,7 @@ class ListViewModel : BaseViewModel() {
 
     val pullFavoriteFlow get() = userApiRepo.pullFavoriteListFlow
 
-    val getSyncBlackListData get() = userApiRepo.getSyncBlackListData
+    val getSyncBlackListFlow get() = userApiRepo.getSyncBlackListFlow
 
     /**
      * 可呼叫方法
