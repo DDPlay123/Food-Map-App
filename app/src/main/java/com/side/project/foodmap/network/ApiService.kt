@@ -53,6 +53,10 @@ interface ApiService {
     @POST("api/geocode/get_location_by_address")
     fun apiGeocodeGetLocationByAddress(@Body getLocationByAddressReq: GetLocationByAddressReq): Call<GetLocationByAddressRes>
 
+    @Headers("Content-Type: application/json")
+    @POST("api/geocode/get_route_polyline")
+    fun apiGeocodeGetRoutePolyline(@Body getRoutePolylineReq: GetRoutePolylineReq): Call<GetRoutePolylineRes>
+
     /**
      * User API Server
      */

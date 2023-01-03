@@ -1,6 +1,7 @@
 package com.side.project.foodmap.data.repo.api
 
 import com.side.project.foodmap.data.remote.Location
+import com.side.project.foodmap.data.remote.SetLocation
 import com.side.project.foodmap.data.remote.geocode.*
 import com.side.project.foodmap.data.repo.DataStoreRepo
 import com.side.project.foodmap.network.ApiClient
@@ -29,6 +30,10 @@ class GeocodeApiRepo : KoinComponent {
     private val mGetLocationFlow = MutableSharedFlow<Resource<GetLocationByAddressRes>>()
     val getLocationFlow
         get() = mGetLocationFlow.asSharedFlow()
+
+    private val mGetRoutePolyline = MutableSharedFlow<Resource<GetRoutePolylineRes>>()
+    val getRoutePolyline
+        get() = mGetRoutePolyline.asSharedFlow()
 
     fun apiGeocodeAutocompleteByLocation(
         location: Location,
@@ -124,6 +129,39 @@ class GeocodeApiRepo : KoinComponent {
                     override fun onFailure(call: Call<GetLocationByAddressRes>, t: Throwable) {
                         Method.logE(GetLocationByAddressRes::class.java.simpleName, "ERROR:${t.message.toString()}")
                         Coroutines.io { mGetLocationFlow.emit(Resource.Error(t.message.toString())) }
+                    }
+                })
+            }
+        }
+    }
+
+    fun apiGeocodeGetRoutePolyline(
+        origin: SetLocation,
+        destination: SetLocation
+    ) {
+        Coroutines.io {
+            GetRoutePolylineReq(
+                accessKey = dataStoreRepo.getAccessKey(),
+                userId = dataStoreRepo.getUserUID(),
+                origin = origin,
+                destination = destination
+            ).apply {
+                mGetRoutePolyline.emit(Resource.Loading())
+                ApiClient.getAPI.apiGeocodeGetRoutePolyline(this).enqueue(object : Callback<GetRoutePolylineRes> {
+                    override fun onResponse(call: Call<GetRoutePolylineRes>, response: Response<GetRoutePolylineRes>) {
+                        Method.logE(GetRoutePolylineRes::class.java.simpleName, "SUCCESS")
+                        Coroutines.io {
+                            response.body()?.let {
+                                when (it.status) {
+                                    0 -> mGetRoutePolyline.emit(Resource.Success(it))
+                                    else -> mGetRoutePolyline.emit(Resource.Error(it.errMsg.toString()))
+                                }
+                            }
+                        }
+                    }
+                    override fun onFailure(call: Call<GetRoutePolylineRes>, t: Throwable) {
+                        Method.logE(GetRoutePolylineRes::class.java.simpleName, "ERROR:${t.message.toString()}")
+                        Coroutines.io { mGetRoutePolyline.emit(Resource.Error(t.message.toString())) }
                     }
                 })
             }

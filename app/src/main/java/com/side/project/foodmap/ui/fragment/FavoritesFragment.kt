@@ -100,6 +100,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
 
+        viewModel.getSyncFavoriteList()
         doInitialize()
         initLayoutOption()
         setListener()
@@ -112,12 +113,6 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
     }
 
     private fun doInitialize() {
-        mActivity.networkConnection.observe(viewLifecycleOwner) { isConnect ->
-            if (isConnect)
-                viewModel.getSyncFavoriteList()
-            else
-                dialog.cancelAllDialog()
-        }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 // 取的最愛清單
