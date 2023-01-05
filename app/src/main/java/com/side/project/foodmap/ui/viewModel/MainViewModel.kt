@@ -61,7 +61,7 @@ class MainViewModel : BaseViewModel() {
     val pullBlackListFlow get() = userApiRepo.pullBlackListFlow
 
     // Favorite Page
-    val syncFavoriteListData get() = userApiRepo.getSyncFavoriteListFlow
+    val syncFavoriteListFlow get() = userApiRepo.getSyncFavoriteListFlow
 
     val pushFavoriteFlow get() = userApiRepo.pushFavoriteListFlow
 

@@ -351,12 +351,9 @@ class ListActivity : BaseActivity() {
                                 binding.count = list.size.toString()
                                 return@registerForActivityResult
                             }
-                            if (mIsFavorite) {
-                                placeList.isFavorite = mIsFavorite
-                                restaurantListAdapter.setPlaceList(list)
-                                restaurantListAdapter.notifyItemChanged(index)
-                                return@registerForActivityResult
-                            }
+                            placeList.isFavorite = mIsFavorite
+                            restaurantListAdapter.setPlaceList(list)
+                            restaurantListAdapter.notifyItemChanged(index)
                         }
                     }
                 }

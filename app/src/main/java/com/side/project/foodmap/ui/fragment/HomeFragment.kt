@@ -588,12 +588,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                 popularSearchAdapter.notifyItemChanged(index)
                                 return@registerForActivityResult
                             }
-                            if (mIsFavorite) {
-                                placeList.isFavorite = mIsFavorite
-                                popularSearchAdapter.submitList(list)
-                                popularSearchAdapter.notifyItemChanged(index)
-                                return@registerForActivityResult
-                            }
+                            placeList.isFavorite = mIsFavorite
+                            popularSearchAdapter.submitList(list)
+                            popularSearchAdapter.notifyItemChanged(index)
                         }
                     }
                 }

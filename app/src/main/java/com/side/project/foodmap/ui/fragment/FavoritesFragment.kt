@@ -117,7 +117,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 // 取的最愛清單
                 launch {
-                    viewModel.syncFavoriteListData.collect { favoriteLists ->
+                    viewModel.syncFavoriteListFlow.collect { favoriteLists ->
                         dialog.cancelLoadingDialog()
                         favoriteLists.let { favoriteListAdapter.setPlaceList(it.toMutableList()) }
 
