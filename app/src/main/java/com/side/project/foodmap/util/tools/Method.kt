@@ -14,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.messaging.FirebaseMessaging
 import com.side.project.foodmap.BuildConfig
 import com.side.project.foodmap.R
@@ -25,6 +26,7 @@ import java.io.ByteArrayOutputStream
 import java.util.*
 import kotlin.math.acos
 import kotlin.math.cos
+import kotlin.math.pow
 import kotlin.math.sin
 
 object Method {
@@ -127,6 +129,65 @@ object Method {
         view.draw(canvas)
         return bitmap
     }
+
+    fun decodePolyline(polyline: String): List<LatLng> {
+        val coordinateChunks: MutableList<MutableList<Int>> = mutableListOf()
+        coordinateChunks.add(mutableListOf())
+
+        for (char in polyline.toCharArray()) {
+            // convert each character to decimal from ascii
+            var value = char.toInt() - 63
+
+            // values that have a chunk following have an extra 1 on the left
+            val isLastOfChunk = (value and 0x20) == 0
+            value = value and (0x1F)
+
+            coordinateChunks.last().add(value)
+
+            if (isLastOfChunk)
+                coordinateChunks.add(mutableListOf())
+        }
+
+        coordinateChunks.removeAt(coordinateChunks.lastIndex)
+
+        val coordinates: MutableList<Double> = mutableListOf()
+
+        for (coordinateChunk in coordinateChunks) {
+            var coordinate = coordinateChunk.mapIndexed { i, chunk -> chunk shl (i * 5) }.reduce { i, j -> i or j }
+
+            // there is a 1 on the right if the coordinate is negative
+            if (coordinate and 0x1 > 0)
+                coordinate = (coordinate).inv()
+
+            coordinate = coordinate shr 1
+            coordinates.add((coordinate).toDouble() / 100000.0)
+        }
+
+        val points: MutableList<LatLng> = mutableListOf()
+        var previousX = 0.0
+        var previousY = 0.0
+
+        for(i in 0 until coordinates.size step 2) {
+            if(coordinates[i] == 0.0 && coordinates[i+1] == 0.0)
+                continue
+
+            //解碼後的經緯度
+            //經緯度解碼出來後是相反的
+            previousX += coordinates[i + 1]
+            previousY += coordinates[i]
+            //所以記得自行處理需要的資料如下
+            LatLng(
+                round(previousY, 5),
+                round(previousX, 5)
+            ).apply {
+                points.add(this)
+            }
+        }
+        return points
+    }
+
+    private fun round(value: Double, precision: Int) =
+        (value * 10.0.pow(precision.toDouble())).toInt().toDouble() / 10.0.pow(precision.toDouble())
 
     /**
      * Permissions

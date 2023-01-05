@@ -31,6 +31,7 @@
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginTop="@dimen/_45sdp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -62,6 +63,20 @@
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imgMyRoute"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:layout_marginEnd="@dimen/_8sdp"
+            android:background="@drawable/background_circle_white_back_button"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:padding="@dimen/_4sdp"
+            android:src="@drawable/ic_route"
+            app:layout_constraintEnd_toStartOf="@+id/imgMyLocation"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/red" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/imgMyLocation"

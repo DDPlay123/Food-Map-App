@@ -12,9 +12,9 @@ data class GetRoutePolylineReq(
 ) : BaseRequest()
 
 data class GetRoutePolylineRes(
-    val result: Result
+    val result: GetPolyLine
 ) : BaseResponse() {
-    data class Result(
+    data class GetPolyLine(
         val distanceMeters: Int, // 路徑距離(公尺)
         val duration: Int, // 估計時間(秒)
         val polyline: String // 路徑

@@ -1,11 +1,14 @@
 package com.side.project.foodmap.ui.activity
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.databinding.DataBindingUtil
@@ -19,15 +22,12 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.side.project.foodmap.R
-import com.side.project.foodmap.data.remote.FavoriteList
-import com.side.project.foodmap.data.remote.Location
-import com.side.project.foodmap.data.remote.Review
+import com.side.project.foodmap.data.remote.*
 import com.side.project.foodmap.data.remote.restaurant.DetailsByPlaceIdRes
 import com.side.project.foodmap.databinding.ActivityDetailBinding
 import com.side.project.foodmap.databinding.DialogNavigationModeBinding
@@ -46,14 +46,18 @@ import com.side.project.foodmap.util.Constants.IS_BLACK_LIST
 import com.side.project.foodmap.util.Constants.IS_FAVORITE
 import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.Resource
+import com.side.project.foodmap.util.animPolyline.AnimatedPolyline
 import com.side.project.foodmap.util.tools.Method
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 class DetailActivity : BaseActivity() {
     private lateinit var binding: ActivityDetailBinding
     private lateinit var viewModel: DetailViewModel
     private lateinit var map: GoogleMap
+    private lateinit var mLoc: LatLng
+    private lateinit var animatedPolyline: AnimatedPolyline
 
     // Data
     private lateinit var placesDetails: DetailsByPlaceIdRes.Result
@@ -111,6 +115,12 @@ class DetailActivity : BaseActivity() {
     private val callback = OnMapReadyCallback { googleMap ->
         map = googleMap
         initGoogleMap()
+
+        map.setOnCameraMoveListener {
+            map.cameraPosition.target.let {
+                mLoc = it
+            }
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -124,17 +134,14 @@ class DetailActivity : BaseActivity() {
             uiSettings.isMyLocationButtonEnabled = false
             uiSettings.isMapToolbarEnabled = false
             uiSettings.isCompassEnabled = false
-            val markerOption = MarkerOptions().apply {
-                position(LatLng(mActivity.myLatitude, mActivity.myLongitude))
-            }
-            map.addMarker(markerOption)
         }
     }
 
     private fun setMyLocation() {
         lifecycleScope.launch(Dispatchers.Main) {
             if (!::map.isInitialized) return@launch
-            map.moveCamera(
+            mLoc = LatLng(mActivity.myLatitude, mActivity.myLongitude)
+            map.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(
                     LatLng(
                         mActivity.myLatitude,
@@ -162,7 +169,8 @@ class DetailActivity : BaseActivity() {
                                     layoutOption.scrollView.apply {
                                         fling(0)
                                         scrollTo(0, 0)
-                                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                                        bottomSheetBehavior.state =
+                                            BottomSheetBehavior.STATE_COLLAPSED
                                     }
                                 }
                             }
@@ -172,10 +180,34 @@ class DetailActivity : BaseActivity() {
                     }
 
                     override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                        val h = bottomSheet.height.toFloat()
+                        val off = h * slideOffset
+
+                        mLoc.let {
+                            when (state) {
+                                BottomSheetBehavior.STATE_DRAGGING -> {
+                                    setMapPaddingBottom(off)
+                                    //reposition marker at the center
+                                    map.moveCamera(CameraUpdateFactory.newLatLng(mLoc))
+                                }
+                                BottomSheetBehavior.STATE_SETTLING -> {
+                                    setMapPaddingBottom(off)
+                                    //reposition marker at the center
+                                    map.moveCamera(CameraUpdateFactory.newLatLng(mLoc))
+                                }
+                                else -> Unit
+                            }
+                        }
                     }
                 })
             }
         }
+    }
+
+    private fun setMapPaddingBottom(offset: Float) {
+        //From 0.0 (min) - 1.0 (max) // bsExpanded - bsCollapsed;
+        val maxMapPaddingBottom = 1.0f
+        map.setPadding(0, 0, 0, (offset * maxMapPaddingBottom).roundToInt())
     }
 
     private fun doInitialize() {
@@ -203,6 +235,20 @@ class DetailActivity : BaseActivity() {
                                 dialog.cancelLoadingDialog()
                                 mActivity.displayShortToast(getString(R.string.hint_error))
                             }
+                            else -> Unit
+                        }
+                    }
+                }
+                // 取得路線
+                launch {
+                    viewModel.getRoutePolylineFlow.collect {
+                        when (it) {
+                            is Resource.Success -> it.data?.result?.let { data ->
+                                doMarketPolyLine(
+                                    data.polyline
+                                )
+                            }
+                            is Resource.Error -> mActivity.displayShortToast(getString(R.string.hint_error))
                             else -> Unit
                         }
                     }
@@ -286,8 +332,8 @@ class DetailActivity : BaseActivity() {
 
     private fun setupData(data: DetailsByPlaceIdRes.Result) {
         binding.layoutOption.apply {
+            doGetPolyline(data.place)
             setupToolButton(data)
-            doMarketPolyLine()
             detail = data
             checkFavorite = placesDetails.isFavorite
             checkBlackList = placesDetails.isBlackList
@@ -297,17 +343,76 @@ class DetailActivity : BaseActivity() {
         }
     }
 
-    private fun doMarketPolyLine() {
+    private fun doGetPolyline(targetInfo: Place) {
+        if (!checkDeviceGPS() && !checkNetworkGPS())
+            return
+        viewModel.getPolyLine(
+            origin = SetLocation(
+                lat = myLatitude,
+                lng = myLongitude,
+                place_id = ""
+            ),
+            destination = SetLocation(
+                targetInfo.location.lat,
+                targetInfo.location.lng,
+                targetInfo.place_id
+            )
+        )
+    }
+
+    private fun doMarketPolyLine(polyline: String) {
         lifecycleScope.launch(Dispatchers.Main) {
             placesDetails.place.apply {
                 if (!::map.isInitialized) return@launch
+                // Marker
                 val markerOption = MarkerOptions().apply {
                     position(LatLng(location.lat, location.lng))
                     title(name)
+                    icon(BitmapDescriptorFactory.fromResource(R.drawable.img_location))
                 }
                 map.addMarker(markerOption)
+                // PolyLine
+                viewModel.decodePolylineArray = Method.decodePolyline(polyline)
+                animatedPolyline = AnimatedPolyline(
+                    map = map,
+                    points = viewModel.decodePolylineArray,
+                    polylineOptions = PolylineOptions()
+                        .width(24f)
+                        .color(getColorCompat(R.color.google_red))
+                        .geodesic(true)
+                        .pattern(
+                            listOf(
+                                Dot(), Gap(20f)
+                            )
+                        ),
+                    duration = 3000,
+                    interpolator = DecelerateInterpolator(),
+                    animatorListenerAdapter = object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            super.onAnimationEnd(animation)
+                            animatedPolyline.start()
+                        }
+                    }
+                )
+                animatedPolyline.startWithDelay(1000)
+                // Set Zoom
+                setZoomMap()
             }
         }
+    }
+
+    private fun setZoomMap() {
+        val builder = LatLngBounds.Builder()
+        viewModel.decodePolylineArray.forEach { builder.include(it) }
+        val bounds = builder.build()
+        val metrics = resources.displayMetrics
+        val cu = CameraUpdateFactory.newLatLngBounds(
+            bounds,
+            (metrics.widthPixels * 2.2).toInt(),
+            metrics.heightPixels,
+            (metrics.widthPixels * 0.7).toInt()
+        )
+        map.moveCamera(cu)
     }
 
     private fun setupToolButton(data: DetailsByPlaceIdRes.Result) {
@@ -341,6 +446,17 @@ class DetailActivity : BaseActivity() {
 
             imgMyLocation.setOnClickListener {
                 setMyLocation()
+                layoutOption.scrollView.post {
+                    layoutOption.scrollView.apply {
+                        fling(0)
+                        scrollTo(0, 0)
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                    }
+                }
+            }
+
+            imgMyRoute.setOnClickListener {
+                setZoomMap()
                 layoutOption.scrollView.post {
                     layoutOption.scrollView.apply {
                         fling(0)
