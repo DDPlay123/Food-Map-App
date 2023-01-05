@@ -149,12 +149,15 @@ class DetailActivity : BaseActivity() {
         binding.apply {
             bottomSheetBehavior = BottomSheetBehavior.from(binding.layoutOption.layoutDetail)
             with(bottomSheetBehavior) {
-                skipCollapsed = true
-                state = BottomSheetBehavior.STATE_COLLAPSED
+                skipCollapsed = false
+                isFitToContents = false
+                halfExpandedRatio = 0.7F
+                state = BottomSheetBehavior.STATE_HALF_EXPANDED
                 addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
                     override fun onStateChanged(bottomSheet: View, newState: Int) {
                         when (newState) {
                             BottomSheetBehavior.STATE_COLLAPSED -> {
+                                isFitToContents = true
                                 layoutOption.scrollView.post {
                                     layoutOption.scrollView.apply {
                                         fling(0)
@@ -163,6 +166,7 @@ class DetailActivity : BaseActivity() {
                                     }
                                 }
                             }
+                            BottomSheetBehavior.STATE_EXPANDED -> isFitToContents = true
                             else -> Unit
                         }
                     }
@@ -356,6 +360,16 @@ class DetailActivity : BaseActivity() {
                     }
                     displayRegionDialog()
                 }
+            }
+
+            tvName.setOnClickListener {
+                if (::placesDetails.isInitialized) {
+                    Intent(Intent.ACTION_VIEW).also { i ->
+                        i.data = Uri.parse(placesDetails.place.url)
+                        startActivity(i)
+                    }
+                } else
+                    mActivity.displayShortToast(getString(R.string.hint_no_website))
             }
 
             tvGoogle.setOnClickListener {
