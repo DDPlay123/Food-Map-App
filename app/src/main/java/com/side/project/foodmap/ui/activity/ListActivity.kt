@@ -91,14 +91,18 @@ class ListActivity : BaseActivity() {
             // Set Title
             binding.title = when (listType) {
                 ListType.NEAR_LIST.name -> {
+                    binding.searchBar.gone()
                     binding.isHideDistance = false
                     getString(R.string.hint_near_region)
                 }
                 ListType.KEYWORD_LIST.name -> {
+                    binding.searchBar.display()
                     binding.isHideDistance = false
-                    keyword
+                    binding.edSearch.setText(keyword)
+                    binding.edSearch.text.toString().trim()
                 }
                 ListType.BLACK_LIST.name -> {
+                    binding.searchBar.display()
                     binding.isHideDistance = true
                     getString(R.string.hint_black_list)
                 }
@@ -224,10 +228,13 @@ class ListActivity : BaseActivity() {
                                         )
 
                                         // Repeat Search
-                                        binding.edSearch.text.toString().trim().let {
-                                            if (it.isNotEmpty())
-                                                filter(it)
-                                        }
+//                                        binding.edSearch.text.toString().trim().let {
+//                                            if (it.isNotEmpty())
+//                                                if (listType == ListType.KEYWORD_LIST.name)
+//                                                    callData(true)
+//                                                else
+//                                                    filter(it)
+//                                        }
                                     }
                                 }
                                 is Resource.Error -> {
@@ -279,7 +286,7 @@ class ListActivity : BaseActivity() {
 
                             if (viewModel.listType == ListType.BLACK_LIST.name)
                                 return
-                            callData(false, settingDistance, (50 * alreadyCalledNum), 50)
+                            callData(false, skip = (50 * alreadyCalledNum), limit = 50)
                         }
                     }
                 }
@@ -401,7 +408,7 @@ class ListActivity : BaseActivity() {
 
     private fun callData(
         isClear: Boolean = true,
-        distance: Int = 1000,
+        keyword: String = binding.edSearch.text.toString().trim(),
         skip: Int = 0,
         limit: Int = 50
     ) {
@@ -421,6 +428,7 @@ class ListActivity : BaseActivity() {
                     )
                 }
                 ListType.KEYWORD_LIST.name -> {
+                    binding.title = binding.edSearch.text.toString().trim()
                     keywordSearch(
                         location = if (isUseMyLocation) Location(
                             mActivity.myLatitude,
@@ -477,7 +485,10 @@ class ListActivity : BaseActivity() {
                     timer.schedule(object : TimerTask() {
                         override fun run() {
                             Coroutines.main {
-                                filter(text)
+                                if (viewModel.listType == ListType.KEYWORD_LIST.name)
+                                    callData()
+                                else
+                                    filter(text)
                             }
                         }
                     }, 500)
