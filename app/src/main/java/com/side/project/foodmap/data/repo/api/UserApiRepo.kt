@@ -122,7 +122,6 @@ class UserApiRepo : KoinComponent {
                             response.body()?.let {
                                 when (it.status) {
                                     0 -> {
-                                        mLoginFlow.emit(Resource.Success(it))
                                         dataStoreRepo.run {
                                             putAccessKey(it.result.accessKey)
                                             putUserUID(it.result.userId)
@@ -130,6 +129,7 @@ class UserApiRepo : KoinComponent {
                                             putUserName(username)
                                             putUserIsLogin(true)
                                         }
+                                        mLoginFlow.emit(Resource.Success(it))
                                     }
                                     3 -> mLoginFlow.emit(Resource.Success(it))
                                     else -> mLoginFlow.emit(Resource.Error(it.errMsg.toString()))
@@ -163,9 +163,9 @@ class UserApiRepo : KoinComponent {
                             response.body()?.let {
                                 when (it.status) {
                                     0 -> {
-                                        mLogoutFlow.emit(Resource.Success(it))
                                         dataStoreRepo.clearData()
                                         deleteDbData()
+                                        mLogoutFlow.emit(Resource.Success(it))
                                     }
                                     else -> mLogoutFlow.emit(Resource.Error(it.errMsg.toString()))
                                 }
@@ -231,12 +231,12 @@ class UserApiRepo : KoinComponent {
                             response.body()?.let {
                                 when (it.status) {
                                     0 -> {
-                                        mDeleteAccountFlow.emit(Resource.Success(it))
                                         dataStoreRepo.run {
                                             clearData()
                                             clearPublicData()
                                             deleteDbData()
                                         }
+                                        mDeleteAccountFlow.emit(Resource.Success(it))
                                     }
                                     else -> mDeleteAccountFlow.emit(Resource.Error(it.errMsg.toString()))
                                 }
@@ -337,8 +337,8 @@ class UserApiRepo : KoinComponent {
                             response.body()?.let {
                                 when (it.status) {
                                     0 -> {
-                                        mGetUserImageFlow.emit(Resource.Success(it))
                                         dataStoreRepo.putUserPicture(it.result.userImage)
+                                        mGetUserImageFlow.emit(Resource.Success(it))
                                     }
                                     else -> mGetUserImageFlow.emit(Resource.Error(it.errMsg.toString()))
                                 }
@@ -372,8 +372,8 @@ class UserApiRepo : KoinComponent {
                             response.body()?.let {
                                 when (it.status) {
                                     0 -> {
-                                        mSetUserPasswordFlow.emit(Resource.Success(it))
                                         dataStoreRepo.putPassword(password)
+                                        mSetUserPasswordFlow.emit(Resource.Success(it))
                                     }
                                     else -> mSetUserPasswordFlow.emit(Resource.Error(it.errMsg.toString()))
                                 }

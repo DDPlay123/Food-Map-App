@@ -16,8 +16,6 @@ class MainViewModel : BaseViewModel() {
     init {
         getUserUIDFromDataStore()
         getUserNameFromDataStore()
-        getUserPictureFromDataStore()
-
     }
     /**
      * 暫存
@@ -40,6 +38,8 @@ class MainViewModel : BaseViewModel() {
     /**
      * 資料流
      */
+    val getUserImageFlow get() = userApiRepo.getUserImageFlow
+
     // Home Page
     val putFcmTokenFlow get() = userApiRepo.putFcmTokenFlow
 
@@ -83,6 +83,9 @@ class MainViewModel : BaseViewModel() {
     /**
      * 可呼叫方法
      */
+    fun getUserImage() =
+        userApiRepo.apiGetUserImage()
+
     fun putFcmToken(
         fcmToken: String
     ) = userApiRepo.apiAddFcmToken(fcmToken)

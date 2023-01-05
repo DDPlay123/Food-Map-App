@@ -65,7 +65,8 @@ class LoginViewModel : BaseViewModel() {
             }
     }
 
-    fun getUserImage() = userApiRepo.apiGetUserImage()
+    fun getUserImage() =
+        userApiRepo.apiGetUserImage()
 
     /**
      * 驗證輸入
