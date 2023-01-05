@@ -344,7 +344,7 @@ class DetailActivity : BaseActivity() {
     }
 
     private fun doGetPolyline(targetInfo: Place) {
-        if (!checkDeviceGPS() && !checkNetworkGPS())
+        if (!checkMyDeviceGPS())
             return
         viewModel.getPolyLine(
             origin = SetLocation(

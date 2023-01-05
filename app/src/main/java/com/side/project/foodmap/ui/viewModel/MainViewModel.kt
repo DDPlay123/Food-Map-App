@@ -3,6 +3,7 @@ package com.side.project.foodmap.ui.viewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.data.remote.*
 import com.side.project.foodmap.util.RegisterLoginFieldsState
 import com.side.project.foodmap.util.RegisterLoginValidation
@@ -18,11 +19,6 @@ class MainViewModel : BaseViewModel() {
         getUserNameFromDataStore()
     }
     /**
-     * 暫存
-     */
-
-
-    /**
      * 參數
      */
     // 人氣卡
@@ -34,11 +30,15 @@ class MainViewModel : BaseViewModel() {
     var isUseMyLocation: Boolean = true
     var selectLatLng: Location = Location(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
     var isSearchPlaceList: Boolean = false
+    // 最愛清單路線
+    var favoritePolylineArray: List<LatLng> = emptyList()
 
     /**
      * 資料流
      */
     val getUserImageFlow get() = userApiRepo.getUserImageFlow
+
+    val getRoutePolylineFlow get() = geocodeApiRepo.getRoutePolylineFlow
 
     // Home Page
     val putFcmTokenFlow get() = userApiRepo.putFcmTokenFlow
@@ -85,6 +85,11 @@ class MainViewModel : BaseViewModel() {
      */
     fun getUserImage() =
         userApiRepo.apiGetUserImage()
+
+    fun getPolyLine(
+        origin: SetLocation,
+        destination: SetLocation
+    ) = geocodeApiRepo.apiGeocodeGetRoutePolyline(origin, destination)
 
     fun putFcmToken(
         fcmToken: String

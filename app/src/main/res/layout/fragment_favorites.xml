@@ -11,7 +11,7 @@
 
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingTop="@{paddingTop}"
@@ -27,9 +27,38 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imgMyRoute"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:layout_marginEnd="@dimen/_8sdp"
+            android:background="@drawable/background_circle_white_back_button"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:padding="@dimen/_8sdp"
+            android:src="@drawable/ic_route"
+            app:layout_constraintEnd_toStartOf="@+id/imgMyLocation"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/red" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imgMyLocation"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:layout_marginEnd="@dimen/_8sdp"
+            android:background="@drawable/background_circle_white_back_button"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:padding="@dimen/_8sdp"
+            android:src="@drawable/ic_my_location"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/red" />
+
         <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/_55sdp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -41,6 +70,6 @@
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>
