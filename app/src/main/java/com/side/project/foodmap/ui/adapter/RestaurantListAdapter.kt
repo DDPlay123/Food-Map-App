@@ -67,9 +67,10 @@ class RestaurantListAdapter :
             } else
                 tvDistance.gone()
 
-            if (isBlackList)
+            if (isBlackList) {
                 imgFavorite.gone()
-            else
+                tvDistance.gone()
+            } else
                 imgFavorite.display()
 
             root.setOnClickListener { onItemClick.invoke(item.place_id) }
@@ -78,8 +79,7 @@ class RestaurantListAdapter :
                 mIsFavorite = onItemFavoriteClick.invoke(item.place_id, mIsFavorite)
             }
             root.setOnLongClickListener {
-                if (!isBlackList)
-                    onItemBlackListClick.invoke(item.place_id)
+                onItemBlackListClick.invoke(item.place_id)
                 true
             }
         }

@@ -14,7 +14,7 @@ class ListViewModel : BaseViewModel() {
     // 實際要觀察的資料(附近/關鍵字)
     var searchData: MutableList<PlaceList> = ArrayList()
 
-    // wait push blackList
+    // wait push/pull blackList
     var blackPlaceId: String = ""
 
     // 設定區域
@@ -46,6 +46,8 @@ class ListViewModel : BaseViewModel() {
 
     val pushBlackListFlow get() = userApiRepo.pushBlackListFlow
 
+    val pullBlackListFlow get() = userApiRepo.pullBlackListFlow
+
     val pushFavoriteFlow get() = userApiRepo.pushFavoriteListFlow
 
     val pullFavoriteFlow get() = userApiRepo.pullFavoriteListFlow
@@ -76,6 +78,10 @@ class ListViewModel : BaseViewModel() {
     fun pushBlackList(
         placeIdList: ArrayList<String>
     ) = userApiRepo.apiPushBlackList(placeIdList)
+
+    fun pullBlackList(
+        placeIdList: ArrayList<String>
+    ) = userApiRepo.apiPullBlackList(placeIdList)
 
     fun pushFavorite(
         placeIdList: ArrayList<String>

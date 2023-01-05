@@ -615,7 +615,7 @@ class DetailActivity : BaseActivity() {
             dialogBinding.run {
                 dialogBinding.run {
                     showIcon = true
-                    imgPromptIcon.setImageResource(R.drawable.ic_report)
+                    imgPromptIcon.setImageResource(R.drawable.ic_error)
                     titleText = if (isAdd)
                         getString(R.string.hint_prompt_add_black_list_title)
                     else

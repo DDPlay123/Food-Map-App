@@ -208,9 +208,28 @@ class ListActivity : BaseActivity() {
                                         binding.total = totalCount.toString()
                                         binding.count = list.size.toString()
                                     }
-
                                 }
                                 is Resource.Error -> mActivity.displayShortToast(getString(R.string.hint_failed_push_black_list))
+                                else -> Unit
+                            }
+                        }
+                    }
+                    // 移除黑名單
+                    launch {
+                        pullBlackListFlow.collect {
+                            when (it) {
+                                is Resource.Success -> {
+                                    mActivity.displayShortToast(getString(R.string.hint_success_pull_black_list))
+                                    val list = restaurantListAdapter.currentList.toMutableList()
+                                    list.find { m -> m.place_id == blackPlaceId }?.let { placeList ->
+                                        list.remove(placeList)
+                                        restaurantListAdapter.setPlaceList(list)
+                                        totalCount -= 1
+                                        binding.total = list.size.toString()
+                                        binding.count = list.size.toString()
+                                    }
+                                }
+                                is Resource.Error -> mActivity.displayShortToast(getString(R.string.hint_failed_pull_black_list))
                                 else -> Unit
                             }
                         }
@@ -372,7 +391,7 @@ class ListActivity : BaseActivity() {
         }
 
         restaurantListAdapter.onItemBlackListClick = { placeId ->
-            displayModifyBlackListDialog(placeId)
+            displayModifyBlackListDialog(placeId, viewModel.listType != ListType.BLACK_LIST.name)
         }
     }
 
@@ -502,18 +521,24 @@ class ListActivity : BaseActivity() {
             restaurantListAdapter.filter.filter(text)
     }
 
-    private fun displayModifyBlackListDialog(placeId: String) {
+    private fun displayModifyBlackListDialog(placeId: String, isAdd: Boolean) {
         val dialogBinding = DialogPromptBinding.inflate(layoutInflater)
         dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
             dialogBinding.run {
                 dialogBinding.run {
                     showIcon = true
-                    imgPromptIcon.setImageResource(R.drawable.ic_report)
-                    titleText = getString(R.string.hint_prompt_add_black_list_title)
+                    imgPromptIcon.setImageResource(R.drawable.ic_error)
+                    titleText = if (isAdd)
+                        getString(R.string.hint_prompt_add_black_list_title)
+                    else
+                        getString(R.string.hint_prompt_remove_black_list_title)
                     tvCancel.setOnClickListener { dialog.cancelCenterDialog() }
                     tvConfirm.setOnClickListener {
                         viewModel.blackPlaceId = placeId
-                        viewModel.pushBlackList(arrayListOf(placeId))
+                        if (isAdd)
+                            viewModel.pushBlackList(arrayListOf(placeId))
+                        else
+                            viewModel.pullBlackList(arrayListOf(placeId))
                         dialog.cancelCenterDialog()
                     }
                 }
