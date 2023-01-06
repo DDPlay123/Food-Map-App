@@ -124,6 +124,8 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
     override fun onDestroyView() {
         if (::timer.isInitialized)
             timer.cancel()
+        map.clear()
+        viewModel.favoritePolylineArray = emptyList()
         super.onDestroyView()
     }
 
@@ -171,7 +173,10 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                 launch {
                     viewModel.getRoutePolylineFlow.collect {
                         when (it) {
-                            is Resource.Success -> it.data?.result?.let { data -> doMapPolyLine(data.polyline) }
+                            is Resource.Success -> it.data?.result?.let { data ->
+                                viewModel.favoritePolylineArray = Method.decodePolyline(data.polyline)
+                                doMapPolyLine()
+                            }
                             is Resource.Error -> mActivity.displayShortToast(getString(R.string.hint_error))
                             else -> Unit
                         }
@@ -264,7 +269,6 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
         if (!::map.isInitialized) return
         map.apply {
             clear()
-            binding?.layoutOption?.rvFavorites?.scrollToPosition(position)
             val markerOption = MarkerOptions().apply {
                 position(LatLng(targetInfo.location.lat, targetInfo.location.lng))
                 title(targetInfo.name)
@@ -338,11 +342,9 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
         map.setPadding(0, 0, 0, (offset * maxMapPaddingBottom).roundToInt())
     }
 
-    private fun doMapPolyLine(polyline: String) {
+    private fun doMapPolyLine() {
         lifecycleScope.launch(Dispatchers.Main) {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
-            viewModel.favoritePolylineArray = Method.decodePolyline(polyline)
-
             if (::animatedPolyline.isInitialized)
                 animatedPolyline.remove()
 
@@ -358,7 +360,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                             Dot(), Gap(20f)
                         )
                     ),
-                duration = 1000,
+                duration = 1500,
                 interpolator = DecelerateInterpolator(),
                 animatorListenerAdapter = object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
@@ -368,7 +370,6 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                 }
             )
             animatedPolyline.start()
-            delay(500)
             setZoomMap()
         }
     }
@@ -392,20 +393,24 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
         if (!::favoriteListAdapter.isInitialized) return
         favoriteListAdapter.apply {
             onItemClick = { favoriteList, position ->
-                if (mActivity.checkMyDeviceGPS()) {
-                    setMapMarkers(favoriteList, position)
-                    viewModel.getPolyLine(
-                        origin = SetLocation(
-                            lat = mActivity.myLatitude,
-                            lng = mActivity.myLongitude,
-                            place_id = ""
-                        ),
-                        destination = SetLocation(
-                            favoriteList.location.lat,
-                            favoriteList.location.lng,
-                            favoriteList.place_id
+                Coroutines.main {
+                    if (mActivity.checkMyDeviceGPS()) {
+                        binding?.layoutOption?.rvFavorites?.scrollToPosition(position)
+                        delay(100)
+                        setMapMarkers(favoriteList, position)
+                        viewModel.getPolyLine(
+                            origin = SetLocation(
+                                lat = mActivity.myLatitude,
+                                lng = mActivity.myLongitude,
+                                place_id = ""
+                            ),
+                            destination = SetLocation(
+                                favoriteList.location.lat,
+                                favoriteList.location.lng,
+                                favoriteList.place_id
+                            )
                         )
-                    )
+                    }
                 }
             }
 

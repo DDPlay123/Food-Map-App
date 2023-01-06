@@ -123,6 +123,10 @@
     <string name="hint_read_more">閱讀更多\.\.\.</string>
     <string name="hint_read_less">收起</string>
     <string name="hint_no_assign_type">未指定類別</string>
+    <string name="hint_is_track_location">定位追蹤</string>
+    <string name="hint_no_track_location">取消追蹤</string>
+    <string name="hint_watch_route">查看路徑</string>
+    <string name="hint_search_here">搜尋這裡</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>

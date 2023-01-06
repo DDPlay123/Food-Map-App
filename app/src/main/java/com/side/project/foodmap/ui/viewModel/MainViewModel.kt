@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.data.remote.*
+import com.side.project.foodmap.data.remote.restaurant.DistanceSearchRes
 import com.side.project.foodmap.util.RegisterLoginFieldsState
 import com.side.project.foodmap.util.RegisterLoginValidation
 import com.side.project.foodmap.util.tools.Method
@@ -30,6 +31,16 @@ class MainViewModel : BaseViewModel() {
     var isUseMyLocation: Boolean = true
     var selectLatLng: Location = Location(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
     var isSearchPlaceList: Boolean = false
+    // 地圖，追蹤模式
+    var isTrack: Boolean = false
+    var mapPolylineArray: List<LatLng> = emptyList()
+    // 地圖，搜尋路線
+    var distanceSearchRes: DistanceSearchRes? = null
+    var index = 0
+    var placeId = ""
+    var placeName = ""
+    var lat = DEFAULT_LATITUDE
+    var lng = DEFAULT_LONGITUDE
     // 最愛清單路線
     var favoritePolylineArray: List<LatLng> = emptyList()
 

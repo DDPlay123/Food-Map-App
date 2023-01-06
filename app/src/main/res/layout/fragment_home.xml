@@ -130,25 +130,22 @@
 
         <View
             android:id="@+id/supportDivider"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_5sdp"
-            android:layout_marginStart="@dimen/_15sdp"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:layout_marginEnd="@dimen/_15sdp"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/_2sdp"
+            android:layout_marginBottom="@dimen/_4sdp"
             android:background="@color/support"
-            app:layout_constraintBottom_toTopOf="@+id/cardAllRestaurant"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/cardViewMore"
+            app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
+            app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
             app:layout_constraintTop_toBottomOf="@+id/vpPopular" />
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardAllRestaurant"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardViewMore"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginStart="@dimen/_50sdp"
-            android:layout_marginTop="@dimen/_10sdp"
             android:layout_marginEnd="@dimen/_50sdp"
-            android:layout_marginBottom="@dimen/_16sdp"
+            android:layout_marginBottom="@dimen/_10sdp"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground"
@@ -162,8 +159,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="@dimen/_8sdp">
+                android:layout_height="match_parent">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvViewMore"
@@ -179,15 +175,28 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@color/accent"
+                    android:paddingStart="@dimen/_8sdp"
+                    android:paddingEnd="@dimen/_8sdp"
+                    android:src="@drawable/ic_arrow_forward"
+                    android:tint="@color/white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvPopular"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_4sdp"
+            android:layout_marginBottom="@dimen/_4sdp"
             android:drawableStart="@drawable/ic_pan_tool_alt"
             android:drawableEnd="@drawable/ic_swap_vert"
             android:drawablePadding="@dimen/_5sdp"
@@ -196,7 +205,7 @@
             android:foreground="?android:attr/selectableItemBackgroundBorderless"
             android:text="@{isPopularSearch ? @string/hint_popular_restaurant : @string/hint_favorite_popular_restaurant, default=@string/hint_popular_restaurant}"
             android:textColor="@color/black"
-            android:textSize="@dimen/_14ssp"
+            android:textSize="@dimen/_16ssp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/vpPopular"
             app:layout_constraintStart_toStartOf="@id/homeHeader"
@@ -220,7 +229,6 @@
             android:id="@+id/vpPopular"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="@dimen/_5sdp"
             android:layout_marginBottom="@dimen/_5sdp"
             android:paddingStart="@dimen/_50sdp"
             android:paddingEnd="@dimen/_50sdp"

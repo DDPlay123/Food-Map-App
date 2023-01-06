@@ -249,9 +249,8 @@ class DetailActivity : BaseActivity() {
                     viewModel.getRoutePolylineFlow.collect {
                         when (it) {
                             is Resource.Success -> it.data?.result?.let { data ->
-                                doMarketPolyLine(
-                                    data.polyline
-                                )
+                                viewModel.decodePolylineArray = Method.decodePolyline(data.polyline)
+                                doMarketPolyLine()
                             }
                             is Resource.Error -> mActivity.displayShortToast(getString(R.string.hint_error))
                             else -> Unit
@@ -390,7 +389,7 @@ class DetailActivity : BaseActivity() {
         }
     }
 
-    private fun doMarketPolyLine(polyline: String) {
+    private fun doMarketPolyLine() {
         lifecycleScope.launch(Dispatchers.Main) {
             placesDetails.place.apply {
                 if (!::map.isInitialized) return@launch
@@ -402,7 +401,6 @@ class DetailActivity : BaseActivity() {
                 }
                 map.addMarker(markerOption)
                 // PolyLine
-                viewModel.decodePolylineArray = Method.decodePolyline(polyline)
                 animatedPolyline = AnimatedPolyline(
                     map = map,
                     points = viewModel.decodePolylineArray,
@@ -415,7 +413,7 @@ class DetailActivity : BaseActivity() {
                                 Dot(), Gap(20f)
                             )
                         ),
-                    duration = 1000,
+                    duration = 1500,
                     interpolator = DecelerateInterpolator(),
                     animatorListenerAdapter = object : AnimatorListenerAdapter() {
                         override fun onAnimationEnd(animation: Animator) {

@@ -77,7 +77,6 @@ import kotlin.math.abs
 class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private val viewModel: MainViewModel by activityViewModel()
 
-    private lateinit var mPlaceId: String
     private var keyword: String = ""
 
     private lateinit var popularSearchAdapter: PopularSearchAdapter
@@ -415,11 +414,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 }
             }
 
-            cardAllRestaurant.setOnClickListener {
-                watchDetail(mPlaceId)
-            }
-
-            tvViewMore.setOnClickListener {
+            cardViewMore.setOnClickListener {
                 if (!mActivity.checkDeviceGPS() && !mActivity.checkNetworkGPS()) {
                     displayNotGpsDialog()
                     return@setOnClickListener
