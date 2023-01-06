@@ -4,12 +4,15 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.res.Resources
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
+import android.widget.RelativeLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -26,6 +29,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.FavoriteList
+import com.side.project.foodmap.data.remote.Location
 import com.side.project.foodmap.data.remote.SetLocation
 import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.databinding.FragmentFavoritesBinding
@@ -43,6 +47,7 @@ import com.side.project.foodmap.util.tools.Coroutines
 import com.side.project.foodmap.util.tools.Method
 import com.side.project.foodmap.util.tools.Method.logE
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import java.util.*
@@ -52,6 +57,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
     private val viewModel: MainViewModel by activityViewModel()
 
     // Google Map Tool
+    private lateinit var mapFragment: SupportMapFragment
     private lateinit var map: GoogleMap
     private lateinit var mLoc: LatLng
     private lateinit var animatedPolyline: AnimatedPolyline
@@ -106,8 +112,8 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
 
         dialog.showLoadingDialog(mActivity, false)
 
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
-        mapFragment?.getMapAsync(callback)
+        mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(callback)
 
         viewModel.getSyncFavoriteList()
         doInitialize()
@@ -229,7 +235,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
         lifecycleScope.launch(Dispatchers.Main) {
             if (!::map.isInitialized) return@launch
             mLoc = LatLng(mActivity.myLatitude, mActivity.myLongitude)
-            map.animateCamera(
+            map.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
                     LatLng(mActivity.myLatitude, mActivity.myLongitude),
                     DEFAULT_ZOOM
@@ -251,6 +257,21 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                 }
                 addMarker(markerOption)
             }
+        }
+    }
+
+    private fun setMapMarkers(targetInfo: FavoriteList, position: Int) {
+        if (!::map.isInitialized) return
+        map.apply {
+            clear()
+            binding?.layoutOption?.rvFavorites?.scrollToPosition(position)
+            val markerOption = MarkerOptions().apply {
+                position(LatLng(targetInfo.location.lat, targetInfo.location.lng))
+                title(targetInfo.name)
+                icon(BitmapDescriptorFactory.fromResource(R.drawable.img_location))
+                snippet(position.toString()) // position
+            }
+            addMarker(markerOption)
         }
     }
 
@@ -318,38 +339,37 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
     }
 
     private fun doMapPolyLine(polyline: String) {
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        val tempLatLngList = Method.decodePolyline(polyline)
+        lifecycleScope.launch(Dispatchers.Main) {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+            viewModel.favoritePolylineArray = Method.decodePolyline(polyline)
 
-        if (viewModel.favoritePolylineArray.isEmpty()) {
-            viewModel.favoritePolylineArray = tempLatLngList
-            map.apply {
-                animatedPolyline = AnimatedPolyline(
-                    map = this,
-                    points = viewModel.favoritePolylineArray,
-                    polylineOptions = PolylineOptions()
-                        .width(24f)
-                        .color(mActivity.getColorCompat(R.color.google_red))
-                        .pattern(
-                            listOf(
-                                Dot(), Gap(20f)
-                            )
-                        ),
-                    duration = 3000,
-                    interpolator = DecelerateInterpolator(),
-                    animatorListenerAdapter = object : AnimatorListenerAdapter() {
-                        override fun onAnimationEnd(animation: Animator) {
-                            super.onAnimationEnd(animation)
-                            animatedPolyline.start()
-                        }
+            if (::animatedPolyline.isInitialized)
+                animatedPolyline.remove()
+
+            animatedPolyline = AnimatedPolyline(
+                map = map,
+                points = viewModel.favoritePolylineArray,
+                polylineOptions = PolylineOptions()
+                    .width(24f)
+                    .color(mActivity.getColorCompat(R.color.google_red))
+                    .geodesic(true)
+                    .pattern(
+                        listOf(
+                            Dot(), Gap(20f)
+                        )
+                    ),
+                duration = 1000,
+                interpolator = DecelerateInterpolator(),
+                animatorListenerAdapter = object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        super.onAnimationEnd(animation)
+                        animatedPolyline.start()
                     }
-                )
-                animatedPolyline.startWithDelay(1000)
-            }
-            return
-        } else {
-            viewModel.favoritePolylineArray = tempLatLngList
-            animatedPolyline.replacePoints(viewModel.favoritePolylineArray)
+                }
+            )
+            animatedPolyline.start()
+            delay(500)
+            setZoomMap()
         }
     }
 
@@ -371,8 +391,9 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
     private fun setRvItemListener() {
         if (!::favoriteListAdapter.isInitialized) return
         favoriteListAdapter.apply {
-            onItemClick = { favoriteList ->
+            onItemClick = { favoriteList, position ->
                 if (mActivity.checkMyDeviceGPS()) {
+                    setMapMarkers(favoriteList, position)
                     viewModel.getPolyLine(
                         origin = SetLocation(
                             lat = mActivity.myLatitude,

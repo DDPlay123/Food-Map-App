@@ -34,7 +34,7 @@ class FavoriteListAdapter :
     }
 
     lateinit var onPhotoItemClick: ((List<String>, Int) -> Unit)
-    lateinit var onItemClick: ((FavoriteList) -> Unit)
+    lateinit var onItemClick: ((FavoriteList, Int) -> Unit)
     lateinit var onItemPullFavorite: ((FavoriteList) -> Unit)
     lateinit var onItemWebsite: ((String) -> Unit)
     lateinit var onItemDetail: ((String) -> Unit)
@@ -55,7 +55,7 @@ class FavoriteListAdapter :
                     btnPhone.background = btnPhone.context.getDrawableCompat(R.drawable.background_google_gray_button)
             }
 
-            root.setOnClickListener { onItemClick.invoke(item) }
+            root.setOnClickListener { onItemClick.invoke(item, position) }
             imgSetFavorite.setOnClickListener { onItemPullFavorite.invoke(item) }
             btnWebsite.setOnClickListener { onItemWebsite.invoke(item.website) }
             btnDetail.setOnClickListener { onItemDetail.invoke(item.place_id) }

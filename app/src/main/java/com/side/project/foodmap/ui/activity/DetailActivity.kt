@@ -4,11 +4,13 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.res.Resources
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
+import android.widget.RelativeLayout
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.databinding.DataBindingUtil
@@ -52,9 +54,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+
 class DetailActivity : BaseActivity() {
     private lateinit var binding: ActivityDetailBinding
     private lateinit var viewModel: DetailViewModel
+    private lateinit var mapFragment: SupportMapFragment
     private lateinit var map: GoogleMap
     private lateinit var mLoc: LatLng
     private lateinit var animatedPolyline: AnimatedPolyline
@@ -79,7 +83,7 @@ class DetailActivity : BaseActivity() {
         viewModel = ViewModelProvider(this)[DetailViewModel::class.java]
         binding.paddingTop = getStatusBarHeight()
 
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(callback)
 
         checkNetWork { onBackPressed() }
@@ -133,7 +137,8 @@ class DetailActivity : BaseActivity() {
             isMyLocationEnabled = true
             uiSettings.isMyLocationButtonEnabled = false
             uiSettings.isMapToolbarEnabled = false
-            uiSettings.isCompassEnabled = false
+            uiSettings.isCompassEnabled = true
+            setCompass()
         }
     }
 
@@ -141,7 +146,7 @@ class DetailActivity : BaseActivity() {
         lifecycleScope.launch(Dispatchers.Main) {
             if (!::map.isInitialized) return@launch
             mLoc = LatLng(mActivity.myLatitude, mActivity.myLongitude)
-            map.animateCamera(
+            map.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
                     LatLng(
                         mActivity.myLatitude,
@@ -360,6 +365,31 @@ class DetailActivity : BaseActivity() {
         )
     }
 
+    private fun setCompass() {
+        try {
+            mapFragment.view?.let { mapView ->
+                mapView.findViewWithTag<View>("GoogleMapMyLocationButton").parent?.let { parent ->
+                    val vg: ViewGroup = parent as ViewGroup
+                    vg.post {
+                        val mapCompass: View = parent.getChildAt(4)
+                        val rlp = RelativeLayout.LayoutParams(mapCompass.height, mapCompass.height)
+                        rlp.addRule(RelativeLayout.ALIGN_PARENT_LEFT, 0)
+                        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP)
+                        rlp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
+                        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0)
+
+                        val topMargin = (8 * Resources.getSystem().displayMetrics.density).toInt()
+                        val endMargin = (150 * Resources.getSystem().displayMetrics.density).toInt()
+                        rlp.setMargins(0, topMargin, endMargin, 0)
+                        mapCompass.layoutParams = rlp
+                    }
+                }
+            }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+    }
+
     private fun doMarketPolyLine(polyline: String) {
         lifecycleScope.launch(Dispatchers.Main) {
             placesDetails.place.apply {
@@ -385,7 +415,7 @@ class DetailActivity : BaseActivity() {
                                 Dot(), Gap(20f)
                             )
                         ),
-                    duration = 3000,
+                    duration = 1000,
                     interpolator = DecelerateInterpolator(),
                     animatorListenerAdapter = object : AnimatorListenerAdapter() {
                         override fun onAnimationEnd(animation: Animator) {
@@ -394,7 +424,7 @@ class DetailActivity : BaseActivity() {
                         }
                     }
                 )
-                animatedPolyline.startWithDelay(1000)
+                animatedPolyline.start()
                 // Set Zoom
                 setZoomMap()
             }
@@ -412,7 +442,7 @@ class DetailActivity : BaseActivity() {
             metrics.heightPixels,
             (metrics.widthPixels * 0.7).toInt()
         )
-        map.moveCamera(cu)
+        map.animateCamera(cu)
     }
 
     private fun setupToolButton(data: DetailsByPlaceIdRes.Result) {
@@ -445,6 +475,7 @@ class DetailActivity : BaseActivity() {
             }
 
             imgMyLocation.setOnClickListener {
+                if (!::map.isInitialized || !::animatedPolyline.isInitialized) return@setOnClickListener
                 setMyLocation()
                 layoutOption.scrollView.post {
                     layoutOption.scrollView.apply {
@@ -456,6 +487,7 @@ class DetailActivity : BaseActivity() {
             }
 
             imgMyRoute.setOnClickListener {
+                if (!::map.isInitialized || !::animatedPolyline.isInitialized) return@setOnClickListener
                 setZoomMap()
                 layoutOption.scrollView.post {
                     layoutOption.scrollView.apply {
@@ -764,6 +796,6 @@ class DetailActivity : BaseActivity() {
     }
 
     companion object {
-        private const val DEFAULT_ZOOM = 14F
+        private const val DEFAULT_ZOOM = 18F
     }
 }

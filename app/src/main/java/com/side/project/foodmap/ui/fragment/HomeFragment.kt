@@ -166,13 +166,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                 if (isSearchPlaceList)
                                     return@collect
 
-                                distanceSearch(
-                                    if (isUseMyLocation) Location(
-                                        mActivity.myLatitude,
-                                        mActivity.myLongitude
-                                    ) else selectLatLng
-                                )
-
                                 drawCard(
                                     if (isUseMyLocation) Location(
                                         mActivity.myLatitude,
@@ -236,21 +229,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         }
                     }
                 }
-                // 附近搜尋
-                launch {
-                    viewModel.distanceSearchFlow.collect { resource ->
-                        when (resource) {
-                            is Resource.Success -> {
-                                resource.data?.let { data ->
-                                    binding?.nearSearch = data
-                                    mPlaceId = data.result.placeList[0].place_id
-                                }
-                            }
-                            is Resource.Error -> requireActivity().displayShortToast(getString(R.string.hint_error))
-                            else -> Unit
-                        }
-                    }
-                }
                 // 自動更新
                 launch {
                     mActivity.locationGet.observe(viewLifecycleOwner) { location ->
@@ -261,12 +239,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         if (getDistance(location, oldLatLng) * 1000 > 100) {
                             oldLatLng = location
                             viewModel.run {
-                                distanceSearch(
-                                    if (isUseMyLocation) Location(
-                                        mActivity.myLatitude,
-                                        mActivity.myLongitude
-                                    ) else selectLatLng
-                                )
                                 drawCard(
                                     if (isUseMyLocation) Location(
                                         mActivity.myLatitude,
@@ -432,12 +404,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 it.setAnimClick(anim, AnimState.Start) {
                     initPopularCard()
                     viewModel.run {
-                        distanceSearch(
-                            if (isUseMyLocation) Location(
-                                mActivity.myLatitude,
-                                mActivity.myLongitude
-                            ) else selectLatLng
-                        )
                         drawCard(
                             if (isUseMyLocation) Location(
                                 mActivity.myLatitude,
