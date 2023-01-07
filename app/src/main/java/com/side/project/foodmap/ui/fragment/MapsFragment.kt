@@ -211,7 +211,11 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
                     viewModel.getRoutePolylineFlow.collect {
                         when (it) {
                             is Resource.Success -> it.data?.result?.let { data ->
-                                viewModel.mapPolylineArray = Method.decodePolyline(data.polyline)
+                                viewModel.apply {
+                                    mapPolylineArray = Method.decodePolyline(data.polyline)
+                                    mapPolylineDistance = data.distanceMeters
+                                    mapPolylineDuration = data.duration
+                                }
                                 doMapPolyLine()
                             }
                             is Resource.Error -> mActivity.displayShortToast(getString(R.string.hint_error))
@@ -292,6 +296,7 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
                 }
             )
             animatedPolyline.start()
+            animatedPolyline.addInfoWindow(requireContext(), viewModel.mapPolylineDistance, viewModel.mapPolylineDuration)
             setZoomMap()
         }
     }

@@ -34,6 +34,8 @@ class MainViewModel : BaseViewModel() {
     // 地圖，追蹤模式
     var isTrack: Boolean = false
     var mapPolylineArray: List<LatLng> = emptyList()
+    var mapPolylineDistance: Int = 0 // 公尺
+    var mapPolylineDuration: Int = 0 // 估計時間(秒)
     // 地圖，搜尋路線
     var distanceSearchRes: DistanceSearchRes? = null
     var index = 0

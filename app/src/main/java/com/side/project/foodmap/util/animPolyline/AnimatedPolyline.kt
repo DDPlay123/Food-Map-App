@@ -3,12 +3,14 @@ package com.side.project.foodmap.util.animPolyline
 import android.animation.AnimatorListenerAdapter
 import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
+import android.content.Context
+import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Polyline
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
+import com.side.project.foodmap.R
+import com.side.project.foodmap.helper.addInfoWindow
 import com.side.project.foodmap.util.animPolyline.PolylineOptionsExtensions.copyPolylineOptions
 import com.side.project.foodmap.util.animPolyline.PolylineOptionsExtensions.toPolylineOptions
 
@@ -35,6 +37,24 @@ class AnimatedPolyline(
         animatorListenerAdapter?.let {
             animator.addListener(it)
         }
+    }
+
+    fun addInfoWindow(context: Context, distance: Int, duration: Int) {
+        val pointsOnLine = this.points.size
+        val infoLatLng = this.points[(pointsOnLine / 2)]
+        val invisibleMarker = BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+        val marker = map.addMarker(
+            MarkerOptions()
+                .position(infoLatLng)
+                .title(String.format(
+                    context.getString(if (distance < 1000) R.string.text_number_meter else R.string.text_number_kilometer),
+                    if (distance < 1000) distance else distance / 1000))
+                .snippet(duration.toString())
+                .alpha(0f)
+                .icon(invisibleMarker)
+                .anchor(0f, 0f)
+        )
+        marker?.showInfoWindow()
     }
 
     fun replacePoints(pointList: List<LatLng>) {
