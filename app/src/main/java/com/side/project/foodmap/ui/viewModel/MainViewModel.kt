@@ -45,6 +45,8 @@ class MainViewModel : BaseViewModel() {
     var lng = DEFAULT_LONGITUDE
     // 最愛清單路線
     var favoritePolylineArray: List<LatLng> = emptyList()
+    var favoritePolylineDistance: Int = 0 // 公尺
+    var favoritePolylineDuration: Int = 0 // 估計時間(秒)
 
     /**
      * 資料流
@@ -112,7 +114,10 @@ class MainViewModel : BaseViewModel() {
         location: Location,
         isRecent: Boolean,
         num: Int = 10
-    ) = restaurantApiRepo.apiDrawCard(location, if (isRecent) 0 else 1, num)
+    ) {
+        if (isSearchPlaceList) return
+        restaurantApiRepo.apiDrawCard(location, if (isRecent) 0 else 1, num)
+    }
 
     fun distanceSearch(
         location: Location,

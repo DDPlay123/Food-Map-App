@@ -179,8 +179,11 @@
     <string name="dot">\.\.\.</string>
 
     <!--  嵌入字  -->
+
     <string name="text_number_meter">距離 %,.1f 公尺</string>
     <string name="text_number_kilometer">距離 %,.1f 公里</string>
+    <string name="text_number_int_meter">距離 %d 公尺</string>
+    <string name="text_number_int_kilometer">距離 %d 公里</string>
 
     <!--  下載狀態  -->
     <string name="download_status_failed">下載失敗，請重新嘗試</string>

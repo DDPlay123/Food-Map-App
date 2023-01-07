@@ -162,9 +162,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                 else
                                     binding?.tvCategory?.text = it.address
                             }.apply {
-                                if (isSearchPlaceList)
-                                    return@collect
-
                                 drawCard(
                                     if (isUseMyLocation) Location(
                                         mActivity.myLatitude,
@@ -172,6 +169,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                     ) else selectLatLng,
                                     isRecentPopularSearch
                                 )
+                                viewModel.isSearchPlaceList = true
                             }
                         }
                     }
@@ -214,7 +212,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                             lottieNoData.display()
                                         }
                                     }
-                                    delay(1000)
                                     dialog.cancelLoadingDialog()
                                 }
                             }

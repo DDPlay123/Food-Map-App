@@ -9,6 +9,8 @@ class DetailViewModel : BaseViewModel() {
      * 參數
      */
     var decodePolylineArray: List<LatLng> = emptyList()
+    var polylineDistance: Int = 0 // 公尺
+    var polylineDuration: Int = 0 // 估計時間(秒)
 
     /**
      * 資料流

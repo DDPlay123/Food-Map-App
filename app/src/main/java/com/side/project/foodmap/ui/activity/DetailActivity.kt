@@ -129,7 +129,7 @@ class DetailActivity : BaseActivity() {
 
     @SuppressLint("MissingPermission")
     private fun initGoogleMap() {
-        if (!mActivity.requestLocationPermission() || !::map.isInitialized)
+        if (!requestLocationPermission() || !::map.isInitialized)
             return
         setMyLocation()
         map.apply {
@@ -145,13 +145,10 @@ class DetailActivity : BaseActivity() {
     private fun setMyLocation() {
         lifecycleScope.launch(Dispatchers.Main) {
             if (!::map.isInitialized) return@launch
-            mLoc = LatLng(mActivity.myLatitude, mActivity.myLongitude)
+            mLoc = LatLng(myLatitude, myLongitude)
             map.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
-                    LatLng(
-                        mActivity.myLatitude,
-                        mActivity.myLongitude
-                    ), DEFAULT_ZOOM
+                    LatLng(myLatitude, myLongitude), DEFAULT_ZOOM
                 )
             )
         }
@@ -228,7 +225,7 @@ class DetailActivity : BaseActivity() {
                 launch {
                     viewModel.placeDetailFlow.collect {
                         when (it) {
-                            is Resource.Loading -> dialog.showLoadingDialog(mActivity, false)
+                            is Resource.Loading -> dialog.showLoadingDialog(this@DetailActivity, false)
                             is Resource.Success -> {
                                 it.data?.result?.let { data ->
                                     placesDetails = data
@@ -238,7 +235,7 @@ class DetailActivity : BaseActivity() {
                             }
                             is Resource.Error -> {
                                 dialog.cancelLoadingDialog()
-                                mActivity.displayShortToast(getString(R.string.hint_error))
+                                displayShortToast(getString(R.string.hint_error))
                             }
                             else -> Unit
                         }
@@ -249,10 +246,14 @@ class DetailActivity : BaseActivity() {
                     viewModel.getRoutePolylineFlow.collect {
                         when (it) {
                             is Resource.Success -> it.data?.result?.let { data ->
-                                viewModel.decodePolylineArray = Method.decodePolyline(data.polyline)
+                                viewModel.apply {
+                                    decodePolylineArray = Method.decodePolyline(data.polyline)
+                                    polylineDistance = data.distanceMeters
+                                    polylineDuration = data.duration
+                                }
                                 doMarketPolyLine()
                             }
-                            is Resource.Error -> mActivity.displayShortToast(getString(R.string.hint_error))
+                            is Resource.Error -> displayShortToast(getString(R.string.hint_error))
                             else -> Unit
                         }
                     }
@@ -262,11 +263,11 @@ class DetailActivity : BaseActivity() {
                     viewModel.pushBlackListFlow.collect {
                         when (it) {
                             is Resource.Success -> {
-                                mActivity.displayShortToast(getString(R.string.hint_success_push_black_list))
+                                displayShortToast(getString(R.string.hint_success_push_black_list))
                                 checkBlackList = true
                             }
                             is Resource.Error -> {
-                                mActivity.displayShortToast(getString(R.string.hint_failed_push_black_list))
+                                displayShortToast(getString(R.string.hint_failed_push_black_list))
                                 checkBlackList = false
                             }
                             else -> Unit
@@ -279,12 +280,12 @@ class DetailActivity : BaseActivity() {
                         when (it) {
                             is Resource.Success -> {
                                 Method.logE("Pull Black List", "Success")
-                                mActivity.displayShortToast(getString(R.string.hint_success_pull_black_list))
+                                displayShortToast(getString(R.string.hint_success_pull_black_list))
                                 checkBlackList = false
                             }
                             is Resource.Error -> {
                                 Method.logE("Pull Black List", "Error:${it.message.toString()}")
-                                mActivity.displayShortToast(getString(R.string.hint_failed_pull_black_list))
+                                displayShortToast(getString(R.string.hint_failed_pull_black_list))
                                 checkBlackList = true
                             }
                             else -> Unit
@@ -297,14 +298,14 @@ class DetailActivity : BaseActivity() {
                         when (it) {
                             is Resource.Success -> {
                                 Method.logE("Push Favorite", "Success")
-                                mActivity.displayShortToast(getString(R.string.hint_success_push_favorite))
+                                displayShortToast(getString(R.string.hint_success_push_favorite))
                                 viewModel.insertFavoriteData(favoriteList)
                                 checkFavorite = true
                                 binding.layoutOption.isFavorite = checkFavorite
                             }
                             is Resource.Error -> {
                                 Method.logE("Push Favorite", "Error:${it.message.toString()}")
-                                mActivity.displayShortToast(getString(R.string.hint_failed_push_favorite))
+                                displayShortToast(getString(R.string.hint_failed_push_favorite))
                                 checkFavorite = false
                             }
                             else -> Unit
@@ -317,13 +318,13 @@ class DetailActivity : BaseActivity() {
                         when (it) {
                             is Resource.Success -> {
                                 Method.logE("Pull Favorite", "Success")
-                                mActivity.displayShortToast(getString(R.string.hint_success_pull_favorite))
+                                displayShortToast(getString(R.string.hint_success_pull_favorite))
                                 checkFavorite = false
                                 binding.layoutOption.isFavorite = checkFavorite
                             }
                             is Resource.Error -> {
                                 Method.logE("Pull Favorite", "Error:${it.message.toString()}")
-                                mActivity.displayShortToast(getString(R.string.hint_failed_pull_favorite))
+                                displayShortToast(getString(R.string.hint_failed_pull_favorite))
                                 checkFavorite = true
                             }
                             else -> Unit
@@ -407,12 +408,7 @@ class DetailActivity : BaseActivity() {
                     polylineOptions = PolylineOptions()
                         .width(24f)
                         .color(getColorCompat(R.color.google_red))
-                        .geodesic(true)
-                        .pattern(
-                            listOf(
-                                Dot(), Gap(20f)
-                            )
-                        ),
+                        .geodesic(true),
                     duration = 1500,
                     interpolator = DecelerateInterpolator(),
                     animatorListenerAdapter = object : AnimatorListenerAdapter() {
@@ -423,6 +419,7 @@ class DetailActivity : BaseActivity() {
                     }
                 )
                 animatedPolyline.start()
+                animatedPolyline.addInfoWindow(applicationContext, viewModel.polylineDistance, viewModel.polylineDuration)
                 // Set Zoom
                 setZoomMap()
             }
@@ -461,7 +458,7 @@ class DetailActivity : BaseActivity() {
         binding.run {
             tvBack.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    mActivity.onBackPressed()
+                    onBackPressed()
                 }
             }
 
@@ -473,13 +470,13 @@ class DetailActivity : BaseActivity() {
             }
 
             imgMyLocation.setOnClickListener {
-                if (!::map.isInitialized || !::animatedPolyline.isInitialized) return@setOnClickListener
+                if (!::map.isInitialized) return@setOnClickListener
                 setMyLocation()
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 layoutOption.scrollView.post {
                     layoutOption.scrollView.apply {
                         fling(0)
                         scrollTo(0, 0)
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
                 }
             }
@@ -487,11 +484,11 @@ class DetailActivity : BaseActivity() {
             imgMyRoute.setOnClickListener {
                 if (!::map.isInitialized || !::animatedPolyline.isInitialized) return@setOnClickListener
                 setZoomMap()
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 layoutOption.scrollView.post {
                     layoutOption.scrollView.apply {
                         fling(0)
                         scrollTo(0, 0)
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
                 }
             }
@@ -501,7 +498,7 @@ class DetailActivity : BaseActivity() {
             tvTime.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
                     if (::placesDetails.isInitialized && placesDetails.place.opening_hours.weekday_text == emptyList<String>()) {
-                        mActivity.displayShortToast(getString(R.string.text_null))
+                        displayShortToast(getString(R.string.text_null))
                         return@setAnimClick
                     }
                     displayRegionDialog()
@@ -515,7 +512,7 @@ class DetailActivity : BaseActivity() {
                         startActivity(i)
                     }
                 } else
-                    mActivity.displayShortToast(getString(R.string.hint_no_website))
+                    displayShortToast(getString(R.string.hint_no_website))
             }
 
             tvGoogle.setOnClickListener {
@@ -526,7 +523,7 @@ class DetailActivity : BaseActivity() {
                             startActivity(i)
                         }
                     } else
-                        mActivity.displayShortToast(getString(R.string.hint_no_website))
+                        displayShortToast(getString(R.string.hint_no_website))
                 }
             }
 
@@ -538,7 +535,7 @@ class DetailActivity : BaseActivity() {
                             startActivity(i)
                         }
                     } else
-                        mActivity.displayShortToast(getString(R.string.hint_no_website))
+                        displayShortToast(getString(R.string.hint_no_website))
                 }
             }
 
@@ -587,7 +584,7 @@ class DetailActivity : BaseActivity() {
                             startActivity(i)
                         }
                     } else
-                        mActivity.displayShortToast(getString(R.string.hint_no_phone))
+                        displayShortToast(getString(R.string.hint_no_phone))
                 }
             }
         }
@@ -596,7 +593,7 @@ class DetailActivity : BaseActivity() {
     private fun displayNavigationModeDialog() {
         // d:開車, b:單車, l:機車, w:步行
         val dialogBinding = DialogNavigationModeBinding.inflate(layoutInflater)
-        dialog.showBottomDialog(mActivity, dialogBinding, true).let {
+        dialog.showBottomDialog(this, dialogBinding, true).let {
             dialogBinding.run {
                 cardDrive.setOnClickListener {
                     goNavigation("d")
@@ -636,7 +633,7 @@ class DetailActivity : BaseActivity() {
     private fun displayRegionDialog() {
         val dialogBinding = DialogPromptSelectBinding.inflate(layoutInflater)
         val workDayAdapter = WorkDayAdapter()
-        dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
+        dialog.showCenterDialog(this, true, dialogBinding, false).let {
             dialogBinding.run {
                 // initialize
                 titleText = getString(R.string.text_workday)
@@ -704,12 +701,11 @@ class DetailActivity : BaseActivity() {
                 )
                 it.putInt(Constants.IMAGE_POSITION, position)
 
-                val ft = mActivity.supportFragmentManager.beginTransaction()
+                val ft = supportFragmentManager.beginTransaction()
                 val albumDialog = AlbumFragment()
                 albumDialog.arguments = it
 
-                val prevDialog =
-                    mActivity.supportFragmentManager.findFragmentByTag(Constants.DIALOG_ALBUM)
+                val prevDialog = supportFragmentManager.findFragmentByTag(Constants.DIALOG_ALBUM)
                 if (prevDialog != null)
                     ft.remove(prevDialog)
 
@@ -753,7 +749,7 @@ class DetailActivity : BaseActivity() {
 
     private fun displayRemoveFavoriteDialog() {
         val dialogBinding = DialogPromptBinding.inflate(layoutInflater)
-        dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
+        dialog.showCenterDialog(this, true, dialogBinding, false).let {
             dialogBinding.run {
                 dialogBinding.run {
                     showIcon = true
@@ -771,7 +767,7 @@ class DetailActivity : BaseActivity() {
 
     private fun displayModifyBlackListDialog(isAdd: Boolean) {
         val dialogBinding = DialogPromptBinding.inflate(layoutInflater)
-        dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
+        dialog.showCenterDialog(this, true, dialogBinding, false).let {
             dialogBinding.run {
                 dialogBinding.run {
                     showIcon = true

@@ -11,6 +11,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
 import com.side.project.foodmap.R
 import com.side.project.foodmap.helper.addInfoWindow
+import com.side.project.foodmap.helper.getTime
 import com.side.project.foodmap.util.animPolyline.PolylineOptionsExtensions.copyPolylineOptions
 import com.side.project.foodmap.util.animPolyline.PolylineOptionsExtensions.toPolylineOptions
 
@@ -47,9 +48,9 @@ class AnimatedPolyline(
             MarkerOptions()
                 .position(infoLatLng)
                 .title(String.format(
-                    context.getString(if (distance < 1000) R.string.text_number_meter else R.string.text_number_kilometer),
+                    context.getString(if (distance < 1000) R.string.text_number_int_meter else R.string.text_number_int_kilometer),
                     if (distance < 1000) distance else distance / 1000))
-                .snippet(duration.toString())
+                .snippet(duration.getTime())
                 .alpha(0f)
                 .icon(invisibleMarker)
                 .anchor(0f, 0f)

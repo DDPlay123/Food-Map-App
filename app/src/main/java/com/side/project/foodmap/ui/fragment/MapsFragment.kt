@@ -51,6 +51,8 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
 
     private lateinit var oldLatLng: Location
 
+    private var isSlide: Boolean = true
+
     override fun FragmentMapsBinding.initialize() {
         mActivity.initLocationService()
         viewModel.distanceSearch(
@@ -66,6 +68,15 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
         map = googleMap
         initGoogleMap()
         setTrackMyLocation()
+
+        map.setOnMarkerClickListener { marker ->
+            binding?.isTrack = false
+            viewModel.isTrack = false
+            val mask = marker.snippet.toString().split(",")
+            val position = mask[0]
+            binding?.vpRestaurant?.currentItem = position.toInt()
+            true
+        }
 
         map.setOnCameraMoveListener {
             map.cameraPosition.target.let {
@@ -112,6 +123,7 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
         viewModel.apply {
             lifecycleScope.launch(Dispatchers.Main) {
                 if (!::map.isInitialized) return@launch
+                mLoc = LatLng(mActivity.myLatitude, mActivity.myLongitude)
                 binding?.isTrack = true
                 viewModel.isTrack = true
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(
@@ -253,6 +265,9 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
             }
 
             imgSearchHere.setOnClickListener {
+                if (::animatedPolyline.isInitialized)
+                    animatedPolyline.remove()
+                isSlide = false
                 // 取得中心點到最近的邊之距離(公尺)
                 val visibleRegion: VisibleRegion = map.projection.visibleRegion
                 val distance = SphericalUtil.computeDistanceBetween(
@@ -320,12 +335,12 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
         lifecycleScope.launch(Dispatchers.Main) {
             if (!::map.isInitialized) return@launch
             map.clear()
-
-                viewModel.distanceSearchRes?.result?.placeList?.forEachIndexed { _, placeList ->
+                viewModel.distanceSearchRes?.result?.placeList?.forEachIndexed { position, placeList ->
                 val markerOption = MarkerOptions().apply {
                     position(LatLng(placeList.location.lat, placeList.location.lng))
                     title(placeList.name)
                     icon(BitmapDescriptorFactory.fromResource(R.drawable.img_location))
+                    snippet("${position},")
                 }
                 map.addMarker(markerOption)
             }
@@ -360,7 +375,8 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
-                    setCenterLocation(mapRestaurantAdapter.currentList[position].location)
+                    if (isSlide)
+                        setCenterLocation(mapRestaurantAdapter.currentList[position].location)
                     viewModel.apply {
                         index = position
                         placeId = mapRestaurantAdapter.currentList[position].place_id
@@ -368,6 +384,15 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
                         lat = mapRestaurantAdapter.currentList[position].location.lat
                         lng = mapRestaurantAdapter.currentList[position].location.lng
                     }
+                }
+
+                override fun onPageScrolled(
+                    position: Int,
+                    positionOffset: Float,
+                    positionOffsetPixels: Int
+                ) {
+                    super.onPageScrolled(position, positionOffset, positionOffsetPixels)
+                    isSlide = true
                 }
             })
         }

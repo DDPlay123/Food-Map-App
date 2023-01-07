@@ -174,7 +174,11 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                     viewModel.getRoutePolylineFlow.collect {
                         when (it) {
                             is Resource.Success -> it.data?.result?.let { data ->
-                                viewModel.favoritePolylineArray = Method.decodePolyline(data.polyline)
+                                viewModel.apply {
+                                    favoritePolylineArray = Method.decodePolyline(data.polyline)
+                                    favoritePolylineDistance = data.distanceMeters
+                                    favoritePolylineDuration = data.duration
+                                }
                                 doMapPolyLine()
                             }
                             is Resource.Error -> mActivity.displayShortToast(getString(R.string.hint_error))
@@ -354,12 +358,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                 polylineOptions = PolylineOptions()
                     .width(24f)
                     .color(mActivity.getColorCompat(R.color.google_red))
-                    .geodesic(true)
-                    .pattern(
-                        listOf(
-                            Dot(), Gap(20f)
-                        )
-                    ),
+                    .geodesic(true),
                 duration = 1500,
                 interpolator = DecelerateInterpolator(),
                 animatorListenerAdapter = object : AnimatorListenerAdapter() {
@@ -370,6 +369,7 @@ class FavoritesFragment : BaseFragment<FragmentFavoritesBinding>(R.layout.fragme
                 }
             )
             animatedPolyline.start()
+            animatedPolyline.addInfoWindow(requireContext(), viewModel.favoritePolylineDistance, viewModel.favoritePolylineDuration)
             setZoomMap()
         }
     }

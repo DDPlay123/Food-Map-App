@@ -97,10 +97,10 @@ fun Int.getTime(): String {
     val minute = (this / 60) % 60
     val second = this % 60
     return when {
-        day == 0 -> ""
-        hour == 0 -> ""
-        minute == 0 -> ""
-        second == 0 -> ""
-        else -> ""
+        day != 0 -> String.format("%d 天", day)
+        hour != 0 -> String.format("%d 小時", hour)
+        minute != 0 -> String.format("%d 分鐘", minute)
+        second != 0 -> String.format("%d 秒鐘", second)
+        else -> "暫無"
     }
 }
