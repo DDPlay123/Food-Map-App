@@ -23,7 +23,6 @@ import com.google.maps.android.SphericalUtil
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.Location
 import com.side.project.foodmap.data.remote.SetLocation
-import com.side.project.foodmap.data.remote.restaurant.DistanceSearchRes
 import com.side.project.foodmap.databinding.FragmentMapsBinding
 import com.side.project.foodmap.helper.*
 import com.side.project.foodmap.ui.activity.DetailActivity
@@ -35,7 +34,6 @@ import com.side.project.foodmap.util.Resource
 import com.side.project.foodmap.util.animPolyline.AnimatedPolyline
 import com.side.project.foodmap.util.tools.Method
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
@@ -251,8 +249,8 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
                 viewModel.apply {
                     getPolyLine(
                         origin = SetLocation(
-                            lat = if (isUseMyLocation) mActivity.myLatitude else selectLatLng.lat,
-                            lng = if (isUseMyLocation) mActivity.myLongitude else selectLatLng.lng,
+                            lat = mActivity.myLatitude,
+                            lng = mActivity.myLongitude,
                             place_id = ""
                         ),
                         destination = SetLocation(

@@ -235,6 +235,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         if (getDistance(location, oldLatLng) * 1000 > 100) {
                             oldLatLng = location
                             viewModel.run {
+                                viewModel.isSearchPlaceList = false
                                 drawCard(
                                     if (isUseMyLocation) Location(
                                         mActivity.myLatitude,
@@ -242,6 +243,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                     ) else selectLatLng,
                                     isRecentPopularSearch
                                 )
+                                viewModel.isSearchPlaceList = true
                             }
                         }
                         return@observe
@@ -400,6 +402,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 it.setAnimClick(anim, AnimState.Start) {
                     initPopularCard()
                     viewModel.run {
+                        viewModel.isSearchPlaceList = false
                         drawCard(
                             if (isUseMyLocation) Location(
                                 mActivity.myLatitude,
@@ -407,6 +410,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                             ) else selectLatLng,
                             isRecentPopularSearch
                         )
+                        viewModel.isSearchPlaceList = true
                     }
                 }
             }
@@ -519,6 +523,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         viewModel.run {
             binding?.run {
                 isPopularSearch = isRecentPopularSearch
+                viewModel.isSearchPlaceList = false
                 drawCard(
                     if (isUseMyLocation) Location(
                         mActivity.myLatitude,
@@ -526,6 +531,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     ) else selectLatLng,
                     isRecentPopularSearch
                 )
+                viewModel.isSearchPlaceList = true
             }
         }
     }
