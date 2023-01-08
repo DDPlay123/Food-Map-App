@@ -337,7 +337,8 @@ class DetailActivity : BaseActivity() {
 
     private fun setupData(data: DetailsByPlaceIdRes.Result) {
         binding.layoutOption.apply {
-            doGetPolyline(data.place)
+            viewModel.targetInfo = data.place
+            doGetPolyline()
             setupToolButton(data)
             detail = data
             checkFavorite = placesDetails.isFavorite
@@ -348,7 +349,7 @@ class DetailActivity : BaseActivity() {
         }
     }
 
-    private fun doGetPolyline(targetInfo: Place) {
+    private fun doGetPolyline() {
         if (!checkMyDeviceGPS())
             return
         viewModel.getPolyLine(
@@ -358,9 +359,9 @@ class DetailActivity : BaseActivity() {
                 place_id = ""
             ),
             destination = SetLocation(
-                targetInfo.location.lat,
-                targetInfo.location.lng,
-                targetInfo.place_id
+                viewModel.targetInfo.location.lat,
+                viewModel.targetInfo.location.lng,
+                viewModel.targetInfo.place_id
             )
         )
     }
@@ -393,35 +394,39 @@ class DetailActivity : BaseActivity() {
     private fun doMarketPolyLine() {
         lifecycleScope.launch(Dispatchers.Main) {
             placesDetails.place.apply {
-                if (!::map.isInitialized) return@launch
-                // Marker
-                val markerOption = MarkerOptions().apply {
-                    position(LatLng(location.lat, location.lng))
-                    title(name)
-                    icon(BitmapDescriptorFactory.fromResource(R.drawable.img_location))
-                }
-                map.addMarker(markerOption)
-                // PolyLine
-                animatedPolyline = AnimatedPolyline(
-                    map = map,
-                    points = viewModel.decodePolylineArray,
-                    polylineOptions = PolylineOptions()
-                        .width(24f)
-                        .color(getColorCompat(R.color.google_red))
-                        .geodesic(true),
-                    duration = 1500,
-                    interpolator = DecelerateInterpolator(),
-                    animatorListenerAdapter = object : AnimatorListenerAdapter() {
-                        override fun onAnimationEnd(animation: Animator) {
-                            super.onAnimationEnd(animation)
-                            animatedPolyline.start()
-                        }
+                viewModel.apply {
+                    if (!::map.isInitialized) return@launch
+                    // Marker
+                    val markerOption = MarkerOptions().apply {
+                        position(LatLng(location.lat, location.lng))
+                        title(name)
+                        icon(BitmapDescriptorFactory.fromResource(R.drawable.img_location))
                     }
-                )
-                animatedPolyline.start()
-                animatedPolyline.addInfoWindow(applicationContext, viewModel.polylineDistance, viewModel.polylineDuration)
-                // Set Zoom
-                setZoomMap()
+                    map.addMarker(markerOption)
+                    // PolyLine
+                    if (::animatedPolyline.isInitialized)
+                        animatedPolyline.remove()
+                    animatedPolyline = AnimatedPolyline(
+                        map = map,
+                        points = decodePolylineArray,
+                        polylineOptions = PolylineOptions()
+                            .width(24f)
+                            .color(getColorCompat(R.color.google_red))
+                            .geodesic(true),
+                        duration = 1500,
+                        interpolator = DecelerateInterpolator(),
+                        animatorListenerAdapter = object : AnimatorListenerAdapter() {
+                            override fun onAnimationEnd(animation: Animator) {
+                                super.onAnimationEnd(animation)
+                                animatedPolyline.start()
+                            }
+                        }
+                    )
+                    animatedPolyline.start()
+                    animatedPolyline.addInfoWindow(applicationContext, polylineDistance, polylineDuration)
+                    // Set Zoom
+                    setZoomMap()
+                }
             }
         }
     }
@@ -482,8 +487,7 @@ class DetailActivity : BaseActivity() {
             }
 
             imgMyRoute.setOnClickListener {
-                if (!::map.isInitialized || !::animatedPolyline.isInitialized) return@setOnClickListener
-                setZoomMap()
+                doGetPolyline()
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 layoutOption.scrollView.post {
                     layoutOption.scrollView.apply {

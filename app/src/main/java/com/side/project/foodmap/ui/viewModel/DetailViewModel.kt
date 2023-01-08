@@ -1,6 +1,7 @@
 package com.side.project.foodmap.ui.viewModel
 
 import com.google.android.gms.maps.model.LatLng
+import com.side.project.foodmap.data.remote.Place
 import com.side.project.foodmap.data.remote.SetLocation
 
 class DetailViewModel : BaseViewModel() {
@@ -8,6 +9,7 @@ class DetailViewModel : BaseViewModel() {
     /**
      * 參數
      */
+    lateinit var targetInfo: Place
     var decodePolylineArray: List<LatLng> = emptyList()
     var polylineDistance: Int = 0 // 公尺
     var polylineDuration: Int = 0 // 估計時間(秒)

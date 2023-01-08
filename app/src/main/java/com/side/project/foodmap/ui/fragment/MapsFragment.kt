@@ -72,7 +72,11 @@ class MapsFragment : BaseFragment<FragmentMapsBinding>(R.layout.fragment_maps) {
             viewModel.isTrack = false
             val mask = marker.snippet.toString().split(",")
             val position = mask[0]
-            binding?.vpRestaurant?.currentItem = position.toInt()
+            try {
+                binding?.vpRestaurant?.currentItem = position.toInt()
+            } catch (e: NumberFormatException) {
+                e.printStackTrace()
+            }
             true
         }
 
