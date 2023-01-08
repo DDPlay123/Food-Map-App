@@ -34,6 +34,7 @@ class RestaurantListAdapter :
 
     lateinit var onItemClick: ((String) -> Unit)
     lateinit var onItemFavoriteClick: ((String, Boolean) -> Boolean)
+    lateinit var onItemBlackListClick: ((String) -> Unit)
 
     private lateinit var myLocation: Location
     fun setMyLocation(startLatLng: Location) { myLocation = startLatLng }
@@ -66,15 +67,20 @@ class RestaurantListAdapter :
             } else
                 tvDistance.gone()
 
-            if (isBlackList)
+            if (isBlackList) {
                 imgFavorite.gone()
-            else
+                tvDistance.gone()
+            } else
                 imgFavorite.display()
 
             root.setOnClickListener { onItemClick.invoke(item.place_id) }
             imgFavorite.setOnClickListener {
                 isFavorite = onItemFavoriteClick.invoke(item.place_id, mIsFavorite)
                 mIsFavorite = onItemFavoriteClick.invoke(item.place_id, mIsFavorite)
+            }
+            root.setOnLongClickListener {
+                onItemBlackListClick.invoke(item.place_id)
+                true
             }
         }
     }

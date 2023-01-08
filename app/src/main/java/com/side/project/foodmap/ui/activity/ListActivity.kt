@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.Location
 import com.side.project.foodmap.databinding.ActivityListBinding
+import com.side.project.foodmap.databinding.DialogPromptBinding
 import com.side.project.foodmap.helper.*
 import com.side.project.foodmap.ui.activity.other.BaseActivity
 import com.side.project.foodmap.ui.adapter.RestaurantListAdapter
@@ -90,14 +91,18 @@ class ListActivity : BaseActivity() {
             // Set Title
             binding.title = when (listType) {
                 ListType.NEAR_LIST.name -> {
+                    binding.searchBar.gone()
                     binding.isHideDistance = false
                     getString(R.string.hint_near_region)
                 }
                 ListType.KEYWORD_LIST.name -> {
+                    binding.searchBar.display()
                     binding.isHideDistance = false
-                    keyword
+                    binding.edSearch.setText(keyword)
+                    binding.edSearch.text.toString().trim()
                 }
                 ListType.BLACK_LIST.name -> {
+                    binding.searchBar.display()
                     binding.isHideDistance = true
                     getString(R.string.hint_black_list)
                 }
@@ -116,8 +121,8 @@ class ListActivity : BaseActivity() {
                     }
                     // 取的區域設定列表
                     launch {
-                        syncPlaceListData.observe(this@ListActivity) { myPlaceLists ->
-                            myPlaceLists?.let { placeLists ->
+                        syncPlaceListFlow.collect { myPlaceLists ->
+                            myPlaceLists.let { placeLists ->
                                 placeLists.find { it.place_id == regionPlaceId }?.let {
                                     isUseMyLocation = false
                                     selectLatLng = it.location
@@ -174,8 +179,8 @@ class ListActivity : BaseActivity() {
                     }
                     // 黑名單
                     launch {
-                        getSyncBlackListData.observe(this@ListActivity) { placeList ->
-                            placeList?.let {
+                        getSyncBlackListFlow.collect { placeList ->
+                            placeList.let {
                                 dialog.cancelLoadingDialog()
                                 binding.total = placeList.size.toString()
                                 binding.count = placeList.size.toString()
@@ -186,6 +191,46 @@ class ListActivity : BaseActivity() {
                                 restaurantListAdapter.setMyLocation(
                                     Location(myLatitude, myLongitude)
                                 )
+                            }
+                        }
+                    }
+                    // 添加黑名單
+                    launch {
+                        pushBlackListFlow.collect {
+                            when (it) {
+                                is Resource.Success -> {
+                                    mActivity.displayShortToast(getString(R.string.hint_success_push_black_list))
+                                    val list = restaurantListAdapter.currentList.toMutableList()
+                                    list.find { m -> m.place_id == blackPlaceId }?.let { placeList ->
+                                        list.remove(placeList)
+                                        restaurantListAdapter.setPlaceList(list)
+                                        totalCount -= 1
+                                        binding.total = totalCount.toString()
+                                        binding.count = list.size.toString()
+                                    }
+                                }
+                                is Resource.Error -> mActivity.displayShortToast(getString(R.string.hint_failed_push_black_list))
+                                else -> Unit
+                            }
+                        }
+                    }
+                    // 移除黑名單
+                    launch {
+                        pullBlackListFlow.collect {
+                            when (it) {
+                                is Resource.Success -> {
+                                    mActivity.displayShortToast(getString(R.string.hint_success_pull_black_list))
+                                    val list = restaurantListAdapter.currentList.toMutableList()
+                                    list.find { m -> m.place_id == blackPlaceId }?.let { placeList ->
+                                        list.remove(placeList)
+                                        restaurantListAdapter.setPlaceList(list)
+                                        totalCount -= 1
+                                        binding.total = list.size.toString()
+                                        binding.count = list.size.toString()
+                                    }
+                                }
+                                is Resource.Error -> mActivity.displayShortToast(getString(R.string.hint_failed_pull_black_list))
+                                else -> Unit
                             }
                         }
                     }
@@ -202,10 +247,13 @@ class ListActivity : BaseActivity() {
                                         )
 
                                         // Repeat Search
-                                        binding.edSearch.text.toString().trim().let {
-                                            if (it.isNotEmpty())
-                                                filter(it)
-                                        }
+//                                        binding.edSearch.text.toString().trim().let {
+//                                            if (it.isNotEmpty())
+//                                                if (listType == ListType.KEYWORD_LIST.name)
+//                                                    callData(true)
+//                                                else
+//                                                    filter(it)
+//                                        }
                                     }
                                 }
                                 is Resource.Error -> {
@@ -257,7 +305,7 @@ class ListActivity : BaseActivity() {
 
                             if (viewModel.listType == ListType.BLACK_LIST.name)
                                 return
-                            callData(false, settingDistance, (50 * alreadyCalledNum), 50)
+                            callData(false, skip = (50 * alreadyCalledNum), limit = 50)
                         }
                     }
                 }
@@ -298,16 +346,14 @@ class ListActivity : BaseActivity() {
                                 list.remove(placeList)
                                 restaurantListAdapter.setPlaceList(list)
                                 restaurantListAdapter.notifyItemChanged(index)
-                                binding.total = (viewModel.totalCount - 1).toString()
+                                viewModel.totalCount -= 1
+                                binding.total = viewModel.totalCount.toString()
                                 binding.count = list.size.toString()
                                 return@registerForActivityResult
                             }
-                            if (mIsFavorite) {
-                                placeList.isFavorite = mIsFavorite
-                                restaurantListAdapter.setPlaceList(list)
-                                restaurantListAdapter.notifyItemChanged(index)
-                                return@registerForActivityResult
-                            }
+                            placeList.isFavorite = mIsFavorite
+                            restaurantListAdapter.setPlaceList(list)
+                            restaurantListAdapter.notifyItemChanged(index)
                         }
                     }
                 }
@@ -340,6 +386,10 @@ class ListActivity : BaseActivity() {
                 true
             }
         }
+
+        restaurantListAdapter.onItemBlackListClick = { placeId ->
+            displayModifyBlackListDialog(placeId, viewModel.listType != ListType.BLACK_LIST.name)
+        }
     }
 
     private fun setDistanceListener() {
@@ -347,13 +397,17 @@ class ListActivity : BaseActivity() {
             binding.run {
                 (settingDistance / 1000).let { value ->
                     seekBarRange.progress = value
-                    distance = " $value"
+                    distance = if (value < 10 && value == 1) "NEAR"
+                    else if (value < 10) " $value"
+                    else "$value"
                 }
                 seekBarRange.max = (30 - 1) / 1 // (MAX - MIN) / STEP
                 seekBarRange.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
                         val value = 1 + p1 * 1 // MIN + VALUE * STEP
-                        distance = if (value < 10) " $value" else "$value"
+                        distance = if (value < 10 && value == 1) "NEAR"
+                        else if (value < 10) " $value"
+                        else "$value"
                         settingDistance = value * 1000
                     }
 
@@ -370,7 +424,7 @@ class ListActivity : BaseActivity() {
 
     private fun callData(
         isClear: Boolean = true,
-        distance: Int = 1000,
+        keyword: String = binding.edSearch.text.toString().trim(),
         skip: Int = 0,
         limit: Int = 50
     ) {
@@ -390,6 +444,7 @@ class ListActivity : BaseActivity() {
                     )
                 }
                 ListType.KEYWORD_LIST.name -> {
+                    binding.title = binding.edSearch.text.toString().trim()
                     keywordSearch(
                         location = if (isUseMyLocation) Location(
                             mActivity.myLatitude,
@@ -446,7 +501,10 @@ class ListActivity : BaseActivity() {
                     timer.schedule(object : TimerTask() {
                         override fun run() {
                             Coroutines.main {
-                                filter(text)
+                                if (viewModel.listType == ListType.KEYWORD_LIST.name)
+                                    callData()
+                                else
+                                    filter(text)
                             }
                         }
                     }, 500)
@@ -458,5 +516,30 @@ class ListActivity : BaseActivity() {
     private fun filter(text: String) {
         if (::restaurantListAdapter.isInitialized)
             restaurantListAdapter.filter.filter(text)
+    }
+
+    private fun displayModifyBlackListDialog(placeId: String, isAdd: Boolean) {
+        val dialogBinding = DialogPromptBinding.inflate(layoutInflater)
+        dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
+            dialogBinding.run {
+                dialogBinding.run {
+                    showIcon = true
+                    imgPromptIcon.setImageResource(R.drawable.ic_error)
+                    titleText = if (isAdd)
+                        getString(R.string.hint_prompt_add_black_list_title)
+                    else
+                        getString(R.string.hint_prompt_remove_black_list_title)
+                    tvCancel.setOnClickListener { dialog.cancelCenterDialog() }
+                    tvConfirm.setOnClickListener {
+                        viewModel.blackPlaceId = placeId
+                        if (isAdd)
+                            viewModel.pushBlackList(arrayListOf(placeId))
+                        else
+                            viewModel.pullBlackList(arrayListOf(placeId))
+                        dialog.cancelCenterDialog()
+                    }
+                }
+            }
+        }
     }
 }

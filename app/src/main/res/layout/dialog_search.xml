@@ -139,7 +139,7 @@
             android:id="@+id/tvIntDistance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{distance + @string/text_kilometer}"
+            android:text='@{distance.equals("NEAR") ? @string/text_near : distance + @string/text_kilometer}'
             android:textSize="@dimen/_10ssp"
             android:textStyle="bold"
             app:drawableTint="#97aabd"

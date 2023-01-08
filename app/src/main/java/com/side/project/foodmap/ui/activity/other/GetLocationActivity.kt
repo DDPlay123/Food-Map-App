@@ -19,6 +19,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.side.project.foodmap.R
 import com.side.project.foodmap.data.remote.Location
 import com.side.project.foodmap.data.remote.MyPlaceList
@@ -29,7 +30,6 @@ import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.ui.viewModel.GetLocationViewModel
 import com.side.project.foodmap.util.Constants.REGION_PLACE_ID
 import com.side.project.foodmap.util.Resource
-import com.side.project.foodmap.util.customView.AnchorSheetBehavior
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -44,7 +44,7 @@ class GetLocationActivity : BaseActivity() {
 
     private var timer: Timer? = null
 
-    private lateinit var bottomSheetBehavior: AnchorSheetBehavior<View>
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     private lateinit var regionItemAdapter: RegionItemAdapter
 
     private lateinit var oldLatLng: Location
@@ -231,24 +231,24 @@ class GetLocationActivity : BaseActivity() {
 
     private fun initLayoutOption() {
         binding.apply {
-            bottomSheetBehavior = AnchorSheetBehavior.from(binding.layoutOption.layoutSelector)
+            bottomSheetBehavior = BottomSheetBehavior.from(binding.layoutOption.layoutSelector)
             with (bottomSheetBehavior) {
                 skipCollapsed = true
-                setAnchorOffset(0.0F)
-                state = AnchorSheetBehavior.STATE_COLLAPSED
-                setAnchorSheetCallback(object : AnchorSheetBehavior.AnchorSheetCallback() {
+
+                state = BottomSheetBehavior.STATE_COLLAPSED
+                addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
                     override fun onStateChanged(bottomSheet: View, newState: Int) {
                         when (newState) {
-                            AnchorSheetBehavior.STATE_COLLAPSED -> {
+                            BottomSheetBehavior.STATE_COLLAPSED -> {
                                 toggleLayout(true)
                                 hideKeyboard()
                             }
-                            AnchorSheetBehavior.STATE_ANCHOR -> {
+                            BottomSheetBehavior.STATE_EXPANDED -> {
                                 toggleLayout(false)
 //                                binding.layoutOption.edSearch.showKeyboard()
                             }
-                            AnchorSheetBehavior.STATE_SETTLING -> binding.layoutOption.edSearch.hideKeyboard()
-                            AnchorSheetBehavior.STATE_DRAGGING -> binding.layoutOption.edSearch.hideKeyboard()
+                            BottomSheetBehavior.STATE_SETTLING -> binding.layoutOption.edSearch.hideKeyboard()
+                            BottomSheetBehavior.STATE_DRAGGING -> binding.layoutOption.edSearch.hideKeyboard()
                             else -> Unit
                         }
                     }
@@ -259,12 +259,12 @@ class GetLocationActivity : BaseActivity() {
 
                         mLoc.let {
                             when (state) {
-                                AnchorSheetBehavior.STATE_DRAGGING -> {
+                                BottomSheetBehavior.STATE_DRAGGING -> {
                                     setMapPaddingBottom(off)
                                     //reposition marker at the center
                                     map.moveCamera(CameraUpdateFactory.newLatLng(mLoc))
                                 }
-                                AnchorSheetBehavior.STATE_SETTLING -> {
+                                BottomSheetBehavior.STATE_SETTLING -> {
                                     setMapPaddingBottom(off)
                                     //reposition marker at the center
                                     map.moveCamera(CameraUpdateFactory.newLatLng(mLoc))
@@ -297,9 +297,9 @@ class GetLocationActivity : BaseActivity() {
                 }
             }
 
-            layoutOption.imgMyLocation.setOnClickListener {
+            imgMyLocation.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    bottomSheetBehavior.state = AnchorSheetBehavior.STATE_COLLAPSED
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     setMyLocation()
                 }
             }
@@ -346,7 +346,7 @@ class GetLocationActivity : BaseActivity() {
             adapter = regionItemAdapter
 
             regionItemAdapter.onItemClick = { item ->
-                bottomSheetBehavior.state = AnchorSheetBehavior.STATE_COLLAPSED
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 item.apply {
                     mPlaceId = place_id
                     mName = name

@@ -71,9 +71,9 @@ class UserApiRepo : KoinComponent {
     private val mGetFavoriteListData = MutableLiveData<Resource<GetFavoriteRes>>()
     private val getFavoriteListData: LiveData<Resource<GetFavoriteRes>>
         get() = mGetFavoriteListData
-    private val mGetSyncFavoriteListData = MutableLiveData<List<FavoriteList>>()
-    val getSyncFavoriteListData: LiveData<List<FavoriteList>>
-        get() = mGetSyncFavoriteListData
+    private val mGetSyncFavoriteListFlow = MutableSharedFlow<List<FavoriteList>>()
+    val getSyncFavoriteListFlow
+        get() = mGetSyncFavoriteListFlow.asSharedFlow()
 
     // 黑名單
     private val mPushBlackListFlow = MutableSharedFlow<Resource<PushBlackListRes>>()
@@ -85,9 +85,9 @@ class UserApiRepo : KoinComponent {
     private val mGetBlackListData = MutableLiveData<Resource<GetBlackListRes>>()
     private val getBlackListData: LiveData<Resource<GetBlackListRes>>
         get() = mGetBlackListData
-    private val mGetSyncBlackListData = MutableLiveData<List<PlaceList>>()
-    val getSyncBlackListData: LiveData<List<PlaceList>>
-        get() = mGetSyncBlackListData
+    private val mGetSyncBlackListFlow = MutableSharedFlow<List<PlaceList>>()
+    val getSyncBlackListFlow
+        get() = mGetSyncBlackListFlow.asSharedFlow()
 
     // 地點儲存
     private val mPushPlaceListFlow = MutableSharedFlow<Resource<PushPlaceListRes>>()
@@ -99,9 +99,9 @@ class UserApiRepo : KoinComponent {
     private val mGetPlaceListData = MutableLiveData<Resource<GetPlaceListRes>>()
     private val getPlaceListData: LiveData<Resource<GetPlaceListRes>>
         get() = mGetPlaceListData
-    private val mGetSyncPlaceListData = MutableLiveData<List<MyPlaceList>>()
-    val getSyncPlaceListData: LiveData<List<MyPlaceList>>
-        get() = mGetSyncPlaceListData
+    private val mGetSyncPlaceListFlow = MutableSharedFlow<List<MyPlaceList>>()
+    val getSyncPlaceListFlow
+        get() = mGetSyncPlaceListFlow.asSharedFlow()
 
     fun apiUserLogin(
         username: String,
@@ -122,7 +122,6 @@ class UserApiRepo : KoinComponent {
                             response.body()?.let {
                                 when (it.status) {
                                     0 -> {
-                                        mLoginFlow.emit(Resource.Success(it))
                                         dataStoreRepo.run {
                                             putAccessKey(it.result.accessKey)
                                             putUserUID(it.result.userId)
@@ -130,6 +129,7 @@ class UserApiRepo : KoinComponent {
                                             putUserName(username)
                                             putUserIsLogin(true)
                                         }
+                                        mLoginFlow.emit(Resource.Success(it))
                                     }
                                     3 -> mLoginFlow.emit(Resource.Success(it))
                                     else -> mLoginFlow.emit(Resource.Error(it.errMsg.toString()))
@@ -163,9 +163,9 @@ class UserApiRepo : KoinComponent {
                             response.body()?.let {
                                 when (it.status) {
                                     0 -> {
-                                        mLogoutFlow.emit(Resource.Success(it))
                                         dataStoreRepo.clearData()
                                         deleteDbData()
+                                        mLogoutFlow.emit(Resource.Success(it))
                                     }
                                     else -> mLogoutFlow.emit(Resource.Error(it.errMsg.toString()))
                                 }
@@ -231,12 +231,12 @@ class UserApiRepo : KoinComponent {
                             response.body()?.let {
                                 when (it.status) {
                                     0 -> {
-                                        mDeleteAccountFlow.emit(Resource.Success(it))
                                         dataStoreRepo.run {
                                             clearData()
                                             clearPublicData()
                                             deleteDbData()
                                         }
+                                        mDeleteAccountFlow.emit(Resource.Success(it))
                                     }
                                     else -> mDeleteAccountFlow.emit(Resource.Error(it.errMsg.toString()))
                                 }
@@ -303,8 +303,8 @@ class UserApiRepo : KoinComponent {
                             response.body()?.let {
                                 when (it.status) {
                                     0 -> {
-                                        mSetUserImageFlow.emit(Resource.Success(it))
                                         dataStoreRepo.putUserPicture(userImage)
+                                        mSetUserImageFlow.emit(Resource.Success(it))
                                     }
                                     else -> mSetUserImageFlow.emit(Resource.Error(it.errMsg.toString()))
                                 }
@@ -337,8 +337,8 @@ class UserApiRepo : KoinComponent {
                             response.body()?.let {
                                 when (it.status) {
                                     0 -> {
-                                        mGetUserImageFlow.emit(Resource.Success(it))
                                         dataStoreRepo.putUserPicture(it.result.userImage)
+                                        mGetUserImageFlow.emit(Resource.Success(it))
                                     }
                                     else -> mGetUserImageFlow.emit(Resource.Error(it.errMsg.toString()))
                                 }
@@ -372,8 +372,8 @@ class UserApiRepo : KoinComponent {
                             response.body()?.let {
                                 when (it.status) {
                                     0 -> {
-                                        mSetUserPasswordFlow.emit(Resource.Success(it))
                                         dataStoreRepo.putPassword(password)
+                                        mSetUserPasswordFlow.emit(Resource.Success(it))
                                     }
                                     else -> mSetUserPasswordFlow.emit(Resource.Error(it.errMsg.toString()))
                                 }
@@ -458,7 +458,7 @@ class UserApiRepo : KoinComponent {
     ) {
         Coroutines.io {
             syncFavoriteList().distinctUntilChanged().collect { favoriteLists ->
-                mGetSyncFavoriteListData.postValue(favoriteLists)
+                mGetSyncFavoriteListFlow.emit(favoriteLists)
             }
         }
     }
@@ -531,7 +531,7 @@ class UserApiRepo : KoinComponent {
     ) {
         Coroutines.io {
             syncBlackList().distinctUntilChanged().collect { placeLists ->
-                mGetSyncBlackListData.postValue(placeLists)
+                mGetSyncBlackListFlow.emit(placeLists)
             }
         }
     }
@@ -610,7 +610,7 @@ class UserApiRepo : KoinComponent {
     ) {
         Coroutines.io {
             syncPlaceList().distinctUntilChanged().collect { placeLists ->
-                mGetSyncPlaceListData.postValue(placeLists)
+                mGetSyncPlaceListFlow.emit(placeLists)
             }
         }
     }

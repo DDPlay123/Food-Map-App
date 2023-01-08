@@ -2,15 +2,12 @@ package com.side.project.foodmap.ui.viewModel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.LatLng
 import com.side.project.foodmap.data.remote.*
 import com.side.project.foodmap.data.remote.restaurant.DistanceSearchRes
-import com.side.project.foodmap.data.remote.restaurant.DrawCardRes
 import com.side.project.foodmap.util.RegisterLoginFieldsState
 import com.side.project.foodmap.util.RegisterLoginValidation
-import com.side.project.foodmap.util.Resource
-import com.side.project.foodmap.util.tools.Coroutines
 import com.side.project.foodmap.util.tools.Method
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -21,13 +18,7 @@ class MainViewModel : BaseViewModel() {
     init {
         getUserUIDFromDataStore()
         getUserNameFromDataStore()
-        getUserPictureFromDataStore()
     }
-    /**
-     * 暫存
-     */
-
-
     /**
      * 參數
      */
@@ -40,10 +31,30 @@ class MainViewModel : BaseViewModel() {
     var isUseMyLocation: Boolean = true
     var selectLatLng: Location = Location(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
     var isSearchPlaceList: Boolean = false
+    // 地圖，追蹤模式
+    var isTrack: Boolean = false
+    var mapPolylineArray: List<LatLng> = emptyList()
+    var mapPolylineDistance: Int = 0 // 公尺
+    var mapPolylineDuration: Int = 0 // 估計時間(秒)
+    // 地圖，搜尋路線
+    var distanceSearchRes: DistanceSearchRes? = null
+    var index = 0
+    var placeId = ""
+    var placeName = ""
+    var lat = DEFAULT_LATITUDE
+    var lng = DEFAULT_LONGITUDE
+    // 最愛清單路線
+    var favoritePolylineArray: List<LatLng> = emptyList()
+    var favoritePolylineDistance: Int = 0 // 公尺
+    var favoritePolylineDuration: Int = 0 // 估計時間(秒)
 
     /**
      * 資料流
      */
+    val getUserImageFlow get() = userApiRepo.getUserImageFlow
+
+    val getRoutePolylineFlow get() = geocodeApiRepo.getRoutePolylineFlow
+
     // Home Page
     val putFcmTokenFlow get() = userApiRepo.putFcmTokenFlow
 
@@ -56,7 +67,7 @@ class MainViewModel : BaseViewModel() {
     private var _historySearchList = MutableLiveData<List<AutoComplete>>()
     val historySearchList: LiveData<List<AutoComplete>> get() = _historySearchList
 
-    val syncPlaceListData: LiveData<List<MyPlaceList>> get() = userApiRepo.getSyncPlaceListData
+    val syncPlaceListFlow get() = userApiRepo.getSyncPlaceListFlow
 
     val pullPlaceListFlow get() = userApiRepo.pullPlaceListFlow
 
@@ -65,7 +76,7 @@ class MainViewModel : BaseViewModel() {
     val pullBlackListFlow get() = userApiRepo.pullBlackListFlow
 
     // Favorite Page
-    val syncFavoriteListData: LiveData<List<FavoriteList>> get() = userApiRepo.getSyncFavoriteListData
+    val syncFavoriteListFlow get() = userApiRepo.getSyncFavoriteListFlow
 
     val pushFavoriteFlow get() = userApiRepo.pushFavoriteListFlow
 
@@ -87,6 +98,14 @@ class MainViewModel : BaseViewModel() {
     /**
      * 可呼叫方法
      */
+    fun getUserImage() =
+        userApiRepo.apiGetUserImage()
+
+    fun getPolyLine(
+        origin: SetLocation,
+        destination: SetLocation
+    ) = geocodeApiRepo.apiGeocodeGetRoutePolyline(origin, destination)
+
     fun putFcmToken(
         fcmToken: String
     ) = userApiRepo.apiAddFcmToken(fcmToken)
@@ -96,6 +115,7 @@ class MainViewModel : BaseViewModel() {
         isRecent: Boolean,
         num: Int = 10
     ) {
+        if (isSearchPlaceList) return
         restaurantApiRepo.apiDrawCard(location, if (isRecent) 0 else 1, num)
     }
 

@@ -23,14 +23,13 @@
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
         app:behavior_hideable="false"
-        app:behavior_peekHeight="@dimen/_260sdp"
+        app:behavior_peekHeight="@dimen/_220sdp"
         app:layout_behavior="@string/bottom_sheet_behavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutBody"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="@dimen/_45sdp"
             android:background="@drawable/background_miscellaneous"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -101,6 +100,15 @@
                         android:layout_height="@dimen/_40sdp"
                         android:background="@drawable/background_fading_edge"
                         app:layout_constraintBottom_toBottomOf="@id/vpPhoto"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                    <View
+                        android:id="@+id/viewFadingEdgeReverse"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_40sdp"
+                        android:background="@drawable/background_fading_edge_reverse"
+                        app:layout_constraintTop_toTopOf="@+id/vpPhoto"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent" />
 

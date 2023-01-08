@@ -128,7 +128,10 @@ class ProfilesFragment : BaseFragment<FragmentProfilesBinding>(R.layout.fragment
                     viewModel.setUserImageFlow.collect {
                         when (it) {
                             is Resource.Loading -> dialog.showLoadingDialog(mActivity, false)
-                            is Resource.Success -> dialog.cancelLoadingDialog()
+                            is Resource.Success -> {
+                                viewModel.getUserPictureFromDataStore()
+                                dialog.cancelLoadingDialog()
+                            }
                             is Resource.Error -> requireActivity().displayShortToast(getString(R.string.hint_error))
                             else -> Unit
                         }

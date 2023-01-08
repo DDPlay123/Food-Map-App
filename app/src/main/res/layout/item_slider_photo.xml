@@ -13,7 +13,7 @@
         android:id="@+id/imgPicture"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:loadSquareImageFromApi="@{photo_reference}"
-        android:scaleType="centerCrop"/>
+        android:loadImageFromApi="@{photo_reference}"
+        android:scaleType="fitXY"/>
 
 </layout>

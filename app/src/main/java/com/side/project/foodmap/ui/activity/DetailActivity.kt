@@ -1,11 +1,16 @@
 package com.side.project.foodmap.ui.activity
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.res.Resources
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.DecelerateInterpolator
+import android.widget.RelativeLayout
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.databinding.DataBindingUtil
@@ -19,15 +24,12 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.side.project.foodmap.R
-import com.side.project.foodmap.data.remote.FavoriteList
-import com.side.project.foodmap.data.remote.Location
-import com.side.project.foodmap.data.remote.Review
+import com.side.project.foodmap.data.remote.*
 import com.side.project.foodmap.data.remote.restaurant.DetailsByPlaceIdRes
 import com.side.project.foodmap.databinding.ActivityDetailBinding
 import com.side.project.foodmap.databinding.DialogNavigationModeBinding
@@ -46,15 +48,20 @@ import com.side.project.foodmap.util.Constants.IS_BLACK_LIST
 import com.side.project.foodmap.util.Constants.IS_FAVORITE
 import com.side.project.foodmap.util.Constants.PLACE_ID
 import com.side.project.foodmap.util.Resource
-import com.side.project.foodmap.util.customView.AnchorSheetBehavior
+import com.side.project.foodmap.util.animPolyline.AnimatedPolyline
 import com.side.project.foodmap.util.tools.Method
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
+
 
 class DetailActivity : BaseActivity() {
     private lateinit var binding: ActivityDetailBinding
     private lateinit var viewModel: DetailViewModel
+    private lateinit var mapFragment: SupportMapFragment
     private lateinit var map: GoogleMap
+    private lateinit var mLoc: LatLng
+    private lateinit var animatedPolyline: AnimatedPolyline
 
     // Data
     private lateinit var placesDetails: DetailsByPlaceIdRes.Result
@@ -76,7 +83,7 @@ class DetailActivity : BaseActivity() {
         viewModel = ViewModelProvider(this)[DetailViewModel::class.java]
         binding.paddingTop = getStatusBarHeight()
 
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(callback)
 
         checkNetWork { onBackPressed() }
@@ -112,11 +119,17 @@ class DetailActivity : BaseActivity() {
     private val callback = OnMapReadyCallback { googleMap ->
         map = googleMap
         initGoogleMap()
+
+        map.setOnCameraMoveListener {
+            map.cameraPosition.target.let {
+                mLoc = it
+            }
+        }
     }
 
     @SuppressLint("MissingPermission")
     private fun initGoogleMap() {
-        if (!mActivity.requestLocationPermission() || !::map.isInitialized)
+        if (!requestLocationPermission() || !::map.isInitialized)
             return
         setMyLocation()
         map.apply {
@@ -124,25 +137,20 @@ class DetailActivity : BaseActivity() {
             isMyLocationEnabled = true
             uiSettings.isMyLocationButtonEnabled = false
             uiSettings.isMapToolbarEnabled = false
-            uiSettings.isCompassEnabled = false
+            uiSettings.isCompassEnabled = true
+            setCompass()
         }
     }
 
     private fun setMyLocation() {
         lifecycleScope.launch(Dispatchers.Main) {
             if (!::map.isInitialized) return@launch
+            mLoc = LatLng(myLatitude, myLongitude)
             map.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
-                    LatLng(
-                        mActivity.myLatitude,
-                        mActivity.myLongitude
-                    ), DEFAULT_ZOOM
+                    LatLng(myLatitude, myLongitude), DEFAULT_ZOOM
                 )
             )
-            val markerOption = MarkerOptions().apply {
-                position(LatLng(mActivity.myLatitude, mActivity.myLongitude))
-            }
-            map.addMarker(markerOption)
         }
     }
 
@@ -150,29 +158,58 @@ class DetailActivity : BaseActivity() {
         binding.apply {
             bottomSheetBehavior = BottomSheetBehavior.from(binding.layoutOption.layoutDetail)
             with(bottomSheetBehavior) {
-                skipCollapsed = true
-                state = BottomSheetBehavior.STATE_COLLAPSED
+                skipCollapsed = false
+                isFitToContents = false
+                halfExpandedRatio = 0.7F
+                state = BottomSheetBehavior.STATE_HALF_EXPANDED
                 addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
                     override fun onStateChanged(bottomSheet: View, newState: Int) {
                         when (newState) {
                             BottomSheetBehavior.STATE_COLLAPSED -> {
+                                isFitToContents = true
                                 layoutOption.scrollView.post {
                                     layoutOption.scrollView.apply {
                                         fling(0)
                                         scrollTo(0, 0)
-                                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                                        bottomSheetBehavior.state =
+                                            BottomSheetBehavior.STATE_COLLAPSED
                                     }
                                 }
                             }
+                            BottomSheetBehavior.STATE_EXPANDED -> isFitToContents = true
                             else -> Unit
                         }
                     }
 
                     override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                        val h = bottomSheet.height.toFloat()
+                        val off = h * slideOffset
+
+                        mLoc.let {
+                            when (state) {
+                                BottomSheetBehavior.STATE_DRAGGING -> {
+                                    setMapPaddingBottom(off)
+                                    //reposition marker at the center
+                                    map.moveCamera(CameraUpdateFactory.newLatLng(mLoc))
+                                }
+                                BottomSheetBehavior.STATE_SETTLING -> {
+                                    setMapPaddingBottom(off)
+                                    //reposition marker at the center
+                                    map.moveCamera(CameraUpdateFactory.newLatLng(mLoc))
+                                }
+                                else -> Unit
+                            }
+                        }
                     }
                 })
             }
         }
+    }
+
+    private fun setMapPaddingBottom(offset: Float) {
+        //From 0.0 (min) - 1.0 (max) // bsExpanded - bsCollapsed;
+        val maxMapPaddingBottom = 1.0f
+        map.setPadding(0, 0, 0, (offset * maxMapPaddingBottom).roundToInt())
     }
 
     private fun doInitialize() {
@@ -188,7 +225,7 @@ class DetailActivity : BaseActivity() {
                 launch {
                     viewModel.placeDetailFlow.collect {
                         when (it) {
-                            is Resource.Loading -> dialog.showLoadingDialog(mActivity, false)
+                            is Resource.Loading -> dialog.showLoadingDialog(this@DetailActivity, false)
                             is Resource.Success -> {
                                 it.data?.result?.let { data ->
                                     placesDetails = data
@@ -198,8 +235,25 @@ class DetailActivity : BaseActivity() {
                             }
                             is Resource.Error -> {
                                 dialog.cancelLoadingDialog()
-                                mActivity.displayShortToast(getString(R.string.hint_error))
+                                displayShortToast(getString(R.string.hint_error))
                             }
+                            else -> Unit
+                        }
+                    }
+                }
+                // 取得路線
+                launch {
+                    viewModel.getRoutePolylineFlow.collect {
+                        when (it) {
+                            is Resource.Success -> it.data?.result?.let { data ->
+                                viewModel.apply {
+                                    decodePolylineArray = Method.decodePolyline(data.polyline)
+                                    polylineDistance = data.distanceMeters
+                                    polylineDuration = data.duration
+                                }
+                                doMarketPolyLine()
+                            }
+                            is Resource.Error -> displayShortToast(getString(R.string.hint_error))
                             else -> Unit
                         }
                     }
@@ -209,11 +263,11 @@ class DetailActivity : BaseActivity() {
                     viewModel.pushBlackListFlow.collect {
                         when (it) {
                             is Resource.Success -> {
-                                mActivity.displayShortToast(getString(R.string.hint_success_push_black_list))
+                                displayShortToast(getString(R.string.hint_success_push_black_list))
                                 checkBlackList = true
                             }
                             is Resource.Error -> {
-                                mActivity.displayShortToast(getString(R.string.hint_failed_push_black_list))
+                                displayShortToast(getString(R.string.hint_failed_push_black_list))
                                 checkBlackList = false
                             }
                             else -> Unit
@@ -226,12 +280,12 @@ class DetailActivity : BaseActivity() {
                         when (it) {
                             is Resource.Success -> {
                                 Method.logE("Pull Black List", "Success")
-                                mActivity.displayShortToast(getString(R.string.hint_success_pull_black_list))
+                                displayShortToast(getString(R.string.hint_success_pull_black_list))
                                 checkBlackList = false
                             }
                             is Resource.Error -> {
                                 Method.logE("Pull Black List", "Error:${it.message.toString()}")
-                                mActivity.displayShortToast(getString(R.string.hint_failed_pull_black_list))
+                                displayShortToast(getString(R.string.hint_failed_pull_black_list))
                                 checkBlackList = true
                             }
                             else -> Unit
@@ -244,14 +298,14 @@ class DetailActivity : BaseActivity() {
                         when (it) {
                             is Resource.Success -> {
                                 Method.logE("Push Favorite", "Success")
-                                mActivity.displayShortToast(getString(R.string.hint_success_push_favorite))
+                                displayShortToast(getString(R.string.hint_success_push_favorite))
                                 viewModel.insertFavoriteData(favoriteList)
                                 checkFavorite = true
                                 binding.layoutOption.isFavorite = checkFavorite
                             }
                             is Resource.Error -> {
                                 Method.logE("Push Favorite", "Error:${it.message.toString()}")
-                                mActivity.displayShortToast(getString(R.string.hint_failed_push_favorite))
+                                displayShortToast(getString(R.string.hint_failed_push_favorite))
                                 checkFavorite = false
                             }
                             else -> Unit
@@ -264,13 +318,13 @@ class DetailActivity : BaseActivity() {
                         when (it) {
                             is Resource.Success -> {
                                 Method.logE("Pull Favorite", "Success")
-                                mActivity.displayShortToast(getString(R.string.hint_success_pull_favorite))
+                                displayShortToast(getString(R.string.hint_success_pull_favorite))
                                 checkFavorite = false
                                 binding.layoutOption.isFavorite = checkFavorite
                             }
                             is Resource.Error -> {
                                 Method.logE("Pull Favorite", "Error:${it.message.toString()}")
-                                mActivity.displayShortToast(getString(R.string.hint_failed_pull_favorite))
+                                displayShortToast(getString(R.string.hint_failed_pull_favorite))
                                 checkFavorite = true
                             }
                             else -> Unit
@@ -283,8 +337,9 @@ class DetailActivity : BaseActivity() {
 
     private fun setupData(data: DetailsByPlaceIdRes.Result) {
         binding.layoutOption.apply {
+            viewModel.targetInfo = data.place
+            doGetPolyline()
             setupToolButton(data)
-            doMarketPolyLine()
             detail = data
             checkFavorite = placesDetails.isFavorite
             checkBlackList = placesDetails.isBlackList
@@ -294,17 +349,100 @@ class DetailActivity : BaseActivity() {
         }
     }
 
+    private fun doGetPolyline() {
+        if (!checkMyDeviceGPS())
+            return
+        viewModel.getPolyLine(
+            origin = SetLocation(
+                lat = myLatitude,
+                lng = myLongitude,
+                place_id = ""
+            ),
+            destination = SetLocation(
+                viewModel.targetInfo.location.lat,
+                viewModel.targetInfo.location.lng,
+                viewModel.targetInfo.place_id
+            )
+        )
+    }
+
+    private fun setCompass() {
+        try {
+            mapFragment.view?.let { mapView ->
+                mapView.findViewWithTag<View>("GoogleMapMyLocationButton").parent?.let { parent ->
+                    val vg: ViewGroup = parent as ViewGroup
+                    vg.post {
+                        val mapCompass: View = parent.getChildAt(4)
+                        val rlp = RelativeLayout.LayoutParams(mapCompass.height, mapCompass.height)
+                        rlp.addRule(RelativeLayout.ALIGN_PARENT_LEFT, 0)
+                        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP)
+                        rlp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
+                        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0)
+
+                        val topMargin = (8 * Resources.getSystem().displayMetrics.density).toInt()
+                        val endMargin = (150 * Resources.getSystem().displayMetrics.density).toInt()
+                        rlp.setMargins(0, topMargin, endMargin, 0)
+                        mapCompass.layoutParams = rlp
+                    }
+                }
+            }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+    }
+
     private fun doMarketPolyLine() {
         lifecycleScope.launch(Dispatchers.Main) {
             placesDetails.place.apply {
-                if (!::map.isInitialized) return@launch
-                val markerOption = MarkerOptions().apply {
-                    position(LatLng(location.lat, location.lng))
-                    title(name)
+                viewModel.apply {
+                    if (!::map.isInitialized) return@launch
+                    // Marker
+                    val markerOption = MarkerOptions().apply {
+                        position(LatLng(location.lat, location.lng))
+                        title(name)
+                        icon(BitmapDescriptorFactory.fromResource(R.drawable.img_location))
+                    }
+                    map.addMarker(markerOption)
+                    // PolyLine
+                    if (::animatedPolyline.isInitialized)
+                        animatedPolyline.remove()
+                    animatedPolyline = AnimatedPolyline(
+                        map = map,
+                        points = decodePolylineArray,
+                        polylineOptions = PolylineOptions()
+                            .width(24f)
+                            .color(getColorCompat(R.color.google_red))
+                            .geodesic(true),
+                        duration = 1500,
+                        interpolator = DecelerateInterpolator(),
+                        animatorListenerAdapter = object : AnimatorListenerAdapter() {
+                            override fun onAnimationEnd(animation: Animator) {
+                                super.onAnimationEnd(animation)
+                                animatedPolyline.start()
+                            }
+                        }
+                    )
+                    animatedPolyline.start()
+                    animatedPolyline.addInfoWindow(applicationContext, polylineDistance, polylineDuration)
+                    // Set Zoom
+                    setZoomMap()
                 }
-                map.addMarker(markerOption)
             }
         }
+    }
+
+    private fun setZoomMap() {
+        val builder = LatLngBounds.Builder()
+        viewModel.decodePolylineArray.forEach { builder.include(it) }
+        val bounds = builder.build()
+        val metrics = resources.displayMetrics
+        val cu = CameraUpdateFactory.newLatLngBounds(
+            bounds,
+            (metrics.widthPixels * 2.2).toInt(),
+            metrics.heightPixels,
+            (metrics.widthPixels * 0.7).toInt()
+        )
+        map.animateCamera(cu)
     }
 
     private fun setupToolButton(data: DetailsByPlaceIdRes.Result) {
@@ -325,7 +463,7 @@ class DetailActivity : BaseActivity() {
         binding.run {
             tvBack.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
-                    mActivity.onBackPressed()
+                    onBackPressed()
                 }
             }
 
@@ -337,12 +475,24 @@ class DetailActivity : BaseActivity() {
             }
 
             imgMyLocation.setOnClickListener {
+                if (!::map.isInitialized) return@setOnClickListener
                 setMyLocation()
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 layoutOption.scrollView.post {
                     layoutOption.scrollView.apply {
                         fling(0)
                         scrollTo(0, 0)
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                    }
+                }
+            }
+
+            imgMyRoute.setOnClickListener {
+                doGetPolyline()
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                layoutOption.scrollView.post {
+                    layoutOption.scrollView.apply {
+                        fling(0)
+                        scrollTo(0, 0)
                     }
                 }
             }
@@ -352,11 +502,21 @@ class DetailActivity : BaseActivity() {
             tvTime.setOnClickListener {
                 it.setAnimClick(anim, AnimState.Start) {
                     if (::placesDetails.isInitialized && placesDetails.place.opening_hours.weekday_text == emptyList<String>()) {
-                        mActivity.displayShortToast(getString(R.string.text_null))
+                        displayShortToast(getString(R.string.text_null))
                         return@setAnimClick
                     }
                     displayRegionDialog()
                 }
+            }
+
+            tvName.setOnClickListener {
+                if (::placesDetails.isInitialized) {
+                    Intent(Intent.ACTION_VIEW).also { i ->
+                        i.data = Uri.parse(placesDetails.place.url)
+                        startActivity(i)
+                    }
+                } else
+                    displayShortToast(getString(R.string.hint_no_website))
             }
 
             tvGoogle.setOnClickListener {
@@ -367,7 +527,7 @@ class DetailActivity : BaseActivity() {
                             startActivity(i)
                         }
                     } else
-                        mActivity.displayShortToast(getString(R.string.hint_no_website))
+                        displayShortToast(getString(R.string.hint_no_website))
                 }
             }
 
@@ -379,7 +539,7 @@ class DetailActivity : BaseActivity() {
                             startActivity(i)
                         }
                     } else
-                        mActivity.displayShortToast(getString(R.string.hint_no_website))
+                        displayShortToast(getString(R.string.hint_no_website))
                 }
             }
 
@@ -428,7 +588,7 @@ class DetailActivity : BaseActivity() {
                             startActivity(i)
                         }
                     } else
-                        mActivity.displayShortToast(getString(R.string.hint_no_phone))
+                        displayShortToast(getString(R.string.hint_no_phone))
                 }
             }
         }
@@ -437,7 +597,7 @@ class DetailActivity : BaseActivity() {
     private fun displayNavigationModeDialog() {
         // d:開車, b:單車, l:機車, w:步行
         val dialogBinding = DialogNavigationModeBinding.inflate(layoutInflater)
-        dialog.showBottomDialog(mActivity, dialogBinding, true).let {
+        dialog.showBottomDialog(this, dialogBinding, true).let {
             dialogBinding.run {
                 cardDrive.setOnClickListener {
                     goNavigation("d")
@@ -477,7 +637,7 @@ class DetailActivity : BaseActivity() {
     private fun displayRegionDialog() {
         val dialogBinding = DialogPromptSelectBinding.inflate(layoutInflater)
         val workDayAdapter = WorkDayAdapter()
-        dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
+        dialog.showCenterDialog(this, true, dialogBinding, false).let {
             dialogBinding.run {
                 // initialize
                 titleText = getString(R.string.text_workday)
@@ -545,12 +705,11 @@ class DetailActivity : BaseActivity() {
                 )
                 it.putInt(Constants.IMAGE_POSITION, position)
 
-                val ft = mActivity.supportFragmentManager.beginTransaction()
+                val ft = supportFragmentManager.beginTransaction()
                 val albumDialog = AlbumFragment()
                 albumDialog.arguments = it
 
-                val prevDialog =
-                    mActivity.supportFragmentManager.findFragmentByTag(Constants.DIALOG_ALBUM)
+                val prevDialog = supportFragmentManager.findFragmentByTag(Constants.DIALOG_ALBUM)
                 if (prevDialog != null)
                     ft.remove(prevDialog)
 
@@ -594,7 +753,7 @@ class DetailActivity : BaseActivity() {
 
     private fun displayRemoveFavoriteDialog() {
         val dialogBinding = DialogPromptBinding.inflate(layoutInflater)
-        dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
+        dialog.showCenterDialog(this, true, dialogBinding, false).let {
             dialogBinding.run {
                 dialogBinding.run {
                     showIcon = true
@@ -612,11 +771,11 @@ class DetailActivity : BaseActivity() {
 
     private fun displayModifyBlackListDialog(isAdd: Boolean) {
         val dialogBinding = DialogPromptBinding.inflate(layoutInflater)
-        dialog.showCenterDialog(mActivity, true, dialogBinding, false).let {
+        dialog.showCenterDialog(this, true, dialogBinding, false).let {
             dialogBinding.run {
                 dialogBinding.run {
                     showIcon = true
-                    imgPromptIcon.setImageResource(R.drawable.ic_report)
+                    imgPromptIcon.setImageResource(R.drawable.ic_error)
                     titleText = if (isAdd)
                         getString(R.string.hint_prompt_add_black_list_title)
                     else
@@ -635,6 +794,6 @@ class DetailActivity : BaseActivity() {
     }
 
     companion object {
-        private const val DEFAULT_ZOOM = 14F
+        private const val DEFAULT_ZOOM = 18F
     }
 }

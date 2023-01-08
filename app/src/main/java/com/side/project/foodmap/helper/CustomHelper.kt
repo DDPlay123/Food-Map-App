@@ -1,9 +1,14 @@
 package com.side.project.foodmap.helper
 
+import android.graphics.Bitmap
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.view.View
 import android.view.animation.Animation
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.Polyline
 import com.side.project.foodmap.data.remote.Location
 import com.side.project.foodmap.ui.other.AnimState
 
@@ -68,4 +73,34 @@ inline fun SpannableStringBuilder.withSpan(
         setSpan(span, from, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
     return this
+}
+
+fun Polyline.addInfoWindow(map: GoogleMap, title: String, message: String) {
+    val pointsOnLine = this.points.size
+    val infoLatLng = this.points[(pointsOnLine / 2)]
+    val invisibleMarker = BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+    val marker = map.addMarker(
+        MarkerOptions()
+            .position(infoLatLng)
+            .title(title)
+            .snippet(message)
+            .alpha(0f)
+            .icon(invisibleMarker)
+            .anchor(0f, 0f)
+    )
+    marker?.showInfoWindow()
+}
+
+fun Int.getTime(): String {
+    val day = this / 86400
+    val hour = (this / 3600) % 24
+    val minute = (this / 60) % 60
+    val second = this % 60
+    return when {
+        day != 0 -> String.format("%d 天", day)
+        hour != 0 -> String.format("%d 小時", hour)
+        minute != 0 -> String.format("%d 分鐘", minute)
+        second != 0 -> String.format("%d 秒鐘", second)
+        else -> "暫無"
+    }
 }

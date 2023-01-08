@@ -3,7 +3,6 @@ package com.side.project.foodmap.ui.viewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.side.project.foodmap.data.remote.Location
-import com.side.project.foodmap.data.remote.MyPlaceList
 import com.side.project.foodmap.data.remote.PlaceList
 import com.side.project.foodmap.util.Resource
 
@@ -14,6 +13,9 @@ class ListViewModel : BaseViewModel() {
      */
     // 實際要觀察的資料(附近/關鍵字)
     var searchData: MutableList<PlaceList> = ArrayList()
+
+    // wait push/pull blackList
+    var blackPlaceId: String = ""
 
     // 設定區域
     var regionPlaceId: String = ""
@@ -32,21 +34,25 @@ class ListViewModel : BaseViewModel() {
     /**
      * 資料流
      */
-    val syncPlaceListData: LiveData<List<MyPlaceList>> get() = userApiRepo.getSyncPlaceListData
+    val syncPlaceListFlow get() = userApiRepo.getSyncPlaceListFlow
 
-    val distanceSearchFlow = restaurantApiRepo.distanceSearchFlow
+    val distanceSearchFlow get() = restaurantApiRepo.distanceSearchFlow
 
-    val keywordSearchFlow = restaurantApiRepo.keywordSearchFlow
+    val keywordSearchFlow get() = restaurantApiRepo.keywordSearchFlow
 
     private val _observeSearchData = MutableLiveData<Resource<MutableList<PlaceList>>>()
     val observeSearchData: LiveData<Resource<MutableList<PlaceList>>>
         get() = _observeSearchData
 
+    val pushBlackListFlow get() = userApiRepo.pushBlackListFlow
+
+    val pullBlackListFlow get() = userApiRepo.pullBlackListFlow
+
     val pushFavoriteFlow get() = userApiRepo.pushFavoriteListFlow
 
     val pullFavoriteFlow get() = userApiRepo.pullFavoriteListFlow
 
-    val getSyncBlackListData get() = userApiRepo.getSyncBlackListData
+    val getSyncBlackListFlow get() = userApiRepo.getSyncBlackListFlow
 
     /**
      * 可呼叫方法
@@ -68,6 +74,14 @@ class ListViewModel : BaseViewModel() {
         skip: Int,
         limit: Int
     ) = restaurantApiRepo.apiRestaurantKeywordSearch(location, distance, keyword, skip, limit)
+
+    fun pushBlackList(
+        placeIdList: ArrayList<String>
+    ) = userApiRepo.apiPushBlackList(placeIdList)
+
+    fun pullBlackList(
+        placeIdList: ArrayList<String>
+    ) = userApiRepo.apiPullBlackList(placeIdList)
 
     fun pushFavorite(
         placeIdList: ArrayList<String>

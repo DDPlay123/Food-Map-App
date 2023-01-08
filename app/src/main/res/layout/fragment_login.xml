@@ -14,8 +14,8 @@
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         android:fitsSystemWindows="true"
+        android:orientation="vertical"
         tools:context=".ui.fragment.launch.LoginFragment">
 
         <androidx.core.widget.NestedScrollView
@@ -87,6 +87,7 @@
                     android:layout_width="0dp"
                     android:layout_height="60dp"
                     android:layout_marginTop="@dimen/_5sdp"
+                    android:background="@drawable/prompt_search_background_v2"
                     android:hint="@string/hint_input_username"
                     android:imeOptions="actionNext"
                     android:inputType="text"
@@ -114,6 +115,7 @@
                     style="@style/editText"
                     android:layout_width="0dp"
                     android:layout_height="60dp"
+                    android:background="@drawable/prompt_search_background_v2"
                     android:layout_marginTop="@dimen/_5sdp"
                     android:hint="@string/hint_input_password"
                     android:imeOptions="actionDone"

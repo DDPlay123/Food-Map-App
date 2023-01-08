@@ -23,34 +23,18 @@
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
         app:behavior_hideable="false"
-        app:behavior_peekHeight="@dimen/_150sdp"
-        app:layout_behavior="com.side.project.foodmap.util.customView.AnchorSheetBehavior">
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/imgMyLocation"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:layout_marginTop="@dimen/_15sdp"
-            android:layout_marginEnd="@dimen/_15sdp"
-            android:background="@drawable/background_circle_white_back_button"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless"
-            android:padding="@dimen/_10sdp"
-            android:src="@drawable/ic_my_location"
-            android:tint="@color/primary"
-            app:layout_constraintBottom_toTopOf="@+id/layoutBody"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        app:behavior_peekHeight="@dimen/_80sdp"
+        app:layout_behavior="@string/bottom_sheet_behavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutBody"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="@dimen/_15sdp"
             android:background="@drawable/background_miscellaneous_2"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imgMyLocation">
+            app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/layoutLocation"

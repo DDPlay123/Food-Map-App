@@ -37,6 +37,12 @@ data class Location(
     val lng: Double
 )
 
+data class SetLocation(
+    val lat: Double,
+    val lng: Double,
+    val place_id: String
+)
+
 data class Photos(
     val height: Long,
     val width: Long,

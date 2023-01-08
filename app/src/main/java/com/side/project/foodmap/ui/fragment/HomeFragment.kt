@@ -77,7 +77,6 @@ import kotlin.math.abs
 class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private val viewModel: MainViewModel by activityViewModel()
 
-    private lateinit var mPlaceId: String
     private var keyword: String = ""
 
     private lateinit var popularSearchAdapter: PopularSearchAdapter
@@ -114,7 +113,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
 
         binding?.root?.delayOnLifecycle(1000) {
-            viewModel.getUserRegionFromDataStore()
             doInitialize()
             initPopularCard()
             setListener()
@@ -148,32 +146,22 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 }
                 // 取的區域設定列表
                 launch {
-                    viewModel.syncPlaceListData.observe(viewLifecycleOwner) { myPlaceLists ->
-                        myPlaceLists?.let { placeLists ->
-                            viewModel.run {
-                                if (::regionSelectAdapter.isInitialized)
-                                    regionSelectAdapter.submitList(myPlaceLists.toMutableList())
-                                viewModel.myPlaceLists.clear()
-                                viewModel.myPlaceLists.addAll(myPlaceLists)
+                    viewModel.syncPlaceListFlow.collect { myPlaceLists ->
+                        viewModel.apply {
+                            if (::regionSelectAdapter.isInitialized)
+                                regionSelectAdapter.submitList(myPlaceLists.toMutableList())
+                            viewModel.myPlaceLists.clear()
+                            viewModel.myPlaceLists.addAll(myPlaceLists)
 
-                                placeLists.find { it.place_id == regionPlaceId }?.let {
-                                    regionPosition = myPlaceLists.indexOf(it)
-                                    isUseMyLocation = false
-                                    selectLatLng = it.location
-                                    if (it.name != "")
-                                        binding?.tvCategory?.text = it.name
-                                    else
-                                        binding?.tvCategory?.text = it.address
-                                }
-
-                                if (isSearchPlaceList) return@observe
-
-                                distanceSearch(
-                                    if (isUseMyLocation) Location(
-                                        mActivity.myLatitude,
-                                        mActivity.myLongitude
-                                    ) else selectLatLng
-                                )
+                            myPlaceLists.find { it.place_id == regionPlaceId }?.let {
+                                regionPosition = myPlaceLists.indexOf(it)
+                                isUseMyLocation = false
+                                selectLatLng = it.location
+                                if (it.name != "")
+                                    binding?.tvCategory?.text = it.name
+                                else
+                                    binding?.tvCategory?.text = it.address
+                            }.apply {
                                 drawCard(
                                     if (isUseMyLocation) Location(
                                         mActivity.myLatitude,
@@ -181,6 +169,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                     ) else selectLatLng,
                                     isRecentPopularSearch
                                 )
+                                viewModel.isSearchPlaceList = true
                             }
                         }
                     }
@@ -223,7 +212,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                             lottieNoData.display()
                                         }
                                     }
-                                    delay(1000)
                                     dialog.cancelLoadingDialog()
                                 }
                             }
@@ -233,21 +221,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                 binding?.lottieNoData?.display()
                                 dialog.cancelLoadingDialog()
                             }
-                            else -> Unit
-                        }
-                    }
-                }
-                // 附近搜尋
-                launch {
-                    viewModel.distanceSearchFlow.collect { resource ->
-                        when (resource) {
-                            is Resource.Success -> {
-                                resource.data?.let { data ->
-                                    binding?.nearSearch = data
-                                    mPlaceId = data.result.placeList[0].place_id
-                                }
-                            }
-                            is Resource.Error -> requireActivity().displayShortToast(getString(R.string.hint_error))
                             else -> Unit
                         }
                     }
@@ -262,12 +235,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         if (getDistance(location, oldLatLng) * 1000 > 100) {
                             oldLatLng = location
                             viewModel.run {
-                                distanceSearch(
-                                    if (isUseMyLocation) Location(
-                                        mActivity.myLatitude,
-                                        mActivity.myLongitude
-                                    ) else selectLatLng
-                                )
+                                viewModel.isSearchPlaceList = false
                                 drawCard(
                                     if (isUseMyLocation) Location(
                                         mActivity.myLatitude,
@@ -275,8 +243,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                     ) else selectLatLng,
                                     isRecentPopularSearch
                                 )
+                                viewModel.isSearchPlaceList = true
                             }
                         }
+                        return@observe
                     }
                 }
                 // 搜尋結果
@@ -301,6 +271,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                             searchAndHistoryAdapter.submitList(
                                 historySearchList.toMutableList().reversed()
                             )
+                        return@observe
                     }
                 }
                 // 刪除區域設定
@@ -431,12 +402,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 it.setAnimClick(anim, AnimState.Start) {
                     initPopularCard()
                     viewModel.run {
-                        distanceSearch(
-                            if (isUseMyLocation) Location(
-                                mActivity.myLatitude,
-                                mActivity.myLongitude
-                            ) else selectLatLng
-                        )
+                        viewModel.isSearchPlaceList = false
                         drawCard(
                             if (isUseMyLocation) Location(
                                 mActivity.myLatitude,
@@ -444,15 +410,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                             ) else selectLatLng,
                             isRecentPopularSearch
                         )
+                        viewModel.isSearchPlaceList = true
                     }
                 }
             }
 
-            cardAllRestaurant.setOnClickListener {
-                watchDetail(mPlaceId)
-            }
-
-            tvViewMore.setOnClickListener {
+            cardViewMore.setOnClickListener {
                 if (!mActivity.checkDeviceGPS() && !mActivity.checkNetworkGPS()) {
                     displayNotGpsDialog()
                     return@setOnClickListener
@@ -477,7 +440,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     viewModel.getSyncPlaceList(true)
                     regionSelectAdapter.setSelectRegion(regionId)
                     viewModel.putUserRegion(regionId)
-                    viewModel.getUserRegionFromDataStore()
                 }
             }
         }
@@ -499,7 +461,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         selectLatLng = Location(mActivity.myLatitude, mActivity.myLongitude)
                         binding?.tvCategory?.text = getString(R.string.hint_near_region)
                         viewModel.putUserRegion("")
-                        viewModel.getUserRegionFromDataStore()
                         dialog.cancelBottomDialog()
                     }
 
@@ -546,7 +507,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 else
                     binding?.tvCategory?.text = myPlaceList.address
                 viewModel.putUserRegion(it)
-                viewModel.getUserRegionFromDataStore()
                 dialog.cancelBottomDialog()
             }
         }
@@ -563,6 +523,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         viewModel.run {
             binding?.run {
                 isPopularSearch = isRecentPopularSearch
+                viewModel.isSearchPlaceList = false
                 drawCard(
                     if (isUseMyLocation) Location(
                         mActivity.myLatitude,
@@ -570,6 +531,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     ) else selectLatLng,
                     isRecentPopularSearch
                 )
+                viewModel.isSearchPlaceList = true
             }
         }
     }
@@ -590,12 +552,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                 popularSearchAdapter.notifyItemChanged(index)
                                 return@registerForActivityResult
                             }
-                            if (mIsFavorite) {
-                                placeList.isFavorite = mIsFavorite
-                                popularSearchAdapter.submitList(list)
-                                popularSearchAdapter.notifyItemChanged(index)
-                                return@registerForActivityResult
-                            }
+                            placeList.isFavorite = mIsFavorite
+                            popularSearchAdapter.submitList(list)
+                            popularSearchAdapter.notifyItemChanged(index)
                         }
                     }
                 }
@@ -729,7 +688,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         dialog.showBottomDialog(mActivity, dialogBinding, true).let {
             dialogBinding.run {
                 var radius: Long = 1000
-                distance = " 1"
+                distance = "NEAR"
                 initSearchRv(dialogBinding)
                 keyword = ""
                 isHistory = true
@@ -739,7 +698,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 seekBarRange.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
                     override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
                         val value = 1 + p1 * 1 // MIN + VALUE * STEP
-                        distance = if (value < 10) " $value" else "$value"
+                        distance = if (value < 10 && value == 1) "NEAR"
+                        else if (value < 10) " $value"
+                        else "$value"
                         radius = (value * 1000).toLong()
                     }
 

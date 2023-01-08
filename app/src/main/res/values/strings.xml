@@ -123,6 +123,10 @@
     <string name="hint_read_more">閱讀更多\.\.\.</string>
     <string name="hint_read_less">收起</string>
     <string name="hint_no_assign_type">未指定類別</string>
+    <string name="hint_is_track_location">定位追蹤</string>
+    <string name="hint_no_track_location">取消追蹤</string>
+    <string name="hint_watch_route">查看路徑</string>
+    <string name="hint_search_here">搜尋這裡</string>
 
     <!--  頁面名稱  -->
     <string name="page_home">首頁</string>
@@ -168,14 +172,18 @@
     <string name="text_delete">刪除</string>
     <string name="text_query">查詢</string>
     <string name="text_top">TOP</string>
+    <string name="text_near">附近</string>
 
     <!--  特殊符號  -->
     <string name="u2022">•</string>
     <string name="dot">\.\.\.</string>
 
     <!--  嵌入字  -->
+
     <string name="text_number_meter">距離 %,.1f 公尺</string>
     <string name="text_number_kilometer">距離 %,.1f 公里</string>
+    <string name="text_number_int_meter">距離 %d 公尺</string>
+    <string name="text_number_int_kilometer">距離 %d 公里</string>
 
     <!--  下載狀態  -->
     <string name="download_status_failed">下載失敗，請重新嘗試</string>

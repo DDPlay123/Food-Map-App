@@ -10,10 +10,7 @@ import coil.load
 import coil.transform.CircleCropTransformation
 import coil.transform.RoundedCornersTransformation
 import com.side.project.foodmap.R
-import com.side.project.foodmap.helper.appInfo
-import com.side.project.foodmap.helper.display
-import com.side.project.foodmap.helper.gone
-import com.side.project.foodmap.helper.hidden
+import com.side.project.foodmap.helper.*
 import com.side.project.foodmap.util.tools.Method
 import java.text.SimpleDateFormat
 import java.util.*
@@ -175,6 +172,46 @@ class BindingAdapter {
                 textView.text = String.format(
                     textView.context.getString(if (distance < 1) R.string.text_number_meter else R.string.text_number_kilometer),
                     if (distance < 1) distance * 1000 else distance)
+            } catch (ignored: Exception) {
+            }
+        }
+
+        @BindingAdapter("android:showDistanceByApi")
+        @JvmStatic
+        fun showDistanceByApi(textView: TextView, distance: Double) {
+            try {
+                textView.text = String.format(
+                    textView.context.getString(if (distance < 1000) R.string.text_number_meter else R.string.text_number_kilometer),
+                    if (distance < 1000) distance else distance / 1000)
+            } catch (ignored: Exception) {
+            }
+        }
+
+        @BindingAdapter("android:imgTrackLocation")
+        @JvmStatic
+        fun imgTrackLocation(imageView: ImageView, isTrack: Boolean) {
+            try {
+                if (isTrack) imageView.setImageResource(R.drawable.ic_my_location)
+                else imageView.setImageResource(R.drawable.ic_location_searching)
+            } catch (ignored: Exception) {
+            }
+        }
+
+        @BindingAdapter("android:tvTrackLocation")
+        @JvmStatic
+        fun tvTrackLocation(textView: TextView, isTrack: Boolean) {
+            try {
+                textView.apply {
+                    if (isTrack) {
+                        setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_lock, 0, 0, 0)
+                        text = textView.context.getText(R.string.hint_is_track_location)
+                        setTextColor(context.getColorCompat(R.color.red))
+                    } else {
+                        setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_lock_open, 0, 0, 0)
+                        text = textView.context.getText(R.string.hint_no_track_location)
+                        setTextColor(context.getColorCompat(R.color.green))
+                    }
+                }
             } catch (ignored: Exception) {
             }
         }
