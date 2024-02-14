@@ -14,6 +14,7 @@ import com.side.project.foodmap.helper.setAnimClick
 import com.side.project.foodmap.ui.adapter.other.AlbumAdapter
 import com.side.project.foodmap.ui.other.AnimState
 import com.side.project.foodmap.util.Constants
+import com.side.project.foodmap.util.Constants.BASE_URL
 import com.side.project.foodmap.util.Constants.download_permission
 import com.side.project.foodmap.util.tools.DownloadImage
 import com.side.project.foodmap.util.tools.Method
@@ -84,7 +85,7 @@ class AlbumFragment : BaseDialogFragment<FragmentAlbumBinding>(R.layout.fragment
                 if (!Method.requestPermission(mActivity, *download_permission))
                     return@setOnClickListener
                 DownloadImage.downloadImage(
-                    mActivity, "http://kkhomeserver.ddns.net:33000/api/place/get_html_photo/${photoIdList[position]}"
+                    mActivity, "${BASE_URL}api/place/get_html_photo/${photoIdList[position]}"
                 )
             }
         }

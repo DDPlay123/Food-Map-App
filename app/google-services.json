@@ -7,26 +7,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:23970519175:android:861d0568bb5751ad050022",
+        "mobilesdk_app_id": "1:23970519175:android:f7b4225afe410794050022",
         "android_client_info": {
           "package_name": "com.side.project.foodmap"
         }
       },
       "oauth_client": [
         {
-          "client_id": "23970519175-budce9nts72uoodm80a07ans4gqvi6jn.apps.googleusercontent.com",
+          "client_id": "23970519175-ce4b201hqkl8gondodv4l62giqcjt0eo.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.side.project.foodmap",
-            "certificate_hash": "11e742eaf4574ac3efd5c7a6149611a179f251ff"
-          }
-        },
-        {
-          "client_id": "23970519175-nc7m2ibmimbe6ulfgkm3br385ia2q1ht.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.side.project.foodmap",
-            "certificate_hash": "0a613ece790bbabfced8cea7b64666ac7bb00f92"
+            "certificate_hash": "c257223fbb448bc535f399b03fa7866db8f0d439"
           }
         },
         {
@@ -36,7 +28,7 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyC1Tw5uZZA1L1zvgF8bl_ayKCG-VMxjB5w"
+          "current_key": "AIzaSyDEK57_XPs6nTmJLb4hD4U4fQ27YQZrdTM"
         }
       ],
       "services": {

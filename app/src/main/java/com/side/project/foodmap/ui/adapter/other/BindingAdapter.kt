@@ -11,6 +11,7 @@ import coil.transform.CircleCropTransformation
 import coil.transform.RoundedCornersTransformation
 import com.side.project.foodmap.R
 import com.side.project.foodmap.helper.*
+import com.side.project.foodmap.util.Constants.BASE_URL
 import com.side.project.foodmap.util.tools.Method
 import java.text.SimpleDateFormat
 import java.util.*
@@ -88,7 +89,7 @@ class BindingAdapter {
         fun setLoadImageFromApi(imageView: ImageView, photoId: String) {
             try {
                 val userID = ""
-                imageView.load("http://kkhomeserver.ddns.net:33000/api/place/get_html_photo/$photoId?userId=$userID", imageLoader = imageView.context.imageLoader
+                imageView.load("${BASE_URL}api/place/get_html_photo/$photoId?userId=$userID", imageLoader = imageView.context.imageLoader
                 ) {
                     transformations(RoundedCornersTransformation(25f))
                 }
@@ -101,7 +102,7 @@ class BindingAdapter {
         fun setLoadSquareImageFromApi(imageView: ImageView, photoId: String) {
             try {
                 val userID = ""
-                imageView.load("http://kkhomeserver.ddns.net:33000/api/place/get_html_photo/$photoId?userId=$userID", imageLoader = imageView.context.imageLoader)
+                imageView.load("${BASE_URL}api/place/get_html_photo/$photoId?userId=$userID", imageLoader = imageView.context.imageLoader)
             } catch (ignored: Exception) {
             }
         }
