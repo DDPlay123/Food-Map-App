@@ -1,5 +1,6 @@
 package com.side.project.foodmap.network
 
+import com.side.project.foodmap.util.Constants.BASE_URL
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -18,7 +19,7 @@ object ApiClient {
     val getAPI: ApiService by lazy {
         Retrofit.Builder()
             .client(okHttpClient)
-            .baseUrl("http://kkhomeserver.ddns.net:33000/") // http://140.124.73.27:20004/ http://kkhomeserver.ddns.net:33000/
+            .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)

@@ -8,6 +8,7 @@ object Constants {
      * Other
      */
     const val MMSLAB = "MMSLAB" // AES KEY
+    const val BASE_URL = "http://foodmap.kkserver.net/"
     const val DIALOG_ALBUM = "DIALOG_ALBUM"
     const val ALBUM_IMAGE_RESOURCE = "ALBUM_IMAGE_RESOURCE"
     const val IMAGE_RESOURCE = "IMAGE_RESOURCE" // Album Image Key

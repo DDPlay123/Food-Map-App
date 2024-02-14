@@ -10,6 +10,7 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import coil.imageLoader
 import coil.load
 import com.google.android.material.snackbar.Snackbar
+import com.side.project.foodmap.util.Constants.BASE_URL
 import com.side.project.foodmap.util.tools.Method
 import kotlinx.coroutines.*
 
@@ -66,7 +67,7 @@ fun AppCompatImageView.loadFromGoogle(photo_reference: String) {
 
 fun AppCompatImageView.loadFromApi(photoId: String) {
     Method.logE("PHOTO", photoId)
-    this.load("http://kkhomeserver.ddns.net:33000/api/place/get_html_photo/$photoId",
+    this.load("${BASE_URL}api/place/get_html_photo/$photoId",
         imageLoader = this.context.imageLoader
     )
 }
