@@ -1,43 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-
-    <color name="primary">#F52C56</color>
-    <color name="accent">#F52C56</color>
-    <color name="accent_dark">#A51D39</color>
-    <color name="dialog_background">#F4E7E6</color>
-    <color name="dialog_title">#201B1B</color>
-    <color name="dialog_subtitle">#897A7A</color>
-    <color name="dialog_text_DOWN">#722E33</color>
-    <color name="dialog_divider">#D59699</color>
-    <color name="prompt_UP">#FFFFFF</color>
-    <color name="prompt_DOWN">#AAAAAA</color>
-    <color name="g_yellow">#F5C285</color>
-    <color name="g_black">#33405F</color>
-    <color name="g_white">#F5F8FA</color>
-    <color name="support">#F4F4F4</color>
-    <color name="red">#E6352B</color>
-    <color name="blue">#147EFB</color>
-    <color name="green">#69A079</color>
-    <color name="g_blue_gray200">#97AABD</color>
-    <color name="g_blue100">#B8D9FA</color>
-    <color name="g_blue">#000DAE</color>
-    <color name="g_dark_blue">#000759</color>
-    <color name="gray">#E6E6E6</color>
-    <color name="g_gray500">#969899</color>
-    <color name="g_gray700">#666666</color>
-
-    <color name="google_blue">#4099DE</color>
-    <color name="google_green">#21B878</color>
-    <color name="google_yellow">#F8E538</color>
-    <color name="google_red">#E64444</color>
-
-    <color name="blur">#80EEEEEE</color>
-
 </resources>
