@@ -24,3 +24,6 @@ output.json
 *.iml
 /.idea
 misc.xml
+
+# Other
+google-services.json
