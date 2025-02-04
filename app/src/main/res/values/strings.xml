@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">台灣美食地圖</string>
+
+    <string name="word_home">首頁</string>
+    <string name="word_map">地圖</string>
+    <string name="word_favorite">最愛</string>
+    <string name="word_profiles">檔案</string>
 </resources>

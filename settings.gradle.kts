@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "台灣美食地圖"
 include(":app")
+include(":core")

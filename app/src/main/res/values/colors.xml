@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="background_navigation_view">#F4F7F9</color>
+    <color name="background_fragment">#FFFFFF</color>
+
+    <color name="icon_navigation_view_selected">#F52C56</color>
+    <color name="icon_navigation_view_unselected">#33405F</color>
 </resources>

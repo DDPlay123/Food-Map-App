@@ -1,9 +1,4 @@
 [versions]
-# 共同屬性
-minSdk = "24"
-targetSdk = "35"
-compileSdk = "35"
-
 # Plugin versions
 agp = "8.8.0"
 kotlin = "2.1.0"
