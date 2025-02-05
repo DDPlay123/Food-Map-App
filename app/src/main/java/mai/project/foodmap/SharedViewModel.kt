@@ -1,4 +1,4 @@
-package mai.project.foodmap.ui
+package mai.project.foodmap
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import mai.project.core.utils.CoroutineContextProvider

@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.viewbinding.ViewBinding
-import mai.project.foodmap.ui.MainActivity
+import mai.project.foodmap.MainActivity
 import timber.log.Timber
 
 /**

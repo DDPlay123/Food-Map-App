@@ -2,4 +2,9 @@
 <resources>
     <color name="background_navigation_view">#1E1D22</color>
     <color name="background_fragment">#141317</color>
+    <color name="background_edittext">#4B4A4A</color>
+    <color name="background_edittext_stroke">#666666</color>
+
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_hint">#CCCCCC</color>
 </resources>

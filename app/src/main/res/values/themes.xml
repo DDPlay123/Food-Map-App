@@ -1,9 +1,35 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.台灣美食地圖" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Base.Theme.美食地圖" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorAccent">@color/primary</item>
+        <item name="android:windowBackground">@color/background_fragment</item>
     </style>
 
-    <style name="Theme.台灣美食地圖" parent="Base.Theme.台灣美食地圖" />
+    <style name="Theme.美食地圖" parent="Base.Theme.美食地圖" />
+
+    <style name="primaryButton" parent="ThemeOverlay.Material3.Button">
+        <item name="android:backgroundTint">@color/primary</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:letterSpacing">.1</item>
+        <item name="layout_constraintWidth_max">488dp</item>
+    </style>
+
+    <style name="primaryEditText" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/bg_edittext</item>
+        <item name="android:gravity">center</item>
+        <item name="singleLine">true</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorHint">@color/text_hint</item>
+    </style>
+
+    <style name="primaryCheckbox" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/selector_checkbox</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="buttonTint">@color/selector_checkbox</item>
+    </style>
 </resources>

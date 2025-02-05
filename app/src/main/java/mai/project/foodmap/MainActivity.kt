@@ -1,4 +1,4 @@
-package mai.project.foodmap.ui
+package mai.project.foodmap
 
 import android.os.Bundle
 import androidx.activity.viewModels
@@ -6,7 +6,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
-import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseActivity
 import mai.project.foodmap.databinding.ActivityMainBinding
 

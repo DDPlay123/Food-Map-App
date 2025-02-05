@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="primary">#F52C56</color>
+
     <color name="background_navigation_view">#F4F7F9</color>
     <color name="background_fragment">#FFFFFF</color>
+    <color name="background_edittext">#F4F4F4</color>
+    <color name="background_edittext_stroke">#E6E6E6</color>
 
-    <color name="icon_navigation_view_selected">#F52C56</color>
+    <color name="icon_navigation_view_selected">@color/primary</color>
     <color name="icon_navigation_view_unselected">#33405F</color>
+
+    <color name="text_primary">#000000</color>
+    <color name="text_hint">#666666</color>
 </resources>
