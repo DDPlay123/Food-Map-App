@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "mai.project.core"
+    namespace = "mai.project.foodmap.domain"
 
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -24,9 +24,6 @@ android {
 
 dependencies {
 
-    // Android X
-    implementation(libs.browser)
-
     // ksp
     ksp(libs.hilt.android.compiler)
     ksp(libs.hilt.compiler)
@@ -38,4 +35,7 @@ dependencies {
     // Firebase Library
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
+
+    // 3rd Party Library
+    implementation(libs.timber)
 }

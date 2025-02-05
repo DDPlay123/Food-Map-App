@@ -1,13 +1,25 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.kotlin.serialization)
+}
+
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        load(localPropertiesFile.inputStream())
+    }
 }
 
 android {
-    namespace = "mai.project.core"
+    namespace = "mai.project.foodmap.data"
 
     defaultConfig {
+        buildConfigField("String", "API_KEY", localProperties.getProperty("BASE_URL"))
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -20,16 +32,21 @@ android {
     }
 
     kotlinOptions { jvmTarget = "17" }
+
+    buildFeatures { buildConfig = true }
 }
 
 dependencies {
+    implementation(project(":domain"))
 
     // Android X
-    implementation(libs.browser)
+    implementation(libs.bundles.room)
+    implementation(libs.datastore.preferences)
 
     // ksp
     ksp(libs.hilt.android.compiler)
     ksp(libs.hilt.compiler)
+    ksp(libs.room.compiler)
 
     // Google Library
     implementation(libs.hilt.android)
@@ -38,4 +55,9 @@ dependencies {
     // Firebase Library
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
+
+    // 3rd Party Library
+    implementation(libs.timber)
+    implementation(libs.bundles.retrofit)
+    implementation(libs.serialization)
 }

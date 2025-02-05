@@ -78,6 +78,8 @@ android {
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":domain"))
+    implementation(project(":data"))
 
     // Android X
     implementation(libs.androidx.core.ktx)
@@ -91,7 +93,7 @@ dependencies {
     implementation(libs.bundles.lifecycle)
     implementation(libs.paging.runtime.ktx)
 
-    // kapt
+    // ksp
     ksp(libs.hilt.android.compiler)
     ksp(libs.hilt.compiler)
 
