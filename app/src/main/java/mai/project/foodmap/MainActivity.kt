@@ -3,9 +3,9 @@ package mai.project.foodmap
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
-import androidx.annotation.IdRes
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions
@@ -16,6 +16,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mai.project.core.extensions.displayToast
 import mai.project.core.extensions.launchAndRepeatStarted
@@ -127,9 +128,10 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
      * 設定觀察者
      */
     private fun setObserver() = with(viewModel) {
+        // 是否已登入 (不需要配合生命週期循環搜集)
+        lifecycleScope.launch { isLogin.collect(::handleIsLoginState) }
+        // 其他事件
         launchAndRepeatStarted(
-            // 是否已登入
-            { isLogin.collect(::handleIsLoginState) },
             // 如果 AccessKey 發生錯誤，則強制登出
             { GlobalEvent.accessKeyIllegal.collect(::handleAccessKeyIllegalState) },
             // 新增 FCM Token 狀態
@@ -179,25 +181,6 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
             withContext(Dispatchers.Main.immediate) {
                 displayToast(getString(R.string.sentence_login_expired))
             }
-        }
-    }
-
-    /**
-     * 安全導航，避免發生錯誤
-     *
-     * @param destinationId 目的地 ID
-     * @param navOptions 導航選項
-     */
-    private fun safeNavigate(
-        @IdRes
-        destinationId: Int,
-        navOptions: NavOptions? = null,
-    ) {
-        try {
-            navController.navigate(destinationId, navOptions)
-        } catch (e: Exception) {
-            Timber.e(message = "safeNavigate", t = e)
-            FirebaseCrashlytics.getInstance().recordException(e)
         }
     }
 

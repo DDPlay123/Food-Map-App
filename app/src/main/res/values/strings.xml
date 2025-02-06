@@ -8,6 +8,8 @@
     <string name="word_password">密碼</string>
     <string name="word_confirm">確認</string>
     <string name="word_cancel">取消</string>
+    <string name="word_other">其他</string>
+    <string name="word_logout">登出</string>
 
     <string name="sentence_unknown_eating">不知道要吃甚麼嗎？</string>
     <string name="sentence_next_step">下一步</string>
@@ -22,6 +24,16 @@
     <string name="sentence_loading">載入中\.\.\.</string>
     <string name="sentence_new_user">新使用者</string>
     <string name="sentence_register_prompt">找不到使用者名稱，是否要為您進行註冊？！</string>
+    <string name="sentence_personal_data">個人資料</string>
+    <string name="sentence_themes_settings">外觀設定</string>
+    <string name="sentence_themes_topic">外觀主題</string>
+    <string name="sentence_display_language">顯示語言</string>
+    <string name="sentence_user_settings">使用者設定</string>
+    <string name="sentence_black_list">黑名單列表</string>
+    <string name="sentence_reset_password">重設密碼</string>
+    <string name="sentence_delete_account">刪除帳號</string>
+    <string name="sentence_terms_of_service">服務條款</string>
+    <string name="sentence_application_version">應用程式版本</string>
 
     <string name="rule_username_empty">使用者名稱不能為空</string>
     <string name="rule_username_length">使用者名稱至少要 4 位數</string>

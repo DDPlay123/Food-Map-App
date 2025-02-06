@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--  CircleImageView  -->
+    <declare-styleable name="CircleImageView">
+        <attr name="circleImageStrokeColor" format="color" />
+        <attr name="circleImageStrokeWidth" format="dimension" />
+        <attr name="circleImageCenterText" format="string" />
+    </declare-styleable>
+</resources>
