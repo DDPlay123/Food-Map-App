@@ -1,11 +1,14 @@
 package mai.project.foodmap.features.auth_features.authScreen
 
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import mai.project.core.extensions.displayToast
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.onClick
+import mai.project.core.extensions.parcelable
 import mai.project.core.utils.Event
+import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
 import mai.project.foodmap.data.annotations.StatusCode
 import mai.project.foodmap.databinding.FragmentAuthBinding
@@ -13,6 +16,7 @@ import mai.project.foodmap.domain.models.EmptyNetworkResult
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.state.ValidationResult
 import mai.project.foodmap.domain.utils.handleResult
+import mai.project.foodmap.features.dialogs_features.prompt.PromptCallback
 
 @AndroidEntryPoint
 class AuthFragment : BaseFragment<FragmentAuthBinding, AuthViewModel>(
@@ -24,8 +28,6 @@ class AuthFragment : BaseFragment<FragmentAuthBinding, AuthViewModel>(
 
     override fun FragmentAuthBinding.setObserver() = with(viewModel) {
         launchAndRepeatStarted(
-            // Loading 狀態
-            { isLoading.collect { navigateLoadingDialog(it, false) } },
             // 輸入結果驗證
             { authValidation.collect(::handleAuthValidation) },
             // 登入狀態
@@ -42,6 +44,18 @@ class AuthFragment : BaseFragment<FragmentAuthBinding, AuthViewModel>(
                 edPassword.text?.trim().toString(),
                 checkbox.isChecked
             )
+        }
+    }
+
+    override fun FragmentAuthBinding.setCallback() {
+        setFragmentResultListener(REQUEST_CODE_REGISTER_HINT) { _, bundle ->
+            bundle.parcelable<PromptCallback>(PromptCallback.ARG_CONFIRM)?.let {
+                viewModel.register(
+                    edUsername.text?.trim().toString(),
+                    edPassword.text?.trim().toString(),
+                    checkbox.isChecked
+                )
+            }
         }
     }
 
@@ -63,13 +77,13 @@ class AuthFragment : BaseFragment<FragmentAuthBinding, AuthViewModel>(
      */
     private fun handleLoginAndRegisterResult(
         event: Event<NetworkResult<EmptyNetworkResult>>
-    ) = with(viewModel) {
+    ) {
         event.getContentIfNotHandled?.handleResult {
-            onLoading = { setLoading(true) }
-            onSuccess = { setLoading(false) }
+            onLoading = { navigateLoadingDialog(isOpen = true, cancelable = false) }
+            onSuccess = { navigateLoadingDialog(isOpen = false) }
             onError = { data, msg ->
-                setLoading(false)
-                data?.status?.let { handleLoginAndRegisterError(it, msg ?: "Unknown Error") }
+                navigateLoadingDialog(isOpen = false)
+                handleLoginAndRegisterError(data?.status, msg ?: "Unknown Error")
             }
         }
     }
@@ -78,15 +92,28 @@ class AuthFragment : BaseFragment<FragmentAuthBinding, AuthViewModel>(
      * 處理登入或註冊失敗
      */
     private fun handleLoginAndRegisterError(
-        @StatusCode statusCode: Int,
+        @StatusCode statusCode: Int?,
         errMsg: String
     ) {
         when (statusCode) {
             StatusCode.ACCOUNT_NOT_EXIST -> {
-                // TODO 詢問是否註冊帳號
+                navigatePromptDialog(
+                    requestCode = REQUEST_CODE_REGISTER_HINT,
+                    title = getString(R.string.sentence_new_user),
+                    message = getString(R.string.sentence_register_prompt),
+                    confirmText = getString(R.string.word_confirm),
+                    cancelText = getString(R.string.word_cancel)
+                )
             }
 
             else -> displayToast(errMsg)
         }
+    }
+
+    companion object {
+        /**
+         * 提示是否要註冊帳號的 Dialog
+         */
+        private const val REQUEST_CODE_REGISTER_HINT = "REQUEST_CODE_REGISTER_HINT"
     }
 }

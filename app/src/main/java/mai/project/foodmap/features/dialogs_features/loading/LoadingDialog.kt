@@ -1,4 +1,4 @@
-package mai.project.foodmap.features.dialogs_features
+package mai.project.foodmap.features.dialogs_features.loading
 
 import android.os.Bundle
 import androidx.navigation.fragment.navArgs

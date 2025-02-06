@@ -11,4 +11,5 @@
 
     <color name="text_primary">#FFFFFF</color>
     <color name="text_hint">#CCCCCC</color>
+    <color name="text_button">@color/primary</color>
 </resources>

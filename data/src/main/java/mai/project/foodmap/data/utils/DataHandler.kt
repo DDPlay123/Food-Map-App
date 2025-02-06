@@ -45,6 +45,8 @@ internal fun <T> handleAPIResponse(
             response.isSuccessful -> {
                 val body = response.body()
                 when {
+                    body == null -> NetworkResult.Error(message = "Unknown Error")
+
                     body is BaseResponse && body.status == StatusCode.SUCCESS ->
                         NetworkResult.Success(body)
 
@@ -59,8 +61,14 @@ internal fun <T> handleAPIResponse(
             }
 
             else -> {
-                Timber.e(message = response.message())
-                NetworkResult.Error(response.message())
+                // 處理 HTTP 錯誤代碼
+                val errorMessage = when (response.code()) {
+                    in 400..499 -> "Client Error ${response.code()}: ${response.message()}"
+                    in 500..599 -> "Server Error ${response.code()}: ${response.message()}"
+                    else -> "Unexpected Error ${response.code()}: ${response.message()}"
+                }
+                Timber.e("API Error: $errorMessage")
+                NetworkResult.Error(errorMessage)
             }
         }
     } catch (e: Exception) {

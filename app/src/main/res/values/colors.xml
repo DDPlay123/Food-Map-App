@@ -13,4 +13,5 @@
 
     <color name="text_primary">#000000</color>
     <color name="text_hint">#666666</color>
+    <color name="text_button">#A51D39</color>
 </resources>

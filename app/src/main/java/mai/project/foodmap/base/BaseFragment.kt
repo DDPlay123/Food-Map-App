@@ -27,7 +27,8 @@ import mai.project.foodmap.R
 import mai.project.foodmap.data.remoteDataSource.models.BaseResponse
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.utils.handleResult
-import mai.project.foodmap.features.dialogs_features.LoadingDialogDirections
+import mai.project.foodmap.features.dialogs_features.loading.LoadingDialogDirections
+import mai.project.foodmap.features.dialogs_features.prompt.PromptDialogDirections
 import timber.log.Timber
 
 /**
@@ -127,11 +128,38 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
             // 關閉 LoadingDialog
             !isOpen && currentDestId == R.id.loadingDialog -> {
                 // 退回上一層
-                navController.popBackStack()
+                navController.navigateUp()
             }
 
             else -> Unit
         }
+    }
+
+    /**
+     * 開啟 Prompt Dialog
+     *
+     * @param requestCode 請求碼
+     * @param title 標題
+     * @param message 內文
+     * @param confirmText 確認按鈕 (不顯示則為 Null)
+     * @param cancelText 取消按鈕 (不顯示則為 Null)
+     */
+    fun navigatePromptDialog(
+        requestCode: String,
+        title: String,
+        message: String,
+        confirmText: String? = null,
+        cancelText: String? = null
+    ) {
+        navigate(
+            PromptDialogDirections.actionGlobalToPromptDialog(
+                requestCode = requestCode,
+                title = title,
+                message = message,
+                confirmText = confirmText,
+                cancelText = cancelText
+            )
+        )
     }
     // endregion
 

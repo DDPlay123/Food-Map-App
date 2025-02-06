@@ -77,16 +77,16 @@
         android:label="fragment_profiles_tab"
         tools:layout="@layout/fragment_profiles_tab" />
 
-    <!--  全域呼叫 BottomSheetMenu  -->
+    <!--  全域呼叫 載入 Dialog  -->
     <action
         android:id="@+id/action_global_to_loadingDialog"
         app:destination="@id/loadingDialog"
         app:launchSingleTop="true" />
 
-    <!--  Dialog：載入中...  -->
+    <!--  Dialog：載入 Dialog...  -->
     <dialog
         android:id="@+id/loadingDialog"
-        android:name="mai.project.foodmap.features.dialogs_features.LoadingDialog"
+        android:name="mai.project.foodmap.features.dialogs_features.loading.LoadingDialog"
         android:label="dialog_loading"
         tools:layout="@layout/dialog_loading">
         <!--    是否可以點擊關閉 Dialog    -->
@@ -94,6 +94,43 @@
             android:name="cancelable"
             android:defaultValue="true"
             app:argType="boolean" />
+    </dialog>
+
+    <!--  全域呼叫 載入 Dialog  -->
+    <action
+        android:id="@+id/action_global_to_promptDialog"
+        app:destination="@id/promptDialog"
+        app:launchSingleTop="true" />
+
+    <!--  Dialog：載入 Dialog...  -->
+    <dialog
+        android:id="@+id/promptDialog"
+        android:name="mai.project.foodmap.features.dialogs_features.prompt.PromptDialog"
+        android:label="dialog_prompt"
+        tools:layout="@layout/dialog_prompt">
+        <!--    請求碼    -->
+        <argument
+            android:name="requestCode"
+            android:defaultValue=""
+            app:argType="string" />
+        <!--    標題    -->
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <!--    內文    -->
+        <argument
+            android:name="message"
+            app:argType="string" />
+        <!--    確認按鈕    -->
+        <argument
+            android:name="confirmText"
+            app:argType="string"
+            app:nullable="true" />
+        <!--    取消按鈕    -->
+        <argument
+            android:name="cancelText"
+            app:argType="string"
+            app:nullable="true" />
     </dialog>
 
 </navigation>
