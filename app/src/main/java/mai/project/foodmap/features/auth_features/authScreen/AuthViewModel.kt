@@ -21,7 +21,7 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
     override val contextProvider: CoroutineContextProvider,
     private val userRepo: UserRepo,
-    private val preferenceRepo: PreferenceRepo
+    preferenceRepo: PreferenceRepo
 ) : BaseViewModel(contextProvider) {
 
     val savedUsername = preferenceRepo.readUsername

@@ -8,7 +8,7 @@ import javax.inject.Singleton
 interface UserRepo {
 
     /**
-     * 登入
+     * 登入帳號
      *
      * @param username 使用者名稱
      * @param password 密碼
@@ -33,5 +33,41 @@ interface UserRepo {
         isRemember: Boolean,
     ): NetworkResult<EmptyNetworkResult>
 
+    /**
+     * 登出帳號
+     */
     suspend fun logout(): NetworkResult<EmptyNetworkResult>
+
+    /**
+     * 刪除帳號
+     */
+    suspend fun deleteAccount(): NetworkResult<EmptyNetworkResult>
+
+    /**
+     * 新增 FCM token 至 Server
+     */
+    suspend fun addFcmToken(): NetworkResult<EmptyNetworkResult>
+
+    /**
+     * 重設密碼
+     *
+     * @param password 密碼
+     */
+    suspend fun setPassword(
+        password: String
+    ): NetworkResult<EmptyNetworkResult>
+
+    /**
+     * 設定大頭貼
+     *
+     * @param userImage 大頭貼
+     */
+    suspend fun setUserImage(
+        userImage: String
+    ): NetworkResult<EmptyNetworkResult>
+
+    /**
+     * 取得大頭貼
+     */
+    suspend fun getUserImage(): NetworkResult<EmptyNetworkResult>
 }

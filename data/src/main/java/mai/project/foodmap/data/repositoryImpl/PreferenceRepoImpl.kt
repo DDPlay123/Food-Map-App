@@ -58,12 +58,12 @@ internal class PreferenceRepoImpl @Inject constructor(
     override val readPassword: String
         get() = sharedPreferences.getString(PREF_PASSWORD, "").orEmpty()
 
-    override suspend fun writeFcmToken(fcmToken: String) {
-        dataStore.putData(PREF_FCM_TOKEN, fcmToken)
+    override suspend fun writeUserImage(userImage: String) {
+        dataStore.putData(PREF_USER_IMAGE, userImage)
     }
 
-    override val readFcmToken: Flow<String>
-        get() = dataStore.getData(PREF_FCM_TOKEN, "")
+    override val readUserImage: Flow<String>
+        get() = dataStore.getData(PREF_USER_IMAGE, "")
 
     private companion object {
         const val PREF_FID = "PREF_FID"
@@ -71,6 +71,6 @@ internal class PreferenceRepoImpl @Inject constructor(
         const val PREF_ACCESS_KEY = "PREF_ACCESS_KEY"
         const val PREF_USERNAME = "PREF_USERNAME"
         const val PREF_PASSWORD = "PREF_PASSWORD"
-        const val PREF_FCM_TOKEN = "PREF_FCM_TOKEN"
+        const val PREF_USER_IMAGE = "PREF_USER_IMAGE"
     }
 }

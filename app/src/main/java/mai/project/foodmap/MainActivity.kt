@@ -15,6 +15,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 import mai.project.core.extensions.displayToast
 import mai.project.core.extensions.launchAndRepeatStarted
@@ -97,8 +98,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
      */
     private fun setBackPress() {
         onBackPressedDispatcher.addCallback(
-            this,
-            object : OnBackPressedCallback(true) {
+            this, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     if (backPressedTime + 3000 > System.currentTimeMillis()) {
                         finish()
@@ -131,7 +131,11 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
             // 是否已登入
             { isLogin.collect(::handleIsLoginState) },
             // 如果 AccessKey 發生錯誤，則強制登出
-            { GlobalEvent.accessKeyIllegal.collect(::handleAccessKeyIllegalState) }
+            { GlobalEvent.accessKeyIllegal.collect(::handleAccessKeyIllegalState) },
+            // 新增 FCM Token 狀態
+            { addFcmTokenResult.collect() },
+            // 取得 使用者大頭貼 狀態
+            { getUserImageResult.collect() },
         )
     }
 
@@ -148,6 +152,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
             .setPopExitAnim(R.anim.fade_out)
 
         if (isLogin) {
+            viewModel.addFcmToken()
+            viewModel.getUserImage()
             safeNavigate(
                 NavMainDirections.actionGlobalToHomeTabFragment(),
                 navOptions.setPopUpTo(R.id.nav_main, true).build()

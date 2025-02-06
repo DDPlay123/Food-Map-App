@@ -42,8 +42,8 @@ interface PreferenceRepo {
     val readPassword: String
 
     /**
-     * 寫入/讀取 FCM Token
+     * 寫入/讀取 大頭貼
      */
-    suspend fun writeFcmToken(fcmToken: String)
-    val readFcmToken: Flow<String>
+    suspend fun writeUserImage(userImage: String)
+    val readUserImage: Flow<String>
 }
