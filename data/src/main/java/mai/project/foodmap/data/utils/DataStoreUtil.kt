@@ -78,11 +78,15 @@ internal object DataStoreUtil {
                 String::class -> {
                     val text = it[stringPreferencesKey(key)]
                     if (text == null) {
-                        // 如果解密失敗就清空資料
                         Timber.e(message = "key：$key\nDataStore String is Null. So return default value.")
                         return@map default
                     }
-                    AES.decrypt(base64EncodedCipherText = text) as T
+                    val decodeText = AES.decrypt(base64EncodedCipherText = text)
+                    if (decodeText == null) {
+                        Timber.e(message = "key: $key\nDataStore String decrypt fail. So return default value.")
+                        return@map default
+                    }
+                    decodeText as T
                 }
 
                 Boolean::class -> (it[booleanPreferencesKey(key)] ?: default) as T
