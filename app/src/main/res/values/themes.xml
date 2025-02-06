@@ -7,6 +7,14 @@
 
     <style name="Theme.美食地圖" parent="Base.Theme.美食地圖" />
 
+    <style name="bottomNavigationView.ActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@android:color/transparent</item>
+    </style>
+
+    <style name="sideNavigationView.ActiveIndicator" parent="Widget.Material3.NavigationRailView.ActiveIndicator">
+        <item name="android:color">@android:color/transparent</item>
+    </style>
+
     <style name="primaryButton" parent="ThemeOverlay.Material3.Button">
         <item name="android:backgroundTint">@color/primary</item>
         <item name="cornerRadius">12dp</item>

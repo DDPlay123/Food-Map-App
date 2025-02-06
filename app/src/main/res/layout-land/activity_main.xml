@@ -25,6 +25,7 @@
         android:layout_height="0dp"
         android:background="@color/background_navigation_view"
         android:visibility="gone"
+        app:itemActiveIndicatorStyle="@style/sideNavigationView.ActiveIndicator"
         app:itemIconTint="@drawable/selector_icon_navigation_view"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
