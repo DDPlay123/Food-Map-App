@@ -1,5 +1,6 @@
 package mai.project.foodmap.features.auth_features.authScreen
 
+import android.os.Bundle
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,6 +26,12 @@ class AuthFragment : BaseFragment<FragmentAuthBinding, AuthViewModel>(
     override val viewModel by viewModels<AuthViewModel>()
 
     override val useKeyboardListener: Boolean = true
+
+    override fun FragmentAuthBinding.initialize(savedInstanceState: Bundle?) {
+        edUsername.setText(viewModel.savedUsername)
+        edPassword.setText(viewModel.savedPassword)
+        checkbox.isChecked = viewModel.savedUsername.isNotEmpty() && viewModel.savedPassword.isNotEmpty()
+    }
 
     override fun FragmentAuthBinding.setObserver() = with(viewModel) {
         launchAndRepeatStarted(

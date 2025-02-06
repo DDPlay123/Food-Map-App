@@ -19,6 +19,7 @@ swiperefreshlayout = "1.1.0"
 navigation = "2.8.6"
 room = "2.6.1"
 datastore = "1.1.2"
+security_crypto = "1.1.0-alpha06"
 lifecycle = "2.8.7"
 paging = "3.3.5"
 borwser = "1.8.0"
@@ -70,6 +71,9 @@ room-testing = { group = "androidx.room", name = "room-testing", version.ref = "
 
 # DataStore (https://developer.android.com/topic/libraries/architecture/datastore)
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+
+# Security Crypto (https://developer.android.com/jetpack/androidx/releases/security?hl=zh-tw)
+security-crypto = { module = "androidx.security:security-crypto-ktx", version.ref = "security_crypto" }
 
 # Lifecycle (https://developer.android.com/jetpack/androidx/releases/lifecycle?hl=zh-tw#declaring_dependencies)
 lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }

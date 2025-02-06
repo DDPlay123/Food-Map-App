@@ -43,6 +43,7 @@ dependencies {
     // Android X
     implementation(libs.bundles.room)
     implementation(libs.datastore.preferences)
+    implementation(libs.security.crypto)
 
     // ksp
     ksp(libs.hilt.android.compiler)

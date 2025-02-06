@@ -44,10 +44,10 @@ internal class UserRepoImpl @Inject constructor(
         )
 
         result.data?.result?.run {
-            preferenceRepo.writeUserId(userId)
-            preferenceRepo.writeAccessKey(accessKey)
             preferenceRepo.writeUsername(if (isRemember) username else "")
             preferenceRepo.writePassword(if (isRemember) password else "")
+            preferenceRepo.writeAccessKey(accessKey)
+            preferenceRepo.writeUserId(userId)
         }
 
         return result.mapToEmptyNetworkResult()
@@ -75,10 +75,10 @@ internal class UserRepoImpl @Inject constructor(
         )
 
         result.data?.result?.run {
-            preferenceRepo.writeUserId(userId)
-            preferenceRepo.writeAccessKey(accessKey)
             preferenceRepo.writeUsername(if (isRemember) username else "")
             preferenceRepo.writePassword(if (isRemember) password else "")
+            preferenceRepo.writeAccessKey(accessKey)
+            preferenceRepo.writeUserId(userId)
         }
 
         return result.mapToEmptyNetworkResult()

@@ -11,6 +11,7 @@ import mai.project.core.utils.Event
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseViewModel
 import mai.project.foodmap.domain.models.EmptyNetworkResult
+import mai.project.foodmap.domain.repository.PreferenceRepo
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.repository.UserRepo
 import mai.project.foodmap.domain.state.ValidationResult
@@ -20,7 +21,11 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
     override val contextProvider: CoroutineContextProvider,
     private val userRepo: UserRepo,
+    private val preferenceRepo: PreferenceRepo
 ) : BaseViewModel(contextProvider) {
+
+    val savedUsername = preferenceRepo.readUsername
+    val savedPassword = preferenceRepo.readPassword
 
     // region State
     /**

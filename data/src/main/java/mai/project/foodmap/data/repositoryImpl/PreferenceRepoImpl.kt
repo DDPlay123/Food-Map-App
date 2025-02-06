@@ -1,6 +1,7 @@
 package mai.project.foodmap.data.repositoryImpl
 
 import android.content.Context
+import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import mai.project.foodmap.data.utils.DataStoreUtil.clearAll
@@ -13,6 +14,7 @@ import javax.inject.Inject
 internal class PreferenceRepoImpl @Inject constructor(
     @ApplicationContext
     private val context: Context,
+    private val sharedPreferences: SharedPreferences
 ) : PreferenceRepo {
 
     private val dataStore = context.dataStore
@@ -42,19 +44,19 @@ internal class PreferenceRepoImpl @Inject constructor(
     override val readAccessKey: Flow<String>
         get() = dataStore.getData(PREF_ACCESS_KEY, "")
 
-    override suspend fun writeUsername(username: String) {
-        dataStore.putData(PREF_USERNAME, username)
+    override fun writeUsername(username: String) {
+        sharedPreferences.edit().putString(PREF_USERNAME, username).apply()
     }
 
-    override val readUsername: Flow<String>
-        get() = dataStore.getData(PREF_USERNAME, "")
+    override val readUsername: String
+        get() = sharedPreferences.getString(PREF_USERNAME, "").orEmpty()
 
-    override suspend fun writePassword(password: String) {
-        dataStore.putData(PREF_PASSWORD, password)
+    override fun writePassword(password: String) {
+        sharedPreferences.edit().putString(PREF_PASSWORD, password).apply()
     }
 
-    override val readPassword: Flow<String>
-        get() = dataStore.getData(PREF_PASSWORD, "")
+    override val readPassword: String
+        get() = sharedPreferences.getString(PREF_PASSWORD, "").orEmpty()
 
     override suspend fun writeFcmToken(fcmToken: String) {
         dataStore.putData(PREF_FCM_TOKEN, fcmToken)
