@@ -32,8 +32,14 @@ interface PreferenceRepo {
     /**
      * 寫入/讀取 使用者名稱
      */
-    fun writeUsername(username: String)
-    val readUsername: String
+    suspend fun writeUsername(username: String)
+    val readUsername: Flow<String>
+
+    /**
+     * 寫入/讀取 使用者帳號
+     */
+    fun writeAccount(account: String)
+    val readAccount: String
 
     /**
      * 寫入/讀取 使用者密碼

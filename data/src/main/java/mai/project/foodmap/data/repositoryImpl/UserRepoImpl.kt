@@ -50,8 +50,9 @@ internal class UserRepoImpl @Inject constructor(
         )
 
         result.data?.result?.run {
-            preferenceRepo.writeUsername(if (isRemember) username else "")
+            preferenceRepo.writeAccount(if (isRemember) username else "")
             preferenceRepo.writePassword(if (isRemember) password else "")
+            preferenceRepo.writeUsername(username)
             preferenceRepo.writeAccessKey(accessKey)
             preferenceRepo.writeUserId(userId)
         }
@@ -81,8 +82,9 @@ internal class UserRepoImpl @Inject constructor(
         )
 
         result.data?.result?.run {
-            preferenceRepo.writeUsername(if (isRemember) username else "")
+            preferenceRepo.writeAccount(if (isRemember) username else "")
             preferenceRepo.writePassword(if (isRemember) password else "")
+            preferenceRepo.writeUsername(username)
             preferenceRepo.writeAccessKey(accessKey)
             preferenceRepo.writeUserId(userId)
         }
@@ -127,7 +129,7 @@ internal class UserRepoImpl @Inject constructor(
 
         if (result is NetworkResult.Success) {
             // 清空系統資料 (含已儲存的帳密)
-            preferenceRepo.writeUsername("")
+            preferenceRepo.writeAccount("")
             preferenceRepo.writePassword("")
             preferenceRepo.clearAll()
         }

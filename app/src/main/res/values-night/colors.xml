@@ -10,6 +10,8 @@
     <color name="icon_navigation_view_selected">@color/primary</color>
     <color name="icon_navigation_view_unselected">#FFFFFF</color>
 
+    <color name="stroke_avatar">#FFFFFF</color>
+
     <color name="text_primary">#FFFFFF</color>
     <color name="text_hint">#CCCCCC</color>
     <color name="text_button">@color/primary</color>

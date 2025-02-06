@@ -28,9 +28,9 @@ class AuthFragment : BaseFragment<FragmentAuthBinding, AuthViewModel>(
     override val useKeyboardListener: Boolean = true
 
     override fun FragmentAuthBinding.initialize(savedInstanceState: Bundle?) {
-        edUsername.setText(viewModel.savedUsername)
+        edUsername.setText(viewModel.savedAccount)
         edPassword.setText(viewModel.savedPassword)
-        checkbox.isChecked = viewModel.savedUsername.isNotEmpty() && viewModel.savedPassword.isNotEmpty()
+        checkbox.isChecked = viewModel.savedAccount.isNotEmpty() && viewModel.savedPassword.isNotEmpty()
     }
 
     override fun FragmentAuthBinding.setObserver() = with(viewModel) {

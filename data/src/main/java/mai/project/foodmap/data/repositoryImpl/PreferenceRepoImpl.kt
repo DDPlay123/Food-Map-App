@@ -44,12 +44,19 @@ internal class PreferenceRepoImpl @Inject constructor(
     override val readAccessKey: Flow<String>
         get() = dataStore.getData(PREF_ACCESS_KEY, "")
 
-    override fun writeUsername(username: String) {
-        sharedPreferences.edit().putString(PREF_USERNAME, username).apply()
+    override suspend fun writeUsername(username: String) {
+        dataStore.putData(PREF_USERNAME, username)
     }
 
-    override val readUsername: String
-        get() = sharedPreferences.getString(PREF_USERNAME, "").orEmpty()
+    override val readUsername: Flow<String>
+        get() = dataStore.getData(PREF_USERNAME, "")
+
+    override fun writeAccount(account: String) {
+        sharedPreferences.edit().putString(PREF_ACCOUNT, account).apply()
+    }
+
+    override val readAccount: String
+        get() = sharedPreferences.getString(PREF_ACCOUNT, "").orEmpty()
 
     override fun writePassword(password: String) {
         sharedPreferences.edit().putString(PREF_PASSWORD, password).apply()
@@ -70,6 +77,7 @@ internal class PreferenceRepoImpl @Inject constructor(
         const val PREF_USER_ID = "PREF_USER_ID"
         const val PREF_ACCESS_KEY = "PREF_ACCESS_KEY"
         const val PREF_USERNAME = "PREF_USERNAME"
+        const val PREF_ACCOUNT = "PREF_ACCOUNT"
         const val PREF_PASSWORD = "PREF_PASSWORD"
         const val PREF_USER_IMAGE = "PREF_USER_IMAGE"
     }

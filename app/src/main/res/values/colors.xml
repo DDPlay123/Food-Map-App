@@ -12,6 +12,8 @@
     <color name="icon_navigation_view_selected">@color/primary</color>
     <color name="icon_navigation_view_unselected">#33405F</color>
 
+    <color name="stroke_avatar">#33405F</color>
+
     <color name="text_primary">#000000</color>
     <color name="text_hint">#666666</color>
     <color name="text_button">#A51D39</color>

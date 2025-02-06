@@ -24,7 +24,7 @@ class AuthViewModel @Inject constructor(
     preferenceRepo: PreferenceRepo
 ) : BaseViewModel(contextProvider) {
 
-    val savedUsername = preferenceRepo.readUsername
+    val savedAccount = preferenceRepo.readAccount
     val savedPassword = preferenceRepo.readPassword
 
     // region State
