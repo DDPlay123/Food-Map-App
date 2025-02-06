@@ -1,6 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nav_main">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_main"
+    app:startDestination="@id/introductionFragment">
+
+    <!--  全域呼叫 前往介紹頁  -->
+    <action
+        android:id="@+id/action_global_to_introductionFragment"
+        app:destination="@id/introductionFragment"
+        app:enterAnim="@anim/fade_in"
+        app:exitAnim="@anim/fade_out"
+        app:popEnterAnim="@anim/fade_in"
+        app:popExitAnim="@anim/fade_out" />
+
+    <!--  介紹頁  -->
+    <fragment
+        android:id="@+id/introductionFragment"
+        android:name="mai.project.foodmap.features.auth_features.introductionScreen.IntroductionFragment"
+        android:label="fragment_introduction"
+        tools:layout="@layout/fragment_introduction">
+        <argument
+            android:name="isInitialize"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_introductionFragment_to_authFragment"
+            app:destination="@id/authFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <!--  登入/註冊頁  -->
+    <fragment
+        android:id="@+id/authFragment"
+        android:name="mai.project.foodmap.features.auth_features.authScreen.AuthFragment"
+        android:label="fragment_auth"
+        tools:layout="@layout/fragment_auth" />
+
+    <!--  全域呼叫 前往首頁  -->
+    <action
+        android:id="@+id/action_global_to_homeTabFragment"
+        app:destination="@id/homeTabFragment"
+        app:enterAnim="@anim/fade_in"
+        app:exitAnim="@anim/fade_out"
+        app:popEnterAnim="@anim/fade_in"
+        app:popExitAnim="@anim/fade_out" />
+
+    <!--  首頁  -->
+    <fragment
+        android:id="@+id/homeTabFragment"
+        android:name="mai.project.foodmap.features.home_features.homeTabScreen.HomeTabFragment"
+        android:label="fragment_home_tab"
+        tools:layout="@layout/fragment_home_tab" />
+
+    <!--  地圖  -->
+    <fragment
+        android:id="@+id/mapTabFragment"
+        android:name="mai.project.foodmap.features.home_features.mapTabScreen.MapTabFragment"
+        android:label="fragment_map_tab"
+        tools:layout="@layout/fragment_map_tab" />
+
+    <!--  最愛  -->
+    <fragment
+        android:id="@+id/favoriteTabFragment"
+        android:name="mai.project.foodmap.features.home_features.favoriteTabScreen.FavoriteTabFragment"
+        android:label="fragment_favorite_tab"
+        tools:layout="@layout/fragment_favorite_tab" />
+
+    <!--  檔案  -->
+    <fragment
+        android:id="@+id/profilesTabFragment"
+        android:name="mai.project.foodmap.features.home_features.profilesTabScreen.ProfilesTabFragment"
+        android:label="fragment_profiles_tab"
+        tools:layout="@layout/fragment_profiles_tab" />
+
+    <!--  全域呼叫 BottomSheetMenu  -->
+    <action
+        android:id="@+id/action_global_to_loadingDialog"
+        app:destination="@id/loadingDialog"
+        app:launchSingleTop="true" />
+
+    <!--  Dialog：載入中...  -->
+    <dialog
+        android:id="@+id/loadingDialog"
+        android:name="mai.project.foodmap.features.dialogs_features.LoadingDialog"
+        android:label="dialog_loading"
+        tools:layout="@layout/dialog_loading">
+        <!--    是否可以點擊關閉 Dialog    -->
+        <argument
+            android:name="cancelable"
+            android:defaultValue="true"
+            app:argType="boolean" />
+    </dialog>
 
 </navigation>

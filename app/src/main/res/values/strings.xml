@@ -15,6 +15,18 @@
     <string name="sentence_type_password_hint">輸入您的密碼</string>
     <string name="sentence_remember_me">記住我</string>
     <string name="sentence_login_and_register">登入/註冊</string>
+    <string name="sentence_again_to_exit">再按一次返回鍵離開</string>
+    <string name="sentence_login_expired">登入逾時，請重新登入</string>
+    <string name="sentence_loading">載入中\.\.\.</string>
+
+    <string name="rule_username_empty">使用者名稱不能為空</string>
+    <string name="rule_username_length">使用者名稱至少要 4 位數</string>
+    <string name="rule_username_limit">使用者名稱最多只能 16 位數</string>
+    <string name="rule_username_format">使用者名稱必須包含英文</string>
+
+    <string name="rule_password_empty">密碼不能為空</string>
+    <string name="rule_password_length">密碼至少要 6 位數</string>
+    <string name="rule_password_limit">密碼最多只能 30 位數</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

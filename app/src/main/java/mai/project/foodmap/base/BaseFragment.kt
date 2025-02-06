@@ -21,10 +21,34 @@ import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.fragment.findNavController
 import androidx.viewbinding.ViewBinding
+import mai.project.core.extensions.displayToast
+import mai.project.core.utils.Event
+import mai.project.foodmap.R
+import mai.project.foodmap.data.remoteDataSource.models.BaseResponse
+import mai.project.foodmap.domain.state.NetworkResult
+import mai.project.foodmap.domain.utils.handleResult
+import mai.project.foodmap.features.dialogs_features.LoadingDialogDirections
 import timber.log.Timber
 
 /**
  * 基礎 Fragment ，用於繼承
+ *
+ * example：
+ * ```
+ * // 無 ViewModel
+ * class SampleFragment : BaseFragment<FragmentSampleBinding, Nothing>(
+ *    bindingInflater = FragmentSampleBinding::inflate
+ * {
+ *    ... // 不用覆寫 viewModel
+ * }
+ *
+ * // 有 ViewModel
+ * class SampleFragment : BaseFragment<FragmentSampleBinding, SharedViewModel>(
+ *     bindingInflater = FragmentSampleBinding::inflate
+ * ) {
+ *     override val viewModel by activityViewModels<SharedViewModel>()
+ * }
+ * ```
  */
 abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
     private val bindingInflater: (LayoutInflater) -> VB
@@ -33,7 +57,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
     private var _binding: VB? = null
     protected val binding: VB get() = _binding!!
 
-    protected abstract val viewModel: VM
+    protected open val viewModel: VM? = null
 
     /**
      * 取得 NavController
@@ -60,6 +84,56 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
      * 返回鍵監聽器
      */
     private var onBackPressedCallback: OnBackPressedCallback? = null
+
+    // region public function
+    /**
+     * 處理 API 基礎回傳結果
+     *
+     * @param event API 回傳事件
+     */
+    protected fun <T> handleBasicResult(
+        event: Event<NetworkResult<T>>
+    ) {
+        event.getContentIfNotHandled?.handleResult {
+            onLoading = { viewModel?.setLoading(true) }
+            onSuccess = { viewModel?.setLoading(false) }
+            onError = { data, msg ->
+                viewModel?.setLoading(false)
+                if (data is BaseResponse) {
+                    requireContext().displayToast(msg ?: "Unknown Error")
+                }
+            }
+        }
+    }
+    // endregion public function
+
+    // region dialog
+    /**
+     * 開啟/關閉 Loading Dialog
+     *
+     * @param cancelable 是否可以點擊關閉 Dialog
+     */
+    fun navigateLoadingDialog(
+        isOpen: Boolean,
+        cancelable: Boolean = true
+    ) {
+        val currentDestId = navController.currentBackStackEntry?.destination?.id
+        when {
+            // 顯示 LoadingDialog (不重複導頁)
+            isOpen && currentDestId != R.id.loadingDialog -> {
+                navController.navigate(LoadingDialogDirections.actionGlobalToLoadingDialog(cancelable))
+            }
+
+            // 關閉 LoadingDialog
+            !isOpen && currentDestId == R.id.loadingDialog -> {
+                // 退回上一層
+                navController.popBackStack()
+            }
+
+            else -> Unit
+        }
+    }
+    // endregion
 
     override fun onCreateView(
         inflater: LayoutInflater,

@@ -2,6 +2,8 @@ package mai.project.foodmap.data.remoteDataSource
 
 import mai.project.foodmap.data.remoteDataSource.models.user.LoginReq
 import mai.project.foodmap.data.remoteDataSource.models.user.LoginRes
+import mai.project.foodmap.data.remoteDataSource.models.user.LogoutReq
+import mai.project.foodmap.data.remoteDataSource.models.user.LogoutRes
 import mai.project.foodmap.data.remoteDataSource.models.user.RegisterReq
 import mai.project.foodmap.data.remoteDataSource.models.user.RegisterRes
 import retrofit2.Response
@@ -23,5 +25,11 @@ internal interface APIService {
     suspend fun register(
         @Body body: RegisterReq
     ): Response<RegisterRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/logout")
+    suspend fun logout(
+        @Body body: LogoutReq
+    ): Response<LogoutRes>
     // endregion user
 }

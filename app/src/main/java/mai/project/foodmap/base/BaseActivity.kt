@@ -12,6 +12,23 @@ import timber.log.Timber
 
 /**
  * 基礎 Activity ，用於繼承
+ *
+ * example：
+ * ```
+ * // 無 ViewModel
+ * class MainActivity : BaseActivity<ActivityMainBinding, Nothing>(
+ *     bindingInflater = ActivityMainBinding::inflate
+ * ) {
+ *     ... // 不用覆寫 viewModel
+ * }
+ *
+ * // 有 ViewModel
+ * class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
+ *     bindingInflater = ActivityMainBinding::inflate
+ * ) {
+ *     override val viewModel by viewModels<SharedViewModel>()
+ * }
+ * ```
  */
 abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel>(
     private val bindingInflater: (LayoutInflater) -> VB
@@ -21,7 +38,7 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel>(
         bindingInflater.invoke(layoutInflater)
     }
 
-    protected abstract val viewModel: VM
+    protected open val viewModel: VM? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

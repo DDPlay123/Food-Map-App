@@ -19,6 +19,7 @@ android {
 
     defaultConfig {
         buildConfigField("String", "API_KEY", localProperties.getProperty("BASE_URL"))
+        buildConfigField("String", "AES_KEY", localProperties.getProperty("AES_KEY"))
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")

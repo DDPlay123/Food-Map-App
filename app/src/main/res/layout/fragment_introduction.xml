@@ -7,6 +7,29 @@
     android:background="@drawable/img_bg_blurry"
     tools:context=".features.auth_features.introductionScreen.IntroductionFragment">
 
+    <ProgressBar
+        android:id="@+id/pbCircular"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerInParent="true"
+        android:indeterminateTint="@color/primary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="100dp"
+        app:layout_constraintWidth_percent=".25"
+        tools:visibility="gone" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/groupUI"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="imgIcon,tvTitle,lottieView,tvContent,btnNext,lottieArrow"
+        tools:visibility="visible" />
+
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/imgIcon"
         android:layout_width="0dp"

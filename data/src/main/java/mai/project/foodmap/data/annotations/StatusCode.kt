@@ -14,7 +14,7 @@ import androidx.annotation.IntDef
 /**
  * API Response Status code (狀態碼)
  */
-internal annotation class StatusCode {
+annotation class StatusCode {
     companion object {
         /**
          * 未知錯誤

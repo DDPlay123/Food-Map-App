@@ -13,7 +13,7 @@ internal data class RegisterReq(
 @Serializable
 internal data class RegisterRes(
     override val status: Int,
-    override val errMsg: String?,
+    override val errMsg: String? = null,
     val result: Result? = null
 ) : BaseResponse() {
     @Serializable

@@ -32,6 +32,7 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     // Google Library
+    implementation(libs.material)
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.fragment)
 

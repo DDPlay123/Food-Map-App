@@ -5,7 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mai.project.foodmap.data.annotations.StatusCode
 import mai.project.foodmap.data.remoteDataSource.models.BaseResponse
-import mai.project.foodmap.domain.models.NetworkResult
+import mai.project.foodmap.domain.state.NetworkResult
 import retrofit2.Response
 import timber.log.Timber
 
@@ -23,16 +23,6 @@ internal suspend fun safeIoWorker(
             FirebaseCrashlytics.getInstance().recordException(e)
         }
     }
-}
-
-/**
- * 將 NetworkResult 結果 轉換為 Nothing
- */
-internal fun <T> NetworkResult<T>.mapToNothing(): NetworkResult<Nothing> = when (this) {
-    is NetworkResult.Success -> NetworkResult.Success(null)
-    is NetworkResult.Error -> NetworkResult.Error(message, null)
-    is NetworkResult.Loading -> NetworkResult.Loading()
-    is NetworkResult.Idle -> NetworkResult.Idle()
 }
 
 /**
@@ -57,6 +47,9 @@ internal fun <T> handleAPIResponse(
                 when {
                     body is BaseResponse && body.status == StatusCode.SUCCESS ->
                         NetworkResult.Success(body)
+
+                    body is BaseResponse && body.status == StatusCode.ACCESS_KEY_ERROR ->
+                        NetworkResult.AccessKeyIllegal()
 
                     body is BaseResponse && body.status != StatusCode.SUCCESS ->
                         NetworkResult.Error(message = body.errMsg ?: "Unknown Error", body)

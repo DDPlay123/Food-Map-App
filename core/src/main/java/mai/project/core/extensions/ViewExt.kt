@@ -1,6 +1,7 @@
 package mai.project.core.extensions
 
 import android.view.View
+import com.google.android.material.snackbar.Snackbar
 import mai.project.core.utils.SafeOnClickListener
 
 /**
@@ -72,4 +73,32 @@ fun List<View>.onLongClicks(
  */
 fun List<View>.clearLongClicks() {
     this.forEach { view -> view.setOnLongClickListener(null) }
+}
+
+/**
+ * 顯示 SnackBar
+ *
+ * @param message 訊息
+ * @param actionText 按鈕文字 (不顯示則為空字串)
+ * @param duration 顯示時間
+ * @param anchorView 顯示位置 (在[anchorView]之上)
+ * @param doSomething 點擊按鈕後要做的事情
+ */
+fun View.showSnackBar(
+    message: String,
+    actionText: String = "",
+    duration: Int = Snackbar.LENGTH_SHORT,
+    anchorView: View? = null,
+    doSomething: ((Snackbar) -> Unit)? = null
+) = with(Snackbar.make(this, message, duration)) {
+    if (actionText.isNotEmpty()) {
+        setAction(actionText) {
+            doSomething?.invoke(this)
+            dismiss()
+        }
+    }
+    setTextMaxLines(5)
+    this.anchorView = anchorView
+    animationMode = Snackbar.ANIMATION_MODE_FADE
+    show()
 }
