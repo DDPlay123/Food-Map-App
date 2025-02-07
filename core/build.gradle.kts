@@ -20,6 +20,11 @@ android {
     }
 
     kotlinOptions { jvmTarget = "17" }
+
+    buildFeatures {
+        buildConfig = true
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -39,4 +44,8 @@ dependencies {
     // Firebase Library
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
+
+    // 3rd Party Library
+    implementation(libs.timber)
+    implementation(libs.bundles.coil)
 }

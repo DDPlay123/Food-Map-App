@@ -24,7 +24,6 @@ import androidx.viewbinding.ViewBinding
 import mai.project.core.extensions.displayToast
 import mai.project.core.utils.Event
 import mai.project.foodmap.R
-import mai.project.foodmap.data.remoteDataSource.models.BaseResponse
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.utils.handleResult
 import mai.project.foodmap.features.dialogs_features.loading.LoadingDialogDirections
@@ -98,11 +97,9 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
         event.getContentIfNotHandled?.handleResult {
             onLoading = { viewModel?.setLoading(true) }
             onSuccess = { viewModel?.setLoading(false) }
-            onError = { data, msg ->
+            onError = { _, msg ->
                 viewModel?.setLoading(false)
-                if (data is BaseResponse) {
-                    requireContext().displayToast(msg ?: "Unknown Error")
-                }
+                requireContext().displayToast(msg ?: "Unknown Error")
             }
         }
     }

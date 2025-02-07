@@ -109,10 +109,8 @@ internal class UserRepoImpl @Inject constructor(
             )
         )
 
-        if (result is NetworkResult.Success) {
-            // 清空系統資料
-            preferenceRepo.clearAll()
-        }
+        // 清空系統資料
+        preferenceRepo.clearAll()
 
         return result.mapToEmptyNetworkResult()
     }

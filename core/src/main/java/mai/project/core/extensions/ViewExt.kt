@@ -1,6 +1,9 @@
 package mai.project.core.extensions
 
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import androidx.viewbinding.ViewBinding
 import com.google.android.material.snackbar.Snackbar
 import mai.project.core.utils.SafeOnClickListener
 
@@ -73,6 +76,19 @@ fun List<View>.onLongClicks(
  */
 fun List<View>.clearLongClicks() {
     this.forEach { view -> view.setOnLongClickListener(null) }
+}
+
+/**
+ * 生成 Adapter 的 ViewBinding
+ *
+ * @param attachToParent 是否附加到父視圖
+ */
+fun <VB : ViewBinding> ViewGroup.inflateBinding(
+    inflateMethod: (LayoutInflater, ViewGroup, Boolean) -> VB,
+    attachToParent: Boolean = false
+): VB {
+    val layoutInflater = LayoutInflater.from(context)
+    return inflateMethod(layoutInflater, this, attachToParent)
 }
 
 /**

@@ -1,12 +1,19 @@
 package mai.project.foodmap
 
 import android.app.Application
+import coil.ImageLoader
+import coil.ImageLoaderFactory
 import com.google.firebase.FirebaseApp
 import dagger.hilt.android.HiltAndroidApp
+import mai.project.core.utils.ImageLoaderUtil
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltAndroidApp
-class Application : Application() {
+class Application : Application(), ImageLoaderFactory {
+
+    @Inject
+    lateinit var imageLoaderUtil: ImageLoaderUtil
 
     override fun onCreate() {
         super.onCreate()
@@ -15,6 +22,8 @@ class Application : Application() {
         // 初始化 Firebase
         FirebaseApp.initializeApp(this)
     }
+
+    override fun newImageLoader(): ImageLoader = imageLoaderUtil.imageLoader
 
     /**
      * 設定 Debug 模式
