@@ -1,14 +1,19 @@
 package mai.project.foodmap.base
 
+import android.app.LocaleManager
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
+import androidx.core.view.WindowCompat
 import androidx.viewbinding.ViewBinding
 import mai.project.foodmap.MainActivity
+import mai.project.foodmap.data.annotations.LanguageMode
 import timber.log.Timber
+import java.util.Locale
 
 /**
  * 基礎 Activity ，用於繼承
@@ -42,6 +47,11 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel>(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // 修正在切換顯示模式時，無法進入 EdgeToEdge 問題
+        // reference：https://stackoverflow.com/a/79325812
+        if (savedInstanceState != null && Build.VERSION.SDK_INT >= 35) {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+        }
         enableEdgeToEdge()
         setContentView(binding.root)
         Timber.d(message = "${this::class.simpleName} onCreate")
@@ -85,6 +95,36 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel>(
 //            android.os.Process.killProcess(android.os.Process.myPid())
         }
         finish()
+    }
+
+    /**
+     * 設定語言
+     *
+     * @param languageMode 語言模式
+     */
+    protected fun setAppLanguage(@LanguageMode languageMode: String) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            // Android 13+ 使用 LocaleManager，無需重啟 Activity
+            getSystemService(LocaleManager::class.java)?.applicationLocales =
+                android.os.LocaleList.forLanguageTags(languageMode)
+        } else {
+            // Android 12 以下
+            updateResourcesLegacy(languageMode)
+            restartApplication()
+        }
+    }
+
+    /**
+     * 更新語言
+     *
+     * - Android 12 以下，需要手動更新並重啟系統
+     */
+    @Suppress("DEPRECATION")
+    private fun updateResourcesLegacy(@LanguageMode languageMode: String) {
+        val locale = if (languageMode == LanguageMode.SYSTEM) Locale.getDefault() else Locale.forLanguageTag(languageMode)
+        Locale.setDefault(locale)
+        resources.configuration.setLocale(locale)
+        resources.updateConfiguration(resources.configuration, resources.displayMetrics)
     }
 
     companion object {

@@ -102,7 +102,7 @@
         app:destination="@id/promptDialog"
         app:launchSingleTop="true" />
 
-    <!--  Dialog：載入 Dialog...  -->
+    <!--  Dialog：提示 Dialog...  -->
     <dialog
         android:id="@+id/promptDialog"
         android:name="mai.project.foodmap.features.dialogs_features.prompt.PromptDialog"
@@ -131,6 +131,29 @@
             android:name="cancelText"
             app:argType="string"
             app:nullable="true" />
+    </dialog>
+
+    <!--  全域呼叫 選擇 BottomSheetDialog  -->
+    <action
+        android:id="@+id/action_global_to_selectorBottomSheetDialog"
+        app:destination="@id/selectorBottomSheetDialog"
+        app:launchSingleTop="true" />
+
+    <!--  Dialog：選擇 BottomSheetDialog  -->
+    <dialog
+        android:id="@+id/selectorBottomSheetDialog"
+        android:name="mai.project.foodmap.features.dialogs_features.selector.SelectorBottomSheetDialog"
+        android:label="dialog_bottom_sheet_selector"
+        tools:layout="@layout/dialog_bottom_sheet_selector" >
+        <!--    請求碼    -->
+        <argument
+            android:name="requestCode"
+            android:defaultValue=""
+            app:argType="string" />
+        <!--    選擇項目    -->
+        <argument
+            android:name="items"
+            app:argType="mai.project.foodmap.features.dialogs_features.selector.SelectorModel[]" />
     </dialog>
 
 </navigation>

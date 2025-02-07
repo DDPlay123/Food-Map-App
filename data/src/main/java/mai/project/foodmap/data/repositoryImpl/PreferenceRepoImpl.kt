@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import mai.project.foodmap.data.annotations.LanguageMode
+import mai.project.foodmap.data.annotations.ThemeMode
 import mai.project.foodmap.data.utils.DataStoreUtil.clearAll
 import mai.project.foodmap.data.utils.DataStoreUtil.dataStore
 import mai.project.foodmap.data.utils.DataStoreUtil.getData
@@ -72,6 +74,20 @@ internal class PreferenceRepoImpl @Inject constructor(
     override val readUserImage: Flow<String>
         get() = dataStore.getData(PREF_USER_IMAGE, "")
 
+    override suspend fun writeThemeMode(@ThemeMode theme: Int) {
+        dataStore.putData(PREF_THEME_MODE, theme)
+    }
+
+    override val readThemeMode: Flow<Int>
+        get() = dataStore.getData(PREF_THEME_MODE, ThemeMode.SYSTEM)
+
+    override suspend fun writeLanguageMode(@LanguageMode language: String) {
+        dataStore.putData(PREF_LANGUAGE_MODE, language)
+    }
+
+    override val readLanguageMode: Flow<String>
+        get() = dataStore.getData(PREF_LANGUAGE_MODE, LanguageMode.SYSTEM)
+
     private companion object {
         const val PREF_FID = "PREF_FID"
         const val PREF_USER_ID = "PREF_USER_ID"
@@ -80,5 +96,7 @@ internal class PreferenceRepoImpl @Inject constructor(
         const val PREF_ACCOUNT = "PREF_ACCOUNT"
         const val PREF_PASSWORD = "PREF_PASSWORD"
         const val PREF_USER_IMAGE = "PREF_USER_IMAGE"
+        const val PREF_THEME_MODE = "PREF_THEME_MODE"
+        const val PREF_LANGUAGE_MODE = "PREF_LANGUAGE_MODE"
     }
 }

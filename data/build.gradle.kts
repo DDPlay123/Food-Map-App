@@ -41,6 +41,7 @@ dependencies {
     implementation(project(":domain"))
 
     // Android X
+    implementation(libs.androidx.appcompat)
     implementation(libs.bundles.room)
     implementation(libs.datastore.preferences)
     implementation(libs.security.crypto)

@@ -1,23 +1,27 @@
 package mai.project.foodmap.base
 
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.DialogFragment
+import android.widget.FrameLayout
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.viewbinding.ViewBinding
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import mai.project.foodmap.R
 import timber.log.Timber
 
 /**
- * 基礎 Dialog ，用於繼承
+ * 基礎 BottomSheetDialog ，用於繼承
  */
-abstract class BaseDialog<VB : ViewBinding, VM : BaseViewModel>(
+abstract class BaseBottomSheetDialog<VB : ViewBinding, VM : BaseViewModel>(
     private val bindingInflater: (LayoutInflater) -> VB
-) : DialogFragment() {
+) : BottomSheetDialogFragment() {
 
     private var _binding: VB? = null
     protected val binding: VB get() = _binding!!
@@ -30,20 +34,27 @@ abstract class BaseDialog<VB : ViewBinding, VM : BaseViewModel>(
     protected lateinit var navController: NavController
         private set
 
-    /**
-     * 是否使用全螢幕
-     */
-    protected open val useFullScreen: Boolean = false
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme).apply {
+            // 完全展開 BottomSheet
+            setOnShowListener { dialog ->
+                val bottomSheetDialog = dialog as BottomSheetDialog
+                bottomSheetDialog.findViewById<FrameLayout>(
+                    com.google.android.material.R.id.design_bottom_sheet
+                )?.also { fl ->
+                    BottomSheetBehavior.from(fl).state = BottomSheetBehavior.STATE_EXPANDED
+                }
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View {
         Timber.d(message = "${this::class.simpleName} onCreateView")
         _binding = bindingInflater.invoke(inflater)
-        // 設定背景透明
-        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         return binding.root
     }
 
@@ -51,13 +62,11 @@ abstract class BaseDialog<VB : ViewBinding, VM : BaseViewModel>(
         super.onViewCreated(view, savedInstanceState)
         Timber.d(message = "${this::class.simpleName} onViewCreated")
         navController = findNavController()
-        setFullScreenEnabled(useFullScreen)
 
         // Setup Basic Function
         binding.initialize(savedInstanceState)
         binding.setObserver()
         binding.setListener()
-        binding.setCallback()
     }
 
     override fun onStart() {
@@ -87,29 +96,7 @@ abstract class BaseDialog<VB : ViewBinding, VM : BaseViewModel>(
         Timber.d(message = "${this::class.simpleName} onDestroy")
     }
 
-    // region private function
-    /**
-     * 設定全螢幕
-     *
-     * @param enabled 是否全螢幕
-     */
-    private fun setFullScreenEnabled(enabled: Boolean) {
-        val window = dialog?.window
-        val params = window?.attributes
-
-        if (enabled) {
-            params?.width = ViewGroup.LayoutParams.MATCH_PARENT
-            params?.height = ViewGroup.LayoutParams.MATCH_PARENT
-        } else {
-            params?.width = ViewGroup.LayoutParams.WRAP_CONTENT
-            params?.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        }
-
-        window?.attributes = params
-    }
-    // endregion private function
-
-    // region open function
+    // region: open function
     /**
      * 初始化用的函式，可在此設定初始值。
      */
@@ -126,13 +113,8 @@ abstract class BaseDialog<VB : ViewBinding, VM : BaseViewModel>(
     open fun VB.setListener() {}
 
     /**
-     * 設定 Callback 用的函式，可在此設定 Callback。
-     */
-    open fun VB.setCallback() {}
-
-    /**
      * 銷毀用的函式，可在Fragment銷毀時，同時移除不需要的事件。
      */
     open fun VB.destroy() {}
-    // endregion open function
+    // endregion
 }

@@ -19,6 +19,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/nav_main" />
 
+    <View
+        android:layout_width="2dp"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_shadow_top"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/sideNavigation"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.google.android.material.navigationrail.NavigationRailView
         android:id="@+id/sideNavigation"
         android:layout_width="wrap_content"

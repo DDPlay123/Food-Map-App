@@ -52,4 +52,16 @@ interface PreferenceRepo {
      */
     suspend fun writeUserImage(userImage: String)
     val readUserImage: Flow<String>
+
+    /**
+     * 寫入/讀取 顯示模式
+     */
+    suspend fun writeThemeMode(theme: Int)
+    val readThemeMode: Flow<Int>
+
+    /**
+     * 寫入/讀取 語言模式
+     */
+    suspend fun writeLanguageMode(language: String)
+    val readLanguageMode: Flow<String>
 }

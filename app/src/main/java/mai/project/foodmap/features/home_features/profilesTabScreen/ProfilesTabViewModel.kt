@@ -14,6 +14,8 @@ import mai.project.core.utils.CoroutineContextProvider
 import mai.project.core.utils.Event
 import mai.project.core.utils.WhileSubscribedOrRetained
 import mai.project.foodmap.base.BaseViewModel
+import mai.project.foodmap.data.annotations.LanguageMode
+import mai.project.foodmap.data.annotations.ThemeMode
 import mai.project.foodmap.domain.models.EmptyNetworkResult
 import mai.project.foodmap.domain.repository.PreferenceRepo
 import mai.project.foodmap.domain.state.NetworkResult
@@ -23,7 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfilesTabViewModel @Inject constructor(
     override val contextProvider: CoroutineContextProvider,
-    preferenceRepo: PreferenceRepo,
+    private val preferenceRepo: PreferenceRepo,
     private val userRepo: UserRepo
 ) : BaseViewModel(contextProvider) {
 
@@ -45,6 +47,38 @@ class ProfilesTabViewModel @Inject constructor(
         .catch { emit("") }
         .flowOn(contextProvider.io)
         .stateIn(viewModelScope, WhileSubscribedOrRetained, "")
+
+    /**
+     * 顯示模式
+     */
+    var themeMode: StateFlow<Int> = preferenceRepo.readThemeMode
+        .distinctUntilChanged()
+        .catch { emit(ThemeMode.SYSTEM) }
+        .flowOn(contextProvider.io)
+        .stateIn(viewModelScope, WhileSubscribedOrRetained, ThemeMode.SYSTEM)
+
+    /**
+     * 語言模式
+     */
+    var languageMode: StateFlow<String> = preferenceRepo.readLanguageMode
+        .distinctUntilChanged()
+        .catch { emit(LanguageMode.SYSTEM) }
+        .flowOn(contextProvider.io)
+        .stateIn(viewModelScope, WhileSubscribedOrRetained, LanguageMode.SYSTEM)
+
+    /**
+     * 設定顯示模式
+     */
+    fun setThemeMode(@ThemeMode mode: Int) = launchCoroutineIO {
+        preferenceRepo.writeThemeMode(mode)
+    }
+
+    /**
+     * 設定語言模式
+     */
+    fun setLanguageMode(@LanguageMode mode: String) = launchCoroutineIO {
+        preferenceRepo.writeLanguageMode(mode)
+    }
     // endregion Preference State
 
     // region Network State

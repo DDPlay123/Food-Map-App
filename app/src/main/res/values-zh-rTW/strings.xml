@@ -1,6 +1,5 @@
 <resources>
-    <!--  TODO 翻譯為英文  -->
-    <string name="app_name">Food Map</string>
+    <string name="app_name">美食地圖</string>
 
     <string name="word_home">首頁</string>
     <string name="word_map">地圖</string>
@@ -48,13 +47,13 @@
     <string name="rule_password_limit">密碼最多只能 30 位數</string>
 
     <array name="theme_mode">
-        <item>System Default</item>
-        <item>Dark Mode</item>
-        <item>Light Mode</item>
+        <item>根據系統設定</item>
+        <item>深色模式</item>
+        <item>淺色模式</item>
     </array>
 
     <array name="language_mode">
-        <item>System Default</item>
+        <item>根據系統設定</item>
         <item>English</item>
         <item>繁體中文</item>
     </array>

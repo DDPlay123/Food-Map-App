@@ -107,9 +107,7 @@ class AuthFragment : BaseFragment<FragmentAuthBinding, AuthViewModel>(
                 navigatePromptDialog(
                     requestCode = REQUEST_CODE_REGISTER_HINT,
                     title = getString(R.string.sentence_new_user),
-                    message = getString(R.string.sentence_register_prompt),
-                    confirmText = getString(R.string.word_confirm),
-                    cancelText = getString(R.string.word_cancel)
+                    message = getString(R.string.sentence_register_prompt)
                 )
             }
 

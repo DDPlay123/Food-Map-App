@@ -15,6 +15,8 @@ import mai.project.core.utils.CoroutineContextProvider
 import mai.project.core.utils.Event
 import mai.project.core.utils.WhileSubscribedOrRetained
 import mai.project.foodmap.base.BaseViewModel
+import mai.project.foodmap.data.annotations.LanguageMode
+import mai.project.foodmap.data.annotations.ThemeMode
 import mai.project.foodmap.domain.models.EmptyNetworkResult
 import mai.project.foodmap.domain.repository.PreferenceRepo
 import mai.project.foodmap.domain.repository.UserRepo
@@ -36,6 +38,24 @@ class SharedViewModel @Inject constructor(
         .map { userId -> userId.isNotEmpty() }
         .distinctUntilChanged()
         .catch { emit(false) }
+        .flowOn(contextProvider.io)
+        .shareIn(viewModelScope, WhileSubscribedOrRetained, 0)
+
+    /**
+     * 顯示模式
+     */
+    val themeMode: SharedFlow<Int> = preferenceRepo.readThemeMode
+        .distinctUntilChanged()
+        .catch { emit(ThemeMode.SYSTEM) }
+        .flowOn(contextProvider.io)
+        .shareIn(viewModelScope, WhileSubscribedOrRetained, 0)
+
+    /**
+     * 語言模式
+     */
+    val languageMode: SharedFlow<String> = preferenceRepo.readLanguageMode
+        .distinctUntilChanged()
+        .catch { emit(LanguageMode.SYSTEM) }
         .flowOn(contextProvider.io)
         .shareIn(viewModelScope, WhileSubscribedOrRetained, 0)
     // endregion Preference State

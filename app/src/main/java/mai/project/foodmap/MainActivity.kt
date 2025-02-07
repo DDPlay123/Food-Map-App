@@ -3,9 +3,9 @@ package mai.project.foodmap
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.isVisible
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions
@@ -16,10 +16,10 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mai.project.core.extensions.displayToast
 import mai.project.core.extensions.launchAndRepeatStarted
+import mai.project.core.extensions.launchWithoutRepeat
 import mai.project.core.extensions.showSnackBar
 import mai.project.core.utils.Event
 import mai.project.foodmap.base.BaseActivity
@@ -128,8 +128,15 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
      * 設定觀察者
      */
     private fun setObserver() = with(viewModel) {
-        // 是否已登入 (不需要配合生命週期循環搜集)
-        lifecycleScope.launch { isLogin.collect(::handleIsLoginState) }
+        // 單次事件 (不需要配合生命週期循環搜集)
+        launchWithoutRepeat(
+            // 登入/登出 切換
+            { isLogin.collect(::handleIsLoginState) },
+            // 顯示模式 切換
+            { themeMode.collect(AppCompatDelegate::setDefaultNightMode) },
+            // 語言模式 切換
+            { languageMode.collect(::setAppLanguage) }
+        )
         // 其他事件
         launchAndRepeatStarted(
             // 如果 AccessKey 發生錯誤，則強制登出

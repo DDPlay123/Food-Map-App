@@ -28,6 +28,8 @@ import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.utils.handleResult
 import mai.project.foodmap.features.dialogs_features.loading.LoadingDialogDirections
 import mai.project.foodmap.features.dialogs_features.prompt.PromptDialogDirections
+import mai.project.foodmap.features.dialogs_features.selector.SelectorBottomSheetDialogDirections
+import mai.project.foodmap.features.dialogs_features.selector.SelectorModel
 import timber.log.Timber
 
 /**
@@ -145,8 +147,8 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
         requestCode: String,
         title: String,
         message: String,
-        confirmText: String? = null,
-        cancelText: String? = null
+        confirmText: String? = getString(R.string.word_confirm),
+        cancelText: String? = getString(R.string.word_cancel)
     ) {
         navigate(
             PromptDialogDirections.actionGlobalToPromptDialog(
@@ -155,6 +157,24 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
                 message = message,
                 confirmText = confirmText,
                 cancelText = cancelText
+            )
+        )
+    }
+
+    /**
+     * 開啟 Selector Dialog
+     *
+     * @param requestCode 請求碼
+     * @param items 選項
+     */
+    fun navigateSelectorDialog(
+        requestCode: String,
+        items: List<SelectorModel>
+    ) {
+        navigate(
+            SelectorBottomSheetDialogDirections.actionGlobalToSelectorBottomSheetDialog(
+                requestCode = requestCode,
+                items = items.toTypedArray()
             )
         )
     }

@@ -15,6 +15,17 @@
         <item name="android:color">@android:color/transparent</item>
     </style>
 
+    <style name="BottomSheetDialogTheme" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="android:navigationBarColor">@color/background_dialog</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:fitsSystemWindows">true</item>
+    </style>
+
+    <style name="TextAppearance.NavigationView" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:textSize">@dimen/text_medium</item>
+    </style>
+
     <style name="primaryButton" parent="ThemeOverlay.Material3.Button">
         <item name="android:backgroundTint">@color/primary</item>
         <item name="cornerRadius">12dp</item>

@@ -1,23 +1,27 @@
 package mai.project.foodmap.features.home_features.profilesTabScreen
 
 import android.os.Bundle
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ConcatAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import mai.project.core.annotations.Direction
 import mai.project.core.extensions.DP
 import mai.project.core.extensions.launchAndRepeatStarted
+import mai.project.core.extensions.parcelable
 import mai.project.core.utils.ImageLoaderUtil
 import mai.project.core.widget.recyclerView_decorations.SpacesItemDecoration
-import mai.project.foodmap.BuildConfig
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
+import mai.project.foodmap.data.annotations.LanguageMode
+import mai.project.foodmap.data.annotations.ThemeMode
 import mai.project.foodmap.databinding.FragmentProfilesTabBinding
+import mai.project.foodmap.features.dialogs_features.prompt.PromptCallback
+import mai.project.foodmap.features.dialogs_features.selector.SelectorCallback
+import mai.project.foodmap.features.dialogs_features.selector.SelectorModel
 import mai.project.foodmap.features.home_features.profilesTabScreen.adapter.PersonalDataAdapter
 import mai.project.foodmap.features.home_features.profilesTabScreen.adapter.SettingsLabelAdapter
-import mai.project.foodmap.features.home_features.profilesTabScreen.adapter.SettingsLabelTermAdapter
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -37,6 +41,18 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
 
     private val concatAdapter by lazy { ConcatAdapter(personalDataAdapter, settingsLabelAdapter) }
 
+    private val themeModeItems: List<SelectorModel> by lazy {
+        resources.getStringArray(R.array.theme_mode).mapIndexed { index, s ->
+            SelectorModel(id = index, content = s)
+        }
+    }
+
+    private val languageModeItems: List<SelectorModel> by lazy {
+        resources.getStringArray(R.array.language_mode).mapIndexed { index, s ->
+            SelectorModel(id = index, content = s)
+        }
+    }
+
     override fun FragmentProfilesTabBinding.initialize(savedInstanceState: Bundle?) {
         with(rvSettings) {
             itemAnimator = null
@@ -48,14 +64,17 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
                 )
             )
             adapter = concatAdapter
-            settingsLabelAdapter.submitList(getSettingsLabelList())
         }
     }
 
     override fun FragmentProfilesTabBinding.setObserver() = with(viewModel) {
         launchAndRepeatStarted(
+            // Loading
+            { isLoading.collect { navigateLoadingDialog(it, false) } },
             // 使用者大頭貼 和 使用者名稱
             { userImage.combine(userName) { p0, p1 -> p0 to p1 }.collect { handleUserInfo(it.first, it.second) } },
+            // 顯示模式
+            { themeMode.combine(languageMode) { p0, p1 -> p0 to p1 }.collect { handleUserSettings(it.first, it.second) } },
             // 登出狀態
             { logoutResult.collect(::handleBasicResult) }
         )
@@ -64,13 +83,15 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
     override fun FragmentProfilesTabBinding.setListener() {
         settingsLabelAdapter.onItemClick = { model ->
             when (model.id) {
-                TermEnum.THEMES_TOPIC.name -> {
-                    // TODO 切換顯示模式
-                }
+                TermEnum.THEMES_TOPIC.name -> navigateSelectorDialog(
+                    requestCode = REQUEST_CODE_THEME_MODE,
+                    items = themeModeItems
+                )
 
-                TermEnum.DISPLAY_LANGUAGE.name -> {
-                    // TODO 切換顯示語言
-                }
+                TermEnum.DISPLAY_LANGUAGE.name -> navigateSelectorDialog(
+                    requestCode = REQUEST_CODE_LANGUAGE_MODE,
+                    items = languageModeItems
+                )
 
                 TermEnum.BLACK_LIST.name -> {
                     // TODO 查看黑名單列表
@@ -92,9 +113,42 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
                     // TODO 查看隱私權政策
                 }
 
-                TermEnum.LOGOUT.name -> viewModel.logout()
+                TermEnum.LOGOUT.name -> navigatePromptDialog(
+                    requestCode = REQUEST_CODE_LOGOUT_HINT,
+                    title = getString(R.string.word_logout),
+                    message = getString(R.string.sentence_logout_prompt),
+                    confirmText = getString(R.string.word_confirm),
+                )
 
                 else -> Unit
+            }
+        }
+    }
+
+    override fun FragmentProfilesTabBinding.setCallback() {
+        setFragmentResultListener(REQUEST_CODE_LOGOUT_HINT) { _, bundle ->
+            bundle.parcelable<PromptCallback>(PromptCallback.ARG_CONFIRM)?.let {
+                viewModel.logout()
+            }
+        }
+        setFragmentResultListener(REQUEST_CODE_THEME_MODE) { _, bundle ->
+            bundle.parcelable<SelectorCallback>(SelectorCallback.ARG_ITEM_CLICK)?.let { callback ->
+                callback as SelectorCallback.OnItemClick
+                when (callback.item) {
+                    themeModeItems[0] -> viewModel.setThemeMode(ThemeMode.SYSTEM)
+                    themeModeItems[1] -> viewModel.setThemeMode(ThemeMode.DARK)
+                    themeModeItems[2] -> viewModel.setThemeMode(ThemeMode.LIGHT)
+                }
+            }
+        }
+        setFragmentResultListener(REQUEST_CODE_LANGUAGE_MODE) { _, bundle ->
+            bundle.parcelable<SelectorCallback>(SelectorCallback.ARG_ITEM_CLICK)?.let { callback ->
+                callback as SelectorCallback.OnItemClick
+                when (callback.item) {
+                    languageModeItems[0] -> viewModel.setLanguageMode(LanguageMode.SYSTEM)
+                    languageModeItems[1] -> viewModel.setLanguageMode(LanguageMode.ENGLISH)
+                    languageModeItems[2] -> viewModel.setLanguageMode(LanguageMode.TRADITIONAL_CHINESE)
+                }
             }
         }
     }
@@ -110,68 +164,31 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
     }
 
     /**
-     * 取得設定資料集
+     * 處理使用者設定
      */
-    private fun getSettingsLabelList(
-        // TODO 待動態添加參數
-        theme: String = "根據系統設定",
-        language: String = "根據系統設定"
-    ): List<SettingsLabelAdapter.Model> {
-        return listOf(
-            SettingsLabelAdapter.Model(
-                title = getString(R.string.sentence_display_settings),
-                terms = listOf(
-                    SettingsLabelTermAdapter.Model(
-                        id = TermEnum.THEMES_TOPIC.name,
-                        name = getString(TermEnum.THEMES_TOPIC.stringRes),
-                        subName = theme
-                    ),
-                    SettingsLabelTermAdapter.Model(
-                        id = TermEnum.DISPLAY_LANGUAGE.name,
-                        name = getString(TermEnum.DISPLAY_LANGUAGE.stringRes),
-                        subName = language
-                    )
-                )
-            ),
-            SettingsLabelAdapter.Model(
-                title = getString(R.string.sentence_user_settings),
-                terms = listOf(
-                    SettingsLabelTermAdapter.Model(
-                        id = TermEnum.BLACK_LIST.name,
-                        name = getString(TermEnum.BLACK_LIST.stringRes)
-                    ),
-                    SettingsLabelTermAdapter.Model(
-                        id = TermEnum.RESET_PASSWORD.name,
-                        name = getString(TermEnum.RESET_PASSWORD.stringRes)
-                    ),
-                    SettingsLabelTermAdapter.Model(
-                        id = TermEnum.DELETE_ACCOUNT.name,
-                        name = getString(TermEnum.DELETE_ACCOUNT.stringRes)
-                    )
-                )
-            ),
-            SettingsLabelAdapter.Model(
-                title = getString(R.string.word_other),
-                terms = listOf(
-                    SettingsLabelTermAdapter.Model(
-                        id = TermEnum.TERMS_OF_SERVICE.name,
-                        name = getString(TermEnum.TERMS_OF_SERVICE.stringRes)
-                    ),
-                    SettingsLabelTermAdapter.Model(
-                        id = TermEnum.PRIVACY_POLICY.name,
-                        name = getString(TermEnum.PRIVACY_POLICY.stringRes)
-                    ),
-                    SettingsLabelTermAdapter.Model(
-                        id = TermEnum.APPLICATION_VERSION.name,
-                        name = getString(TermEnum.APPLICATION_VERSION.stringRes),
-                        subName = "${BuildConfig.VERSION_NAME} b${BuildConfig.VERSION_CODE}"
-                    ),
-                    SettingsLabelTermAdapter.Model(
-                        id = TermEnum.LOGOUT.name,
-                        name = getString(TermEnum.LOGOUT.stringRes)
-                    )
-                )
-            )
-        )
+    private fun handleUserSettings(
+        @ThemeMode
+        themeMode: Int,
+        @LanguageMode
+        languageMode: String
+    ) {
+        settingsLabelAdapter.submitList(TermEnum.getSettingsLabelList(requireContext(), themeMode, languageMode))
+    }
+
+    companion object {
+        /**
+         * 提示是否要登出 Dialog
+         */
+        private const val REQUEST_CODE_LOGOUT_HINT = "REQUEST_CODE_LOGOUT_HINT"
+
+        /**
+         * 選擇顯示模式 Dialog
+         */
+        private const val REQUEST_CODE_THEME_MODE = "REQUEST_CODE_THEME_MODE"
+
+        /**
+         * 選擇語言模式 Dialog
+         */
+        private const val REQUEST_CODE_LANGUAGE_MODE = "REQUEST_CODE_LANGUAGE_MODE"
     }
 }
