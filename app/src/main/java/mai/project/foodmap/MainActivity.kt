@@ -17,6 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mai.project.core.extensions.displayToast
+import mai.project.core.extensions.getColorCompat
 import mai.project.core.extensions.isScreenLocked
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.launchWithoutRepeat
@@ -73,6 +74,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
         root.showSnackBar(
             message = message,
             actionText = actionText,
+            actionTextColor = getColorCompat(R.color.text_button),
             duration = duration,
             anchorView = if (bottomNavigation?.isVisible == true) bottomNavigation else null,
             doSomething = action

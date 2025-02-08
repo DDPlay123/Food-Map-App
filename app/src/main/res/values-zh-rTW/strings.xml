@@ -40,6 +40,12 @@
     <string name="sentence_username_error">使用者名稱錯誤</string>
     <string name="sentence_reset_password_prompt">請輸入您要重設的密碼</string>
     <string name="sentence_reset_password_success">密碼修改成功</string>
+    <string name="sentence_location_permission_denied">定位權限被拒絕</string>
+    <string name="sentence_gps_not_open">GPS尚未啟動</string>
+    <string name="sentence_search_restaurant">搜尋餐廳</string>
+    <string name="sentence_near_popular_restaurant">附近熱門餐廳</string>
+    <string name="sentence_favorite_popular_restaurant">最愛熱門餐廳</string>
+    <string name="sentence_near_restaurant">附近的餐廳</string>
 
     <string name="rule_username_empty">使用者名稱不能為空</string>
     <string name="rule_username_length">使用者名稱至少要 4 位數</string>

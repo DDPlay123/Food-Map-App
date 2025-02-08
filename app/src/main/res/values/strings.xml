@@ -40,6 +40,12 @@
     <string name="sentence_username_error">Username incorrect</string>
     <string name="sentence_reset_password_prompt">Please enter the password you want to reset</string>
     <string name="sentence_reset_password_success">Password successfully changed</string>
+    <string name="sentence_location_permission_denied">Location permission has been denied</string>
+    <string name="sentence_gps_not_open">GPS is not enabled</string>
+    <string name="sentence_search_restaurant">Searching for restaurants</string>
+    <string name="sentence_near_popular_restaurant">Popular restaurants nearby</string>
+    <string name="sentence_favorite_popular_restaurant">Favorite popular restaurants</string>
+    <string name="sentence_near_restaurant">Restaurants nearby</string>
 
     <string name="rule_username_empty">Username cannot be empty</string>
     <string name="rule_username_length">Username must be at least 4 characters</string>

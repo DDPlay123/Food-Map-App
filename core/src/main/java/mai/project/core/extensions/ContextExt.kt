@@ -3,6 +3,7 @@ package mai.project.core.extensions
 import android.app.KeyguardManager
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.location.LocationManager
 import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
@@ -15,6 +16,16 @@ val Context.isScreenLocked: Boolean
     get() {
         val keyguardManager = getSystemService(KeyguardManager::class.java)
         return keyguardManager.isKeyguardLocked
+    }
+
+/**
+ * 是否開啟 GPS
+ */
+val Context.hasGPS: Boolean
+    get() {
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
 /**

@@ -1,6 +1,8 @@
 package mai.project.core.extensions
 
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.fragment.app.Fragment
@@ -8,6 +10,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * 建立 LifecycleScope 並在 Fragment 的生命週期為 STARTED 時重複執行
@@ -63,3 +66,31 @@ fun Fragment.displayToast(
     message: String,
     duration: Int = Toast.LENGTH_SHORT,
 ) = requireContext().displayToast(message, duration)
+
+/**
+ * 請求多個權限
+ *
+ * @param onGranted 權限已授予
+ * @param onDenied 權限拒絕
+ */
+fun Fragment.requestMultiplePermissions(
+    allPermissions: Array<String>,
+    needAllPermissions: Boolean = false,
+    onGranted: (() -> Unit)? = null,
+    onDenied: (() -> Unit)? = null
+): ActivityResultLauncher<Array<String>> {
+    return registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        Timber.d(message = "權限請求結果：$permissions")
+        when {
+            needAllPermissions && permissions.all { it.key in allPermissions && it.value } ->
+                onGranted?.invoke()
+
+            !needAllPermissions && permissions.any { it.value } ->
+                onGranted?.invoke()
+
+            else -> onDenied?.invoke()
+        }
+    }
+}
