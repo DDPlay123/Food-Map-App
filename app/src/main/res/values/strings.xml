@@ -1,51 +1,50 @@
 <resources>
-    <!--  TODO 翻譯為英文  -->
     <string name="app_name">Food Map</string>
 
-    <string name="word_home">首頁</string>
-    <string name="word_map">地圖</string>
-    <string name="word_favorite">最愛</string>
-    <string name="word_profiles">檔案</string>
-    <string name="word_password">密碼</string>
-    <string name="word_confirm">確認</string>
-    <string name="word_cancel">取消</string>
-    <string name="word_other">其他</string>
-    <string name="word_logout">登出</string>
+    <string name="word_home">Home</string>
+    <string name="word_map">Maps</string>
+    <string name="word_favorite">Favorite</string>
+    <string name="word_profiles">Profiles</string>
+    <string name="word_password">Password</string>
+    <string name="word_confirm">Confirm</string>
+    <string name="word_cancel">Cancel</string>
+    <string name="word_other">Other</string>
+    <string name="word_logout">Logout</string>
 
-    <string name="sentence_unknown_eating">不知道要吃甚麼嗎？</string>
-    <string name="sentence_next_step">下一步</string>
-    <string name="sentence_now_start">立即開始</string>
-    <string name="sentence_username">使用者名稱</string>
-    <string name="sentence_type_username_hint">輸入使用者名稱</string>
-    <string name="sentence_type_password_hint">輸入您的密碼</string>
-    <string name="sentence_remember_me">記住我</string>
-    <string name="sentence_login_and_register">登入/註冊</string>
-    <string name="sentence_again_to_exit">再按一次返回鍵離開</string>
-    <string name="sentence_login_expired">登入逾時，請重新登入</string>
-    <string name="sentence_loading">載入中\.\.\.</string>
-    <string name="sentence_new_user">新使用者</string>
-    <string name="sentence_register_prompt">找不到使用者名稱，是否要為您進行註冊？！</string>
-    <string name="sentence_personal_data">個人資料</string>
-    <string name="sentence_display_settings">顯示設定</string>
-    <string name="sentence_themes_topic">外觀主題</string>
-    <string name="sentence_display_language">顯示語言</string>
-    <string name="sentence_user_settings">使用者設定</string>
-    <string name="sentence_black_list">黑名單列表</string>
-    <string name="sentence_reset_password">重設密碼</string>
-    <string name="sentence_delete_account">刪除帳號</string>
-    <string name="sentence_terms_of_service">服務條款</string>
-    <string name="sentence_privacy_policy">隱私權政策</string>"
-    <string name="sentence_application_version">應用程式版本</string>
-    <string name="sentence_logout_prompt">確定要登出嗎？</string>
+    <string name="sentence_unknown_eating">Don\'t know what to eat?</string>
+    <string name="sentence_next_step">Next Step</string>
+    <string name="sentence_now_start">Now Start</string>
+    <string name="sentence_username">Username</string>
+    <string name="sentence_type_username_hint">Type username</string>
+    <string name="sentence_type_password_hint">Type password</string>
+    <string name="sentence_remember_me">Remember me</string>
+    <string name="sentence_login_and_register">Login/Register</string>
+    <string name="sentence_again_to_exit">Press the back button once more to exit</string>
+    <string name="sentence_login_expired">Login timed out, please again</string>
+    <string name="sentence_loading">Loading\.\.\.</string>
+    <string name="sentence_new_user">New user</string>
+    <string name="sentence_register_prompt">Username not found. Would you like to register?</string>
+    <string name="sentence_personal_data">Personal Data</string>
+    <string name="sentence_display_settings">Display Settings</string>
+    <string name="sentence_themes_topic">Appearance Theme</string>
+    <string name="sentence_display_language">Display Language</string>
+    <string name="sentence_user_settings">User Settings</string>
+    <string name="sentence_black_list">Blacklist</string>
+    <string name="sentence_reset_password">Reset Password</string>
+    <string name="sentence_delete_account">Delete Account</string>
+    <string name="sentence_terms_of_service">Terms of Service</string>
+    <string name="sentence_privacy_policy">Privacy Policy</string>"
+    <string name="sentence_application_version">App Version</string>
+    <string name="sentence_logout_prompt">Are you sure you want to log out?</string>
 
-    <string name="rule_username_empty">使用者名稱不能為空</string>
-    <string name="rule_username_length">使用者名稱至少要 4 位數</string>
-    <string name="rule_username_limit">使用者名稱最多只能 16 位數</string>
-    <string name="rule_username_format">使用者名稱必須包含英文</string>
+    <string name="rule_username_empty">Username cannot be empty</string>
+    <string name="rule_username_length">Username must be at least 4 characters</string>
+    <string name="rule_username_limit">Username cannot exceed 16 characters</string>
+    <string name="rule_username_format">Username must include English characters</string>
 
-    <string name="rule_password_empty">密碼不能為空</string>
-    <string name="rule_password_length">密碼至少要 6 位數</string>
-    <string name="rule_password_limit">密碼最多只能 30 位數</string>
+    <string name="rule_password_empty">Password cannot be empty</string>
+    <string name="rule_password_length">Password must be at least 6 characters</string>
+    <string name="rule_password_limit">Password cannot exceed 30 characters</string>
 
     <array name="theme_mode">
         <item>System Default</item>

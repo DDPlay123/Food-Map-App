@@ -4,6 +4,7 @@ import android.app.LocaleManager
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.LocaleList
 import android.view.LayoutInflater
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -103,10 +104,19 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel>(
      * @param languageMode 語言模式
      */
     protected fun setAppLanguage(@LanguageMode languageMode: String) {
+        // 當前顯示的語言模式
+        val currentLanguageMode = resources.configuration.locales[0].toLanguageTag()
+        // 系統預設的語言模式
+        val systemLanguageMode = Locale.getDefault().toLanguageTag()
+        // 如果相同，就不再次設定
+        if (currentLanguageMode == languageMode) return
+        if (languageMode == LanguageMode.SYSTEM && currentLanguageMode == systemLanguageMode) return
+
+        // 設定語言切換
         if (Build.VERSION.SDK_INT >= 33) {
             // Android 13+ 使用 LocaleManager，無需重啟 Activity
             getSystemService(LocaleManager::class.java)?.applicationLocales =
-                android.os.LocaleList.forLanguageTags(languageMode)
+                LocaleList.forLanguageTags(languageMode)
         } else {
             // Android 12 以下
             updateResourcesLegacy(languageMode)

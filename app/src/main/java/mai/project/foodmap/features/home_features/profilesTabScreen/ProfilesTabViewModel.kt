@@ -51,7 +51,7 @@ class ProfilesTabViewModel @Inject constructor(
     /**
      * 顯示模式
      */
-    var themeMode: StateFlow<Int> = preferenceRepo.readThemeMode
+    val themeMode: StateFlow<Int> = preferenceRepo.readThemeMode
         .distinctUntilChanged()
         .catch { emit(ThemeMode.SYSTEM) }
         .flowOn(contextProvider.io)
@@ -60,7 +60,7 @@ class ProfilesTabViewModel @Inject constructor(
     /**
      * 語言模式
      */
-    var languageMode: StateFlow<String> = preferenceRepo.readLanguageMode
+    val languageMode: StateFlow<String> = preferenceRepo.readLanguageMode
         .distinctUntilChanged()
         .catch { emit(LanguageMode.SYSTEM) }
         .flowOn(contextProvider.io)

@@ -73,7 +73,7 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
             { isLoading.collect { navigateLoadingDialog(it, false) } },
             // 使用者大頭貼 和 使用者名稱
             { userImage.combine(userName) { p0, p1 -> p0 to p1 }.collect { handleUserInfo(it.first, it.second) } },
-            // 顯示模式
+            // 顯示模式 & 語言模式
             { themeMode.combine(languageMode) { p0, p1 -> p0 to p1 }.collect { handleUserSettings(it.first, it.second) } },
             // 登出狀態
             { logoutResult.collect(::handleBasicResult) }
