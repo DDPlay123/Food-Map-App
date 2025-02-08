@@ -1,11 +1,21 @@
 package mai.project.core.extensions
 
+import android.app.KeyguardManager
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+
+/**
+ * 是否為鎖屏模式
+ */
+val Context.isScreenLocked: Boolean
+    get() {
+        val keyguardManager = getSystemService(KeyguardManager::class.java)
+        return keyguardManager.isKeyguardLocked
+    }
 
 /**
  * 取得顏色資源

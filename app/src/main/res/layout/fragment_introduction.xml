@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/img_bg_blurry"
     tools:context=".features.auth_features.introductionScreen.IntroductionFragment">
 
     <ProgressBar
@@ -27,8 +26,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="imgIcon,tvTitle,lottieView,tvContent,btnNext,lottieArrow"
+        app:constraint_referenced_ids="viewBg,imgIcon,tvTitle,lottieView,tvContent,btnNext,lottieArrow"
         tools:visibility="visible" />
+
+    <View
+        android:id="@+id/viewBg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/img_bg_blurry" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/imgIcon"

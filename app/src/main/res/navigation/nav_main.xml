@@ -20,6 +20,7 @@
         android:name="mai.project.foodmap.features.auth_features.introductionScreen.IntroductionFragment"
         android:label="fragment_introduction"
         tools:layout="@layout/fragment_introduction">
+        <!--    是否初始化完成    -->
         <argument
             android:name="isInitialize"
             android:defaultValue="false"

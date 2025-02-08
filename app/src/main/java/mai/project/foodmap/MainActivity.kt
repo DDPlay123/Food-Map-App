@@ -17,6 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mai.project.core.extensions.displayToast
+import mai.project.core.extensions.isScreenLocked
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.launchWithoutRepeat
 import mai.project.core.extensions.showSnackBar
@@ -47,6 +48,13 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
      * 記錄返回鍵按下時間
      */
     private var backPressedTime: Long = 0
+
+    /**
+     * 暫存登入狀態的導航功能
+     *
+     * - 在背景啟動 App 的狀況下，會導航失敗，所以延後執行
+     */
+    private var pendingLoginNavigation: (() -> Unit)? = null
 
     /**
      * 顯示 SnackBar (主要是避免 SnackBar 被 BottomNavigationView 遮住)
@@ -92,6 +100,11 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
         val showNavigationView =
             binding.bottomNavigation?.isVisible == true || binding.sideNavigation?.isVisible == true
         outState.putBoolean(KEY_SHOW_NAVIGATION_VIEW, showNavigationView)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        pendingLoginNavigation?.invoke()
     }
 
     /**
@@ -169,19 +182,22 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
             .setExitAnim(R.anim.fade_out)
             .setPopEnterAnim(R.anim.fade_in)
             .setPopExitAnim(R.anim.fade_out)
+            .setPopUpTo(R.id.nav_main, true)
+            .build()
 
-        if (isLogin) {
+        val navigateAction = if (isLogin) {
             viewModel.addFcmToken()
             viewModel.getUserImage()
-            safeNavigate(
-                NavMainDirections.actionGlobalToHomeTabFragment(),
-                navOptions.setPopUpTo(R.id.nav_main, true).build()
-            )
+            NavMainDirections.actionGlobalToHomeTabFragment()
         } else {
-            safeNavigate(
-                NavMainDirections.actionGlobalToIntroductionFragment(true),
-                navOptions.setPopUpTo(R.id.nav_main, true).build()
-            )
+            NavMainDirections.actionGlobalToIntroductionFragment(true)
+        }
+
+        if (isScreenLocked) {
+            pendingLoginNavigation = { safeNavigate(navigateAction, navOptions) }
+        } else {
+            pendingLoginNavigation = null
+            safeNavigate(navigateAction, navOptions)
         }
 
         bottomNavigation?.isVisible = isLogin
