@@ -24,6 +24,8 @@ class PromptDialog : BaseDialog<DialogPromptBinding, Nothing>(
         tvConfirm.isVisible = args.confirmText != null
         tvCancel.text = args.cancelText
         tvCancel.isVisible = args.cancelText != null
+        edInput.isVisible = args.enableInput
+        edInput.setHint(args.inputHint)
     }
 
     override fun onDismiss(dialog: DialogInterface) {
@@ -38,7 +40,11 @@ class PromptDialog : BaseDialog<DialogPromptBinding, Nothing>(
         tvConfirm.onClick {
             setFragmentResult(
                 args.requestCode,
-                bundleOf(PromptCallback.ARG_CONFIRM to PromptCallback.OnConfirm)
+                bundleOf(
+                    PromptCallback.ARG_CONFIRM to PromptCallback.OnConfirm(
+                        edInput.text?.trim().toString()
+                    )
+                )
             )
             dismiss()
         }

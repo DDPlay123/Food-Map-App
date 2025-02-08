@@ -107,7 +107,7 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel>(
         // 當前顯示的語言模式
         val currentLanguageMode = resources.configuration.locales[0].toLanguageTag()
         // 系統預設的語言模式
-        val systemLanguageMode = Locale.getDefault().toLanguageTag()
+        val systemLanguageMode = getDeviceDefaultLanguage()
         // 如果相同，就不再次設定
         if (currentLanguageMode == languageMode) return
         if (languageMode == LanguageMode.SYSTEM && currentLanguageMode == systemLanguageMode) return
@@ -121,6 +121,20 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel>(
             // Android 12 以下
             updateResourcesLegacy(languageMode)
             restartApplication()
+        }
+    }
+
+    /**
+     * 取得手機系統的語言
+     */
+    private fun getDeviceDefaultLanguage(): String {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            getSystemService(LocaleManager::class.java)
+                ?.systemLocales
+                ?.toLanguageTags()
+                ?.takeIf { it.isNotEmpty() } ?: LanguageMode.ENGLISH
+        } else {
+            Locale.getDefault().toLanguageTag()
         }
     }
 

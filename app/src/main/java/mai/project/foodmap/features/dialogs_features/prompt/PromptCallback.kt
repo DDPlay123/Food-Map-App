@@ -6,9 +6,13 @@ import kotlinx.parcelize.Parcelize
 sealed class PromptCallback : Parcelable {
     /**
      * 確認按鈕點擊事件
+     *
+     * @param outputString 輸出字串 (如果有開啟輸入框)
      */
     @Parcelize
-    data object OnConfirm : PromptCallback()
+    data class OnConfirm(
+        val outputString: String
+    ) : PromptCallback()
 
     /**
      * 取消按鈕點擊事件

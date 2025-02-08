@@ -131,6 +131,16 @@
             android:name="cancelText"
             app:argType="string"
             app:nullable="true" />
+        <!--    是否啟用輸入框    -->
+        <argument
+            android:name="enableInput"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <!--    輸入框提示文本    -->
+        <argument
+            android:name="inputHint"
+            app:argType="string"
+            app:nullable="true" />
     </dialog>
 
     <!--  全域呼叫 選擇 BottomSheetDialog  -->

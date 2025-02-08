@@ -77,6 +77,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
 
         setBackPress()
         doInitialization()
+        setListener()
         setObserver()
 
         savedInstanceState?.let { bundle ->
@@ -123,6 +124,14 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
 
         binding.bottomNavigation?.let { NavigationUI.setupWithNavController(it, navController) }
         binding.sideNavigation?.let { NavigationUI.setupWithNavController(it, navController) }
+    }
+
+    /**
+     * 設定監聽器
+     */
+    private fun setListener() = with(binding) {
+        bottomNavigation?.setOnItemReselectedListener { /* 不做事 */ }
+        sideNavigation?.setOnItemReselectedListener { /* 不做事 */ }
     }
 
     /**

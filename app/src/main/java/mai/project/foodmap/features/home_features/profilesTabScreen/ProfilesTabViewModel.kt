@@ -92,5 +92,27 @@ class ProfilesTabViewModel @Inject constructor(
         safeApiCallFlow { userRepo.logout() }
             .collect { result -> _logoutResult.update { Event(result) } }
     }
+
+    /**
+     * 重設密碼
+     */
+    private val _resetPasswordResult = MutableStateFlow<Event<NetworkResult<EmptyNetworkResult>>>(Event(NetworkResult.Idle()))
+    val resetPasswordResult = _resetPasswordResult.asStateFlow()
+
+    fun resetPassword(password: String) = launchCoroutineIO {
+        safeApiCallFlow { userRepo.setPassword(password) }
+            .collect { result -> _resetPasswordResult.update { Event(result) } }
+    }
+
+    /**
+     * 刪除帳號
+     */
+    private val _deleteAccountResult = MutableStateFlow<Event<NetworkResult<EmptyNetworkResult>>>(Event(NetworkResult.Idle()))
+    val deleteAccountResult = _deleteAccountResult.asStateFlow()
+
+    fun deleteAccount() = launchCoroutineIO {
+        safeApiCallFlow { userRepo.deleteAccount() }
+            .collect { result -> _deleteAccountResult.update { Event(result) } }
+    }
     // endregion Network State
 }

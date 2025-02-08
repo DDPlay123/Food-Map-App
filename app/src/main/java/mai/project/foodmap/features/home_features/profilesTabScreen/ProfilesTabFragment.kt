@@ -6,8 +6,10 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ConcatAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
+import mai.project.core.Configs
 import mai.project.core.annotations.Direction
 import mai.project.core.extensions.DP
+import mai.project.core.extensions.displayToast
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.parcelable
 import mai.project.core.utils.ImageLoaderUtil
@@ -76,7 +78,11 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
             // 顯示模式 & 語言模式
             { themeMode.combine(languageMode) { p0, p1 -> p0 to p1 }.collect { handleUserSettings(it.first, it.second) } },
             // 登出狀態
-            { logoutResult.collect(::handleBasicResult) }
+            { logoutResult.collect(::handleBasicResult) },
+            // 修改密碼狀態
+            { resetPasswordResult.collect { handleBasicResult(it, workOnSuccess = { displayToast(getString(R.string.sentence_reset_password_success)) }) } },
+            // 刪除帳號狀態
+            { deleteAccountResult.collect(::handleBasicResult) }
         )
     }
 
@@ -97,13 +103,21 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
                     // TODO 查看黑名單列表
                 }
 
-                TermEnum.RESET_PASSWORD.name -> {
-                    // TODO 重設密碼
-                }
+                TermEnum.RESET_PASSWORD.name -> navigatePromptDialog(
+                    requestCode = REQUEST_CODE_RESET_PASSWORD,
+                    title = getString(R.string.sentence_reset_password),
+                    message = getString(R.string.sentence_reset_password_prompt),
+                    enableInput = true,
+                    inputHint = getString(R.string.sentence_type_password_hint)
+                )
 
-                TermEnum.DELETE_ACCOUNT.name -> {
-                    // TODO 刪除帳號
-                }
+                TermEnum.DELETE_ACCOUNT.name -> navigatePromptDialog(
+                    requestCode = REQUEST_CODE_DELETE_ACCOUNT,
+                    title = getString(R.string.sentence_delete_account),
+                    message = getString(R.string.sentence_delete_account_prompt),
+                    enableInput = true,
+                    inputHint = getString(R.string.sentence_type_username_hint)
+                )
 
                 TermEnum.TERMS_OF_SERVICE.name -> {
                     // TODO 查看服務條款
@@ -116,8 +130,7 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
                 TermEnum.LOGOUT.name -> navigatePromptDialog(
                     requestCode = REQUEST_CODE_LOGOUT_HINT,
                     title = getString(R.string.word_logout),
-                    message = getString(R.string.sentence_logout_prompt),
-                    confirmText = getString(R.string.word_confirm),
+                    message = getString(R.string.sentence_logout_prompt)
                 )
 
                 else -> Unit
@@ -148,6 +161,32 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
                     languageModeItems[0] -> viewModel.setLanguageMode(LanguageMode.SYSTEM)
                     languageModeItems[1] -> viewModel.setLanguageMode(LanguageMode.ENGLISH)
                     languageModeItems[2] -> viewModel.setLanguageMode(LanguageMode.TRADITIONAL_CHINESE)
+                }
+            }
+        }
+        setFragmentResultListener(REQUEST_CODE_RESET_PASSWORD) { _, bundle ->
+            bundle.parcelable<PromptCallback>(PromptCallback.ARG_CONFIRM)?.let { callback ->
+                val password = (callback as PromptCallback.OnConfirm).outputString
+                when {
+                    password.isEmpty() -> displayToast(getString(R.string.rule_password_empty))
+
+                    password.length < Configs.PASSWORD_LENGTH_MIN ->
+                        displayToast(getString(R.string.rule_password_length))
+
+                    password.length > Configs.PASSWORD_LENGTH_MAX ->
+                        displayToast(getString(R.string.rule_password_limit))
+
+                    else -> viewModel.resetPassword(password)
+                }
+            }
+        }
+        setFragmentResultListener(REQUEST_CODE_DELETE_ACCOUNT) { _, bundle ->
+            bundle.parcelable<PromptCallback>(PromptCallback.ARG_CONFIRM)?.let { callback ->
+                callback as PromptCallback.OnConfirm
+                if (callback.outputString == viewModel.userName.value) {
+                    viewModel.deleteAccount()
+                } else {
+                    displayToast(getString(R.string.sentence_username_error))
                 }
             }
         }
@@ -190,5 +229,15 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
          * 選擇語言模式 Dialog
          */
         private const val REQUEST_CODE_LANGUAGE_MODE = "REQUEST_CODE_LANGUAGE_MODE"
+
+        /**
+         * 重設密碼 Dialog
+         */
+        private const val REQUEST_CODE_RESET_PASSWORD = "REQUEST_CODE_RESET_PASSWORD"
+
+        /**
+         * 刪除帳號提示 Dialog
+         */
+        private const val REQUEST_CODE_DELETE_ACCOUNT = "REQUEST_CODE_DELETE_ACCOUNT"
     }
 }

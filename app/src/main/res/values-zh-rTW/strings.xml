@@ -18,7 +18,7 @@
     <string name="sentence_type_username_hint">輸入使用者名稱</string>
     <string name="sentence_type_password_hint">輸入您的密碼</string>
     <string name="sentence_remember_me">記住我</string>
-    <string name="sentence_login_and_register">登入/註冊</string>
+    <string name="sentence_login_and_register">登入 / 註冊</string>
     <string name="sentence_again_to_exit">再按一次返回鍵離開</string>
     <string name="sentence_login_expired">登入逾時，請重新登入</string>
     <string name="sentence_loading">載入中\.\.\.</string>
@@ -36,6 +36,10 @@
     <string name="sentence_privacy_policy">隱私權政策</string>"
     <string name="sentence_application_version">應用程式版本</string>
     <string name="sentence_logout_prompt">確定要登出嗎？</string>
+    <string name="sentence_delete_account_prompt">請仔細確認是否要刪除帳號，刪除帳號後將無法進行回復!!</string>
+    <string name="sentence_username_error">使用者名稱錯誤</string>
+    <string name="sentence_reset_password_prompt">請輸入您要重設的密碼</string>
+    <string name="sentence_reset_password_success">密碼修改成功</string>
 
     <string name="rule_username_empty">使用者名稱不能為空</string>
     <string name="rule_username_length">使用者名稱至少要 4 位數</string>

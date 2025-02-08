@@ -89,19 +89,43 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
 
     // region public function
     /**
+     * 判斷當前頁面是否為指定頁面，如果不是則返回上一頁。並執行指定的工作。
+     *
+     * @param fragmentId Fragment ID
+     * @param work 要執行的工作
+     */
+    protected fun doSomethingOnCurrentPage(
+        fragmentId: Int,
+        work: () -> Unit
+    ) {
+        if (navController.currentBackStackEntry?.destination?.id != fragmentId) {
+            popBackStack()
+        }
+        work.invoke()
+    }
+
+    /**
      * 處理 API 基礎回傳結果
      *
      * @param event API 回傳事件
+     * @param workOnSuccess 成功後執行工作
+     * @param workOnError 失敗後執行工作
      */
     protected fun <T> handleBasicResult(
-        event: Event<NetworkResult<T>>
+        event: Event<NetworkResult<T>>,
+        workOnSuccess: (() -> Unit)? = null,
+        workOnError: (() -> Unit)? = null
     ) {
         event.getContentIfNotHandled?.handleResult {
             onLoading = { viewModel?.setLoading(true) }
-            onSuccess = { viewModel?.setLoading(false) }
+            onSuccess = {
+                viewModel?.setLoading(false)
+                workOnSuccess?.invoke()
+            }
             onError = { _, msg ->
                 viewModel?.setLoading(false)
                 requireContext().displayToast(msg ?: "Unknown Error")
+                workOnError?.invoke()
             }
         }
     }
@@ -142,13 +166,17 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
      * @param message 內文
      * @param confirmText 確認按鈕 (不顯示則為 Null)
      * @param cancelText 取消按鈕 (不顯示則為 Null)
+     * @param enableInput 是否啟用輸入框
+     * @param inputHint 輸入框提示文本 (不顯示則為 Null)
      */
     fun navigatePromptDialog(
         requestCode: String,
         title: String,
         message: String,
         confirmText: String? = getString(R.string.word_confirm),
-        cancelText: String? = getString(R.string.word_cancel)
+        cancelText: String? = getString(R.string.word_cancel),
+        enableInput: Boolean = false,
+        inputHint: String? = null
     ) {
         navigate(
             PromptDialogDirections.actionGlobalToPromptDialog(
@@ -156,7 +184,9 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
                 title = title,
                 message = message,
                 confirmText = confirmText,
-                cancelText = cancelText
+                cancelText = cancelText,
+                enableInput = enableInput,
+                inputHint = inputHint
             )
         )
     }

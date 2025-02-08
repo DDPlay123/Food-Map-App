@@ -21,7 +21,7 @@ annotation class LanguageMode {
         /**
          * 英文
          */
-        const val ENGLISH = "en"
+        const val ENGLISH = "en-US"
 
         /**
          * 繁體中文

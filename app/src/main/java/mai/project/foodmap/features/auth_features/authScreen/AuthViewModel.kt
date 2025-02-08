@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import mai.project.core.Configs
 import mai.project.core.utils.CoroutineContextProvider
 import mai.project.core.utils.Event
 import mai.project.foodmap.R
@@ -77,14 +78,7 @@ class AuthViewModel @Inject constructor(
 
         if (usernameResult is ValidationResult.Success && passwordResult is ValidationResult.Success) {
             safeApiCallFlow { userRepo.register(username, password, isRemember) }
-                .collect { result ->
-                    when (result) {
-                        // 註冊成功後，直接登入
-                        is NetworkResult.Success -> login(username, password, isRemember)
-
-                        else -> _registerResult.update { Event(result) }
-                    }
-                }
+                .collect { result -> _registerResult.update { Event(result) } }
         } else {
             _authValidation.send(
                 AuthFieldsState(username = usernameResult, password = passwordResult)
@@ -101,11 +95,13 @@ class AuthViewModel @Inject constructor(
         return when {
             username.isEmpty() -> ValidationResult.Failure(R.string.rule_username_empty)
 
-            username.length < 4 -> ValidationResult.Failure(R.string.rule_username_length)
+            username.length < Configs.USERNAME_LENGTH_MIN ->
+                ValidationResult.Failure(R.string.rule_username_length)
 
-            username.length > 16 -> ValidationResult.Failure(R.string.rule_username_limit)
+            username.length > Configs.USERNAME_LENGTH_MAX ->
+                ValidationResult.Failure(R.string.rule_username_limit)
 
-            !username.matches(Regex(".*[a-z]+.*")) && !username.matches(Regex(".*[A-Z]+.*")) ->
+            !username.matches(Regex(Configs.USERNAME_FORMATER)) ->
                 ValidationResult.Failure(R.string.rule_username_format)
 
             else -> ValidationResult.Success
@@ -119,9 +115,11 @@ class AuthViewModel @Inject constructor(
         return when {
             password.isEmpty() -> ValidationResult.Failure(R.string.rule_password_empty)
 
-            password.length < 6 -> ValidationResult.Failure(R.string.rule_password_length)
+            password.length < Configs.PASSWORD_LENGTH_MIN ->
+                ValidationResult.Failure(R.string.rule_password_length)
 
-            password.length > 30 -> ValidationResult.Failure(R.string.rule_password_limit)
+            password.length > Configs.PASSWORD_LENGTH_MAX ->
+                ValidationResult.Failure(R.string.rule_password_limit)
 
             else -> ValidationResult.Success
         }

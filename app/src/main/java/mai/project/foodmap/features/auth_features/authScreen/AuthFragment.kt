@@ -38,9 +38,9 @@ class AuthFragment : BaseFragment<FragmentAuthBinding, AuthViewModel>(
             // 輸入結果驗證
             { authValidation.collect(::handleAuthValidation) },
             // 登入狀態
-            { loginResult.collect(::handleLoginAndRegisterResult) },
+            { loginResult.collect { handleLoginAndRegisterResult(true, it) } },
             // 註冊狀態
-            { registerResult.collect(::handleLoginAndRegisterResult) }
+            { registerResult.collect { handleLoginAndRegisterResult(false, it) } }
         )
     }
 
@@ -83,11 +83,19 @@ class AuthFragment : BaseFragment<FragmentAuthBinding, AuthViewModel>(
      * 處理登入或註冊結果
      */
     private fun handleLoginAndRegisterResult(
+        isRegister: Boolean,
         event: Event<NetworkResult<EmptyNetworkResult>>
-    ) {
+    ) = with(binding) {
         event.getContentIfNotHandled?.handleResult {
             onLoading = { navigateLoadingDialog(isOpen = true, cancelable = false) }
-            onSuccess = { navigateLoadingDialog(isOpen = false) }
+            onSuccess = {
+                navigateLoadingDialog(isOpen = false)
+                if (isRegister) viewModel.login(
+                    edUsername.text?.trim().toString(),
+                    edPassword.text?.trim().toString(),
+                    checkbox.isChecked
+                )
+            }
             onError = { data, msg ->
                 navigateLoadingDialog(isOpen = false)
                 handleLoginAndRegisterError(data?.status, msg ?: "Unknown Error")
