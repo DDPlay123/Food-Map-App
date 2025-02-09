@@ -1,21 +1,23 @@
 package mai.project.foodmap.data.remoteDataSource
 
-import mai.project.foodmap.data.remoteDataSource.models.user.AddFcmTokenReq
-import mai.project.foodmap.data.remoteDataSource.models.user.AddFcmTokenRes
-import mai.project.foodmap.data.remoteDataSource.models.user.DeleteAccountReq
-import mai.project.foodmap.data.remoteDataSource.models.user.DeleteAccountRes
-import mai.project.foodmap.data.remoteDataSource.models.user.GetUserImageReq
-import mai.project.foodmap.data.remoteDataSource.models.user.GetUserImageRes
-import mai.project.foodmap.data.remoteDataSource.models.user.LoginReq
-import mai.project.foodmap.data.remoteDataSource.models.user.LoginRes
-import mai.project.foodmap.data.remoteDataSource.models.user.LogoutReq
-import mai.project.foodmap.data.remoteDataSource.models.user.LogoutRes
-import mai.project.foodmap.data.remoteDataSource.models.user.RegisterReq
-import mai.project.foodmap.data.remoteDataSource.models.user.RegisterRes
-import mai.project.foodmap.data.remoteDataSource.models.user.SetPasswordReq
-import mai.project.foodmap.data.remoteDataSource.models.user.SetPasswordRes
-import mai.project.foodmap.data.remoteDataSource.models.user.SetUserImageReq
-import mai.project.foodmap.data.remoteDataSource.models.user.SetUserImageRes
+import mai.project.foodmap.data.remoteDataSource.models.DrawCardReq
+import mai.project.foodmap.data.remoteDataSource.models.DrawCardRes
+import mai.project.foodmap.data.remoteDataSource.models.AddFcmTokenReq
+import mai.project.foodmap.data.remoteDataSource.models.AddFcmTokenRes
+import mai.project.foodmap.data.remoteDataSource.models.DeleteAccountReq
+import mai.project.foodmap.data.remoteDataSource.models.DeleteAccountRes
+import mai.project.foodmap.data.remoteDataSource.models.GetUserImageReq
+import mai.project.foodmap.data.remoteDataSource.models.GetUserImageRes
+import mai.project.foodmap.data.remoteDataSource.models.LoginReq
+import mai.project.foodmap.data.remoteDataSource.models.LoginRes
+import mai.project.foodmap.data.remoteDataSource.models.LogoutReq
+import mai.project.foodmap.data.remoteDataSource.models.LogoutRes
+import mai.project.foodmap.data.remoteDataSource.models.RegisterReq
+import mai.project.foodmap.data.remoteDataSource.models.RegisterRes
+import mai.project.foodmap.data.remoteDataSource.models.SetPasswordReq
+import mai.project.foodmap.data.remoteDataSource.models.SetPasswordRes
+import mai.project.foodmap.data.remoteDataSource.models.SetUserImageReq
+import mai.project.foodmap.data.remoteDataSource.models.SetUserImageRes
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Headers
@@ -72,4 +74,12 @@ internal interface APIService {
         @Body body: GetUserImageReq
     ): Response<GetUserImageRes>
     // endregion user
+
+    // region place
+    @Headers("Content-Type: application/json")
+    @POST("api/place/draw_card")
+    suspend fun getDrawCard(
+        @Body body: DrawCardReq
+    ): Response<DrawCardRes>
+    // endregion place
 }

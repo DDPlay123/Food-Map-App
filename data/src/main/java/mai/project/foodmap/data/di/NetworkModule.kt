@@ -45,7 +45,7 @@ internal object NetworkModule {
         okHttpClient: OkHttpClient,
         converterFactory: Converter.Factory
     ): Retrofit = Retrofit.Builder()
-        .baseUrl(BuildConfig.API_KEY)
+        .baseUrl(BuildConfig.BASE_URL)
         .client(okHttpClient)
         .addConverterFactory(converterFactory)
         .build()

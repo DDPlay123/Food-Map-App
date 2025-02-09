@@ -1,17 +1,16 @@
-package mai.project.foodmap.data.remoteDataSource.models.user
+package mai.project.foodmap.data.remoteDataSource.models
 
 import kotlinx.serialization.Serializable
-import mai.project.foodmap.data.remoteDataSource.models.BaseResponse
 
 @Serializable
-internal data class RegisterReq(
+internal data class LoginReq(
     val username: String,
     val password: String,
     val deviceId: String
 )
 
 @Serializable
-internal data class RegisterRes(
+internal data class LoginRes(
     override val status: Int,
     override val errMsg: String? = null,
     val result: Result? = null

@@ -1,18 +1,17 @@
-package mai.project.foodmap.data.remoteDataSource.models.user
+package mai.project.foodmap.data.remoteDataSource.models
 
 import kotlinx.serialization.Serializable
-import mai.project.foodmap.data.remoteDataSource.models.BaseRequest
-import mai.project.foodmap.data.remoteDataSource.models.BaseResponse
 
 @Serializable
-internal data class LogoutReq(
+internal data class AddFcmTokenReq(
     override val accessKey: String,
     override val userId: String,
-    val deviceId: String
+    val deviceId: String,
+    val fcmToken: String
 ) : BaseRequest()
 
 @Serializable
-internal data class LogoutRes(
+internal data class AddFcmTokenRes(
     override val status: Int,
     override val errMsg: String? = null,
     val result: Result? = null

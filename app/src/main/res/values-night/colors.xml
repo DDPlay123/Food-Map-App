@@ -8,6 +8,7 @@
     <color name="background_edittext">#4B4A4A</color>
     <color name="background_edittext_stroke">#666666</color>
     <color name="background_divider">#888888</color>
+    <color name="background_drag_handle">#FFFFFF</color>
 
     <color name="icon_primary">#FFFFFF</color>
     <color name="icon_navigation_view_selected">@color/primary</color>

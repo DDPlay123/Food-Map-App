@@ -1,10 +1,12 @@
 package mai.project.core.extensions
 
+import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -68,14 +70,37 @@ fun Fragment.displayToast(
 ) = requireContext().displayToast(message, duration)
 
 /**
+ * 檢查多個權限是否已授予
+ *
+ * @param allPermissions 權限陣列
+ * @param needAllPermissions 是否需要全部權限都已授予
+ */
+fun Fragment.checkMultiplePermissions(
+    allPermissions: Array<String>,
+    needAllPermissions: Boolean = true,
+) : Boolean {
+    return if (needAllPermissions) {
+        allPermissions.all {
+            ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED
+        }
+    } else {
+        allPermissions.any {
+            ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+}
+
+/**
  * 請求多個權限
  *
+ * @param allPermissions 權限陣列
+ * @param needAllPermissions 是否需要全部權限都已授予
  * @param onGranted 權限已授予
  * @param onDenied 權限拒絕
  */
 fun Fragment.requestMultiplePermissions(
     allPermissions: Array<String>,
-    needAllPermissions: Boolean = false,
+    needAllPermissions: Boolean = true,
     onGranted: (() -> Unit)? = null,
     onDenied: (() -> Unit)? = null
 ): ActivityResultLauncher<Array<String>> {

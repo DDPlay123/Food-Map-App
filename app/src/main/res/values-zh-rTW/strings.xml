@@ -46,6 +46,7 @@
     <string name="sentence_near_popular_restaurant">附近熱門餐廳</string>
     <string name="sentence_favorite_popular_restaurant">最愛熱門餐廳</string>
     <string name="sentence_near_restaurant">附近的餐廳</string>
+    <string name="sentence_can_not_get_location">無法取得經緯度</string>
 
     <string name="rule_username_empty">使用者名稱不能為空</string>
     <string name="rule_username_length">使用者名稱至少要 4 位數</string>

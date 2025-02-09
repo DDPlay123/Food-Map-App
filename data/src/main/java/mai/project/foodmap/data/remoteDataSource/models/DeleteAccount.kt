@@ -1,17 +1,15 @@
-package mai.project.foodmap.data.remoteDataSource.models.user
+package mai.project.foodmap.data.remoteDataSource.models
 
 import kotlinx.serialization.Serializable
-import mai.project.foodmap.data.remoteDataSource.models.BaseRequest
-import mai.project.foodmap.data.remoteDataSource.models.BaseResponse
 
 @Serializable
-data class DeleteAccountReq(
+internal data class DeleteAccountReq(
     override val accessKey: String,
     override val userId: String
 ) : BaseRequest()
 
 @Serializable
-data class DeleteAccountRes(
+internal data class DeleteAccountRes(
     override val status: Int,
     override val errMsg: String? = null,
     val result: Result? = null

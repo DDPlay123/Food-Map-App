@@ -276,6 +276,9 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
         onBackPressedCallback?.remove()
         onBackPressedCallback = null
 
+        // 強制關閉 Loading Dialog
+        navigateLoadingDialog(false)
+
         binding.destroy()
         _binding = null
     }

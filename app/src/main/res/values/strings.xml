@@ -46,6 +46,7 @@
     <string name="sentence_near_popular_restaurant">Popular restaurants nearby</string>
     <string name="sentence_favorite_popular_restaurant">Favorite popular restaurants</string>
     <string name="sentence_near_restaurant">Restaurants nearby</string>
+    <string name="sentence_can_not_get_location">Unable to retrieve latitude and longitude</string>
 
     <string name="rule_username_empty">Username cannot be empty</string>
     <string name="rule_username_length">Username must be at least 4 characters</string>

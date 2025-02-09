@@ -31,4 +31,14 @@ object Configs {
      * 密碼 最大長度
      */
     const val PASSWORD_LENGTH_MAX = 30
+
+    /**
+     * 預設的 緯度
+     */
+    const val DEFAULT_LATITUDE = 25.032972653092518
+
+    /**
+     * 預設的 經度
+     */
+    const val DEFAULT_LONGITUDE = 121.56537596752182
 }

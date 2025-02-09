@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/icon_primary" />
+        app:tint="@color/background_drag_handle" />
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigationView"

@@ -202,8 +202,8 @@
                 android:layout_marginTop="20dp"
                 app:cardCornerRadius="8dp"
                 app:layout_constraintDimensionRatio="4:1"
-                app:layout_constraintEnd_toEndOf="@+id/divider"
-                app:layout_constraintStart_toStartOf="@+id/divider"
+                app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
+                app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
                 app:layout_constraintTop_toBottomOf="@+id/divider"
                 app:layout_constraintWidth_max="300dp">
 
@@ -214,8 +214,12 @@
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/tvViewMore"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:lines="2"
+                        android:paddingHorizontal="20dp"
                         android:text="@string/sentence_near_restaurant"
                         android:textColor="@color/icon_primary"
                         android:textSize="@dimen/text_medium_large"
