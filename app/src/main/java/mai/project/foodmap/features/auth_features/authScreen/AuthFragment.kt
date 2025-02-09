@@ -45,7 +45,7 @@ class AuthFragment : BaseFragment<FragmentAuthBinding, AuthViewModel>(
     }
 
     override fun FragmentAuthBinding.setListener() {
-        btnStart.onClick {
+        btnStart.onClick(anim = true, isAnimEndCallback = true) {
             viewModel.login(
                 edUsername.text?.trim().toString(),
                 edPassword.text?.trim().toString(),

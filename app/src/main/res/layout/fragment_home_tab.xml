@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context=".features.home_features.homeTabScreen.HomeTabFragment">
 
     <androidx.core.widget.NestedScrollView
@@ -14,14 +13,15 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:paddingTop="40dp"
+            android:paddingBottom="20dp">
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvLocation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="20dp"
                 android:drawableStart="@drawable/vector_category"
                 android:drawableEnd="@drawable/vector_arrow_down"
                 android:drawablePadding="8dp"
@@ -36,8 +36,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="附近的餐廳" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/clSearchBar"
@@ -95,12 +94,12 @@
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_search_bar"
                     android:padding="10dp"
-                    android:tint="@color/icon_primary"
+                    android:tint="@color/primary"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintEnd_toStartOf="@+id/imgVoiceSearch"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/vector_image_search" />
+                    app:srcCompat="@drawable/img_image_search" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/imgVoiceSearch"
@@ -108,12 +107,12 @@
                     android:layout_height="0dp"
                     android:background="@drawable/bg_search_bar"
                     android:padding="10dp"
-                    android:tint="@color/icon_primary"
+                    android:tint="@color/primary"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/vector_mic" />
+                    app:srcCompat="@drawable/img_mic" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -137,8 +136,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/imgRefresh"
                 app:layout_constraintHorizontal_bias="0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/clSearchBar"
-                tools:text="附近的餐廳" />
+                app:layout_constraintTop_toBottomOf="@+id/clSearchBar" />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/imgRefresh"
@@ -146,12 +144,13 @@
                 android:layout_height="24dp"
                 app:layout_constraintEnd_toEndOf="@+id/clSearchBar"
                 app:layout_constraintTop_toTopOf="@+id/tvPopular"
-                app:srcCompat="@drawable/vector_refresh" />
+                app:srcCompat="@drawable/vector_refresh"
+                app:tint="@color/icon_primary" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvPopular"
                 android:layout_width="match_parent"
-                android:layout_height="360dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:paddingStart="60dp"
                 android:paddingEnd="60dp"
@@ -176,7 +175,7 @@
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true"
                 app:lottie_rawRes="@raw/no_data"
-                tools:visibility="gone" />
+                tools:visibility="visible" />
 
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/brPopular"
@@ -186,6 +185,7 @@
                 app:constraint_referenced_ids="rvPopular,lottieNoData" />
 
             <com.google.android.material.divider.MaterialDivider
+                android:id="@+id/divider"
                 android:layout_width="0dp"
                 android:layout_height="2dp"
                 android:layout_marginTop="20dp"
@@ -193,6 +193,53 @@
                 app:layout_constraintEnd_toEndOf="@+id/guidelineRight"
                 app:layout_constraintStart_toStartOf="@+id/guidelineLeft"
                 app:layout_constraintTop_toBottomOf="@+id/brPopular" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardMore"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginVertical="20dp"
+                android:layout_marginTop="20dp"
+                app:cardCornerRadius="8dp"
+                app:layout_constraintDimensionRatio="4:1"
+                app:layout_constraintEnd_toEndOf="@+id/divider"
+                app:layout_constraintStart_toStartOf="@+id/divider"
+                app:layout_constraintTop_toBottomOf="@+id/divider"
+                app:layout_constraintWidth_max="300dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/background_fragment_variant">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvViewMore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sentence_near_restaurant"
+                        android:textColor="@color/icon_primary"
+                        android:textSize="@dimen/text_medium_large"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/imgArrow"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/imgArrow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@color/primary"
+                        android:paddingHorizontal="10dp"
+                        android:src="@drawable/vector_arrow_forward"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="@android:color/white" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guidelineLeft"

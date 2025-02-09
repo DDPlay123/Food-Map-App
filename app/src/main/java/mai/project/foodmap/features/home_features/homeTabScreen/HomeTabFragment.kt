@@ -44,6 +44,10 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
     }
 
     override fun FragmentHomeTabBinding.setListener() {
+        tvLocation.onClick(anim = true) {
+
+        }
+
         clTextSearch.onClick {
 
         }
@@ -53,6 +57,18 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
         }
 
         imgVoiceSearch.onClick {
+
+        }
+
+        tvPopular.onClick(anim = true) {
+
+        }
+
+        imgRefresh.onClick(anim = true) {
+
+        }
+
+        cardMore.onClick {
 
         }
     }

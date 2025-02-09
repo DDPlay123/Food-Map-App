@@ -12,24 +12,16 @@ import mai.project.core.utils.SafeOnClickListener
  * 設定 View 的點擊事件
  *
  * @param safe 是否安全點擊
+ * @param anim 是否需要動畫效果
+ * @param isAnimEndCallback 是否需要動畫結束後要做的事情
  * @param action 點擊後要做的事情
  */
 fun View.onClick(
     safe: Boolean = true,
+    anim: Boolean = false,
+    isAnimEndCallback: Boolean = false,
     action: (View) -> Unit
-) = setOnClickListener(SafeOnClickListener(safe, action))
-
-/**
- * 設定 View 的長按事件
- *
- * @param action 長按後要做的事情
- */
-fun View.onLongClick(
-    action: (View) -> Unit
-) = setOnLongClickListener {
-    action(it)
-    true
-}
+) = setOnClickListener(SafeOnClickListener(safe, anim, isAnimEndCallback, action))
 
 /**
  * 設定多個 View 的點擊事件
@@ -37,47 +29,16 @@ fun View.onLongClick(
  * 如果要設定多個 View 的點擊事件，可以使用此方法
  *
  * @param safe 是否安全點擊
+ * @param anim 是否需要動畫效果
+ * @param isAnimEndCallback 是否需要動畫結束後要做的事情
  * @param action 點擊後要做的事情
  */
 fun List<View>.onClicks(
     safe: Boolean = true,
+    anim: Boolean = false,
+    isAnimEndCallback: Boolean = false,
     action: (View) -> Unit
-) {
-    val clickListener = if (safe) {
-        SafeOnClickListener(true, action)
-    } else {
-        View.OnClickListener(action)
-    }
-
-    this.forEach { view -> view.setOnClickListener(clickListener) }
-}
-
-/**
- * 清除多個 View 的點擊事件
- */
-fun List<View>.clearClicks() {
-    this.forEach { view -> view.setOnClickListener(null) }
-}
-
-/**
- * 設定多個 View 的長按事件
- *
- * 如果要設定多個 View 的長按事件，可以使用此方法
- *
- * @param action 長按後要做的事情
- */
-fun List<View>.onLongClicks(
-    action: (View) -> Unit
-) {
-    this.forEach { view -> view.onLongClick(action) }
-}
-
-/**
- * 清除多個 View 的長按事件
- */
-fun List<View>.clearLongClicks() {
-    this.forEach { view -> view.setOnLongClickListener(null) }
-}
+) = this.forEach { view -> view.onClick(safe, anim, isAnimEndCallback, action) }
 
 /**
  * 生成 Adapter 的 ViewBinding

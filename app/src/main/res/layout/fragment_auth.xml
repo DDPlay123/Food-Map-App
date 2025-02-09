@@ -32,6 +32,7 @@
                 android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
                 android:text="@string/sentence_now_start"
                 android:textColor="@color/primary"
                 android:textSize="@dimen/text_largest"

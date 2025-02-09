@@ -4,6 +4,7 @@
 
     <color name="background_navigation_view">#F4F7F9</color>
     <color name="background_fragment">#FFFFFF</color>
+    <color name="background_fragment_variant">#FCFCFC</color>
     <color name="background_fragment_label">#F4F7F9</color>
     <color name="background_dialog">#EFE4E3</color>
     <color name="background_edittext">#F4F4F4</color>

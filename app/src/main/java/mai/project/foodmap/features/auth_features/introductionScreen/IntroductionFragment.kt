@@ -27,6 +27,8 @@ class IntroductionFragment : BaseFragment<FragmentIntroductionBinding, SharedVie
     }
 
     override fun FragmentIntroductionBinding.setListener() {
-        btnNext.onClick { navigate(R.id.action_introductionFragment_to_authFragment) }
+        btnNext.onClick(anim = true, isAnimEndCallback = true) {
+            navigate(R.id.action_introductionFragment_to_authFragment)
+        }
     }
 }
