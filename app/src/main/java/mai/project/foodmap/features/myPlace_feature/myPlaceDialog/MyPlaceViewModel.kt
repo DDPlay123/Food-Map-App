@@ -62,6 +62,18 @@ class MyPlaceViewModel @Inject constructor(
             userRepo.fetchMyPlaceList()
         }.collect { result -> _myPlaceListResult.update { Event(result) } }
     }
+
+    /**
+     * 移除定位點
+     */
+    private val _pullMyPlaceResult = MutableStateFlow<Event<NetworkResult<EmptyNetworkResult>>>(Event(NetworkResult.Idle()))
+    val pullMyPlaceResult = _pullMyPlaceResult.asStateFlow()
+
+    fun pullMyPlace(placeId: String) = launchCoroutineIO {
+        safeApiCallFlow {
+            userRepo.pullMyPlace(placeId)
+        }.collect { result -> _pullMyPlaceResult.update { Event(result) } }
+    }
     // endregion Network State
 
     init {

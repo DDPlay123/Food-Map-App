@@ -1,7 +1,6 @@
 package mai.project.foodmap.features.myPlace_feature.myPlaceDialog
 
 import android.view.ViewGroup
-import androidx.annotation.Nullable
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -22,18 +21,6 @@ class MyPlaceAdapter(
 
     var onClickedPlace: ((MyPlaceResult) -> Unit)? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-        MyPlaceViewHolder.from(parent)
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        if (holder is MyPlaceViewHolder) holder.bind(
-            item = getItem(position),
-            selectedPlaceId = selectedPlaceId,
-            imageLoaderUtil = imageLoaderUtil,
-            onClickedPlace = onClickedPlace
-        )
-    }
-
     private var selectedPlaceId = ""
 
     fun submitList(
@@ -45,10 +32,31 @@ class MyPlaceAdapter(
         super.submitList(list, commitCallback)
     }
 
-    private class MyPlaceViewHolder(
+    override fun getItemViewType(position: Int): Int {
+        val item = getItem(position)
+        return if (item.placeId == selectedPlaceId)
+            SELECTED_ITEM
+        else
+            GENERAL_ITEM
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = when (viewType) {
+        SELECTED_ITEM -> SelectedViewHolder.from(parent)
+        else -> GeneralViewHolder.from(parent)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        if (holder is BaseViewHolder) holder.bind(
+            item = getItem(position),
+            selectedPlaceId = selectedPlaceId,
+            imageLoaderUtil = imageLoaderUtil,
+            onClickedPlace = onClickedPlace
+        )
+    }
+
+    private abstract class BaseViewHolder(
         private val binding: ItemMyPlaceBinding
     ) : ViewHolder(binding.root) {
-
         fun bind(
             item: MyPlaceResult,
             selectedPlaceId: String,
@@ -72,15 +80,32 @@ class MyPlaceAdapter(
 
             clRoot.onClick { onClickedPlace?.invoke(item) }
         }
+    }
 
+    private class SelectedViewHolder(
+        binding: ItemMyPlaceBinding
+    ) : BaseViewHolder(binding) {
         companion object {
-            fun from(parent: ViewGroup) = MyPlaceViewHolder(
+            fun from(parent: ViewGroup) = SelectedViewHolder(
+                parent.inflateBinding(ItemMyPlaceBinding::inflate)
+            )
+        }
+    }
+
+    private class GeneralViewHolder(
+        binding: ItemMyPlaceBinding
+    ) : BaseViewHolder(binding) {
+        companion object {
+            fun from(parent: ViewGroup) = GeneralViewHolder(
                 parent.inflateBinding(ItemMyPlaceBinding::inflate)
             )
         }
     }
 
     companion object {
+        const val GENERAL_ITEM = 0
+        const val SELECTED_ITEM = 1
+
         private val DiffUtilCallback = object : DiffUtil.ItemCallback<MyPlaceResult>() {
             override fun areItemsTheSame(
                 oldItem: MyPlaceResult,
