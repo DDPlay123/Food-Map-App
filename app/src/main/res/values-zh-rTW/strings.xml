@@ -43,8 +43,8 @@
     <string name="sentence_location_permission_denied">定位權限被拒絕</string>
     <string name="sentence_gps_not_open">GPS尚未啟動</string>
     <string name="sentence_search_restaurant">搜尋餐廳</string>
-    <string name="sentence_near_popular_restaurant">附近熱門餐廳</string>
-    <string name="sentence_favorite_popular_restaurant">最愛熱門餐廳</string>
+    <string name="sentence_near_popular_restaurant">附近的人氣餐廳</string>
+    <string name="sentence_favorite_popular_restaurant">最愛清單的人氣餐廳</string>
     <string name="sentence_near_restaurant">附近的餐廳</string>
     <string name="sentence_can_not_get_location">無法取得經緯度</string>
 

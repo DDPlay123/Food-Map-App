@@ -88,6 +88,13 @@ internal class PreferenceRepoImpl @Inject constructor(
     override val readLanguageMode: Flow<String>
         get() = dataStore.getData(PREF_LANGUAGE_MODE, LanguageMode.SYSTEM)
 
+    override suspend fun writeMyPlaceId(placeId: String) {
+        dataStore.putData(PREF_MY_PLACE_ID, placeId)
+    }
+
+    override val readMyPlaceId: Flow<String>
+        get() = dataStore.getData(PREF_MY_PLACE_ID, "")
+
     private companion object {
         const val PREF_FID = "PREF_FID"
         const val PREF_USER_ID = "PREF_USER_ID"
@@ -98,5 +105,6 @@ internal class PreferenceRepoImpl @Inject constructor(
         const val PREF_USER_IMAGE = "PREF_USER_IMAGE"
         const val PREF_THEME_MODE = "PREF_THEME_MODE"
         const val PREF_LANGUAGE_MODE = "PREF_LANGUAGE_MODE"
+        const val PREF_MY_PLACE_ID = "PREF_MY_PLACE_ID"
     }
 }

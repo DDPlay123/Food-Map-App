@@ -2,20 +2,32 @@ package mai.project.foodmap.data.repositoryImpl
 
 import com.google.firebase.installations.FirebaseInstallations
 import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import mai.project.foodmap.data.annotations.StatusCode
+import mai.project.foodmap.data.localDataSource.dao.MySavedPlaceDao
+import mai.project.foodmap.data.localDataSource.entities.MySavedPlaceEntity
 import mai.project.foodmap.data.mapper.mapToEmptyNetworkResult
+import mai.project.foodmap.data.mapper.mapToMyPlaceResults
+import mai.project.foodmap.data.mapper.mapToMySavedPlaceEntities
 import mai.project.foodmap.data.remoteDataSource.APIService
 import mai.project.foodmap.data.remoteDataSource.models.AddFcmTokenReq
 import mai.project.foodmap.data.remoteDataSource.models.DeleteAccountReq
+import mai.project.foodmap.data.remoteDataSource.models.GetPlaceListReq
 import mai.project.foodmap.data.remoteDataSource.models.GetUserImageReq
+import mai.project.foodmap.data.remoteDataSource.models.LocationModel
 import mai.project.foodmap.data.remoteDataSource.models.LoginReq
 import mai.project.foodmap.data.remoteDataSource.models.LogoutReq
+import mai.project.foodmap.data.remoteDataSource.models.PullPlaceListReq
+import mai.project.foodmap.data.remoteDataSource.models.PushPlaceListReq
 import mai.project.foodmap.data.remoteDataSource.models.RegisterReq
 import mai.project.foodmap.data.remoteDataSource.models.SetPasswordReq
 import mai.project.foodmap.data.remoteDataSource.models.SetUserImageReq
 import mai.project.foodmap.data.utils.AES
 import mai.project.foodmap.data.utils.handleAPIResponse
 import mai.project.foodmap.domain.models.EmptyNetworkResult
+import mai.project.foodmap.domain.models.MyPlaceResult
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.repository.PreferenceRepo
 import mai.project.foodmap.domain.repository.UserRepo
@@ -26,6 +38,7 @@ import kotlin.coroutines.suspendCoroutine
 internal class UserRepoImpl @Inject constructor(
     private val apiService: APIService,
     private val preferenceRepo: PreferenceRepo,
+    private val mySavedPlaceDao: MySavedPlaceDao
 ) : UserRepo {
 
     override suspend fun login(
@@ -204,6 +217,88 @@ internal class UserRepoImpl @Inject constructor(
 
         result.data?.result?.userImage?.let {
             preferenceRepo.writeUserImage(it)
+        }
+
+        return result.mapToEmptyNetworkResult()
+    }
+
+    override val getMyPlaceList: Flow<List<MyPlaceResult>>
+        get() = mySavedPlaceDao.readMySavedPlaceList().map {
+            it.map { entity -> entity.result }
+        }
+
+    override suspend fun fetchMyPlaceList(): NetworkResult<EmptyNetworkResult> {
+        val result = handleAPIResponse(
+            apiService.getPlaceList(
+                GetPlaceListReq(
+                    userId = preferenceRepo.readUserId.firstOrNull().orEmpty(),
+                    accessKey = preferenceRepo.readAccessKey.firstOrNull().orEmpty()
+                )
+            )
+        )
+
+        if (result is NetworkResult.Success) {
+            mySavedPlaceDao.syncMySavedPlaceList(
+                result.mapToMyPlaceResults().mapToMySavedPlaceEntities()
+            )
+        }
+
+        return result.mapToEmptyNetworkResult()
+    }
+
+    override suspend fun pushMyPlace(
+        placeId: String,
+        name: String,
+        address: String,
+        lat: Double,
+        lng: Double
+    ): NetworkResult<EmptyNetworkResult> {
+        val result = handleAPIResponse(
+            apiService.pushPlaceList(
+                PushPlaceListReq(
+                    accessKey = preferenceRepo.readAccessKey.firstOrNull().orEmpty(),
+                    userId = preferenceRepo.readUserId.firstOrNull().orEmpty(),
+                    placeId = placeId,
+                    name = name,
+                    address = address,
+                    location = LocationModel(lat = lat, lng = lng)
+                )
+            )
+        )
+
+        if (result is NetworkResult.Success) {
+            mySavedPlaceDao.insertMySavedPlace(
+                MySavedPlaceEntity(
+                    index = placeId,
+                    result = MyPlaceResult(
+                        status = StatusCode.SUCCESS,
+                        placeCount = getMyPlaceList.firstOrNull()?.size ?: -1,
+                        placeId = placeId,
+                        name = name,
+                        address = address,
+                        lat = lat,
+                        lng = lng
+                    ),
+                )
+            )
+        }
+
+        return result.mapToEmptyNetworkResult()
+    }
+
+    override suspend fun pullMyPlace(placeId: String): NetworkResult<EmptyNetworkResult> {
+        val result = handleAPIResponse(
+            apiService.pullPlaceList(
+                PullPlaceListReq(
+                    userId = preferenceRepo.readUserId.firstOrNull().orEmpty(),
+                    accessKey = preferenceRepo.readAccessKey.firstOrNull().orEmpty(),
+                    placeId = placeId
+                )
+            )
+        )
+
+        if (result is NetworkResult.Success) {
+            mySavedPlaceDao.deleteMySavedPlace(placeId)
         }
 
         return result.mapToEmptyNetworkResult()

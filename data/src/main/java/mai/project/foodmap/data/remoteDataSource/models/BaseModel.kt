@@ -21,27 +21,27 @@ internal abstract class BaseResponse {
     abstract val errMsg: String?
 }
 
+/**
+ * 經緯度座標
+ */
 @Serializable
 internal data class LocationModel(
     val lat: Double,
     val lng: Double
 )
 
+/**
+ * 評價資訊
+ */
 @Serializable
 internal data class RatingModel(
     val star: Float,
     val total: Long
 )
 
-@Serializable
-internal data class IconModel(
-    val url: String,
-    @SerialName("background_color")
-    val backgroundColor: String,
-    @SerialName("mask_base_uri")
-    val maskBaseUri: String
-)
-
+/**
+ * 營業時段
+ */
 @Serializable
 internal data class OpeningHoursModel(
     @SerialName("open_now")
@@ -64,6 +64,9 @@ internal data class OpeningHoursModel(
     )
 }
 
+/**
+ * 餐廳列表 Item
+ */
 @Serializable
 internal data class PlaceListModel(
     @SerialName("place_id")
@@ -75,7 +78,6 @@ internal data class PlaceListModel(
     val rating: RatingModel,
     val address: String,
     val location: LocationModel,
-    val icon: IconModel,
     val types: List<String>,
     @SerialName("opening_hours")
     val openingHours: OpeningHoursModel,

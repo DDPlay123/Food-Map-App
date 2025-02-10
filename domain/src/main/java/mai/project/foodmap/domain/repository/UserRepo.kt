@@ -1,6 +1,8 @@
 package mai.project.foodmap.domain.repository
 
+import kotlinx.coroutines.flow.Flow
 import mai.project.foodmap.domain.models.EmptyNetworkResult
+import mai.project.foodmap.domain.models.MyPlaceResult
 import mai.project.foodmap.domain.state.NetworkResult
 import javax.inject.Singleton
 
@@ -70,4 +72,32 @@ interface UserRepo {
      * 取得大頭貼
      */
     suspend fun getUserImage(): NetworkResult<EmptyNetworkResult>
+
+    /**
+     * 讀取儲存的定位點資料
+     */
+    val getMyPlaceList: Flow<List<MyPlaceResult>>
+
+    /**
+     * 抓取儲存的定位點
+     */
+    suspend fun fetchMyPlaceList(): NetworkResult<EmptyNetworkResult>
+
+    /**
+     * 儲存定位點
+     */
+    suspend fun pushMyPlace(
+        placeId: String,
+        name: String,
+        address: String,
+        lat: Double,
+        lng: Double
+    ): NetworkResult<EmptyNetworkResult>
+
+    /**
+     * 移除定位點
+     */
+    suspend fun pullMyPlace(
+        placeId: String
+    ): NetworkResult<EmptyNetworkResult>
 }

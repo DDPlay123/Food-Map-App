@@ -6,12 +6,18 @@ import mai.project.foodmap.data.remoteDataSource.models.AddFcmTokenReq
 import mai.project.foodmap.data.remoteDataSource.models.AddFcmTokenRes
 import mai.project.foodmap.data.remoteDataSource.models.DeleteAccountReq
 import mai.project.foodmap.data.remoteDataSource.models.DeleteAccountRes
+import mai.project.foodmap.data.remoteDataSource.models.GetPlaceListReq
+import mai.project.foodmap.data.remoteDataSource.models.GetPlaceListRes
 import mai.project.foodmap.data.remoteDataSource.models.GetUserImageReq
 import mai.project.foodmap.data.remoteDataSource.models.GetUserImageRes
 import mai.project.foodmap.data.remoteDataSource.models.LoginReq
 import mai.project.foodmap.data.remoteDataSource.models.LoginRes
 import mai.project.foodmap.data.remoteDataSource.models.LogoutReq
 import mai.project.foodmap.data.remoteDataSource.models.LogoutRes
+import mai.project.foodmap.data.remoteDataSource.models.PullPlaceListReq
+import mai.project.foodmap.data.remoteDataSource.models.PullPlaceListRes
+import mai.project.foodmap.data.remoteDataSource.models.PushPlaceListReq
+import mai.project.foodmap.data.remoteDataSource.models.PushPlaceListRes
 import mai.project.foodmap.data.remoteDataSource.models.RegisterReq
 import mai.project.foodmap.data.remoteDataSource.models.RegisterRes
 import mai.project.foodmap.data.remoteDataSource.models.SetPasswordReq
@@ -73,6 +79,24 @@ internal interface APIService {
     suspend fun getUserImage(
         @Body body: GetUserImageReq
     ): Response<GetUserImageRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/push_place_list")
+    suspend fun pushPlaceList(
+        @Body body: PushPlaceListReq
+    ): Response<PushPlaceListRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/pull_place_list")
+    suspend fun pullPlaceList(
+        @Body pullPlaceListReq: PullPlaceListReq
+    ): Response<PullPlaceListRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/get_place_list")
+    suspend fun getPlaceList(
+        @Body getPlaceListReq: GetPlaceListReq
+    ): Response<GetPlaceListRes>
     // endregion user
 
     // region place

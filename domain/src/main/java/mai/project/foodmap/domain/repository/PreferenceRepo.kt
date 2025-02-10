@@ -64,4 +64,10 @@ interface PreferenceRepo {
      */
     suspend fun writeLanguageMode(language: String)
     val readLanguageMode: Flow<String>
+
+    /**
+     * 讀取/寫入 定位點 (placeId，如果為空，表示當前位置)
+     */
+    suspend fun writeMyPlaceId(placeId: String)
+    val readMyPlaceId: Flow<String>
 }
