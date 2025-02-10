@@ -57,6 +57,9 @@
     <string name="rule_password_length">密碼至少要 6 位數</string>
     <string name="rule_password_limit">密碼最多只能 30 位數</string>
 
+    <string name="format_number_meter">距離 %,.1f 公尺</string>
+    <string name="format_number_kilometer">距離 %,.1f 公里</string>
+
     <array name="theme_mode">
         <item>根據系統設定</item>
         <item>深色模式</item>

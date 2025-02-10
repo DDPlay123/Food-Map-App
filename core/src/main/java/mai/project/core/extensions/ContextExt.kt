@@ -4,6 +4,10 @@ import android.app.KeyguardManager
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.location.LocationManager
+import android.os.Build
+import android.util.DisplayMetrics
+import android.view.WindowInsets
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
@@ -26,6 +30,40 @@ val Context.hasGPS: Boolean
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
+
+/**
+ * 取得螢幕寬度
+ */
+val Context.screenWidth: Int
+    get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val windowMetrics = getSystemService(WindowManager::class.java).currentWindowMetrics
+        val insets = windowMetrics.windowInsets
+            .getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
+        windowMetrics.bounds.width() - insets.left - insets.right
+    } else {
+        val metrics = DisplayMetrics()
+        val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        @Suppress("DEPRECATION")
+        windowManager.defaultDisplay.getMetrics(metrics)
+        metrics.widthPixels
+    }
+
+/**
+ * 取得螢幕高度
+ */
+val Context.screenHeight: Int
+    get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val windowMetrics = getSystemService(WindowManager::class.java).currentWindowMetrics
+        val insets = windowMetrics.windowInsets
+            .getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
+        windowMetrics.bounds.height() - insets.bottom - insets.top
+    } else {
+        val metrics = DisplayMetrics()
+        val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        @Suppress("DEPRECATION")
+        windowManager.defaultDisplay.getMetrics(metrics)
+        metrics.heightPixels
     }
 
 /**

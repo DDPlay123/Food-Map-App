@@ -5,7 +5,9 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Looper
 import androidx.activity.result.ActivityResultLauncher
-import androidx.fragment.app.viewModels
+import androidx.core.view.isVisible
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
+import androidx.recyclerview.widget.LinearSnapHelper
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -13,6 +15,8 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
+import mai.project.core.annotations.Direction
+import mai.project.core.extensions.DP
 import mai.project.core.extensions.checkMultiplePermissions
 import mai.project.core.extensions.displayToast
 import mai.project.core.extensions.hasGPS
@@ -21,7 +25,11 @@ import mai.project.core.extensions.onClick
 import mai.project.core.extensions.openAppSettings
 import mai.project.core.extensions.openGpsSettings
 import mai.project.core.extensions.requestMultiplePermissions
+import mai.project.core.extensions.screenWidth
 import mai.project.core.utils.Event
+import mai.project.core.utils.ImageLoaderUtil
+import mai.project.core.widget.recyclerView_decorations.ScaleItemDecoration
+import mai.project.core.widget.recyclerView_decorations.SpacesItemDecoration
 import mai.project.foodmap.MainActivity
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
@@ -33,14 +41,18 @@ import mai.project.foodmap.domain.models.RestaurantResult
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.utils.handleResult
 import timber.log.Timber
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
     bindingInflater = FragmentHomeTabBinding::inflate
 ) {
-    override val viewModel by viewModels<HomeTabViewModel>()
+    override val viewModel by hiltNavGraphViewModels<HomeTabViewModel>(R.id.nav_main)
 
     override val useActivityOnBackPressed: Boolean = true
+
+    @Inject
+    lateinit var imageLoaderUtil: ImageLoaderUtil
 
     private lateinit var locationPermissionLauncher: ActivityResultLauncher<Array<String>>
 
@@ -51,6 +63,10 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
     private val fusedLocationClient by lazy {
         LocationServices.getFusedLocationProviderClient(requireContext())
     }
+
+    private val drawCardAdapter by lazy { DrawCardAdapter(imageLoaderUtil) }
+
+    private val snapHelper by lazy { LinearSnapHelper() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +80,26 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
 
     override fun FragmentHomeTabBinding.initialize(savedInstanceState: Bundle?) {
         locationPermissionLauncher.launch(locationPermissions)
+
+        with(rvPopular) {
+            addItemDecoration(
+                SpacesItemDecoration(
+                    direction = Direction.HORIZONTAL,
+                    space = 20.DP
+                )
+            )
+            addItemDecoration(
+                ScaleItemDecoration(
+                    maxScale = 1f,
+                    minScale = .8f
+                )
+            )
+            val offset = requireContext().screenWidth / 2
+            setPadding(offset, 0, offset, 0)
+            clipToPadding = false
+            snapHelper.attachToRecyclerView(this)
+            adapter = drawCardAdapter
+        }
     }
 
     override fun FragmentHomeTabBinding.setObserver() = with(viewModel) {
@@ -76,34 +112,36 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
             { myPlaceList.combine(myPlaceId) { p0, p1 -> p0 to p1 }.collect { handleMyPlace(it.first, it.second) } },
             // 抓取儲存的地位點資訊
             { myPlaceListResult.collect(::handleMyPlaceListResult) },
-            // 人氣餐廳卡片資訊
-            { drawCardResult.collect(::handleDrawCardResult) }
+            // 抽取人氣餐廳卡片資訊
+            { drawCardResult.collect(::handleDrawCardResult) },
+            // 人氣餐廳資料列表
+            { drawCardList.collect(::handleDrawCardList) }
         )
     }
 
     override fun FragmentHomeTabBinding.setListener() {
         tvLocation.onClick(anim = true) {
-
+            // TODO 切換定位點
         }
 
         clTextSearch.onClick {
-
+            // TODO 文字搜尋
         }
 
         imgImageSearch.onClick {
-
+            // TODO 圖片搜尋
         }
 
         imgVoiceSearch.onClick {
-
+            // TODO 語音搜尋
         }
 
         tvPopular.onClick(anim = true) { viewModel.setDrawCardMode() }
 
-        imgRefresh.onClick(anim = true) { handleLocationPermissionGranted() }
+        imgRefresh.onClick(anim = true) { if (checkLocationPermissionAndGPS()) viewModel.fetchMyPlaceList() }
 
         cardMore.onClick {
-
+            // TODO 餐廳列表
         }
     }
 
@@ -135,7 +173,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
      * 處理定位權限請求成功結果
      */
     private fun handleLocationPermissionGranted() {
-        if (checkLocationPermissionAndGPS()) {
+        if (checkLocationPermissionAndGPS() && viewModel.drawCardList.value.isEmpty()) {
             viewModel.fetchMyPlaceList()
         }
     }
@@ -248,12 +286,19 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
         event: Event<NetworkResult<List<RestaurantResult>>>
     ) {
         handleBasicResult(event,
-            workOnSuccess = {
-
-            },
-            workOnError = {
-
-            }
+            workOnSuccess = { it?.let(viewModel::setDrawCardList) },
+            workOnError = { viewModel.setDrawCardList(emptyList()) }
         )
+    }
+
+    /**
+     * 處理人氣餐廳卡片列表
+     */
+    private fun handleDrawCardList(
+        list: List<RestaurantResult>
+    ) = with(binding) {
+        rlRv.isVisible = list.isNotEmpty()
+        lottieNoData.isVisible = list.isEmpty()
+        drawCardAdapter.submitList(list) { rvPopular.post { rvPopular.smoothScrollToPosition(0) } }
     }
 }

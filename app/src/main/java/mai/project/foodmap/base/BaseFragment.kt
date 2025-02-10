@@ -113,14 +113,14 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
      */
     protected fun <T> handleBasicResult(
         event: Event<NetworkResult<T>>,
-        workOnSuccess: (() -> Unit)? = null,
+        workOnSuccess: ((T?) -> Unit)? = null,
         workOnError: (() -> Unit)? = null
     ) {
         event.getContentIfNotHandled?.handleResult {
             onLoading = { viewModel?.setLoading(true) }
             onSuccess = {
                 viewModel?.setLoading(false)
-                workOnSuccess?.invoke()
+                workOnSuccess?.invoke(it)
             }
             onError = { _, msg ->
                 viewModel?.setLoading(false)

@@ -2,7 +2,7 @@ package mai.project.foodmap.features.home_features.profilesTabScreen
 
 import android.os.Bundle
 import androidx.fragment.app.setFragmentResultListener
-import androidx.fragment.app.viewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.recyclerview.widget.ConcatAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
@@ -30,7 +30,7 @@ import javax.inject.Inject
 class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTabViewModel>(
     bindingInflater = FragmentProfilesTabBinding::inflate
 ) {
-    override val viewModel by viewModels<ProfilesTabViewModel>()
+    override val viewModel by hiltNavGraphViewModels<ProfilesTabViewModel>(R.id.nav_main)
 
     override val useActivityOnBackPressed: Boolean = true
 

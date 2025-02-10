@@ -57,6 +57,9 @@
     <string name="rule_password_length">Password must be at least 6 characters</string>
     <string name="rule_password_limit">Password cannot exceed 30 characters</string>
 
+    <string name="format_number_meter">Distance: %,.1f meters</string>
+    <string name="format_number_kilometer">Distance: %,.1f kilometers</string>
+
     <array name="theme_mode">
         <item>System Default</item>
         <item>Dark Mode</item>

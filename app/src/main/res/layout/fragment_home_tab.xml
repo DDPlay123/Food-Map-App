@@ -147,20 +147,30 @@
                 app:srcCompat="@drawable/vector_refresh"
                 app:tint="@color/icon_primary" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvPopular"
+            <RelativeLayout
+                android:id="@+id/rlRv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:paddingStart="60dp"
-                android:paddingEnd="60dp"
+                android:gravity="center_vertical"
                 android:visibility="gone"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHeight_min="360dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvPopular"
-                app:layout_constraintWidth_max="360dp"
-                tools:visibility="visible" />
+                tools:visibility="visible">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvPopular"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:itemCount="3"
+                    tools:listitem="@layout/item_draw_card" />
+
+            </RelativeLayout>
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/lottieNoData"
@@ -182,7 +192,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:barrierDirection="bottom"
-                app:constraint_referenced_ids="rvPopular,lottieNoData" />
+                app:constraint_referenced_ids="rlRv,lottieNoData" />
 
             <com.google.android.material.divider.MaterialDivider
                 android:id="@+id/divider"

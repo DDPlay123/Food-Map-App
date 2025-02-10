@@ -52,6 +52,16 @@ class HomeTabViewModel @Inject constructor(
         _drawCardMode.update { mode }
         getDrawCard()
     }
+
+    /**
+     * 人氣餐廳資料
+     */
+    private val _drawCardList = MutableStateFlow<List<RestaurantResult>>(emptyList())
+    val drawCardList = _drawCardList.asStateFlow()
+
+    fun setDrawCardList(list: List<RestaurantResult>) {
+        _drawCardList.update { list }
+    }
     // endregion
 
     // region Preference State

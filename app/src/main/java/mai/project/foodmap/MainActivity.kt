@@ -10,7 +10,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
@@ -39,11 +39,6 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
      * 導航控制器
      */
     private lateinit var navController: NavController
-
-    /**
-     * 導航基底 Fragment
-     */
-    private lateinit var navHostFragment: NavHostFragment
 
     /**
      * 記錄返回鍵按下時間
@@ -134,11 +129,11 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
      * 初始化
      */
     private fun doInitialization() {
-        navHostFragment = supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment
         navController = navHostFragment.navController
 
-        binding.bottomNavigation?.let { NavigationUI.setupWithNavController(it, navController) }
-        binding.sideNavigation?.let { NavigationUI.setupWithNavController(it, navController) }
+        binding.bottomNavigation?.setupWithNavController(navController)
+        binding.sideNavigation?.setupWithNavController(navController)
     }
 
     /**
