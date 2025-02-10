@@ -54,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_search_bar"
-                    app:layout_constraintEnd_toStartOf="@+id/imgImageSearch"
+                    app:layout_constraintEnd_toStartOf="@+id/imgVoiceSearch"
                     app:layout_constraintHeight_min="50dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
@@ -86,20 +86,6 @@
                         app:srcCompat="@drawable/vector_search" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/imgImageSearch"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_search_bar"
-                    android:padding="10dp"
-                    android:tint="@color/primary"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintEnd_toStartOf="@+id/imgVoiceSearch"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/img_image_search" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/imgVoiceSearch"

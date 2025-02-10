@@ -85,7 +85,6 @@ class ImageLoaderUtil @Inject constructor(
         transformation: Transformation? = null
     ) {
         imageView.load(resource, imageLoader) {
-            size(1000)
             error(getDrawableResource(imageType, true))
             placeholder(getDrawableResource(imageType, false))
             transitionFactory(CrossfadeTransition.Factory())

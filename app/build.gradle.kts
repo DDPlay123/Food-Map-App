@@ -29,6 +29,7 @@ android {
         versionCode = 1
         versionName = "1.0.0"
 
+        buildConfigField("String", "GOOGLE_API_KEY", localProperties.getProperty("GOOGLE_API_KEY"))
         manifestPlaceholders["GOOGLE_API_KEY"] = localProperties.getProperty("GOOGLE_API_KEY")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

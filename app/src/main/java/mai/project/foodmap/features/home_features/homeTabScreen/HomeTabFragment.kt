@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Looper
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.view.isVisible
+import androidx.fragment.app.setFragmentResultListener
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.recyclerview.widget.LinearSnapHelper
 import com.google.android.gms.location.LocationCallback
@@ -24,6 +25,7 @@ import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.onClick
 import mai.project.core.extensions.openAppSettings
 import mai.project.core.extensions.openGpsSettings
+import mai.project.core.extensions.parcelable
 import mai.project.core.extensions.requestMultiplePermissions
 import mai.project.core.extensions.screenWidth
 import mai.project.core.utils.Event
@@ -40,6 +42,7 @@ import mai.project.foodmap.domain.models.MyPlaceResult
 import mai.project.foodmap.domain.models.RestaurantResult
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.utils.handleResult
+import mai.project.foodmap.features.myPlace_feature.myPlaceDialog.MyPlaceCallback
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -110,7 +113,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
             { drawCardMode.collect(::handleDrawCardMode) },
             // 當前定位點資訊
             { myPlaceList.combine(myPlaceId) { p0, p1 -> p0 to p1 }.collect { handleMyPlace(it.first, it.second) } },
-            // 抓取儲存的地位點資訊
+            // 抓取儲存的定位點資訊
             { myPlaceListResult.collect(::handleMyPlaceListResult) },
             // 抽取人氣餐廳卡片資訊
             { drawCardResult.collect(::handleDrawCardResult) },
@@ -121,15 +124,17 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
 
     override fun FragmentHomeTabBinding.setListener() {
         tvLocation.onClick(anim = true) {
-            // TODO 切換定位點
+            if (checkLocationPermissionAndGPS()) {
+                navigate(
+                    HomeTabFragmentDirections.actionHomeTabFragmentToMyPlaceBottomSheetDialog(
+                        requestCode = REQUEST_CODE_SELECT_PLACE
+                    )
+                )
+            }
         }
 
         clTextSearch.onClick {
             // TODO 文字搜尋
-        }
-
-        imgImageSearch.onClick {
-            // TODO 圖片搜尋
         }
 
         imgVoiceSearch.onClick {
@@ -142,6 +147,25 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
 
         cardMore.onClick {
             // TODO 餐廳列表
+        }
+    }
+
+    override fun FragmentHomeTabBinding.setCallback() {
+        setFragmentResultListener(REQUEST_CODE_SELECT_PLACE) { _, bundle ->
+            bundle.parcelable<MyPlaceCallback>(MyPlaceCallback.ARG_ITEM_CLICK)?.let tag@ { callback ->
+                callback as MyPlaceCallback.OnItemClick
+                if (viewModel.myPlaceId.value == callback.placeId) return@tag
+                viewModel.setMyPlaceId(callback.placeId)
+                viewModel.myPlaceList.value.find { it.placeId == callback.placeId }
+                    ?.let { place -> updateLocationAndDrawCard(place.lat, place.lng) }
+                    ?: getCurrentLocation(
+                        onSuccess = ::updateLocationAndDrawCard,
+                        onFailure = { displayToast(getString(R.string.sentence_can_not_get_location)) }
+                    )
+            }
+            bundle.parcelable<MyPlaceCallback>(MyPlaceCallback.ARG_ADD_ADDRESS)?.let {
+                // TODO 新增定位點
+            }
         }
     }
 
@@ -204,7 +228,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
     }
 
     /**
-     * 處理當前的地位點資訊
+     * 處理當前的定位點資訊
      */
     private fun handleMyPlace(
         list: List<MyPlaceResult>,
@@ -215,7 +239,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
     }
 
     /**
-     * 處理儲存的地位點資訊結果
+     * 處理儲存的定位點資訊結果
      */
     private fun handleMyPlaceListResult(
         event: Event<NetworkResult<EmptyNetworkResult>>
@@ -300,5 +324,12 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
         rlRv.isVisible = list.isNotEmpty()
         lottieNoData.isVisible = list.isEmpty()
         drawCardAdapter.submitList(list) { rvPopular.post { rvPopular.smoothScrollToPosition(0) } }
+    }
+
+    companion object {
+        /**
+         * 選擇定位點 Dialog
+         */
+        private const val REQUEST_CODE_SELECT_PLACE = "REQUEST_CODE_SELECT_PLACE"
     }
 }

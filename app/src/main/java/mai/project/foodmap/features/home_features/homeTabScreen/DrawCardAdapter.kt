@@ -40,7 +40,7 @@ class DrawCardAdapter(
                 transformation = RoundedCornersTransformation(25f)
             )
             tvName.text = item.name
-            tvRating.text = item.ratingStar.toString()
+            tvRating.text = "${item.ratingStar}"
             rating.rating = item.ratingStar
             tvRatingTotal.text = String.format(Locale.getDefault(), "(%d)", item.ratingTotal)
             tvAddress.text = item.address

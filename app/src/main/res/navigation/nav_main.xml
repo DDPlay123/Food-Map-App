@@ -55,7 +55,11 @@
         android:id="@+id/homeTabFragment"
         android:name="mai.project.foodmap.features.home_features.homeTabScreen.HomeTabFragment"
         android:label="fragment_home_tab"
-        tools:layout="@layout/fragment_home_tab" />
+        tools:layout="@layout/fragment_home_tab" >
+        <action
+            android:id="@+id/action_homeTabFragment_to_myPlaceBottomSheetDialog"
+            app:destination="@id/myPlaceBottomSheetDialog" />
+    </fragment>
 
     <!--  地圖  -->
     <fragment
@@ -165,6 +169,19 @@
         <argument
             android:name="items"
             app:argType="mai.project.foodmap.features.dialogs_features.selector.SelectorModel[]" />
+    </dialog>
+
+    <!--  Dialog：選取定位點 BottomSheetDialog  -->
+    <dialog
+        android:id="@+id/myPlaceBottomSheetDialog"
+        android:name="mai.project.foodmap.features.myPlace_feature.myPlaceDialog.MyPlaceBottomSheetDialog"
+        android:label="dialog_bottom_sheet_my_place"
+        tools:layout="@layout/dialog_bottom_sheet_my_place">
+        <!--    請求碼    -->
+        <argument
+            android:name="requestCode"
+            android:defaultValue=""
+            app:argType="string" />
     </dialog>
 
 </navigation>

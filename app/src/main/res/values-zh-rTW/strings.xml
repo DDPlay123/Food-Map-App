@@ -10,6 +10,7 @@
     <string name="word_cancel">取消</string>
     <string name="word_other">其他</string>
     <string name="word_logout">登出</string>
+    <string name="word_search">搜尋</string>
 
     <string name="sentence_unknown_eating">不知道要吃甚麼嗎？</string>
     <string name="sentence_next_step">下一步</string>
@@ -47,6 +48,9 @@
     <string name="sentence_favorite_popular_restaurant">最愛清單的人氣餐廳</string>
     <string name="sentence_near_restaurant">附近的餐廳</string>
     <string name="sentence_can_not_get_location">無法取得經緯度</string>
+    <string name="sentence_use_current_place">使用當前位置</string>
+    <string name="sentence_add_address">新增地址</string>
+    <string name="sentence_confirm_address">確認地址</string>
 
     <string name="rule_username_empty">使用者名稱不能為空</string>
     <string name="rule_username_length">使用者名稱至少要 4 位數</string>

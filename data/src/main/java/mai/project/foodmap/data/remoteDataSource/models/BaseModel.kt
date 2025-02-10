@@ -45,11 +45,11 @@ internal data class RatingModel(
 @Serializable
 internal data class OpeningHoursModel(
     @SerialName("open_now")
-    val openNow: Boolean,
+    val openNow: Boolean? = null,
     @SerialName("periods")
-    var periods: List<Periods> = emptyList(),
+    val periods: List<Periods>? = emptyList(),
     @SerialName("weekday_text")
-    var weekdayText: List<String> = emptyList()
+    val weekdayText: List<String>? = emptyList()
 ) {
     @Serializable
     data class Periods(
@@ -80,7 +80,7 @@ internal data class PlaceListModel(
     val location: LocationModel,
     val types: List<String>,
     @SerialName("opening_hours")
-    val openingHours: OpeningHoursModel,
+    val openingHours: OpeningHoursModel? = null,
     val distance: Double,
     val isFavorite: Boolean
 )

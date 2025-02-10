@@ -13,7 +13,11 @@ import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import mai.project.core.extensions.displayToast
+import mai.project.core.utils.Event
 import mai.project.foodmap.R
+import mai.project.foodmap.domain.state.NetworkResult
+import mai.project.foodmap.domain.utils.handleResult
 import timber.log.Timber
 
 /**
@@ -33,6 +37,34 @@ abstract class BaseBottomSheetDialog<VB : ViewBinding, VM : BaseViewModel>(
      */
     protected lateinit var navController: NavController
         private set
+
+    // region public function
+    /**
+     * 處理 API 基礎回傳結果
+     *
+     * @param event API 回傳事件
+     * @param workOnSuccess 成功後執行工作
+     * @param workOnError 失敗後執行工作
+     */
+    protected fun <T> handleBasicResult(
+        event: Event<NetworkResult<T>>,
+        workOnSuccess: ((T?) -> Unit)? = null,
+        workOnError: (() -> Unit)? = null
+    ) {
+        event.getContentIfNotHandled?.handleResult {
+            onLoading = { viewModel?.setLoading(true) }
+            onSuccess = {
+                viewModel?.setLoading(false)
+                workOnSuccess?.invoke(it)
+            }
+            onError = { _, msg ->
+                viewModel?.setLoading(false)
+                requireContext().displayToast(msg ?: "Unknown Error")
+                workOnError?.invoke()
+            }
+        }
+    }
+    // endregion public function
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme).apply {
