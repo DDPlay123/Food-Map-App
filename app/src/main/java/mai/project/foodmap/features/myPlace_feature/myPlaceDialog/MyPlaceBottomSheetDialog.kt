@@ -7,9 +7,13 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
+import mai.project.core.annotations.Direction
+import mai.project.core.extensions.DP
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.onClick
 import mai.project.core.utils.ImageLoaderUtil
+import mai.project.core.widget.recyclerView_decorations.DividerItemDecoration
+import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseBottomSheetDialog
 import mai.project.foodmap.databinding.DialogBottomSheetMyPlaceBinding
 import mai.project.foodmap.domain.models.MyPlaceResult
@@ -30,6 +34,16 @@ class MyPlaceBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetMyPlaceB
 
     override fun DialogBottomSheetMyPlaceBinding.initialize(savedInstanceState: Bundle?) {
         with(rvMyPlace) {
+            addItemDecoration(
+                DividerItemDecoration(
+                    context = requireContext(),
+                    direction = Direction.VERTICAL,
+                    dividerHeight = 1.DP,
+                    marginLeft = 16.DP,
+                    marginRight = 16.DP,
+                    dividerDrawableRes = R.drawable.bg_divider
+                )
+            )
             adapter = myPlaceAdapter
         }
     }

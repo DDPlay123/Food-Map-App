@@ -47,6 +47,14 @@
         tools:itemCount="3"
         tools:listitem="@layout/item_my_place" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@drawable/bg_shadow_top"
+        app:layout_constraintBottom_toTopOf="@+id/tvAdd"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvAdd"
         android:layout_width="0dp"

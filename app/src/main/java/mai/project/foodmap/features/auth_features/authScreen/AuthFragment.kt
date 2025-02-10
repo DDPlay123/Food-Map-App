@@ -38,9 +38,9 @@ class AuthFragment : BaseFragment<FragmentAuthBinding, AuthViewModel>(
             // 輸入結果驗證
             { authValidation.collect(::handleAuthValidation) },
             // 登入狀態
-            { loginResult.collect { handleLoginAndRegisterResult(true, it) } },
+            { loginResult.collect { handleLoginAndRegisterResult(false, it) } },
             // 註冊狀態
-            { registerResult.collect { handleLoginAndRegisterResult(false, it) } }
+            { registerResult.collect { handleLoginAndRegisterResult(true, it) } }
         )
     }
 
