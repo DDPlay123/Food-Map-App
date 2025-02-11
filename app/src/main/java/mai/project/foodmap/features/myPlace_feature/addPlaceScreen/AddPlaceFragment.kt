@@ -96,6 +96,14 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
         }
     }
 
+    override fun FragmentAddPlaceBinding.handleOnBackPressed() {
+        if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        } else {
+            popBackStack()
+        }
+    }
+
     override fun FragmentAddPlaceBinding.setObserver() = with(viewModel) {
         launchAndRepeatStarted(
             // 是否顯示搜尋列表
@@ -114,7 +122,7 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
     }
 
     override fun FragmentAddPlaceBinding.setListener() {
-        imgBack.onClick { popBackStack() }
+        imgBack.onClick { onBackPressed() }
 
         imgMyLocation.onClick {
             if (checkLocationPermission()) getMyLocationAndMove()

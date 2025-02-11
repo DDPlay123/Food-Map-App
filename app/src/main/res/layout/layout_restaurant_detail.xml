@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="300dp"
+    app:layout_behavior="@string/bottom_sheet_behavior">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clRoot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_bottom_sheet_layout">
+
+        <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+            android:id="@+id/dragHandle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/background_drag_handle" />
+
+        <mai.project.core.widget.MNestedScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dragHandle">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ProgressBar
+                    android:id="@+id/pbCircular"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_centerInParent="true"
+                    android:indeterminateTint="@color/primary"
+                    app:layout_constraintBottom_toBottomOf="@+id/vpPhoto"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toEndOf="@+id/vpPhoto"
+                    app:layout_constraintStart_toStartOf="@+id/vpPhoto"
+                    app:layout_constraintTop_toTopOf="@+id/vpPhoto"
+                    app:layout_constraintWidth_max="100dp"
+                    app:layout_constraintWidth_percent=".25" />
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/vpPhoto"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintDimensionRatio="16:9"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHeight_max="500dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="3"
+                    android:paddingHorizontal="26dp"
+                    android:paddingVertical="16dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/vpPhoto"
+                    app:layout_constraintWidth_max="488dp"
+                    tools:text="麻辣燙麻辣燙麻辣燙麻辣燙麻辣燙麻辣燙麻辣燙麻辣燙麻辣燙" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvAddress"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vector_location_pin"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@color/primary"
+                    android:ellipsize="end"
+                    android:maxLines="3"
+                    android:paddingHorizontal="26dp"
+                    android:paddingVertical="10dp"
+                    android:textColor="@color/text_hint"
+                    android:textSize="@dimen/text_small_medium"
+                    app:layout_constraintEnd_toEndOf="@+id/tvName"
+                    app:layout_constraintStart_toStartOf="@+id/tvName"
+                    app:layout_constraintTop_toBottomOf="@+id/tvName"
+                    tools:text="台灣台北市大安區忠孝東路三段1號" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvWorkday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vector_access_time"
+                    android:drawableEnd="@drawable/vector_keyboard_arrow_down"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@color/primary"
+                    android:ellipsize="end"
+                    android:maxLines="3"
+                    android:paddingHorizontal="26dp"
+                    android:paddingVertical="10dp"
+                    android:text="@string/sentence_workday"
+                    android:textColor="@color/text_hint"
+                    android:textSize="@dimen/text_small_medium"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintEnd_toEndOf="@+id/tvAddress"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintStart_toStartOf="@+id/tvAddress"
+                    app:layout_constraintTop_toBottomOf="@+id/tvAddress" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvWebsite"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vector_public"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@color/primary"
+                    android:paddingHorizontal="26dp"
+                    android:paddingVertical="10dp"
+                    android:text="@string/word_website"
+                    android:textColor="@color/text_hint"
+                    android:textSize="@dimen/text_small_medium"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintEnd_toEndOf="@+id/tvAddress"
+                    app:layout_constraintStart_toStartOf="@+id/tvAddress"
+                    app:layout_constraintTop_toBottomOf="@+id/tvWorkday" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvPhone"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vector_call"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@color/primary"
+                    android:paddingHorizontal="26dp"
+                    android:paddingVertical="10dp"
+                    android:text="@string/word_phone_call"
+                    android:textColor="@color/text_hint"
+                    android:textSize="@dimen/text_small_medium"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintEnd_toEndOf="@+id/tvWebsite"
+                    app:layout_constraintStart_toStartOf="@+id/tvWebsite"
+                    app:layout_constraintTop_toBottomOf="@+id/tvWebsite" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </mai.project.core.widget.MNestedScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</RelativeLayout>

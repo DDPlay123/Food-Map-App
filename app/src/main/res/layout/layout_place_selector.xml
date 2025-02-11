@@ -12,7 +12,7 @@
         android:id="@+id/clRoot"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/bg_place_selector">
+        android:background="@drawable/bg_bottom_sheet_layout">
 
         <com.google.android.material.bottomsheet.BottomSheetDragHandleView
             android:id="@+id/dragHandle"
