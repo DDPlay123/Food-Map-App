@@ -1,7 +1,6 @@
 package mai.project.foodmap.data.di
 
 import android.content.Context
-import androidx.room.Database
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
@@ -9,6 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import mai.project.foodmap.data.localDataSource.LocalDB
+import mai.project.foodmap.data.localDataSource.LocalDB.Companion.MIGRATION_1_2
 import javax.inject.Singleton
 
 @Module
@@ -24,10 +24,14 @@ internal object DatabaseModule {
         context,
         LocalDB::class.java,
         "local_db"
-    ).fallbackToDestructiveMigration()
+    ).addMigrations(MIGRATION_1_2)
         .build()
 
     @Singleton
     @Provides
     fun provideMySavedPlaceDao(database: LocalDB) = database.mySavedPlaceDao()
+
+    @Singleton
+    @Provides
+    fun provideMyFavoriteDao(database: LocalDB) = database.myFavoriteDao()
 }

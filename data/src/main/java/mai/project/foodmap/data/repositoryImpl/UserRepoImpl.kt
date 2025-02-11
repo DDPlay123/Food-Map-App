@@ -5,21 +5,26 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import mai.project.foodmap.data.annotations.StatusCode
+import mai.project.foodmap.data.localDataSource.dao.MyFavoriteDao
 import mai.project.foodmap.data.localDataSource.dao.MySavedPlaceDao
 import mai.project.foodmap.data.localDataSource.entities.MySavedPlaceEntity
 import mai.project.foodmap.data.mapper.mapToEmptyNetworkResult
+import mai.project.foodmap.data.mapper.mapToMyFavoriteEntities
+import mai.project.foodmap.data.mapper.mapToMyFavoriteResult
 import mai.project.foodmap.data.mapper.mapToMyPlaceResults
 import mai.project.foodmap.data.mapper.mapToMySavedPlaceEntities
 import mai.project.foodmap.data.remoteDataSource.APIService
 import mai.project.foodmap.data.remoteDataSource.models.AddFcmTokenReq
 import mai.project.foodmap.data.remoteDataSource.models.DeleteAccountReq
+import mai.project.foodmap.data.remoteDataSource.models.GetFavoriteListReq
 import mai.project.foodmap.data.remoteDataSource.models.GetPlaceListReq
 import mai.project.foodmap.data.remoteDataSource.models.GetUserImageReq
 import mai.project.foodmap.data.remoteDataSource.models.LocationModel
 import mai.project.foodmap.data.remoteDataSource.models.LoginReq
 import mai.project.foodmap.data.remoteDataSource.models.LogoutReq
+import mai.project.foodmap.data.remoteDataSource.models.PullFavoriteListReq
 import mai.project.foodmap.data.remoteDataSource.models.PullPlaceListReq
+import mai.project.foodmap.data.remoteDataSource.models.PushFavoriteListReq
 import mai.project.foodmap.data.remoteDataSource.models.PushPlaceListReq
 import mai.project.foodmap.data.remoteDataSource.models.RegisterReq
 import mai.project.foodmap.data.remoteDataSource.models.SetPasswordReq
@@ -28,6 +33,7 @@ import mai.project.foodmap.data.utils.AES
 import mai.project.foodmap.data.utils.handleAPIResponse
 import mai.project.foodmap.data.utils.safeIoWorker
 import mai.project.foodmap.domain.models.EmptyNetworkResult
+import mai.project.foodmap.domain.models.MyFavoriteResult
 import mai.project.foodmap.domain.models.MyPlaceResult
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.repository.PreferenceRepo
@@ -39,7 +45,8 @@ import kotlin.coroutines.suspendCoroutine
 internal class UserRepoImpl @Inject constructor(
     private val apiService: APIService,
     private val preferenceRepo: PreferenceRepo,
-    private val mySavedPlaceDao: MySavedPlaceDao
+    private val mySavedPlaceDao: MySavedPlaceDao,
+    private val myFavoriteDao: MyFavoriteDao
 ) : UserRepo {
 
     override suspend fun login(
@@ -272,7 +279,6 @@ internal class UserRepoImpl @Inject constructor(
                 MySavedPlaceEntity(
                     index = placeId,
                     result = MyPlaceResult(
-                        status = StatusCode.SUCCESS,
                         placeCount = getMyPlaceList.firstOrNull()?.size ?: -1,
                         placeId = placeId,
                         name = name,
@@ -300,6 +306,69 @@ internal class UserRepoImpl @Inject constructor(
 
         if (result is NetworkResult.Success) safeIoWorker {
             mySavedPlaceDao.deleteMySavedPlace(placeId)
+        }
+
+        return result.mapToEmptyNetworkResult()
+    }
+
+    override val getMyFavoriteList: Flow<List<MyFavoriteResult>>
+        get() = myFavoriteDao.readMyFavoriteList().map {
+            it.map { entity -> entity.result }
+        }
+
+    override suspend fun fetchMyFavoriteList(): NetworkResult<EmptyNetworkResult> {
+        val result = handleAPIResponse(
+            apiService.getFavoriteList(
+                GetFavoriteListReq(
+                    userId = preferenceRepo.readUserId.firstOrNull().orEmpty(),
+                    accessKey = preferenceRepo.readAccessKey.firstOrNull().orEmpty()
+                )
+            )
+        )
+
+        if (result is NetworkResult.Success) safeIoWorker {
+            myFavoriteDao.syncMyFavoriteList(
+                result.mapToMyFavoriteResult(preferenceRepo.readUserId.firstOrNull().orEmpty())
+                    .mapToMyFavoriteEntities()
+            )
+        }
+
+        return result.mapToEmptyNetworkResult()
+    }
+
+    override suspend fun pushOrPullMyFavorite(
+        placeId: String,
+        isFavorite: Boolean
+    ): NetworkResult<EmptyNetworkResult> {
+        return if (isFavorite) pushMyFavorite(placeId) else pullMyFavorite(placeId)
+    }
+
+    private suspend fun pushMyFavorite(placeId: String): NetworkResult<EmptyNetworkResult> {
+        val result = handleAPIResponse(
+            apiService.pushFavoriteList(
+                PushFavoriteListReq(
+                    userId = preferenceRepo.readUserId.firstOrNull().orEmpty(),
+                    accessKey = preferenceRepo.readAccessKey.firstOrNull().orEmpty(),
+                    favoriteList = listOf(placeId)
+                )
+            )
+        )
+        return result.mapToEmptyNetworkResult()
+    }
+
+    private suspend fun pullMyFavorite(placeId: String): NetworkResult<EmptyNetworkResult> {
+        val result = handleAPIResponse(
+            apiService.pullFavoriteList(
+                PullFavoriteListReq(
+                    userId = preferenceRepo.readUserId.firstOrNull().orEmpty(),
+                    accessKey = preferenceRepo.readAccessKey.firstOrNull().orEmpty(),
+                    favoriteIdList = listOf(placeId)
+                )
+            )
+        )
+
+        if (result is NetworkResult.Success) safeIoWorker {
+            myFavoriteDao.deleteMyFavorite(placeId)
         }
 
         return result.mapToEmptyNetworkResult()

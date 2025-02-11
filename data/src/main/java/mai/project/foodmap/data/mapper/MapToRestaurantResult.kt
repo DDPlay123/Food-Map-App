@@ -12,7 +12,6 @@ internal fun NetworkResult<DrawCardRes>.mapToRestaurantResults(
     return mapResult { data ->
         data?.result?.placeList?.map {
             RestaurantResult(
-                status = data.status,
                 placeCount = data.result.placeCount,
                 placeId = it.placeId,
                 name = it.name,

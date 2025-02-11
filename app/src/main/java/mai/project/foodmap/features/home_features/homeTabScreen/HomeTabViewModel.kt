@@ -36,6 +36,8 @@ class HomeTabViewModel @Inject constructor(
     var currentLat = Configs.DEFAULT_LATITUDE
     var currentLng = Configs.DEFAULT_LONGITUDE
 
+    var needScrollToFirst = true
+
     // region State
     /**
      * 當前的 抽取人氣餐廳卡片模式
@@ -60,7 +62,21 @@ class HomeTabViewModel @Inject constructor(
     val drawCardList = _drawCardList.asStateFlow()
 
     fun setDrawCardList(list: List<RestaurantResult>) {
+        needScrollToFirst = true
         _drawCardList.update { list }
+    }
+
+    fun setFavoriteForDrawCard(
+        placeId: String,
+        isFavorite: Boolean
+    ) {
+        needScrollToFirst = false
+        pushOrPullMyFavorite(placeId, isFavorite)
+        _drawCardList.update { list ->
+            list.map { item ->
+                if (item.placeId == placeId) item.copy(isFavorite = isFavorite) else item
+            }
+        }
     }
     // endregion State
 
@@ -113,6 +129,21 @@ class HomeTabViewModel @Inject constructor(
         safeApiCallFlow {
             placeRepo.getDrawCard(currentLat, currentLng, drawCardMode.value)
         }.collect { result -> _drawCardResult.update { Event(result) } }
+    }
+
+    /**
+     * 新增/移除 收藏
+     */
+    private val _pushOrPullMyFavoriteResult = MutableStateFlow<Event<NetworkResult<EmptyNetworkResult>>>(Event(NetworkResult.Idle()))
+    val pushOrPullMyFavoriteResult = _pushOrPullMyFavoriteResult.asStateFlow()
+
+    fun pushOrPullMyFavorite(
+        placeId: String,
+        isFavorite: Boolean
+    ) = launchCoroutineIO {
+        safeApiCallFlow {
+            userRepo.pushOrPullMyFavorite(placeId, isFavorite)
+        }.collect { result -> _pushOrPullMyFavoriteResult.update { Event(result) } }
     }
     // endregion Network State
 }

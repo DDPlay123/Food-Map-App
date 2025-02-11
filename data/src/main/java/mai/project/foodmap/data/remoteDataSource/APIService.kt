@@ -6,6 +6,8 @@ import mai.project.foodmap.data.remoteDataSource.models.AddFcmTokenReq
 import mai.project.foodmap.data.remoteDataSource.models.AddFcmTokenRes
 import mai.project.foodmap.data.remoteDataSource.models.DeleteAccountReq
 import mai.project.foodmap.data.remoteDataSource.models.DeleteAccountRes
+import mai.project.foodmap.data.remoteDataSource.models.GetFavoriteListReq
+import mai.project.foodmap.data.remoteDataSource.models.GetFavoriteListRes
 import mai.project.foodmap.data.remoteDataSource.models.GetLocationByAddressReq
 import mai.project.foodmap.data.remoteDataSource.models.GetLocationByAddressRes
 import mai.project.foodmap.data.remoteDataSource.models.GetPlaceListReq
@@ -18,8 +20,12 @@ import mai.project.foodmap.data.remoteDataSource.models.LogoutReq
 import mai.project.foodmap.data.remoteDataSource.models.LogoutRes
 import mai.project.foodmap.data.remoteDataSource.models.PlaceAutocompleteReq
 import mai.project.foodmap.data.remoteDataSource.models.PlaceAutocompleteRes
+import mai.project.foodmap.data.remoteDataSource.models.PullFavoriteListReq
+import mai.project.foodmap.data.remoteDataSource.models.PullFavoriteListRes
 import mai.project.foodmap.data.remoteDataSource.models.PullPlaceListReq
 import mai.project.foodmap.data.remoteDataSource.models.PullPlaceListRes
+import mai.project.foodmap.data.remoteDataSource.models.PushFavoriteListReq
+import mai.project.foodmap.data.remoteDataSource.models.PushFavoriteListRes
 import mai.project.foodmap.data.remoteDataSource.models.PushPlaceListReq
 import mai.project.foodmap.data.remoteDataSource.models.PushPlaceListRes
 import mai.project.foodmap.data.remoteDataSource.models.RegisterReq
@@ -101,6 +107,24 @@ internal interface APIService {
     suspend fun getPlaceList(
         @Body getPlaceListReq: GetPlaceListReq
     ): Response<GetPlaceListRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/push_favorite")
+    suspend fun pushFavoriteList(
+        @Body body: PushFavoriteListReq
+    ): Response<PushFavoriteListRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/pull_favorite")
+    suspend fun pullFavoriteList(
+        @Body body: PullFavoriteListReq
+    ): Response<PullFavoriteListRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/get_favorite")
+    suspend fun getFavoriteList(
+        @Body body: GetFavoriteListReq
+    ): Response<GetFavoriteListRes>
     // endregion user
 
     // region place

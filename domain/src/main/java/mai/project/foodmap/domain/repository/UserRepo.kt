@@ -2,6 +2,7 @@ package mai.project.foodmap.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 import mai.project.foodmap.domain.models.EmptyNetworkResult
+import mai.project.foodmap.domain.models.MyFavoriteResult
 import mai.project.foodmap.domain.models.MyPlaceResult
 import mai.project.foodmap.domain.state.NetworkResult
 import javax.inject.Singleton
@@ -99,5 +100,23 @@ interface UserRepo {
      */
     suspend fun pullMyPlace(
         placeId: String
+    ): NetworkResult<EmptyNetworkResult>
+
+    /**
+     * 讀取我的收藏清單
+     */
+    val getMyFavoriteList: Flow<List<MyFavoriteResult>>
+
+    /**
+     * 抓取收藏清單
+     */
+    suspend fun fetchMyFavoriteList(): NetworkResult<EmptyNetworkResult>
+
+    /**
+     * 新增/移除 收藏
+     */
+    suspend fun pushOrPullMyFavorite(
+        placeId: String,
+        isFavorite: Boolean
     ): NetworkResult<EmptyNetworkResult>
 }

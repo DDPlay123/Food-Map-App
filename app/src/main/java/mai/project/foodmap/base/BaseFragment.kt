@@ -114,22 +114,24 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
      * 處理 API 基礎回傳結果
      *
      * @param event API 回傳事件
+     * @param needLoading 是否需要 Loading
      * @param workOnSuccess 成功後執行工作
      * @param workOnError 失敗後執行工作
      */
     protected fun <T> handleBasicResult(
         event: Event<NetworkResult<T>>,
+        needLoading: Boolean = true,
         workOnSuccess: ((T?) -> Unit)? = null,
         workOnError: (() -> Unit)? = null
     ) {
         event.getContentIfNotHandled?.handleResult {
-            onLoading = { viewModel?.setLoading(true) }
+            onLoading = { if (needLoading) viewModel?.setLoading(true) }
             onSuccess = {
-                viewModel?.setLoading(false)
+                if (needLoading) viewModel?.setLoading(false)
                 workOnSuccess?.invoke(it)
             }
             onError = { _, msg ->
-                viewModel?.setLoading(false)
+                if (needLoading) viewModel?.setLoading(false)
                 displayToast(msg ?: "Unknown Error")
                 workOnError?.invoke()
             }

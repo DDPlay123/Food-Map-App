@@ -7,6 +7,7 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.recyclerview.widget.LinearSnapHelper
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import mai.project.core.annotations.Direction
 import mai.project.core.extensions.DP
@@ -102,6 +103,8 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
             { myPlaceListResult.collect(::handleMyPlaceListResult) },
             // 抽取人氣餐廳卡片資訊
             { drawCardResult.collect(::handleDrawCardResult) },
+            // 新增/移除收藏
+            { pushOrPullMyFavoriteResult.collect { handleBasicResult(it, false) } },
             // 人氣餐廳資料列表
             { drawCardList.collect(::handleDrawCardList) }
         )
@@ -132,6 +135,14 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
 
         cardMore.onClick {
             // TODO 餐廳列表
+        }
+
+        drawCardAdapter.onItemClick = { item ->
+            // TODO 前往詳細頁
+        }
+
+        drawCardAdapter.onFavoriteClick = { item ->
+            viewModel.setFavoriteForDrawCard(item.placeId, !item.isFavorite)
         }
     }
 
@@ -287,7 +298,9 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
     ) = with(binding) {
         rlRv.isVisible = list.isNotEmpty()
         lottieNoData.isVisible = list.isEmpty()
-        drawCardAdapter.submitList(list) { rvPopular.post { rvPopular.smoothScrollToPosition(0) } }
+        drawCardAdapter.submitList(list) {
+            if (viewModel.needScrollToFirst) rvPopular.post { rvPopular.smoothScrollToPosition(0) }
+        }
     }
 
     companion object {

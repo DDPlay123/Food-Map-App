@@ -10,7 +10,6 @@ internal fun NetworkResult<GetPlaceListRes>.mapToMyPlaceResults(): NetworkResult
     return mapResult { data ->
         data?.result?.placeList?.map {
             MyPlaceResult(
-                status = data.status,
                 placeCount = data.result.placeCount,
                 placeId = it.placeId,
                 name = it.name,
