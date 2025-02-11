@@ -36,7 +36,7 @@ class HomeTabViewModel @Inject constructor(
     var currentLat = Configs.DEFAULT_LATITUDE
     var currentLng = Configs.DEFAULT_LONGITUDE
 
-    var needScrollToFirst = true
+    var drawCardPosition = 0
 
     // region State
     /**
@@ -62,7 +62,7 @@ class HomeTabViewModel @Inject constructor(
     val drawCardList = _drawCardList.asStateFlow()
 
     fun setDrawCardList(list: List<RestaurantResult>) {
-        needScrollToFirst = true
+        drawCardPosition = 0
         _drawCardList.update { list }
     }
 
@@ -70,7 +70,7 @@ class HomeTabViewModel @Inject constructor(
         placeId: String,
         isFavorite: Boolean
     ) {
-        needScrollToFirst = false
+        drawCardPosition = -1
         pushOrPullMyFavorite(placeId, isFavorite)
         _drawCardList.update { list ->
             list.map { item ->

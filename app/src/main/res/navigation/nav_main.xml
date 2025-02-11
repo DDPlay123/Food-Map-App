@@ -66,6 +66,20 @@
             app:exitAnim="@anim/slide_in_down"
             app:popEnterAnim="@anim/slide_out_up"
             app:popExitAnim="@anim/slide_out_down" />
+        <action
+            android:id="@+id/action_homeTabFragment_to_restaurantDetailFragment"
+            app:destination="@id/restaurantDetailFragment"
+            app:enterAnim="@anim/slide_in_up"
+            app:exitAnim="@anim/slide_in_down"
+            app:popEnterAnim="@anim/slide_out_up"
+            app:popExitAnim="@anim/slide_out_down" />
+        <action
+            android:id="@+id/action_homeTabFragment_to_restaurantListFragment"
+            app:destination="@id/restaurantListFragment"
+            app:enterAnim="@anim/slide_in_up"
+            app:exitAnim="@anim/slide_in_down"
+            app:popEnterAnim="@anim/slide_out_up"
+            app:popExitAnim="@anim/slide_out_down" />
     </fragment>
 
     <!--  地圖  -->
@@ -107,11 +121,43 @@
         android:id="@+id/addPlaceFragment"
         android:name="mai.project.foodmap.features.myPlace_feature.addPlaceScreen.AddPlaceFragment"
         android:label="fragment_add_place"
-        tools:layout="@layout/fragment_add_place" >
+        tools:layout="@layout/fragment_add_place">
         <!--    請求碼    -->
         <argument
             android:name="requestCode"
             android:defaultValue=""
+            app:argType="string" />
+    </fragment>
+
+    <!--  餐廳列表  -->
+    <fragment
+        android:id="@+id/restaurantListFragment"
+        android:name="mai.project.foodmap.features.restaurant_feature.restaurantListScreen.RestaurantListFragment"
+        android:label="fragment_restaurant_list"
+        tools:layout="@layout/fragment_restaurant_list">
+        <!--    關鍵字    -->
+        <argument
+            android:name="keyword"
+            android:defaultValue=""
+            app:argType="string" />
+        <action
+            android:id="@+id/action_restaurantListFragment_to_restaurantDetailFragment"
+            app:destination="@id/restaurantDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <!--  餐廳詳細  -->
+    <fragment
+        android:id="@+id/restaurantDetailFragment"
+        android:name="mai.project.foodmap.features.restaurant_feature.restaurantDetailScreen.RestaurantDetailFragment"
+        android:label="fragment_restaurant_detail"
+        tools:layout="@layout/fragment_restaurant_detail">
+        <!--    PlaceId    -->
+        <argument
+            android:name="placeId"
             app:argType="string" />
     </fragment>
 

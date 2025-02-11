@@ -5,9 +5,11 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResultListener
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.LinearSnapHelper
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import mai.project.core.annotations.Direction
 import mai.project.core.extensions.DP
@@ -34,6 +36,7 @@ import mai.project.foodmap.domain.models.RestaurantResult
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.utils.handleResult
 import mai.project.foodmap.features.myPlace_feature.myPlaceDialog.MyPlaceCallback
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -134,21 +137,40 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
         imgRefresh.onClick(anim = true) { if (checkLocationPermissionAndGPS()) viewModel.fetchMyPlaceList() }
 
         cardMore.onClick {
-            // TODO 餐廳列表
+            navigate(
+                HomeTabFragmentDirections.actionHomeTabFragmentToRestaurantListFragment(
+                    keyword = ""
+                )
+            )
         }
 
         drawCardAdapter.onItemClick = { item ->
-            // TODO 前往詳細頁
+            navigate(
+                HomeTabFragmentDirections.actionHomeTabFragmentToRestaurantDetailFragment(
+                    placeId = item.placeId
+                )
+            )
         }
 
         drawCardAdapter.onFavoriteClick = { item ->
             viewModel.setFavoriteForDrawCard(item.placeId, !item.isFavorite)
         }
+
+        rvPopular.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    val layoutManager = recyclerView.layoutManager ?: return
+                    val snapView = snapHelper.findSnapView(layoutManager)
+                    viewModel.drawCardPosition = if (snapView != null) layoutManager.getPosition(snapView) else 0
+                    Timber.d("DrawCard 目前的位置：${viewModel.drawCardPosition}")
+                }
+            }
+        })
     }
 
     override fun FragmentHomeTabBinding.setCallback() {
         setFragmentResultListener(REQUEST_CODE_SELECT_PLACE) { _, bundle ->
-            bundle.parcelable<MyPlaceCallback>(MyPlaceCallback.ARG_ITEM_CLICK)?.let tag@ { callback ->
+            bundle.parcelable<MyPlaceCallback>(MyPlaceCallback.ARG_ITEM_CLICK)?.let tag@{ callback ->
                 callback as MyPlaceCallback.OnItemClick
                 if (viewModel.myPlaceId.value == callback.placeId) return@tag
                 viewModel.setMyPlaceId(callback.placeId)
@@ -156,9 +178,11 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
             }
             bundle.parcelable<MyPlaceCallback>(MyPlaceCallback.ARG_ADD_ADDRESS)?.let {
                 popBackStack(R.id.homeTabFragment, false)
-                navigate(HomeTabFragmentDirections.actionHomeTabFragmentToAddPlaceFragment(
-                    requestCode = REQUEST_CODE_ADD_PLACE
-                ))
+                navigate(
+                    HomeTabFragmentDirections.actionHomeTabFragmentToAddPlaceFragment(
+                        requestCode = REQUEST_CODE_ADD_PLACE
+                    )
+                )
             }
         }
         setFragmentResultListener(REQUEST_CODE_ADD_PLACE) { _, bundle ->
@@ -299,8 +323,34 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
         rlRv.isVisible = list.isNotEmpty()
         lottieNoData.isVisible = list.isEmpty()
         drawCardAdapter.submitList(list) {
-            if (viewModel.needScrollToFirst) rvPopular.post { rvPopular.smoothScrollToPosition(0) }
+            if (viewModel.drawCardPosition != -1) {
+                val position = if (viewModel.drawCardPosition < list.size) viewModel.drawCardPosition else 0
+                rvPopular.post {
+                    smoothScrollToPositionWithOffset(position)
+                }
+            }
         }
+    }
+
+    /**
+     * 平滑滾動 RecyclerView 並帶有偏移值
+     */
+    private fun smoothScrollToPositionWithOffset(
+        targetPosition: Int
+    ) {
+        val layoutManager = binding.rvPopular.layoutManager as LinearLayoutManager
+        val smoothScroller = object : LinearSmoothScroller(requireContext()) {
+            override fun calculateDtToFit(
+                viewStart: Int, viewEnd: Int, boxStart: Int, boxEnd: Int, snapPreference: Int
+            ): Int {
+                // 計算偏移值，讓 Item 對齊中心
+                val viewCenter = (viewStart + viewEnd) / 2
+                val boxCenter = (boxStart + boxEnd) / 2
+                return boxCenter - viewCenter
+            }
+        }
+        smoothScroller.targetPosition = targetPosition
+        layoutManager.startSmoothScroll(smoothScroller)
     }
 
     companion object {
