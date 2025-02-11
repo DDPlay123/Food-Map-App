@@ -12,5 +12,7 @@ class FavoriteTabFragment : BaseFragment<FragmentFavoriteTabBinding, FavoriteTab
 ) {
     override val viewModel by hiltNavGraphViewModels<FavoriteTabViewModel>(R.id.nav_main)
 
+    override val isNavigationVisible: Boolean = true
+
     override val useActivityOnBackPressed: Boolean = true
 }

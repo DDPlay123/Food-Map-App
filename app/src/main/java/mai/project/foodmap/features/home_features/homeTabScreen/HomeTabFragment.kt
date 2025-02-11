@@ -41,6 +41,8 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
 ) {
     override val viewModel by hiltNavGraphViewModels<HomeTabViewModel>(R.id.nav_main)
 
+    override val isNavigationVisible: Boolean = true
+
     override val useActivityOnBackPressed: Boolean = true
 
     @Inject
@@ -143,6 +145,8 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
             }
             bundle.parcelable<MyPlaceCallback>(MyPlaceCallback.ARG_ADD_ADDRESS)?.let {
                 // TODO 新增定位點
+                popBackStack(R.id.homeTabFragment, false)
+                navigate(HomeTabFragmentDirections.actionHomeTabFragmentToAddPlaceFragment())
             }
         }
     }

@@ -55,10 +55,17 @@
         android:id="@+id/homeTabFragment"
         android:name="mai.project.foodmap.features.home_features.homeTabScreen.HomeTabFragment"
         android:label="fragment_home_tab"
-        tools:layout="@layout/fragment_home_tab" >
+        tools:layout="@layout/fragment_home_tab">
         <action
             android:id="@+id/action_homeTabFragment_to_myPlaceBottomSheetDialog"
             app:destination="@id/myPlaceBottomSheetDialog" />
+        <action
+            android:id="@+id/action_homeTabFragment_to_addPlaceFragment"
+            app:destination="@id/addPlaceFragment"
+            app:enterAnim="@anim/slide_in_up"
+            app:exitAnim="@anim/slide_in_down"
+            app:popEnterAnim="@anim/slide_out_up"
+            app:popExitAnim="@anim/slide_out_down" />
     </fragment>
 
     <!--  地圖  -->
@@ -81,6 +88,26 @@
         android:name="mai.project.foodmap.features.home_features.profilesTabScreen.ProfilesTabFragment"
         android:label="fragment_profiles_tab"
         tools:layout="@layout/fragment_profiles_tab" />
+
+    <!--  選取定位點 BottomSheetDialog  -->
+    <dialog
+        android:id="@+id/myPlaceBottomSheetDialog"
+        android:name="mai.project.foodmap.features.myPlace_feature.myPlaceDialog.MyPlaceBottomSheetDialog"
+        android:label="dialog_bottom_sheet_my_place"
+        tools:layout="@layout/dialog_bottom_sheet_my_place">
+        <!--    請求碼    -->
+        <argument
+            android:name="requestCode"
+            android:defaultValue=""
+            app:argType="string" />
+    </dialog>
+
+    <!--  新增定位點  -->
+    <fragment
+        android:id="@+id/addPlaceFragment"
+        android:name="mai.project.foodmap.features.myPlace_feature.addPlaceScreen.AddPlaceFragment"
+        android:label="fragment_add_place"
+        tools:layout="@layout/fragment_add_place" />
 
     <!--  全域呼叫 載入 Dialog  -->
     <action
@@ -159,7 +186,7 @@
         android:id="@+id/selectorBottomSheetDialog"
         android:name="mai.project.foodmap.features.dialogs_features.selector.SelectorBottomSheetDialog"
         android:label="dialog_bottom_sheet_selector"
-        tools:layout="@layout/dialog_bottom_sheet_selector" >
+        tools:layout="@layout/dialog_bottom_sheet_selector">
         <!--    請求碼    -->
         <argument
             android:name="requestCode"
@@ -169,19 +196,6 @@
         <argument
             android:name="items"
             app:argType="mai.project.foodmap.features.dialogs_features.selector.SelectorModel[]" />
-    </dialog>
-
-    <!--  Dialog：選取定位點 BottomSheetDialog  -->
-    <dialog
-        android:id="@+id/myPlaceBottomSheetDialog"
-        android:name="mai.project.foodmap.features.myPlace_feature.myPlaceDialog.MyPlaceBottomSheetDialog"
-        android:label="dialog_bottom_sheet_my_place"
-        tools:layout="@layout/dialog_bottom_sheet_my_place">
-        <!--    請求碼    -->
-        <argument
-            android:name="requestCode"
-            android:defaultValue=""
-            app:argType="string" />
     </dialog>
 
 </navigation>

@@ -32,6 +32,8 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
 ) {
     override val viewModel by hiltNavGraphViewModels<ProfilesTabViewModel>(R.id.nav_main)
 
+    override val isNavigationVisible: Boolean = true
+
     override val useActivityOnBackPressed: Boolean = true
 
     @Inject

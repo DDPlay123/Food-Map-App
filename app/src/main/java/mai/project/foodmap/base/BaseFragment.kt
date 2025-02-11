@@ -23,6 +23,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewbinding.ViewBinding
 import mai.project.core.extensions.displayToast
 import mai.project.core.utils.Event
+import mai.project.foodmap.MainActivity
 import mai.project.foodmap.R
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.utils.handleResult
@@ -66,6 +67,11 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
      */
     protected lateinit var navController: NavController
         private set
+
+    /**
+     * 是否顯示 NavigationView
+     */
+    protected open val isNavigationVisible: Boolean = false
 
     /**
      * 是否使用 Activity 的 onBackPressed
@@ -241,6 +247,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
     override fun onResume() {
         super.onResume()
         Timber.d(message = "${this::class.simpleName} onResume")
+        (activity as? MainActivity)?.setNavigationVisible(isNavigationVisible)
         // Setup Keyboard Listener
         toggleKeyboardListener(isOpen = useKeyboardListener)
         // Setup OnBackPressed

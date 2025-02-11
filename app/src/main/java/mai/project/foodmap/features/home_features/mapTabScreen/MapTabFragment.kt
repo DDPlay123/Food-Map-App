@@ -12,5 +12,7 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
 ) {
     override val viewModel by hiltNavGraphViewModels<MapTabViewModel>(R.id.nav_main)
 
+    override val isNavigationVisible: Boolean = true
+
     override val useActivityOnBackPressed: Boolean = true
 }

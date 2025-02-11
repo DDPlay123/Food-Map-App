@@ -1,12 +1,41 @@
 package mai.project.core.extensions
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.annotation.ColorInt
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.snackbar.Snackbar
 import mai.project.core.utils.SafeOnClickListener
+
+/**
+ * 顯示鍵盤
+ */
+val View.showKeyboard: Boolean
+    get() {
+        return try {
+            val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            this.requestFocus()
+            imm.showSoftInput(this, 0)
+        } catch (ignored: RuntimeException) {
+            false
+        }
+    }
+
+/**
+ * 隱藏鍵盤
+ */
+val View.hideKeyboard: Boolean
+    get() {
+        return try {
+            val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            return imm.hideSoftInputFromWindow(windowToken, 0)
+        } catch (ignored: RuntimeException) {
+            false
+        }
+    }
 
 /**
  * 設定 View 的點擊事件
@@ -58,7 +87,9 @@ fun <VB : ViewBinding> ViewGroup.inflateBinding(
  *
  * @param message 訊息
  * @param actionText 按鈕文字 (不顯示則為空字串)
+ * @param textColor 文字顏色 (不設定則為預設顏色)
  * @param actionTextColor 按鈕文字顏色 (不設定則為預設顏色)
+ * @param backgroundColor 背景顏色 (不設定則為預設顏色)
  * @param duration 顯示時間
  * @param anchorView 顯示位置 (在[anchorView]之上)
  * @param doSomething 點擊按鈕後要做的事情
@@ -67,7 +98,11 @@ fun View.showSnackBar(
     message: String,
     actionText: String = "",
     @ColorInt
+    textColor: Int = -1,
+    @ColorInt
     actionTextColor: Int = -1,
+    @ColorInt
+    backgroundColor: Int = -1,
     duration: Int = Snackbar.LENGTH_SHORT,
     anchorView: View? = null,
     doSomething: ((Snackbar) -> Unit)? = null
@@ -78,8 +113,14 @@ fun View.showSnackBar(
             dismiss()
         }
     }
+    if (textColor != -1) {
+        setTextColor(textColor)
+    }
     if (actionTextColor != -1) {
         setActionTextColor(actionTextColor)
+    }
+    if (backgroundColor != -1) {
+        setBackgroundTint(backgroundColor)
     }
     setTextMaxLines(5)
     this.anchorView = anchorView

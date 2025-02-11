@@ -69,11 +69,25 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
         root.showSnackBar(
             message = message,
             actionText = actionText,
+            textColor = getColorCompat(R.color.text_snack_bar),
             actionTextColor = getColorCompat(R.color.text_button),
+            backgroundColor = getColorCompat(R.color.background_snack_bar),
             duration = duration,
             anchorView = if (bottomNavigation?.isVisible == true) bottomNavigation else null,
             doSomething = action
         )
+    }
+
+    /**
+     * 設定導覽列是否顯示
+     *
+     * 這屬於全域設定，會影響所有 Fragment
+     *
+     * @param visible 是否顯示
+     */
+    fun setNavigationVisible(visible: Boolean) {
+        binding.bottomNavigation?.isVisible = visible
+        binding.sideNavigation?.isVisible = visible
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,19 +98,6 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
         doInitialization()
         setListener()
         setObserver()
-
-        savedInstanceState?.let { bundle ->
-            val showNavigationView = bundle.getBoolean(KEY_SHOW_NAVIGATION_VIEW)
-            binding.bottomNavigation?.isVisible = showNavigationView
-            binding.sideNavigation?.isVisible = showNavigationView
-        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        val showNavigationView =
-            binding.bottomNavigation?.isVisible == true || binding.sideNavigation?.isVisible == true
-        outState.putBoolean(KEY_SHOW_NAVIGATION_VIEW, showNavigationView)
     }
 
     override fun onResume() {
@@ -171,7 +172,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
     /**
      * 處理是否已登入的狀態
      */
-    private fun handleIsLoginState(isLogin: Boolean) = with(binding) {
+    private fun handleIsLoginState(isLogin: Boolean) {
         Timber.d(message = "當前登入狀態：$isLogin")
         val navOptions = NavOptions.Builder()
             .setLaunchSingleTop(true)
@@ -190,15 +191,12 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
             NavMainDirections.actionGlobalToIntroductionFragment(true)
         }
 
-        if (isScreenLocked) {
+        return if (isScreenLocked) {
             pendingLoginNavigation = { safeNavigate(navigateAction, navOptions) }
         } else {
             pendingLoginNavigation = null
             safeNavigate(navigateAction, navOptions)
         }
-
-        bottomNavigation?.isVisible = isLogin
-        sideNavigation?.isVisible = isLogin
     }
 
     /**
@@ -248,12 +246,5 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
             Timber.e(message = "safeNavigate", t = e)
             FirebaseCrashlytics.getInstance().recordException(e)
         }
-    }
-
-    companion object {
-        /**
-         * 當重建 Activity (畫面旋轉、螢幕縮放等...) 時，判斷是否要顯示 NavigationView
-         */
-        private const val KEY_SHOW_NAVIGATION_VIEW = "KEY_SHOW_NAVIGATION_VIEW"
     }
 }

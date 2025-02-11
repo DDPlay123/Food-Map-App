@@ -7,6 +7,7 @@
     <color name="background_fragment">#FFFFFF</color>
     <color name="background_fragment_variant">#FCFCFC</color>
     <color name="background_fragment_label">#F4F7F9</color>
+    <color name="background_snack_bar">#27282A</color>
     <color name="background_dialog">#EFE4E3</color>
     <color name="background_edittext">#F4F4F4</color>
     <color name="background_edittext_stroke">#E6E6E6</color>
@@ -20,6 +21,7 @@
     <color name="stroke_avatar">#33405F</color>
 
     <color name="text_primary">#000000</color>
+    <color name="text_snack_bar">#FFFFFF</color>
     <color name="text_hint">#666666</color>
     <color name="text_button">#A51D39</color>
 </resources>
