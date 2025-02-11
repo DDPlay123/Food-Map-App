@@ -1,7 +1,6 @@
 package mai.project.foodmap.domain.models
 
 data class SearchPlaceResult(
-    val placeCount: Int,
     val placeId: String,
     val name: String,
     val address: String,

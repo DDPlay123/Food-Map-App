@@ -1,39 +1,56 @@
 package mai.project.foodmap.features.myPlace_feature.addPlaceScreen
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.navArgs
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener
-import com.google.android.gms.maps.GoogleMap.OnCameraMoveListener
 import com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import mai.project.core.Configs
+import mai.project.core.annotations.Direction
 import mai.project.core.extensions.DP
 import mai.project.core.extensions.displayToast
 import mai.project.core.extensions.hideKeyboard
+import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.onClick
 import mai.project.core.extensions.openAppSettings
 import mai.project.core.extensions.openGpsSettings
+import mai.project.core.utils.Event
 import mai.project.core.utils.GoogleMapUtil
+import mai.project.core.widget.recyclerView_decorations.DividerItemDecoration
 import mai.project.foodmap.MainActivity
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
 import mai.project.foodmap.databinding.FragmentAddPlaceBinding
+import mai.project.foodmap.domain.models.EmptyNetworkResult
+import mai.project.foodmap.domain.models.SearchPlaceResult
+import mai.project.foodmap.domain.state.NetworkResult
+import mai.project.foodmap.domain.utils.handleResult
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
 @AndroidEntryPoint
 class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel>(
     bindingInflater = FragmentAddPlaceBinding::inflate
-), OnMapReadyCallback, OnMapLoadedCallback, OnCameraMoveListener, OnCameraIdleListener {
+), OnMapReadyCallback, OnMapLoadedCallback, OnCameraIdleListener {
     override val viewModel by viewModels<AddPlaceViewModel>()
+
+    private val args by navArgs<AddPlaceFragmentArgs>()
 
     @Inject
     lateinit var googleMapUtil: GoogleMapUtil
@@ -44,8 +61,7 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
-    // 中心點位置
-    private var targetCameraPosition: CameraPosition? = null
+    private val searchPlaceAdapter by lazy { SearchPlaceAdapter() }
 
     override fun FragmentAddPlaceBinding.initialize(savedInstanceState: Bundle?) {
         mapFragment = childFragmentManager.findFragmentById(R.id.mapHost) as SupportMapFragment
@@ -56,15 +72,45 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
             skipCollapsed = true
             state = BottomSheetBehavior.STATE_COLLAPSED
         }
+
+        with(layoutSelector.rvPlaceList) {
+            addItemDecoration(
+                DividerItemDecoration(
+                    context = requireContext(),
+                    direction = Direction.VERTICAL,
+                    dividerHeight = 1.DP,
+                    marginLeft = 16.DP,
+                    marginRight = 16.DP,
+                    dividerDrawableRes = R.drawable.bg_divider
+                )
+            )
+            adapter = searchPlaceAdapter
+        }
     }
 
     override fun FragmentAddPlaceBinding.destroy() {
         if (::myMap.isInitialized) with(myMap) {
             clear()
             setOnMapLoadedCallback(null)
-            setOnCameraMoveListener(null)
             setOnCameraIdleListener(null)
         }
+    }
+
+    override fun FragmentAddPlaceBinding.setObserver() = with(viewModel) {
+        launchAndRepeatStarted(
+            // 是否顯示搜尋列表
+            { isShowSearchList.collect(::handleIsShowSearchList) },
+            // 關鍵資搜尋
+            { searchFlow.debounce(300L).distinctUntilChanged().collect(::handleSearchFlow) },
+            // 移動地圖後，搜尋地區資訊 (含經緯度)
+            { searchPlaceResult.collect { handleSearchPlaceByLocationResult(it, false) } },
+            // 輸入關鍵字後，回傳地區資訊列表 (不含經緯度)
+            { searchPlacesResult.collect(::handleSearchPlacesResult) },
+            // 點選關鍵字回傳的資訊列表後，取得地區資訊 (含經緯度)
+            { placeDetailResult.collect { handleSearchPlaceByLocationResult(it, true) } },
+            // 儲存定位點資訊
+            { pushMyPlaceResult.collect(::handlePushMyPlaceResult) }
+        )
     }
 
     override fun FragmentAddPlaceBinding.setListener() {
@@ -74,22 +120,27 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
             if (checkLocationPermission()) getMyLocationAndMove()
         }
 
+        layoutSelector.edSearch.doAfterTextChanged {
+            viewModel.setSearchKeyword(it?.trim().toString())
+        }
+
+        searchPlaceAdapter.onItemClick = { item ->
+            viewModel.getPlaceByAddress(item.address)
+        }
+
+        btnConfirm.onClick { viewModel.pushMyPlace() }
+
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 when (newState) {
-                    BottomSheetBehavior.STATE_COLLAPSED -> {
-                        layoutSelector.tvCurrentAddress.isVisible = true
-                        layoutSelector.groupSearch.isVisible = false
-                    }
+                    BottomSheetBehavior.STATE_COLLAPSED ->
+                        viewModel.setShowSearchList(false)
 
-                    BottomSheetBehavior.STATE_EXPANDED -> {
-                        layoutSelector.tvCurrentAddress.isVisible = false
-                        layoutSelector.groupSearch.isVisible = true
-                    }
+                    BottomSheetBehavior.STATE_EXPANDED ->
+                        viewModel.setShowSearchList(true)
 
-                    BottomSheetBehavior.STATE_SETTLING, BottomSheetBehavior.STATE_DRAGGING -> {
+                    BottomSheetBehavior.STATE_SETTLING, BottomSheetBehavior.STATE_DRAGGING ->
                         root.hideKeyboard
-                    }
 
                     else -> Unit
                 }
@@ -99,7 +150,7 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
                 val height = bottomSheet.height.toFloat()
                 val offset = height * slideOffset
 
-                targetCameraPosition?.let {
+                viewModel.targetCameraPosition?.let {
                     when (bottomSheetBehavior.state) {
                         BottomSheetBehavior.STATE_DRAGGING, BottomSheetBehavior.STATE_SETTLING -> {
                             setMapsPaddingFromBottom(offset)
@@ -131,7 +182,6 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
                     marginLeft = 90.DP
                 )
                 setOnMapLoadedCallback(this@AddPlaceFragment)
-                setOnCameraMoveListener(this@AddPlaceFragment)
                 setOnCameraIdleListener(this@AddPlaceFragment)
             }
         }
@@ -141,12 +191,11 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
         getMyLocationAndMove()
     }
 
-    override fun onCameraMove() {
-        targetCameraPosition = myMap.cameraPosition
-    }
-
     override fun onCameraIdle() {
-        targetCameraPosition = myMap.cameraPosition
+        if (viewModel.targetCameraPosition != myMap.cameraPosition) {
+            viewModel.targetCameraPosition = myMap.cameraPosition
+            viewModel.searchPlacesByLocation()
+        }
     }
 
     /**
@@ -212,6 +261,102 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
                 latLng = LatLng(lat, lng),
                 zoomLevel = 15f
             )
+        }
+    }
+
+    /**
+     * 處理是否顯示搜尋列表
+     */
+    private fun handleIsShowSearchList(isShow: Boolean) = with(binding.layoutSelector) {
+        tvCurrentAddress.isVisible = !isShow
+        groupSearch.isVisible = isShow
+        rvPlaceList.isVisible = isShow && searchPlaceAdapter.itemCount > 0
+        lottieNoData.isVisible = isShow && searchPlaceAdapter.itemCount <= 0
+    }
+
+    /**
+     * 處理關鍵字搜尋
+     */
+    private fun handleSearchFlow(keyword: String) {
+        if (keyword.isNotEmpty()) {
+            viewModel.searchPlacesByKeyword(keyword)
+        } else {
+            updateSearchPlaceList(emptyList())
+        }
+    }
+
+    /**
+     * 更新搜尋列表
+     */
+    private fun updateSearchPlaceList(
+        list: List<SearchPlaceResult>?
+    ) = with(binding.layoutSelector) {
+        searchPlaceAdapter.submitList(list) {
+            rvPlaceList.isVisible = viewModel.isShowSearchList.value && searchPlaceAdapter.itemCount > 0
+            lottieNoData.isVisible = viewModel.isShowSearchList.value && searchPlaceAdapter.itemCount <= 0
+        }
+    }
+
+    /**
+     * 處理經緯度搜尋地區資訊狀態
+     */
+    private fun handleSearchPlaceByLocationResult(
+        event: Event<NetworkResult<SearchPlaceResult>>,
+        isFromAddress: Boolean
+    ) = with(binding) {
+        handleBasicResult(
+            event = event,
+            workOnSuccess = { data ->
+                data?.let {
+                    layoutSelector.tvCurrentAddress.text = String.format(Locale.getDefault(), "%s\n%s", it.name, it.address)
+                    viewModel.selectedPlace = it
+                    if (isFromAddress) {
+                        googleMapUtil.moveCamera(
+                            map = myMap,
+                            latLng = LatLng(it.lat!!, it.lng!!)
+                        )
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                        }, 100)
+                    }
+                }
+            }
+        )
+    }
+
+    /**
+     * 處理回傳的回傳地區資訊列表狀態
+     */
+    private fun handleSearchPlacesResult(
+        event: Event<NetworkResult<List<SearchPlaceResult>>>
+    ) {
+        handleBasicResult(
+            event = event,
+            workOnSuccess = { updateSearchPlaceList(it) },
+            workOnError = { updateSearchPlaceList(emptyList()) }
+        )
+    }
+
+    /**
+     * 處理儲存定位點狀態
+     */
+    private fun handlePushMyPlaceResult(
+        event: Event<NetworkResult<EmptyNetworkResult>>
+    ) {
+        event.getContentIfNotHandled?.handleResult {
+            onLoading = { navigateLoadingDialog(isOpen = true, cancelable = false) }
+            onSuccess = {
+                navigateLoadingDialog(false)
+                setFragmentResult(
+                    args.requestCode,
+                    bundleOf(args.requestCode to "Whatever")
+                )
+                navigateUp()
+            }
+            onError = { _, msg ->
+                navigateLoadingDialog(false)
+                displayToast(msg ?: "Unknown Error")
+            }
         }
     }
 }

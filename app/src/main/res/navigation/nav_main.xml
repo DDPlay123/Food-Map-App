@@ -107,7 +107,13 @@
         android:id="@+id/addPlaceFragment"
         android:name="mai.project.foodmap.features.myPlace_feature.addPlaceScreen.AddPlaceFragment"
         android:label="fragment_add_place"
-        tools:layout="@layout/fragment_add_place" />
+        tools:layout="@layout/fragment_add_place" >
+        <!--    請求碼    -->
+        <argument
+            android:name="requestCode"
+            android:defaultValue=""
+            app:argType="string" />
+    </fragment>
 
     <!--  全域呼叫 載入 Dialog  -->
     <action

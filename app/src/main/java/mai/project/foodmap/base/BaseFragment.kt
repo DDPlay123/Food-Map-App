@@ -130,7 +130,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
             }
             onError = { _, msg ->
                 viewModel?.setLoading(false)
-                requireContext().displayToast(msg ?: "Unknown Error")
+                displayToast(msg ?: "Unknown Error")
                 workOnError?.invoke()
             }
         }

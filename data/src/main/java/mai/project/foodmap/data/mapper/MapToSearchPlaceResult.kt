@@ -10,7 +10,6 @@ internal fun NetworkResult<PlaceAutocompleteRes>.mapToSearchPlacesResult(): Netw
     return mapResult { data ->
         data?.result?.placeList?.map {
             SearchPlaceResult(
-                placeCount = data.result.placeCount,
                 placeId = it.placeId,
                 name = it.name,
                 address = it.address,
@@ -22,11 +21,25 @@ internal fun NetworkResult<PlaceAutocompleteRes>.mapToSearchPlacesResult(): Netw
     }
 }
 
-internal fun NetworkResult<GetLocationByAddressRes>.mapToSearchPlaceResult(): NetworkResult<SearchPlaceResult> {
+internal fun NetworkResult<PlaceAutocompleteRes>.mapToSearchPlaceResult(): NetworkResult<SearchPlaceResult> {
+    return mapResult { data ->
+        data?.result?.placeList?.firstOrNull()?.let {
+            SearchPlaceResult(
+                placeId = it.placeId,
+                name = it.name,
+                address = it.address,
+                description = it.description,
+                lat = it.location?.lat,
+                lng = it.location?.lng
+            )
+        }
+    }
+}
+
+internal fun NetworkResult<GetLocationByAddressRes>.mapToSearchPlaceResultWithGetLocationByAddressRes(): NetworkResult<SearchPlaceResult> {
     return mapResult { data ->
         data?.result?.place?.let {
             SearchPlaceResult(
-                placeCount = -1,
                 placeId = it.placeId,
                 name = it.name,
                 address = it.address,

@@ -2,6 +2,7 @@ package mai.project.foodmap.data.repositoryImpl
 
 import kotlinx.coroutines.flow.firstOrNull
 import mai.project.foodmap.data.mapper.mapToSearchPlaceResult
+import mai.project.foodmap.data.mapper.mapToSearchPlaceResultWithGetLocationByAddressRes
 import mai.project.foodmap.data.mapper.mapToSearchPlacesResult
 import mai.project.foodmap.data.remoteDataSource.APIService
 import mai.project.foodmap.data.remoteDataSource.models.GetLocationByAddressReq
@@ -22,7 +23,7 @@ internal class GeocodeRepoImpl @Inject constructor(
     override suspend fun searchPlacesByLocation(
         lat: Double,
         lng: Double
-    ): NetworkResult<List<SearchPlaceResult>> {
+    ): NetworkResult<SearchPlaceResult> {
         val result = handleAPIResponse(
             apiService.placeAutoComplete(
                 PlaceAutocompleteReq(
@@ -33,7 +34,7 @@ internal class GeocodeRepoImpl @Inject constructor(
                 )
             )
         )
-        return result.mapToSearchPlacesResult()
+        return result.mapToSearchPlaceResult()
     }
 
     override suspend fun searchPlacesByKeyword(
@@ -66,6 +67,6 @@ internal class GeocodeRepoImpl @Inject constructor(
                 )
             )
         )
-        return result.mapToSearchPlaceResult()
+        return result.mapToSearchPlaceResultWithGetLocationByAddressRes()
     }
 }

@@ -15,6 +15,7 @@
     <color name="background_drag_handle">@color/primary</color>
 
     <color name="icon_primary">#000000</color>
+    <color name="icon_gray">#666666</color>
     <color name="icon_navigation_view_selected">@color/primary</color>
     <color name="icon_navigation_view_unselected">#33405F</color>
 

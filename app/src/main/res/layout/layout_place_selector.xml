@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:behavior_hideable="false"
-    app:behavior_peekHeight="140dp"
+    app:behavior_peekHeight="150dp"
     app:layout_behavior="@string/bottom_sheet_behavior">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -31,8 +31,7 @@
             android:drawablePadding="8dp"
             android:drawableTint="@color/primary"
             android:ellipsize="end"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:maxLines="2"
+            android:maxLines="3"
             android:paddingHorizontal="26dp"
             android:paddingVertical="16dp"
             android:textColor="@color/text_primary"

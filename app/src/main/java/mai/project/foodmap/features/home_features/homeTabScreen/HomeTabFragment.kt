@@ -144,9 +144,15 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
                 checkPlaceIdAndFetchDrawCard(callback.placeId)
             }
             bundle.parcelable<MyPlaceCallback>(MyPlaceCallback.ARG_ADD_ADDRESS)?.let {
-                // TODO 新增定位點
                 popBackStack(R.id.homeTabFragment, false)
-                navigate(HomeTabFragmentDirections.actionHomeTabFragmentToAddPlaceFragment())
+                navigate(HomeTabFragmentDirections.actionHomeTabFragmentToAddPlaceFragment(
+                    requestCode = REQUEST_CODE_ADD_PLACE
+                ))
+            }
+        }
+        setFragmentResultListener(REQUEST_CODE_ADD_PLACE) { _, bundle ->
+            bundle.getString(REQUEST_CODE_ADD_PLACE)?.let {
+                if (checkLocationPermissionAndGPS()) viewModel.fetchMyPlaceList()
             }
         }
     }
@@ -289,5 +295,10 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
          * 選擇定位點 Dialog
          */
         private const val REQUEST_CODE_SELECT_PLACE = "REQUEST_CODE_SELECT_PLACE"
+
+        /**
+         * 新增定位點 Fragment
+         */
+        private const val REQUEST_CODE_ADD_PLACE = "REQUEST_CODE_ADD_PLACE"
     }
 }

@@ -8,15 +8,15 @@ import javax.inject.Singleton
 interface GeocodeRepo {
 
     /**
-     * 使用經緯度搜尋地區
+     * 使用經緯度搜尋地區資訊
      */
     suspend fun searchPlacesByLocation(
         lat: Double,
         lng: Double
-    ): NetworkResult<List<SearchPlaceResult>>
+    ): NetworkResult<SearchPlaceResult>
 
     /**
-     * 使用關鍵字和經緯度搜尋地區
+     * 使用關鍵字和經緯度搜尋地區資訊列表
      */
     suspend fun searchPlacesByKeyword(
         keyword: String,

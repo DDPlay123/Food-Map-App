@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.core.view.WindowCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.viewbinding.ViewBinding
@@ -59,7 +58,7 @@ abstract class BaseBottomSheetDialog<VB : ViewBinding, VM : BaseViewModel>(
             }
             onError = { _, msg ->
                 viewModel?.setLoading(false)
-                requireContext().displayToast(msg ?: "Unknown Error")
+                displayToast(msg ?: "Unknown Error")
                 workOnError?.invoke()
             }
         }
