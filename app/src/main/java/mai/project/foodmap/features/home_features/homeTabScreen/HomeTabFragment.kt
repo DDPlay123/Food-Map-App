@@ -1,34 +1,24 @@
 package mai.project.foodmap.features.home_features.homeTabScreen
 
-import android.Manifest
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.os.Looper
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResultListener
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.recyclerview.widget.LinearSnapHelper
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import mai.project.core.annotations.Direction
 import mai.project.core.extensions.DP
-import mai.project.core.extensions.checkMultiplePermissions
 import mai.project.core.extensions.displayToast
-import mai.project.core.extensions.hasGPS
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.onClick
 import mai.project.core.extensions.openAppSettings
 import mai.project.core.extensions.openGpsSettings
 import mai.project.core.extensions.parcelable
-import mai.project.core.extensions.requestMultiplePermissions
 import mai.project.core.extensions.screenWidth
 import mai.project.core.utils.Event
+import mai.project.core.utils.GoogleMapUtil
 import mai.project.core.utils.ImageLoaderUtil
 import mai.project.core.widget.recyclerView_decorations.ScaleItemDecoration
 import mai.project.core.widget.recyclerView_decorations.SpacesItemDecoration
@@ -43,7 +33,6 @@ import mai.project.foodmap.domain.models.RestaurantResult
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.utils.handleResult
 import mai.project.foodmap.features.myPlace_feature.myPlaceDialog.MyPlaceCallback
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -57,15 +46,10 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
     @Inject
     lateinit var imageLoaderUtil: ImageLoaderUtil
 
+    @Inject
+    lateinit var googleMapUtil: GoogleMapUtil
+
     private lateinit var locationPermissionLauncher: ActivityResultLauncher<Array<String>>
-
-    private val locationPermissions = arrayOf(
-        Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
-    )
-
-    private val fusedLocationClient by lazy {
-        LocationServices.getFusedLocationProviderClient(requireContext())
-    }
 
     private val drawCardAdapter by lazy { DrawCardAdapter(imageLoaderUtil) }
 
@@ -73,16 +57,15 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        locationPermissionLauncher = requestMultiplePermissions(
-            allPermissions = locationPermissions,
-            needAllPermissions = false,
+        locationPermissionLauncher = googleMapUtil.createLocationPermissionLauncher(
+            fragment = this,
             onGranted = ::handleLocationPermissionGranted,
             onDenied = ::handleLocationPermissionDenied
         )
     }
 
     override fun FragmentHomeTabBinding.initialize(savedInstanceState: Bundle?) {
-        locationPermissionLauncher.launch(locationPermissions)
+        googleMapUtil.launchLocationPermission(locationPermissionLauncher)
 
         with(rvPopular) {
             addItemDecoration(
@@ -141,7 +124,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
             // TODO 語音搜尋
         }
 
-        tvPopular.onClick(anim = true) { viewModel.setDrawCardMode() }
+        tvPopular.onClick(anim = true) { if (checkLocationPermissionAndGPS()) viewModel.setDrawCardMode() }
 
         imgRefresh.onClick(anim = true) { if (checkLocationPermissionAndGPS()) viewModel.fetchMyPlaceList() }
 
@@ -156,12 +139,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
                 callback as MyPlaceCallback.OnItemClick
                 if (viewModel.myPlaceId.value == callback.placeId) return@tag
                 viewModel.setMyPlaceId(callback.placeId)
-                viewModel.myPlaceList.value.find { it.placeId == callback.placeId }
-                    ?.let { place -> updateLocationAndDrawCard(place.lat, place.lng) }
-                    ?: getCurrentLocation(
-                        onSuccess = ::updateLocationAndDrawCard,
-                        onFailure = { displayToast(getString(R.string.sentence_can_not_get_location)) }
-                    )
+                checkPlaceIdAndFetchDrawCard(callback.placeId)
             }
             bundle.parcelable<MyPlaceCallback>(MyPlaceCallback.ARG_ADD_ADDRESS)?.let {
                 // TODO 新增定位點
@@ -174,12 +152,12 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
      */
     private fun checkLocationPermissionAndGPS(): Boolean {
         return when {
-            !checkMultiplePermissions(locationPermissions, false) -> {
+            !googleMapUtil.checkLocationPermission -> {
                 handleLocationPermissionDenied()
                 false
             }
 
-            !requireContext().hasGPS -> {
+            !googleMapUtil.checkGPS -> {
                 with((activity as? MainActivity)) {
                     this?.showSnackBar(
                         message = getString(R.string.sentence_gps_not_open),
@@ -246,14 +224,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
     ) = with(viewModel) {
         event.getContentIfNotHandled?.handleResult {
             onLoading = { setLoading(true) }
-            onSuccess = {
-                myPlaceList.value.find { it.placeId == myPlaceId.value }
-                    ?.let { place -> updateLocationAndDrawCard(place.lat, place.lng) }
-                    ?: getCurrentLocation(
-                        onSuccess = ::updateLocationAndDrawCard,
-                        onFailure = { displayToast(getString(R.string.sentence_can_not_get_location)) }
-                    )
-            }
+            onSuccess = { checkPlaceIdAndFetchDrawCard(myPlaceId.value) }
             onError = { _, msg ->
                 setLoading(false)
                 displayToast(msg ?: "Unknown Error")
@@ -262,36 +233,19 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
     }
 
     /**
-     * 取得當前的座標經緯度
+     * 檢查 PlaceId 並更新座標，最後取得人氣餐廳卡片
      */
-    @SuppressLint("MissingPermission")
-    private fun getCurrentLocation(
-        onSuccess: (lat: Double, lng: Double) -> Unit,
-        onFailure: () -> Unit
-    ) {
-        if (checkLocationPermissionAndGPS()) {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    onSuccess(location.latitude, location.longitude)
-                } else {
-                    // 如果 lastLocation 為 null，請求新的位置更新
-                    val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000).build()
-                    val locationCallback = object : LocationCallback() {
-                        override fun onLocationResult(locationResult: LocationResult) {
-                            locationResult.locations.lastOrNull()?.let { latestLocation ->
-                                onSuccess(latestLocation.latitude, latestLocation.longitude)
-                                // 取得一次即移除更新
-                                fusedLocationClient.removeLocationUpdates(this)
-                            } ?: onFailure()
-                        }
-                    }
-                    fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+    private fun checkPlaceIdAndFetchDrawCard(placeId: String) {
+        viewModel.myPlaceList.value.find { it.placeId == placeId }
+            ?.let { place -> updateLocationAndDrawCard(place.lat, place.lng) }
+            ?: run {
+                if (checkLocationPermissionAndGPS()) {
+                    googleMapUtil.getCurrentLocation(
+                        onSuccess = ::updateLocationAndDrawCard,
+                        onFailure = { displayToast(getString(R.string.sentence_can_not_get_location)) }
+                    )
                 }
-            }.addOnFailureListener {
-                Timber.e(message = "取得經緯度失敗", t = it)
-                onFailure()
             }
-        }
     }
 
     /**

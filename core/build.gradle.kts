@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.mapsPlatform)
 }
 
 android {
@@ -40,6 +41,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.fragment)
+    implementation(libs.bundles.googleMap)
 
     // Firebase Library
     implementation(platform(libs.firebase.bom))
