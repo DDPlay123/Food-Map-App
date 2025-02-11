@@ -26,6 +26,7 @@ import mai.project.foodmap.data.remoteDataSource.models.SetPasswordReq
 import mai.project.foodmap.data.remoteDataSource.models.SetUserImageReq
 import mai.project.foodmap.data.utils.AES
 import mai.project.foodmap.data.utils.handleAPIResponse
+import mai.project.foodmap.data.utils.safeIoWorker
 import mai.project.foodmap.domain.models.EmptyNetworkResult
 import mai.project.foodmap.domain.models.MyPlaceResult
 import mai.project.foodmap.domain.state.NetworkResult
@@ -237,7 +238,7 @@ internal class UserRepoImpl @Inject constructor(
             )
         )
 
-        if (result is NetworkResult.Success) {
+        if (result is NetworkResult.Success) safeIoWorker {
             mySavedPlaceDao.syncMySavedPlaceList(
                 result.mapToMyPlaceResults().mapToMySavedPlaceEntities()
             )
@@ -266,7 +267,7 @@ internal class UserRepoImpl @Inject constructor(
             )
         )
 
-        if (result is NetworkResult.Success) {
+        if (result is NetworkResult.Success) safeIoWorker {
             mySavedPlaceDao.insertMySavedPlace(
                 MySavedPlaceEntity(
                     index = placeId,
@@ -297,7 +298,7 @@ internal class UserRepoImpl @Inject constructor(
             )
         )
 
-        if (result is NetworkResult.Success) {
+        if (result is NetworkResult.Success) safeIoWorker {
             mySavedPlaceDao.deleteMySavedPlace(placeId)
         }
 

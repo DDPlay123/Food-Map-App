@@ -6,6 +6,8 @@ import mai.project.foodmap.data.remoteDataSource.models.AddFcmTokenReq
 import mai.project.foodmap.data.remoteDataSource.models.AddFcmTokenRes
 import mai.project.foodmap.data.remoteDataSource.models.DeleteAccountReq
 import mai.project.foodmap.data.remoteDataSource.models.DeleteAccountRes
+import mai.project.foodmap.data.remoteDataSource.models.GetLocationByAddressReq
+import mai.project.foodmap.data.remoteDataSource.models.GetLocationByAddressRes
 import mai.project.foodmap.data.remoteDataSource.models.GetPlaceListReq
 import mai.project.foodmap.data.remoteDataSource.models.GetPlaceListRes
 import mai.project.foodmap.data.remoteDataSource.models.GetUserImageReq
@@ -14,6 +16,8 @@ import mai.project.foodmap.data.remoteDataSource.models.LoginReq
 import mai.project.foodmap.data.remoteDataSource.models.LoginRes
 import mai.project.foodmap.data.remoteDataSource.models.LogoutReq
 import mai.project.foodmap.data.remoteDataSource.models.LogoutRes
+import mai.project.foodmap.data.remoteDataSource.models.PlaceAutocompleteReq
+import mai.project.foodmap.data.remoteDataSource.models.PlaceAutocompleteRes
 import mai.project.foodmap.data.remoteDataSource.models.PullPlaceListReq
 import mai.project.foodmap.data.remoteDataSource.models.PullPlaceListRes
 import mai.project.foodmap.data.remoteDataSource.models.PushPlaceListReq
@@ -106,4 +110,18 @@ internal interface APIService {
         @Body body: DrawCardReq
     ): Response<DrawCardRes>
     // endregion place
+
+    // region geocode
+    @Headers("Content-Type: application/json")
+    @POST("api/geocode/autocomplete")
+    suspend fun placeAutoComplete(
+        @Body body: PlaceAutocompleteReq
+    ): Response<PlaceAutocompleteRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/geocode/get_location_by_address")
+    suspend fun getLocationByAddress(
+        @Body body: GetLocationByAddressReq
+    ): Response<GetLocationByAddressRes>
+    // endregion geocode
 }

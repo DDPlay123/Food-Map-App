@@ -84,3 +84,16 @@ internal data class PlaceListModel(
     val distance: Double,
     val isFavorite: Boolean
 )
+
+/**
+ * Place 自動填充資訊
+ */
+@Serializable
+internal data class AutoComplete(
+    @SerialName("place_id")
+    val placeId: String,
+    val name: String,
+    val address: String,
+    val description: String,
+    val location: LocationModel? = null
+)

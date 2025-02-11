@@ -26,6 +26,20 @@ internal suspend fun safeIoWorker(
 }
 
 /**
+ * 將 NetworkResult 轉換為其他型態
+ */
+internal fun <T, R> NetworkResult<T>.mapResult(transform: (T?) -> R?): NetworkResult<R> {
+    val result = transform(data)
+    return when (this) {
+        is NetworkResult.Success -> NetworkResult.Success(result)
+        is NetworkResult.Error -> NetworkResult.Error(message, result)
+        is NetworkResult.AccessKeyIllegal -> NetworkResult.AccessKeyIllegal()
+        is NetworkResult.Loading -> NetworkResult.Loading()
+        is NetworkResult.Idle -> NetworkResult.Idle()
+    }
+}
+
+/**
  * 處理 API Response
  *
  * @param response [Response]
