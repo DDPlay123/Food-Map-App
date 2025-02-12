@@ -1,14 +1,17 @@
 package mai.project.foodmap.data.repositoryImpl
 
 import kotlinx.coroutines.flow.firstOrNull
-import mai.project.foodmap.data.mapper.mapToSearchPlaceResult
+import mai.project.foodmap.data.mapper.mapToRestaurantRouteResult
+import mai.project.foodmap.data.mapper.mapToSearchPlaceResultWithPlaceAutocompleteRes
 import mai.project.foodmap.data.mapper.mapToSearchPlaceResultWithGetLocationByAddressRes
-import mai.project.foodmap.data.mapper.mapToSearchPlacesResult
+import mai.project.foodmap.data.mapper.mapToSearchPlacesResultWithPlaceAutocompleteRes
 import mai.project.foodmap.data.remoteDataSource.APIService
 import mai.project.foodmap.data.remoteDataSource.models.GetLocationByAddressReq
+import mai.project.foodmap.data.remoteDataSource.models.GetRoutePolylineReq
 import mai.project.foodmap.data.remoteDataSource.models.LocationModel
 import mai.project.foodmap.data.remoteDataSource.models.PlaceAutocompleteReq
 import mai.project.foodmap.data.utils.handleAPIResponse
+import mai.project.foodmap.domain.models.RestaurantRouteResult
 import mai.project.foodmap.domain.models.SearchPlaceResult
 import mai.project.foodmap.domain.repository.GeocodeRepo
 import mai.project.foodmap.domain.repository.PreferenceRepo
@@ -34,7 +37,7 @@ internal class GeocodeRepoImpl @Inject constructor(
                 )
             )
         )
-        return result.mapToSearchPlaceResult()
+        return result.mapToSearchPlaceResultWithPlaceAutocompleteRes()
     }
 
     override suspend fun searchPlacesByKeyword(
@@ -52,7 +55,7 @@ internal class GeocodeRepoImpl @Inject constructor(
                 )
             )
         )
-        return result.mapToSearchPlacesResult()
+        return result.mapToSearchPlacesResultWithPlaceAutocompleteRes()
     }
 
     override suspend fun getPlaceByAddress(
@@ -68,5 +71,33 @@ internal class GeocodeRepoImpl @Inject constructor(
             )
         )
         return result.mapToSearchPlaceResultWithGetLocationByAddressRes()
+    }
+
+    override suspend fun getRoute(
+        originLat: Double,
+        originLng: Double,
+        targetPlaceId: String,
+        targetLat: Double,
+        targetLng: Double
+    ): NetworkResult<RestaurantRouteResult> {
+        val result = handleAPIResponse(
+            apiService.getRoutePolyline(
+                GetRoutePolylineReq(
+                    userId = preferenceRepo.readUserId.firstOrNull().orEmpty(),
+                    accessKey = preferenceRepo.readAccessKey.firstOrNull().orEmpty(),
+                    location = GetRoutePolylineReq.LocationInfo(
+                        placeId = "",
+                        lat = originLat,
+                        lng = originLng
+                    ),
+                    origin = GetRoutePolylineReq.LocationInfo(
+                        placeId = targetPlaceId,
+                        lat = targetLat,
+                        lng = targetLng
+                    )
+                )
+            )
+        )
+        return result.mapToRestaurantRouteResult()
     }
 }

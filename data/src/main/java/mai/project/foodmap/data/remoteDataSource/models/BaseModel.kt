@@ -46,23 +46,9 @@ internal data class RatingModel(
 internal data class OpeningHoursModel(
     @SerialName("open_now")
     val openNow: Boolean? = null,
-    @SerialName("periods")
-    val periods: List<Periods>? = emptyList(),
     @SerialName("weekday_text")
     val weekdayText: List<String>? = emptyList()
-) {
-    @Serializable
-    data class Periods(
-        val close: CloseOpen,
-        val open: CloseOpen
-    )
-
-    @Serializable
-    data class CloseOpen(
-        val day: Int,
-        val time: String
-    )
-}
+)
 
 /**
  * 餐廳列表 Item
@@ -84,6 +70,54 @@ internal data class PlaceListModel(
     val distance: Double,
     val isFavorite: Boolean
 )
+
+/**
+ * 餐廳詳細資訊
+ */
+@Serializable
+internal data class PlaceModel(
+    @SerialName("place_id")
+    val placeId: String,
+    val photos: List<String>? = emptyList(),
+    val name: String,
+    val address: String,
+    val vicinity: String,
+    @SerialName("opening_hours")
+    val openingHours: OpeningHoursModel? = null,
+    @SerialName("dine_in")
+    val dineIn: Boolean? = null,
+    val takeout: Boolean? = null,
+    val delivery: Boolean? = null,
+    val website: String? = null,
+    val phone: String? = null,
+    val rating: Float? = null,
+    @SerialName("ratings_total")
+    val ratingsTotal: Long,
+    val reviews: List<Review>? = emptyList(),
+    @SerialName("price_level")
+    val priceLevel: Int? = null,
+    val location: LocationModel,
+    val url: String? = null
+) {
+    @Serializable
+    data class Review(
+        @SerialName("author_name")
+        val authorName: String,
+        @SerialName("author_url")
+        val authorUrl: String,
+        val language: String,
+        @SerialName("original_language")
+        val originalLanguage: String,
+        @SerialName("profile_photo_url")
+        val profilePhotoUrl: String,
+        val rating: Int,
+        @SerialName("relative_time_description")
+        val relativeTimeDescription: String,
+        val text: String,
+        val time: Int,
+        val translated: Boolean
+    )
+}
 
 /**
  * Place 自動填充資訊

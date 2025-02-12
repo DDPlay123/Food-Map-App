@@ -10,8 +10,12 @@ import mai.project.foodmap.data.remoteDataSource.models.GetFavoriteListReq
 import mai.project.foodmap.data.remoteDataSource.models.GetFavoriteListRes
 import mai.project.foodmap.data.remoteDataSource.models.GetLocationByAddressReq
 import mai.project.foodmap.data.remoteDataSource.models.GetLocationByAddressRes
+import mai.project.foodmap.data.remoteDataSource.models.GetPlaceDetailReq
+import mai.project.foodmap.data.remoteDataSource.models.GetPlaceDetailRes
 import mai.project.foodmap.data.remoteDataSource.models.GetPlaceListReq
 import mai.project.foodmap.data.remoteDataSource.models.GetPlaceListRes
+import mai.project.foodmap.data.remoteDataSource.models.GetRoutePolylineReq
+import mai.project.foodmap.data.remoteDataSource.models.GetRoutePolylineRes
 import mai.project.foodmap.data.remoteDataSource.models.GetUserImageReq
 import mai.project.foodmap.data.remoteDataSource.models.GetUserImageRes
 import mai.project.foodmap.data.remoteDataSource.models.LoginReq
@@ -30,6 +34,12 @@ import mai.project.foodmap.data.remoteDataSource.models.PushPlaceListReq
 import mai.project.foodmap.data.remoteDataSource.models.PushPlaceListRes
 import mai.project.foodmap.data.remoteDataSource.models.RegisterReq
 import mai.project.foodmap.data.remoteDataSource.models.RegisterRes
+import mai.project.foodmap.data.remoteDataSource.models.SearchAutocompleteReq
+import mai.project.foodmap.data.remoteDataSource.models.SearchAutocompleteRes
+import mai.project.foodmap.data.remoteDataSource.models.SearchByDistanceReq
+import mai.project.foodmap.data.remoteDataSource.models.SearchByDistanceRes
+import mai.project.foodmap.data.remoteDataSource.models.SearchByKeywordReq
+import mai.project.foodmap.data.remoteDataSource.models.SearchByKeywordRes
 import mai.project.foodmap.data.remoteDataSource.models.SetPasswordReq
 import mai.project.foodmap.data.remoteDataSource.models.SetPasswordRes
 import mai.project.foodmap.data.remoteDataSource.models.SetUserImageReq
@@ -133,6 +143,30 @@ internal interface APIService {
     suspend fun getDrawCard(
         @Body body: DrawCardReq
     ): Response<DrawCardRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/place/details_by_place_id")
+    suspend fun getPlaceDetail(
+        @Body body: GetPlaceDetailReq
+    ): Response<GetPlaceDetailRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/place/search_by_distance")
+    suspend fun searchByDistance(
+        @Body body: SearchByDistanceReq
+    ): Response<SearchByDistanceRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/place/search_by_keyword")
+    suspend fun searchByKeyword(
+        @Body body: SearchByKeywordReq
+    ): Response<SearchByKeywordRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/place/autocomplete")
+    suspend fun searchAutocomplete(
+        @Body body: SearchAutocompleteReq
+    ): Response<SearchAutocompleteRes>
     // endregion place
 
     // region geocode
@@ -147,5 +181,11 @@ internal interface APIService {
     suspend fun getLocationByAddress(
         @Body body: GetLocationByAddressReq
     ): Response<GetLocationByAddressRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/geocode/get_route_polyline")
+    suspend fun getRoutePolyline(
+        @Body body: GetRoutePolylineReq
+    ): Response<GetRoutePolylineRes>
     // endregion geocode
 }

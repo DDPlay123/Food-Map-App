@@ -1,5 +1,6 @@
 package mai.project.foodmap.domain.repository
 
+import mai.project.foodmap.domain.models.RestaurantRouteResult
 import mai.project.foodmap.domain.models.SearchPlaceResult
 import mai.project.foodmap.domain.state.NetworkResult
 import javax.inject.Singleton
@@ -30,4 +31,15 @@ interface GeocodeRepo {
     suspend fun getPlaceByAddress(
         address: String
     ): NetworkResult<SearchPlaceResult>
+
+    /**
+     * 取得當前地點與目標的路徑
+     */
+    suspend fun getRoute(
+        originLat: Double,
+        originLng: Double,
+        targetPlaceId: String,
+        targetLat: Double,
+        targetLng: Double
+    ): NetworkResult<RestaurantRouteResult>
 }
