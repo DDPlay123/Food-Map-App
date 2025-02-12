@@ -26,6 +26,7 @@ import mai.project.core.widget.recyclerView_decorations.ScaleItemDecoration
 import mai.project.core.widget.recyclerView_decorations.SpacesItemDecoration
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
+import mai.project.foodmap.base.checkGPS
 import mai.project.foodmap.base.checkGPSAndGetCurrentLocation
 import mai.project.foodmap.base.checkLocationPermission
 import mai.project.foodmap.base.checkLocationPermissionAndGPS
@@ -68,7 +69,10 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
         super.onCreate(savedInstanceState)
         locationPermissionLauncher = googleMapUtil.createLocationPermissionLauncher(
             fragment = this,
-            onGranted = ::handleLocationPermissionGranted,
+            onGranted = {
+                if (checkGPS(googleMapUtil) && viewModel.drawCardList.value.isEmpty())
+                    viewModel.fetchMyPlaceList()
+            },
             onDenied = { checkLocationPermission(googleMapUtil) }
         )
     }
@@ -183,7 +187,9 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
                 callback as MyPlaceCallback.OnItemClick
                 if (viewModel.myPlaceId.value == callback.placeId) return@tag
                 viewModel.setMyPlaceId(callback.placeId)
-                checkPlaceIdAndFetchDrawCard(callback.placeId)
+                if (checkLocationPermission(googleMapUtil)) {
+                    checkPlaceIdAndFetchDrawCard(callback.placeId)
+                }
             }
             bundle.parcelable<MyPlaceCallback>(MyPlaceCallback.ARG_ADD_ADDRESS)?.let {
                 popBackStack(R.id.homeTabFragment, false)
@@ -199,15 +205,6 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
                 if (checkLocationPermissionAndGPS(googleMapUtil))
                     viewModel.fetchMyPlaceList()
             }
-        }
-    }
-
-    /**
-     * 處理定位權限請求成功結果
-     */
-    private fun handleLocationPermissionGranted() {
-        if (checkLocationPermissionAndGPS(googleMapUtil) && viewModel.drawCardList.value.isEmpty()) {
-            viewModel.fetchMyPlaceList()
         }
     }
 

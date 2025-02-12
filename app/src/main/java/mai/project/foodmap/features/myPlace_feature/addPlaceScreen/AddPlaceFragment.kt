@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import androidx.activity.result.ActivityResultLauncher
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -56,6 +57,8 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
     @Inject
     lateinit var googleMapUtil: GoogleMapUtil
 
+    private lateinit var locationPermissionLauncher: ActivityResultLauncher<Array<String>>
+
     private lateinit var mapFragment: SupportMapFragment
 
     private lateinit var myMap: GoogleMap
@@ -64,7 +67,18 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
 
     private val searchPlaceAdapter by lazy { SearchPlaceAdapter() }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        locationPermissionLauncher = googleMapUtil.createLocationPermissionLauncher(
+            fragment = this,
+            onGranted = { },
+            onDenied = { checkLocationPermission(googleMapUtil) }
+        )
+    }
+
     override fun FragmentAddPlaceBinding.initialize(savedInstanceState: Bundle?) {
+        googleMapUtil.launchLocationPermission(locationPermissionLauncher)
+
         mapFragment = childFragmentManager.findFragmentById(R.id.mapHost) as SupportMapFragment
         mapFragment.getMapAsync(this@AddPlaceFragment)
 
@@ -126,14 +140,12 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
         imgBack.onClick { onBackPressed() }
 
         imgMyLocation.onClick {
-            if (checkLocationPermission(googleMapUtil)) {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                checkGPSAndGetCurrentLocation(
-                    googleMapUtil = googleMapUtil,
-                    onSuccess = { lat, lng -> initLocation(lat, lng) },
-                    onFailure = { initLocation(Configs.DEFAULT_LATITUDE, Configs.DEFAULT_LONGITUDE) }
-                )
-            }
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            checkGPSAndGetCurrentLocation(
+                googleMapUtil = googleMapUtil,
+                onSuccess = { lat, lng -> initLocation(lat, lng) },
+                onFailure = { initLocation(Configs.DEFAULT_LATITUDE, Configs.DEFAULT_LONGITUDE) }
+            )
         }
 
         layoutSelector.edSearch.doAfterTextChanged {
@@ -189,17 +201,15 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
     }
 
     override fun onMapReady(maps: GoogleMap) {
-        if (checkLocationPermission(googleMapUtil)) {
-            myMap = maps.apply {
-                googleMapUtil.doInitializeGoogleMap(this)
-                googleMapUtil.setCompassLocation(
-                    mapFragment = mapFragment,
-                    marginTop = 45.DP,
-                    marginLeft = 90.DP
-                )
-                setOnMapLoadedCallback(this@AddPlaceFragment)
-                setOnCameraIdleListener(this@AddPlaceFragment)
-            }
+        myMap = maps.apply {
+            googleMapUtil.doInitializeGoogleMap(this)
+            googleMapUtil.setCompassLocation(
+                mapFragment = mapFragment,
+                marginTop = 45.DP,
+                marginLeft = 90.DP
+            )
+            setOnMapLoadedCallback(this@AddPlaceFragment)
+            setOnCameraIdleListener(this@AddPlaceFragment)
         }
     }
 
