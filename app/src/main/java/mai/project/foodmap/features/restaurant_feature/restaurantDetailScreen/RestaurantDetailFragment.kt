@@ -37,6 +37,7 @@ import mai.project.core.extensions.openUrlWithBrowser
 import mai.project.core.extensions.parcelable
 import mai.project.core.utils.Event
 import mai.project.core.utils.GoogleMapUtil
+import mai.project.core.widget.recyclerView_adapters.ImagePreviewPagerAdapter
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
 import mai.project.foodmap.base.checkGPSAndGetCurrentLocation
@@ -80,6 +81,8 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
 
     private val photosAdapter by lazy { PhotosAdapter() }
 
+    private val imagePreviewPagerAdapter by lazy { ImagePreviewPagerAdapter() }
+
     private val navigationModeItems: List<SelectorModel> by lazy {
         resources.getStringArray(R.array.navigation_mode).mapIndexed { index, s ->
             SelectorModel(id = index, content = s)
@@ -112,6 +115,12 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
             getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
             adapter = photosAdapter
             layoutDetail.piPhotos.attachToViewPager2(this)
+        }
+
+        with(vpPhotoPreview) {
+            offscreenPageLimit = 3
+            getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+            adapter = imagePreviewPagerAdapter
         }
 
         viewModel.getRestaurantDetail(args.placeId)
@@ -182,6 +191,15 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
                 }
             }
         })
+
+        // TODO 改
+        photosAdapter.onItemClick = {
+            binding.vpPhotoPreview.isVisible = true
+        }
+
+        imagePreviewPagerAdapter.onClosed = {
+            binding.vpPhotoPreview.isVisible = false
+        }
 
         layoutDetail.tvAddress.onClick {
             viewModel.restaurantDetail.value.getPeekContent.data?.let {
@@ -454,6 +472,9 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         pbCircular.isVisible = false
         piPhotos.isVisible = data.photos.isNotEmpty()
         photosAdapter.submitList(data.photos)
+
+        // TODO 改
+        imagePreviewPagerAdapter.submitList(data.photos)
 
         tvName.text = data.name
         tvRating.text = "${data.ratingStar}"

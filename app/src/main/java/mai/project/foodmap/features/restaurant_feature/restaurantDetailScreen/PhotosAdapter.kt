@@ -7,15 +7,18 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import coil.transform.RoundedCornersTransformation
 import mai.project.core.annotations.ImageType
+import mai.project.core.extensions.onClick
 import mai.project.core.utils.ImageLoaderUtil
 
 class PhotosAdapter : ListAdapter<String, ViewHolder>(DiffUtilCallback) {
+
+    var onItemClick: ((String) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         PhotosViewHolder.create(parent)
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        if (holder is PhotosViewHolder) holder.bind(getItem(position))
+        if (holder is PhotosViewHolder) holder.bind(getItem(position), onItemClick)
     }
     
     private class PhotosViewHolder(
@@ -23,7 +26,8 @@ class PhotosAdapter : ListAdapter<String, ViewHolder>(DiffUtilCallback) {
     ) : ViewHolder(imageView) {
         
         fun bind(
-            item: String
+            item: String,
+            onItemClick: ((String) -> Unit)?
         ) {
             ImageLoaderUtil.loadImage(
                 imageView = imageView,
@@ -31,6 +35,7 @@ class PhotosAdapter : ListAdapter<String, ViewHolder>(DiffUtilCallback) {
                 imageType = ImageType.DEFAULT,
                 transformation = RoundedCornersTransformation(25f)
             )
+            imageView.onClick { onItemClick?.invoke(item) }
         }
         
         companion object {
