@@ -37,7 +37,6 @@ import mai.project.core.extensions.openUrlWithBrowser
 import mai.project.core.extensions.parcelable
 import mai.project.core.utils.Event
 import mai.project.core.utils.GoogleMapUtil
-import mai.project.core.utils.ImageLoaderUtil
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
 import mai.project.foodmap.base.checkGPSAndGetCurrentLocation
@@ -63,9 +62,6 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
     private val args by navArgs<RestaurantDetailFragmentArgs>()
 
     @Inject
-    lateinit var imageLoaderUtil: ImageLoaderUtil
-
-    @Inject
     lateinit var googleMapUtil: GoogleMapUtil
 
     private lateinit var locationPermissionLauncher: ActivityResultLauncher<Array<String>>
@@ -82,7 +78,7 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
 
     private var pointPolyline: PointPolyline? = null
 
-    private val photosAdapter by lazy { PhotosAdapter(imageLoaderUtil) }
+    private val photosAdapter by lazy { PhotosAdapter() }
 
     private val navigationModeItems: List<SelectorModel> by lazy {
         resources.getStringArray(R.array.navigation_mode).mapIndexed { index, s ->

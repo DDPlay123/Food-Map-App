@@ -17,9 +17,6 @@ import javax.inject.Inject
 class Application : Application(), ImageLoaderFactory {
 
     @Inject
-    lateinit var imageLoaderUtil: ImageLoaderUtil
-
-    @Inject
     lateinit var preferenceRepo: PreferenceRepo
 
     override fun onCreate() {
@@ -30,9 +27,11 @@ class Application : Application(), ImageLoaderFactory {
         setupDebugMode()
         // 初始化 Firebase
         FirebaseApp.initializeApp(this)
+        // 初始化 ImageLoader
+        ImageLoaderUtil.initializeImageLoader(this)
     }
 
-    override fun newImageLoader(): ImageLoader = imageLoaderUtil.imageLoader
+    override fun newImageLoader(): ImageLoader = ImageLoaderUtil.imageLoader
 
     /**
      * 設定顯示模式

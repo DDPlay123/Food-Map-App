@@ -12,7 +12,6 @@ import mai.project.core.extensions.DP
 import mai.project.core.extensions.displayToast
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.parcelable
-import mai.project.core.utils.ImageLoaderUtil
 import mai.project.core.widget.recyclerView_decorations.SpacesItemDecoration
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
@@ -28,7 +27,6 @@ import mai.project.foodmap.features.dialogs_features.selector.SelectorCallback
 import mai.project.foodmap.features.dialogs_features.selector.SelectorModel
 import mai.project.foodmap.features.home_features.profilesTabScreen.adapter.PersonalDataAdapter
 import mai.project.foodmap.features.home_features.profilesTabScreen.adapter.SettingsLabelAdapter
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTabViewModel>(
@@ -40,10 +38,7 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
 
     override val useActivityOnBackPressed: Boolean = true
 
-    @Inject
-    lateinit var imageLoaderUtil: ImageLoaderUtil
-
-    private val personalDataAdapter by lazy { PersonalDataAdapter(imageLoaderUtil) }
+    private val personalDataAdapter by lazy { PersonalDataAdapter() }
 
     private val settingsLabelAdapter by lazy { SettingsLabelAdapter() }
 

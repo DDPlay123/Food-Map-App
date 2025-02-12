@@ -16,9 +16,7 @@ import mai.project.foodmap.databinding.ItemDrawCardBinding
 import mai.project.foodmap.domain.models.RestaurantResult
 import java.util.Locale
 
-class DrawCardAdapter(
-    private val imageLoaderUtil: ImageLoaderUtil
-) : ListAdapter<RestaurantResult, ViewHolder>(DiffUtilCallback) {
+class DrawCardAdapter : ListAdapter<RestaurantResult, ViewHolder>(DiffUtilCallback) {
 
     var onItemClick: ((RestaurantResult) -> Unit)? = null
 
@@ -30,7 +28,6 @@ class DrawCardAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         if (holder is DrawCardViewModel) holder.bind(
             item = getItem(position),
-            imageLoaderUtil = imageLoaderUtil,
             onItemClick = onItemClick,
             onFavoriteClick = onFavoriteClick
         )
@@ -41,7 +38,6 @@ class DrawCardAdapter(
         if (payloads.isEmpty() && holder is DrawCardViewModel) {
             holder.bind(
                 item = getItem(position),
-                imageLoaderUtil = imageLoaderUtil,
                 onItemClick = onItemClick,
                 onFavoriteClick = onFavoriteClick
             )
@@ -64,12 +60,11 @@ class DrawCardAdapter(
 
         fun bind(
             item: RestaurantResult,
-            imageLoaderUtil: ImageLoaderUtil,
             onItemClick: ((RestaurantResult) -> Unit)?,
             onFavoriteClick: ((RestaurantResult) -> Unit)?
         ) = with(binding) {
             val context = root.context
-            imageLoaderUtil.loadImage(
+            ImageLoaderUtil.loadImage(
                 imageView = imgPhoto,
                 resource = item.photos.firstOrNull().orEmpty(),
                 imageType = ImageType.DEFAULT,

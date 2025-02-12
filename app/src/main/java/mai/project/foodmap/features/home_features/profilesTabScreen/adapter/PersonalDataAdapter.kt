@@ -9,9 +9,7 @@ import mai.project.core.utils.ImageLoaderUtil
 import mai.project.core.utils.Method
 import mai.project.foodmap.databinding.ItemPersonalDataBinding
 
-class PersonalDataAdapter(
-    private val imageLoaderUtil: ImageLoaderUtil
-) : RecyclerView.Adapter<ViewHolder>() {
+class PersonalDataAdapter: RecyclerView.Adapter<ViewHolder>() {
 
     private data class Model(val userImage: String, val username: String)
 
@@ -28,7 +26,7 @@ class PersonalDataAdapter(
     override fun getItemCount(): Int = 1
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        if (holder is PersonalDataViewHolder) holder.bind(item, imageLoaderUtil)
+        if (holder is PersonalDataViewHolder) holder.bind(item)
     }
 
     private class PersonalDataViewHolder(
@@ -36,10 +34,9 @@ class PersonalDataAdapter(
     ) : ViewHolder(binding.root) {
 
         fun bind(
-            item: Model,
-            imageLoaderUtil: ImageLoaderUtil
+            item: Model
         ) = with(binding) {
-            imageLoaderUtil.loadImage(
+            ImageLoaderUtil.loadImage(
                 imageView = imgAvatar,
                 resource = Method.decodeImage(item.userImage) ?: item.userImage,
                 imageType = ImageType.PERSON

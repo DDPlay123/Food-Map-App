@@ -15,9 +15,7 @@ import mai.project.foodmap.databinding.ItemMyPlaceBinding
 import mai.project.foodmap.domain.models.MyPlaceResult
 import java.util.Locale
 
-class MyPlaceAdapter(
-    private val imageLoaderUtil: ImageLoaderUtil
-) : ListAdapter<MyPlaceResult, ViewHolder>(DiffUtilCallback) {
+class MyPlaceAdapter : ListAdapter<MyPlaceResult, ViewHolder>(DiffUtilCallback) {
 
     var onClickedPlace: ((MyPlaceResult) -> Unit)? = null
 
@@ -49,7 +47,6 @@ class MyPlaceAdapter(
         if (holder is BaseViewHolder) holder.bind(
             item = getItem(position),
             selectedPlaceId = selectedPlaceId,
-            imageLoaderUtil = imageLoaderUtil,
             onClickedPlace = onClickedPlace
         )
     }
@@ -60,7 +57,6 @@ class MyPlaceAdapter(
         fun bind(
             item: MyPlaceResult,
             selectedPlaceId: String,
-            imageLoaderUtil: ImageLoaderUtil,
             onClickedPlace: ((MyPlaceResult) -> Unit)? = null
         ) = with(binding) {
             imgMaps.isVisible = item.placeId == selectedPlaceId
@@ -69,7 +65,7 @@ class MyPlaceAdapter(
                         "&zoom=18&size=1600x400&sensor=false&markers=color:red%7Clabel:O%7C${item.lat},${item.lng}" +
                         "&key=${BuildConfig.GOOGLE_API_KEY}"
             } else ""
-            imageLoaderUtil.loadImage(
+            ImageLoaderUtil.loadImage(
                 imageView = imgMaps,
                 resource = photo,
                 imageType = ImageType.DEFAULT,

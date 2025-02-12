@@ -21,7 +21,6 @@ import mai.project.core.extensions.parcelable
 import mai.project.core.extensions.screenWidth
 import mai.project.core.utils.Event
 import mai.project.core.utils.GoogleMapUtil
-import mai.project.core.utils.ImageLoaderUtil
 import mai.project.core.widget.recyclerView_decorations.ScaleItemDecoration
 import mai.project.core.widget.recyclerView_decorations.SpacesItemDecoration
 import mai.project.foodmap.R
@@ -54,14 +53,11 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
     override val useActivityOnBackPressed: Boolean = true
 
     @Inject
-    lateinit var imageLoaderUtil: ImageLoaderUtil
-
-    @Inject
     lateinit var googleMapUtil: GoogleMapUtil
 
     private lateinit var locationPermissionLauncher: ActivityResultLauncher<Array<String>>
 
-    private val drawCardAdapter by lazy { DrawCardAdapter(imageLoaderUtil) }
+    private val drawCardAdapter by lazy { DrawCardAdapter() }
 
     private val snapHelper by lazy { LinearSnapHelper() }
 

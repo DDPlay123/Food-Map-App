@@ -18,13 +18,11 @@ import mai.project.core.extensions.getColorCompat
 import mai.project.core.extensions.getDrawableCompat
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.onClick
-import mai.project.core.utils.ImageLoaderUtil
 import mai.project.core.widget.recyclerView_decorations.DividerItemDecoration
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseBottomSheetDialog
 import mai.project.foodmap.databinding.DialogBottomSheetMyPlaceBinding
 import mai.project.foodmap.domain.models.MyPlaceResult
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MyPlaceBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetMyPlaceBinding, MyPlaceViewModel>(
@@ -34,10 +32,7 @@ class MyPlaceBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetMyPlaceB
 
     private val args by navArgs<MyPlaceBottomSheetDialogArgs>()
 
-    @Inject
-    lateinit var imageLoaderUtil: ImageLoaderUtil
-
-    private val myPlaceAdapter by lazy { MyPlaceAdapter(imageLoaderUtil) }
+    private val myPlaceAdapter by lazy { MyPlaceAdapter() }
 
     private val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {

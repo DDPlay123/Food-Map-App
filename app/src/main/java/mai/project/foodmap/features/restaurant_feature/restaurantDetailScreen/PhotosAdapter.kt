@@ -9,15 +9,13 @@ import coil.transform.RoundedCornersTransformation
 import mai.project.core.annotations.ImageType
 import mai.project.core.utils.ImageLoaderUtil
 
-class PhotosAdapter(
-    private val imageLoaderUtil: ImageLoaderUtil
-) : ListAdapter<String, ViewHolder>(DiffUtilCallback) {
+class PhotosAdapter : ListAdapter<String, ViewHolder>(DiffUtilCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         PhotosViewHolder.create(parent)
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        if (holder is PhotosViewHolder) holder.bind(getItem(position), imageLoaderUtil)
+        if (holder is PhotosViewHolder) holder.bind(getItem(position))
     }
     
     private class PhotosViewHolder(
@@ -25,10 +23,9 @@ class PhotosAdapter(
     ) : ViewHolder(imageView) {
         
         fun bind(
-            item: String,
-            imageLoaderUtil: ImageLoaderUtil
+            item: String
         ) {
-            imageLoaderUtil.loadImage(
+            ImageLoaderUtil.loadImage(
                 imageView = imageView,
                 resource = item,
                 imageType = ImageType.DEFAULT,
