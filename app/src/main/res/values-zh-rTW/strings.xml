@@ -80,6 +80,13 @@
     <string name="format_minute">%d 分鐘</string>
     <string name="format_second">%d 秒鐘</string>
 
+    <array name="navigation_mode">
+        <item>汽車</item>
+        <item>腳踏車</item>
+        <item>機車</item>
+        <item>走路</item>
+    </array>
+
     <array name="theme_mode">
         <item>根據系統設定</item>
         <item>深色模式</item>

@@ -54,7 +54,9 @@
                     android:id="@+id/vpPhotos"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
+                    android:clipToPadding="false"
                     android:orientation="horizontal"
+                    android:padding="10dp"
                     app:layout_constraintDimensionRatio="16:9"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHeight_max="500dp"
@@ -66,7 +68,7 @@
                     android:id="@+id/piPhotos"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:visibility="gone"
+                    android:layout_marginBottom="20dp"
                     app:layout_constraintBottom_toBottomOf="@+id/vpPhotos"
                     app:layout_constraintEnd_toEndOf="@+id/vpPhotos"
                     app:layout_constraintStart_toStartOf="@+id/vpPhotos" />
@@ -225,7 +227,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/vector_access_time"
-                    android:drawableEnd="@drawable/vector_keyboard_arrow_down"
+                    android:drawableEnd="@drawable/vector_keyboard_arrow_up"
                     android:drawablePadding="8dp"
                     android:drawableTint="@color/primary"
                     android:ellipsize="end"
@@ -243,6 +245,27 @@
                     app:layout_constraintTop_toBottomOf="@+id/tvAddress" />
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvWorkdayList"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vector_access_time"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@color/background_fragment_variant"
+                    android:paddingHorizontal="26dp"
+                    android:paddingVertical="10dp"
+                    android:textColor="@color/text_hint"
+                    android:textSize="@dimen/text_medium"
+                    android:visibility="gone"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintEnd_toEndOf="@+id/tvName"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintStart_toStartOf="@+id/tvName"
+                    app:layout_constraintTop_toBottomOf="@+id/tvWorkday"
+                    app:lineHeight="24sp"
+                    tools:text="星期一\n星期二"
+                    tools:visibility="visible" />
+
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvWebsite"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -258,7 +281,7 @@
                     app:layout_constrainedWidth="true"
                     app:layout_constraintEnd_toEndOf="@+id/tvName"
                     app:layout_constraintStart_toStartOf="@+id/tvName"
-                    app:layout_constraintTop_toBottomOf="@+id/tvWorkday" />
+                    app:layout_constraintTop_toBottomOf="@+id/tvWorkdayList" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvPhone"

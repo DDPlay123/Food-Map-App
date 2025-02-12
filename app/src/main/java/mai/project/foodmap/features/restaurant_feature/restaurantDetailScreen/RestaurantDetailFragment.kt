@@ -3,11 +3,13 @@ package mai.project.foodmap.features.restaurant_feature.restaurantDetailScreen
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
+import androidx.core.view.isVisible
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveListener
 import com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -23,20 +25,31 @@ import com.utsman.geolib.polyline.polyline.PolylineAnimator
 import com.utsman.geolib.polyline.utils.createPolylineAnimatorBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import mai.project.core.Configs
+import mai.project.core.annotations.NavigationMode
 import mai.project.core.extensions.DP
 import mai.project.core.extensions.getColorCompat
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.onClick
+import mai.project.core.extensions.openGoogleNavigation
+import mai.project.core.extensions.openPhoneCall
+import mai.project.core.extensions.openUrl
+import mai.project.core.extensions.openUrlWithBrowser
+import mai.project.core.extensions.parcelable
 import mai.project.core.utils.Event
 import mai.project.core.utils.GoogleMapUtil
+import mai.project.core.utils.ImageLoaderUtil
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
 import mai.project.foodmap.base.checkGPSAndGetCurrentLocation
 import mai.project.foodmap.base.checkLocationPermission
 import mai.project.foodmap.base.handleBasicResult
+import mai.project.foodmap.base.navigateSelectorDialog
 import mai.project.foodmap.databinding.FragmentRestaurantDetailBinding
+import mai.project.foodmap.domain.models.RestaurantDetailResult
 import mai.project.foodmap.domain.models.RestaurantRouteResult
 import mai.project.foodmap.domain.state.NetworkResult
+import mai.project.foodmap.features.dialogs_features.selector.SelectorCallback
+import mai.project.foodmap.features.dialogs_features.selector.SelectorModel
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -48,6 +61,9 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
     override val viewModel by viewModels<RestaurantDetailViewModel>()
 
     private val args by navArgs<RestaurantDetailFragmentArgs>()
+
+    @Inject
+    lateinit var imageLoaderUtil: ImageLoaderUtil
 
     @Inject
     lateinit var googleMapUtil: GoogleMapUtil
@@ -65,6 +81,14 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
     private var polylineAnimator: PolylineAnimator? = null
 
     private var pointPolyline: PointPolyline? = null
+
+    private val photosAdapter by lazy { PhotosAdapter(imageLoaderUtil) }
+
+    private val navigationModeItems: List<SelectorModel> by lazy {
+        resources.getStringArray(R.array.navigation_mode).mapIndexed { index, s ->
+            SelectorModel(id = index, content = s)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,6 +110,15 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
             skipCollapsed = true
             state = BottomSheetBehavior.STATE_COLLAPSED
         }
+
+        with(layoutDetail.vpPhotos) {
+            offscreenPageLimit = 3
+            getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+            adapter = photosAdapter
+            layoutDetail.piPhotos.attachToViewPager2(this)
+        }
+
+        viewModel.getRestaurantDetail(args.placeId)
     }
 
     override fun FragmentRestaurantDetailBinding.destroy() {
@@ -102,12 +135,18 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
     override fun FragmentRestaurantDetailBinding.setObserver() = with(viewModel) {
         launchAndRepeatStarted(
             // 當前位置與目標地的路線
-            { routeResult.collect(::handleRouteResult) }
+            { routeResult.collect(::handleRouteResult) },
+            // 餐廳詳細資訊
+            { restaurantDetail.collect(::handleDetailResult) }
         )
     }
 
     override fun FragmentRestaurantDetailBinding.setListener() {
         imgBack.onClick { navigateUp() }
+
+        imgFavorite.onClick {
+            // TODO
+        }
 
         imgMyRoute.onClick { fetchRoute() }
 
@@ -147,6 +186,63 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
                 }
             }
         })
+
+        layoutDetail.tvAddress.onClick {
+            viewModel.restaurantDetail.value.getPeekContent.data?.let {
+                navigateSelectorDialog(
+                    requestCode = REQUEST_CODE_NAVIGATION_MODE,
+                    items = navigationModeItems
+                )
+            }
+        }
+
+        layoutDetail.tvWorkday.onClick(safe = false) {
+            if (viewModel.restaurantDetail.value.getPeekContent.data?.workDay?.isNotEmpty() == true) {
+                val isVisible = layoutDetail.tvWorkdayList.isVisible
+                layoutDetail.tvWorkdayList.isVisible = !isVisible
+
+                layoutDetail.tvWorkday.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    R.drawable.vector_access_time, 0,
+                    if (isVisible) R.drawable.vector_keyboard_arrow_up else R.drawable.vector_keyboard_arrow_down, 0
+                )
+            }
+        }
+
+        layoutDetail.tvWebsite.onClick {
+            viewModel.restaurantDetail.value.getPeekContent.data?.website?.let {
+                requireActivity().openUrlWithBrowser(it)
+            }
+        }
+
+        layoutDetail.tvPhone.onClick {
+            viewModel.restaurantDetail.value.getPeekContent.data?.phone?.let {
+                requireActivity().openPhoneCall(it)
+            }
+        }
+
+        layoutDetail.tvGoogleReview.onClick {
+            viewModel.restaurantDetail.value.getPeekContent.data?.shareLink?.let {
+                requireActivity().openUrl(it)
+            }
+        }
+    }
+
+    override fun FragmentRestaurantDetailBinding.setCallback() {
+        setFragmentResultListener(REQUEST_CODE_NAVIGATION_MODE) { _, bundle ->
+            bundle.parcelable<SelectorCallback>(SelectorCallback.ARG_ITEM_CLICK)?.let { callback ->
+                callback as SelectorCallback.OnItemClick
+                val latLng = LatLng(
+                    viewModel.restaurantDetail.value.getPeekContent.data?.lat ?: Configs.DEFAULT_LATITUDE,
+                    viewModel.restaurantDetail.value.getPeekContent.data?.lng ?: Configs.DEFAULT_LONGITUDE
+                )
+                when (callback.item) {
+                    navigationModeItems[0] -> requireActivity().openGoogleNavigation(NavigationMode.CAR, latLng)
+                    navigationModeItems[1] -> requireActivity().openGoogleNavigation(NavigationMode.BICYCLE, latLng)
+                    navigationModeItems[2] -> requireActivity().openGoogleNavigation(NavigationMode.MOTORCYCLE, latLng)
+                    navigationModeItems[3] -> requireActivity().openGoogleNavigation(NavigationMode.WALKING, latLng)
+                }
+            }
+        }
     }
 
     /**
@@ -246,7 +342,9 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
 
                     addDestinationMarker()
                     addDestinationPolyline()
-                    zoomMyLocationAndRoute()
+                    checkCollapsedStateBeforeDoSomething {
+                        zoomMyLocationAndRoute()
+                    }
 
                     googleMapUtil.addInfoWindowOnPolyline(
                         map = myMap,
@@ -329,5 +427,82 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
             (metrics.widthPixels * 0.7).toInt()
         )
         myMap.animateCamera(cu)
+    }
+
+    /**
+     * 處理餐廳詳細資訊結果
+     */
+    private fun handleDetailResult(
+        event: Event<NetworkResult<RestaurantDetailResult>>
+    ) {
+        handleBasicResult(
+            event = event,
+            workOnSuccess = { data ->
+                data?.let(::setupDetailUI)
+            }
+        )
+    }
+
+    /**
+     * 設定餐廳詳細資訊 UI
+     */
+    private fun setupDetailUI(
+        data: RestaurantDetailResult
+    ) = with(binding.layoutDetail) {
+        if (data.isFavorite) {
+            binding.imgFavorite.setImageResource(R.drawable.vector_favorite)
+        } else {
+            binding.imgFavorite.setImageResource(R.drawable.vector_favorite_border)
+        }
+
+        pbCircular.isVisible = false
+        piPhotos.isVisible = data.photos.isNotEmpty()
+        photosAdapter.submitList(data.photos)
+
+        tvName.text = data.name
+        tvRating.text = "${data.ratingStar}"
+        rating.rating = data.ratingStar
+        tvRatingTotal.text = String.format(Locale.getDefault(), "(%d)", data.ratingTotal)
+
+        tvOpenNow.isVisible = data.openNow != null
+        tvOpenNow.text = if (data.openNow == true) getString(R.string.sentence_open_now) else getString(R.string.sentence_close_now)
+
+        tvDineIn.isVisible = data.dineIn != null
+        tvDineIn.setCompoundDrawablesRelativeWithIntrinsicBounds(
+            if (data.dineIn == true) R.drawable.vector_check else R.drawable.vector_close,
+            0, 0, 0
+        )
+
+        tvTakeout.isVisible = data.takeout != null
+        tvTakeout.setCompoundDrawablesRelativeWithIntrinsicBounds(
+            if (data.dineIn == true) R.drawable.vector_check else R.drawable.vector_close,
+            0, 0, 0
+        )
+
+        tvDelivery.isVisible = data.delivery != null
+        tvDelivery.setCompoundDrawablesRelativeWithIntrinsicBounds(
+            if (data.dineIn == true) R.drawable.vector_check else R.drawable.vector_close,
+            0, 0, 0
+        )
+
+        tvAddress.text = data.vicinity
+
+        tvWorkday.isVisible = data.workDay.isNotEmpty()
+        tvWorkdayList.text = data.workDay.joinToString(separator = "\n") { it }
+
+        tvWebsite.isVisible = !data.website.isNullOrEmpty()
+        tvWebsite.text = data.website
+
+        tvPhone.isVisible = !data.phone.isNullOrEmpty()
+        tvPhone.text = data.phone
+
+        // TODO Google 評論
+    }
+
+    companion object {
+        /**
+         * 點擊導航模式 Dialog
+         */
+        private const val REQUEST_CODE_NAVIGATION_MODE = "REQUEST_CODE_NAVIGATION_MODE"
     }
 }

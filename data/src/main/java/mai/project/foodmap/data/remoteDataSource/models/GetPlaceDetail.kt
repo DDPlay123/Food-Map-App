@@ -1,11 +1,13 @@
 package mai.project.foodmap.data.remoteDataSource.models
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class GetPlaceDetailReq(
     override val accessKey: String,
     override val userId: String,
+    @SerialName("place_id")
     val placeId: String
 ) : BaseRequest()
 

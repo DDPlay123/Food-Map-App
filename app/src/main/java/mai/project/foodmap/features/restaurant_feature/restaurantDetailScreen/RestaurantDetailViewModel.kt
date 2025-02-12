@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.update
 import mai.project.core.utils.CoroutineContextProvider
 import mai.project.core.utils.Event
 import mai.project.foodmap.base.BaseViewModel
+import mai.project.foodmap.domain.models.RestaurantDetailResult
 import mai.project.foodmap.domain.models.RestaurantRouteResult
 import mai.project.foodmap.domain.repository.GeocodeRepo
 import mai.project.foodmap.domain.repository.PlaceRepo
@@ -47,6 +48,20 @@ class RestaurantDetailViewModel @Inject constructor(
                 targetPlaceId = placeId
             )
         }.collect { result -> _routeResult.update { Event(result) } }
+    }
+
+    /**
+     * 取得餐廳詳細資訊
+     */
+    private val _restaurantDetail = MutableStateFlow<Event<NetworkResult<RestaurantDetailResult>>>(Event(NetworkResult.Idle()))
+    val restaurantDetail = _restaurantDetail.asStateFlow()
+
+    fun getRestaurantDetail(
+        placeId: String
+    ) = launchCoroutineIO {
+        safeApiCallFlow {
+            placeRepo.getPlaceDetail(placeId)
+        }.collect { result -> _restaurantDetail.update { Event(result) } }
     }
     // endregion Network State
 }

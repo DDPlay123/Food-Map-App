@@ -80,6 +80,13 @@
     <string name="format_minute">%d minutes</string>
     <string name="format_second">%d seconds</string>
 
+    <array name="navigation_mode">
+        <item>Car</item>
+        <item>Bicycle</item>
+        <item>Motorcycle</item>
+        <item>Walking</item>
+    </array>
+
     <array name="theme_mode">
         <item>System Default</item>
         <item>Dark Mode</item>
