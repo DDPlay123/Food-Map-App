@@ -11,6 +11,8 @@ import mai.project.core.extensions.parcelable
 import mai.project.core.utils.Event
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
+import mai.project.foodmap.base.navigateLoadingDialog
+import mai.project.foodmap.base.navigatePromptDialog
 import mai.project.foodmap.data.annotations.StatusCode
 import mai.project.foodmap.databinding.FragmentAuthBinding
 import mai.project.foodmap.domain.models.EmptyNetworkResult

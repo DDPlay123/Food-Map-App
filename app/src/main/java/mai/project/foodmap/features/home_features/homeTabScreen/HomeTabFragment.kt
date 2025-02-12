@@ -11,13 +11,12 @@ import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
+import mai.project.core.Configs
 import mai.project.core.annotations.Direction
 import mai.project.core.extensions.DP
 import mai.project.core.extensions.displayToast
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.onClick
-import mai.project.core.extensions.openAppSettings
-import mai.project.core.extensions.openGpsSettings
 import mai.project.core.extensions.parcelable
 import mai.project.core.extensions.screenWidth
 import mai.project.core.utils.Event
@@ -25,9 +24,13 @@ import mai.project.core.utils.GoogleMapUtil
 import mai.project.core.utils.ImageLoaderUtil
 import mai.project.core.widget.recyclerView_decorations.ScaleItemDecoration
 import mai.project.core.widget.recyclerView_decorations.SpacesItemDecoration
-import mai.project.foodmap.MainActivity
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
+import mai.project.foodmap.base.checkGPSAndGetCurrentLocation
+import mai.project.foodmap.base.checkLocationPermission
+import mai.project.foodmap.base.checkLocationPermissionAndGPS
+import mai.project.foodmap.base.handleBasicResult
+import mai.project.foodmap.base.navigateLoadingDialog
 import mai.project.foodmap.data.annotations.DrawCardMode
 import mai.project.foodmap.databinding.FragmentHomeTabBinding
 import mai.project.foodmap.domain.models.EmptyNetworkResult
@@ -66,7 +69,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
         locationPermissionLauncher = googleMapUtil.createLocationPermissionLauncher(
             fragment = this,
             onGranted = ::handleLocationPermissionGranted,
-            onDenied = ::handleLocationPermissionDenied
+            onDenied = { checkLocationPermission(googleMapUtil) }
         )
     }
 
@@ -115,7 +118,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
 
     override fun FragmentHomeTabBinding.setListener() {
         tvLocation.onClick(anim = true) {
-            if (checkLocationPermissionAndGPS()) {
+            if (checkLocationPermissionAndGPS(googleMapUtil)) {
                 navigate(
                     HomeTabFragmentDirections.actionHomeTabFragmentToMyPlaceBottomSheetDialog(
                         requestCode = REQUEST_CODE_SELECT_PLACE
@@ -132,9 +135,15 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
             // TODO 語音搜尋
         }
 
-        tvPopular.onClick(anim = true) { if (checkLocationPermissionAndGPS()) viewModel.setDrawCardMode() }
+        tvPopular.onClick(anim = true) {
+            if (checkLocationPermissionAndGPS(googleMapUtil))
+                viewModel.setDrawCardMode()
+        }
 
-        imgRefresh.onClick(anim = true) { if (checkLocationPermissionAndGPS()) viewModel.fetchMyPlaceList() }
+        imgRefresh.onClick(anim = true) {
+            if (checkLocationPermissionAndGPS(googleMapUtil))
+                viewModel.fetchMyPlaceList()
+        }
 
         cardMore.onClick {
             navigate(
@@ -187,32 +196,9 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
         }
         setFragmentResultListener(REQUEST_CODE_ADD_PLACE) { _, bundle ->
             bundle.getString(REQUEST_CODE_ADD_PLACE)?.let {
-                if (checkLocationPermissionAndGPS()) viewModel.fetchMyPlaceList()
+                if (checkLocationPermissionAndGPS(googleMapUtil))
+                    viewModel.fetchMyPlaceList()
             }
-        }
-    }
-
-    /**
-     * 檢查定位權限 和 GPS 是否開啟
-     */
-    private fun checkLocationPermissionAndGPS(): Boolean {
-        return when {
-            !googleMapUtil.checkLocationPermission -> {
-                handleLocationPermissionDenied()
-                false
-            }
-
-            !googleMapUtil.checkGPS -> {
-                with((activity as? MainActivity)) {
-                    this?.showSnackBar(
-                        message = getString(R.string.sentence_gps_not_open),
-                        actionText = getString(R.string.word_confirm)
-                    ) { openGpsSettings() }
-                }
-                false
-            }
-
-            else -> true
         }
     }
 
@@ -220,20 +206,8 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
      * 處理定位權限請求成功結果
      */
     private fun handleLocationPermissionGranted() {
-        if (checkLocationPermissionAndGPS() && viewModel.drawCardList.value.isEmpty()) {
+        if (checkLocationPermissionAndGPS(googleMapUtil) && viewModel.drawCardList.value.isEmpty()) {
             viewModel.fetchMyPlaceList()
-        }
-    }
-
-    /**
-     * 處理定位權限請求失敗結果
-     */
-    private fun handleLocationPermissionDenied() {
-        with((activity as? MainActivity)) {
-            this?.showSnackBar(
-                message = getString(R.string.sentence_location_permission_denied),
-                actionText = getString(R.string.word_confirm)
-            ) { openAppSettings() }
         }
     }
 
@@ -284,12 +258,11 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
         viewModel.myPlaceList.value.find { it.placeId == placeId }
             ?.let { place -> updateLocationAndDrawCard(place.lat, place.lng) }
             ?: run {
-                if (checkLocationPermissionAndGPS()) {
-                    googleMapUtil.getCurrentLocation(
-                        onSuccess = ::updateLocationAndDrawCard,
-                        onFailure = { displayToast(getString(R.string.sentence_can_not_get_location)) }
-                    )
-                }
+                checkGPSAndGetCurrentLocation(
+                    googleMapUtil = googleMapUtil,
+                    onSuccess = ::updateLocationAndDrawCard,
+                    onFailure = { updateLocationAndDrawCard(Configs.DEFAULT_LATITUDE, Configs.DEFAULT_LONGITUDE) }
+                )
             }
     }
 

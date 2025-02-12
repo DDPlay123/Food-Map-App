@@ -16,6 +16,10 @@ import mai.project.core.utils.ImageLoaderUtil
 import mai.project.core.widget.recyclerView_decorations.SpacesItemDecoration
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
+import mai.project.foodmap.base.handleBasicResult
+import mai.project.foodmap.base.navigateLoadingDialog
+import mai.project.foodmap.base.navigatePromptDialog
+import mai.project.foodmap.base.navigateSelectorDialog
 import mai.project.foodmap.data.annotations.LanguageMode
 import mai.project.foodmap.data.annotations.ThemeMode
 import mai.project.foodmap.databinding.FragmentProfilesTabBinding

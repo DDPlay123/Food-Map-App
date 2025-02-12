@@ -21,16 +21,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.fragment.findNavController
 import androidx.viewbinding.ViewBinding
-import mai.project.core.extensions.displayToast
-import mai.project.core.utils.Event
 import mai.project.foodmap.MainActivity
-import mai.project.foodmap.R
-import mai.project.foodmap.domain.state.NetworkResult
-import mai.project.foodmap.domain.utils.handleResult
-import mai.project.foodmap.features.dialogs_features.loading.LoadingDialogDirections
-import mai.project.foodmap.features.dialogs_features.prompt.PromptDialogDirections
-import mai.project.foodmap.features.dialogs_features.selector.SelectorBottomSheetDialogDirections
-import mai.project.foodmap.features.dialogs_features.selector.SelectorModel
 import timber.log.Timber
 
 /**
@@ -60,12 +51,12 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
     private var _binding: VB? = null
     protected val binding: VB get() = _binding!!
 
-    protected open val viewModel: VM? = null
+    open val viewModel: VM? = null
 
     /**
      * 取得 NavController
      */
-    protected lateinit var navController: NavController
+    lateinit var navController: NavController
         private set
 
     /**
@@ -92,131 +83,6 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
      * 返回鍵監聽器
      */
     private var onBackPressedCallback: OnBackPressedCallback? = null
-
-    // region public function
-    /**
-     * 判斷當前頁面是否為指定頁面，如果不是則返回上一頁。並執行指定的工作。
-     *
-     * @param fragmentId Fragment ID
-     * @param work 要執行的工作
-     */
-    protected fun doSomethingOnCurrentPage(
-        fragmentId: Int,
-        work: () -> Unit
-    ) {
-        if (navController.currentBackStackEntry?.destination?.id != fragmentId) {
-            popBackStack()
-        }
-        work.invoke()
-    }
-
-    /**
-     * 處理 API 基礎回傳結果
-     *
-     * @param event API 回傳事件
-     * @param needLoading 是否需要 Loading
-     * @param workOnSuccess 成功後執行工作
-     * @param workOnError 失敗後執行工作
-     */
-    protected fun <T> handleBasicResult(
-        event: Event<NetworkResult<T>>,
-        needLoading: Boolean = true,
-        workOnSuccess: ((T?) -> Unit)? = null,
-        workOnError: (() -> Unit)? = null
-    ) {
-        event.getContentIfNotHandled?.handleResult {
-            onLoading = { if (needLoading) viewModel?.setLoading(true) }
-            onSuccess = {
-                if (needLoading) viewModel?.setLoading(false)
-                workOnSuccess?.invoke(it)
-            }
-            onError = { _, msg ->
-                if (needLoading) viewModel?.setLoading(false)
-                displayToast(msg ?: "Unknown Error")
-                workOnError?.invoke()
-            }
-        }
-    }
-    // endregion public function
-
-    // region dialog
-    /**
-     * 開啟/關閉 Loading Dialog
-     *
-     * @param cancelable 是否可以點擊關閉 Dialog
-     */
-    fun navigateLoadingDialog(
-        isOpen: Boolean,
-        cancelable: Boolean = true
-    ) {
-        val currentDestId = navController.currentBackStackEntry?.destination?.id
-        when {
-            // 顯示 LoadingDialog (不重複導頁)
-            isOpen && currentDestId != R.id.loadingDialog -> {
-                navController.navigate(LoadingDialogDirections.actionGlobalToLoadingDialog(cancelable))
-            }
-
-            // 關閉 LoadingDialog
-            !isOpen && currentDestId == R.id.loadingDialog -> {
-                // 退回上一層
-                navController.navigateUp()
-            }
-
-            else -> Unit
-        }
-    }
-
-    /**
-     * 開啟 Prompt Dialog
-     *
-     * @param requestCode 請求碼
-     * @param title 標題
-     * @param message 內文
-     * @param confirmText 確認按鈕 (不顯示則為 Null)
-     * @param cancelText 取消按鈕 (不顯示則為 Null)
-     * @param enableInput 是否啟用輸入框
-     * @param inputHint 輸入框提示文本 (不顯示則為 Null)
-     */
-    fun navigatePromptDialog(
-        requestCode: String,
-        title: String,
-        message: String,
-        confirmText: String? = getString(R.string.word_confirm),
-        cancelText: String? = getString(R.string.word_cancel),
-        enableInput: Boolean = false,
-        inputHint: String? = null
-    ) {
-        navigate(
-            PromptDialogDirections.actionGlobalToPromptDialog(
-                requestCode = requestCode,
-                title = title,
-                message = message,
-                confirmText = confirmText,
-                cancelText = cancelText,
-                enableInput = enableInput,
-                inputHint = inputHint
-            )
-        )
-    }
-
-    /**
-     * 開啟 Selector Dialog
-     *
-     * @param requestCode 請求碼
-     * @param items 選項
-     */
-    fun navigateSelectorDialog(
-        requestCode: String,
-        items: List<SelectorModel>
-    ) {
-        navigate(
-            SelectorBottomSheetDialogDirections.actionGlobalToSelectorBottomSheetDialog(
-                requestCode = requestCode,
-                items = items.toTypedArray()
-            )
-        )
-    }
-    // endregion
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -362,7 +228,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
      *
      * @param errorCallback [Function] 錯誤回調
      */
-    protected fun onBackPressed(
+    fun onBackPressed(
         errorCallback: ((e: Exception) -> Unit)? = null
     ) {
         try {
@@ -382,7 +248,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
      * @param navigatorExtras [Navigator.Extras]
      * @param errorCallback [Function] 錯誤回調
      */
-    protected fun navigate(
+    fun navigate(
         @IdRes resId: Int,
         args: Bundle? = null,
         navOptions: NavOptions? = null,
@@ -405,7 +271,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
      * @param navOptions [NavOptions]
      * @param errorCallback [Function] 錯誤回調
      */
-    protected fun navigate(
+    fun navigate(
         directions: NavDirections,
         navOptions: NavOptions? = null,
         errorCallback: ((e: Exception) -> Unit)? = null
@@ -426,7 +292,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
      * @param navigatorExtras [Navigator.Extras]
      * @param errorCallback [Function] 錯誤回調
      */
-    protected fun navigate(
+    fun navigate(
         directions: NavDirections,
         navigatorExtras: Navigator.Extras,
         errorCallback: ((e: Exception) -> Unit)? = null
@@ -448,7 +314,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
      * @param navigatorExtras [Navigator.Extras]
      * @param errorCallback [Function] 錯誤回調
      */
-    protected fun navigate(
+    fun navigate(
         deepLink: Uri,
         navOptions: NavOptions? = null,
         navigatorExtras: Navigator.Extras? = null,
@@ -471,7 +337,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
      * @param navigatorExtras [Navigator.Extras]
      * @param errorCallback [Function] 錯誤回調
      */
-    protected fun navigate(
+    fun navigate(
         request: NavDeepLinkRequest,
         navOptions: NavOptions? = null,
         navigatorExtras: Navigator.Extras? = null,
@@ -491,7 +357,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
      *
      * @param errorCallback [Function] 錯誤回調
      */
-    protected fun popBackStack(
+    fun popBackStack(
         errorCallback: ((e: Exception) -> Unit)? = null
     ) {
         if (!isAdded) return
@@ -511,7 +377,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
      * @param saveState [Boolean] 是否儲存狀態
      * @param errorCallback [Function] 錯誤回調
      */
-    protected fun popBackStack(
+    fun popBackStack(
         @IdRes destinationId: Int,
         inclusive: Boolean,
         saveState: Boolean = false,
@@ -534,7 +400,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
      * @param saveState [Boolean] 是否儲存狀態
      * @param errorCallback [Function] 錯誤回調
      */
-    protected fun popBackStack(
+    fun popBackStack(
         route: String,
         inclusive: Boolean,
         saveState: Boolean = false,
@@ -554,7 +420,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
      *
      * @param errorCallback [Function] 錯誤回調
      */
-    protected fun navigateUp(
+    fun navigateUp(
         errorCallback: ((e: Exception) -> Unit)? = null
     ) {
         if (!isAdded) return

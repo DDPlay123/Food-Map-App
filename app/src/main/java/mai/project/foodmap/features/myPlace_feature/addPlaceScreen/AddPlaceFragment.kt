@@ -27,14 +27,15 @@ import mai.project.core.extensions.displayToast
 import mai.project.core.extensions.hideKeyboard
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.onClick
-import mai.project.core.extensions.openAppSettings
-import mai.project.core.extensions.openGpsSettings
 import mai.project.core.utils.Event
 import mai.project.core.utils.GoogleMapUtil
 import mai.project.core.widget.recyclerView_decorations.DividerItemDecoration
-import mai.project.foodmap.MainActivity
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
+import mai.project.foodmap.base.checkGPSAndGetCurrentLocation
+import mai.project.foodmap.base.checkLocationPermission
+import mai.project.foodmap.base.handleBasicResult
+import mai.project.foodmap.base.navigateLoadingDialog
 import mai.project.foodmap.databinding.FragmentAddPlaceBinding
 import mai.project.foodmap.domain.models.EmptyNetworkResult
 import mai.project.foodmap.domain.models.SearchPlaceResult
@@ -125,7 +126,14 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
         imgBack.onClick { onBackPressed() }
 
         imgMyLocation.onClick {
-            if (checkLocationPermission()) getMyLocationAndMove()
+            if (checkLocationPermission(googleMapUtil)) {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                checkGPSAndGetCurrentLocation(
+                    googleMapUtil = googleMapUtil,
+                    onSuccess = { lat, lng -> initLocation(lat, lng) },
+                    onFailure = { initLocation(Configs.DEFAULT_LATITUDE, Configs.DEFAULT_LONGITUDE) }
+                )
+            }
         }
 
         layoutSelector.edSearch.doAfterTextChanged {
@@ -181,7 +189,7 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
     }
 
     override fun onMapReady(maps: GoogleMap) {
-        if (checkLocationPermission()) {
+        if (checkLocationPermission(googleMapUtil)) {
             myMap = maps.apply {
                 googleMapUtil.doInitializeGoogleMap(this)
                 googleMapUtil.setCompassLocation(
@@ -196,66 +204,18 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
     }
 
     override fun onMapLoaded() {
-        getMyLocationAndMove()
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        checkGPSAndGetCurrentLocation(
+            googleMapUtil = googleMapUtil,
+            onSuccess = { lat, lng -> initLocation(lat, lng) },
+            onFailure = { initLocation(Configs.DEFAULT_LATITUDE, Configs.DEFAULT_LONGITUDE) }
+        )
     }
 
     override fun onCameraIdle() {
         if (viewModel.targetCameraPosition != myMap.cameraPosition) {
             viewModel.targetCameraPosition = myMap.cameraPosition
             viewModel.searchPlacesByLocation()
-        }
-    }
-
-    /**
-     * 檢查定位權限 是否開啟
-     */
-    private fun checkLocationPermission(): Boolean {
-        return when {
-            !googleMapUtil.checkLocationPermission -> {
-                with((activity as? MainActivity)) {
-                    this?.showSnackBar(
-                        message = getString(R.string.sentence_location_permission_denied),
-                        actionText = getString(R.string.word_confirm)
-                    ) { openAppSettings() }
-                }
-                false
-            }
-
-            else -> true
-        }
-    }
-
-    /**
-     * 檢查 GPS 是否開啟
-     */
-    private fun checkGPS(): Boolean {
-        return when {
-            !googleMapUtil.checkGPS -> {
-                with((activity as? MainActivity)) {
-                    this?.showSnackBar(
-                        message = getString(R.string.sentence_gps_not_open),
-                        actionText = getString(R.string.word_confirm)
-                    ) { openGpsSettings() }
-                }
-                false
-            }
-
-            else -> true
-        }
-    }
-
-    /**
-     * 取得當前定位並移動到該點
-     */
-    private fun getMyLocationAndMove() {
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        if (checkGPS()) {
-            googleMapUtil.getCurrentLocation(
-                onSuccess = { lat, lng -> initLocation(lat, lng) },
-                onFailure = { displayToast(getString(R.string.sentence_can_not_get_location)) }
-            )
-        } else {
-            initLocation(Configs.DEFAULT_LATITUDE, Configs.DEFAULT_LONGITUDE)
         }
     }
 
