@@ -1,8 +1,6 @@
 package mai.project.foodmap.features.myPlace_feature.addPlaceScreen
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.os.bundleOf
@@ -13,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener
+import com.google.android.gms.maps.GoogleMap.OnCameraMoveListener
 import com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -49,7 +48,7 @@ import kotlin.math.roundToInt
 @AndroidEntryPoint
 class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel>(
     bindingInflater = FragmentAddPlaceBinding::inflate
-), OnMapReadyCallback, OnMapLoadedCallback, OnCameraIdleListener {
+), OnMapReadyCallback, OnMapLoadedCallback, OnCameraMoveListener, OnCameraIdleListener {
     override val viewModel by viewModels<AddPlaceViewModel>()
 
     private val args by navArgs<AddPlaceFragmentArgs>()
@@ -64,6 +63,8 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
     private lateinit var myMap: GoogleMap
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+
+    private val pendingActions = mutableListOf<() -> Unit>()
 
     private val searchPlaceAdapter by lazy { SearchPlaceAdapter() }
 
@@ -104,9 +105,11 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
     }
 
     override fun FragmentAddPlaceBinding.destroy() {
+        pendingActions.clear()
         if (::myMap.isInitialized) with(myMap) {
             clear()
             setOnMapLoadedCallback(null)
+            setOnCameraMoveListener(null)
             setOnCameraIdleListener(null)
         }
     }
@@ -160,8 +163,11 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 when (newState) {
-                    BottomSheetBehavior.STATE_COLLAPSED ->
+                    BottomSheetBehavior.STATE_COLLAPSED -> {
                         viewModel.setShowSearchList(false)
+                        pendingActions.forEach { it.invoke() }
+                        pendingActions.clear()
+                    }
 
                     BottomSheetBehavior.STATE_EXPANDED ->
                         viewModel.setShowSearchList(true)
@@ -199,6 +205,20 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
         binding.layoutMap.setPadding(0, 0, 0, (offset * maxMapsPaddingBottom).roundToInt())
     }
 
+    /**
+     * 先檢查當前狀態是否為收合，如是收合，則直接執行。否則先暫存並設定 收合狀態
+     */
+    private fun checkCollapsedStateBeforeDoSomething(
+        work: () -> Unit
+    ) {
+        if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_COLLAPSED) {
+            pendingActions.add(work)
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        } else {
+            work.invoke()
+        }
+    }
+
     override fun onMapReady(maps: GoogleMap) {
         myMap = maps.apply {
             googleMapUtil.doInitializeGoogleMap(this)
@@ -208,6 +228,7 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
                 marginLeft = 90.DP
             )
             setOnMapLoadedCallback(this@AddPlaceFragment)
+            setOnCameraMoveListener(this@AddPlaceFragment)
             setOnCameraIdleListener(this@AddPlaceFragment)
         }
     }
@@ -220,26 +241,28 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
         )
     }
 
-    override fun onCameraIdle() {
-        if (viewModel.targetCameraPosition != myMap.cameraPosition) {
+    override fun onCameraMove() {
+        if (viewModel.targetCameraPosition != myMap.cameraPosition)
             viewModel.targetCameraPosition = myMap.cameraPosition
+    }
+
+    override fun onCameraIdle() {
+        if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
             viewModel.searchPlacesByLocation()
-        }
     }
 
     /**
      * 初始化位置
      */
     private fun initLocation(lat: Double, lng: Double) {
-        if (::myMap.isInitialized) {
-            googleMapUtil.moveCamera(
-                map = myMap,
-                latLng = LatLng(lat, lng),
-                zoomLevel = 15f
-            )
-            Handler(Looper.getMainLooper()).postDelayed({
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            }, 100)
+        checkCollapsedStateBeforeDoSomething {
+            if (::myMap.isInitialized) {
+                googleMapUtil.animateCamera(
+                    map = myMap,
+                    latLng = LatLng(lat, lng),
+                    zoomLevel = 15f
+                )
+            }
         }
     }
 
@@ -289,14 +312,11 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
                 data?.let {
                     layoutSelector.tvCurrentAddress.text = String.format(Locale.getDefault(), "%s\n%s", it.name, it.address)
                     viewModel.selectedPlace = it
-                    if (isFromAddress) {
-                        googleMapUtil.moveCamera(
+                    if (isFromAddress) checkCollapsedStateBeforeDoSomething {
+                        googleMapUtil.animateCamera(
                             map = myMap,
                             latLng = LatLng(it.lat!!, it.lng!!)
                         )
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                        }, 100)
                     }
                 }
             }

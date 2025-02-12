@@ -1,8 +1,6 @@
 package mai.project.foodmap.features.restaurant_feature.restaurantDetailScreen
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.viewModels
@@ -10,6 +8,7 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener
+import com.google.android.gms.maps.GoogleMap.OnCameraMoveListener
 import com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -45,7 +44,7 @@ import kotlin.math.roundToInt
 @AndroidEntryPoint
 class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, RestaurantDetailViewModel>(
     bindingInflater = FragmentRestaurantDetailBinding::inflate
-), OnMapReadyCallback, OnMapLoadedCallback, OnCameraIdleListener {
+), OnMapReadyCallback, OnMapLoadedCallback, OnCameraMoveListener {
     override val viewModel by viewModels<RestaurantDetailViewModel>()
 
     private val args by navArgs<RestaurantDetailFragmentArgs>()
@@ -60,6 +59,8 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
     private lateinit var myMap: GoogleMap
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+
+    private val pendingActions = mutableListOf<() -> Unit>()
 
     private var polylineAnimator: PolylineAnimator? = null
 
@@ -88,10 +89,11 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
     }
 
     override fun FragmentRestaurantDetailBinding.destroy() {
+        pendingActions.clear()
         if (::myMap.isInitialized) with(myMap) {
             clear()
             setOnMapLoadedCallback(null)
-            setOnCameraIdleListener(null)
+            setOnCameraMoveListener(null)
         }
         polylineAnimator = null
         pointPolyline = null
@@ -107,10 +109,7 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
     override fun FragmentRestaurantDetailBinding.setListener() {
         imgBack.onClick { navigateUp() }
 
-        imgMyRoute.onClick {
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            fetchRoute()
-        }
+        imgMyRoute.onClick { fetchRoute() }
 
         imgMyLocation.onClick {
             checkGPSAndGetCurrentLocation(
@@ -121,7 +120,17 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         }
 
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) {}
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                when (newState) {
+                    BottomSheetBehavior.STATE_COLLAPSED -> {
+                        pendingActions.forEach { it.invoke() }
+                        pendingActions.clear()
+                    }
+
+                    else -> Unit
+                }
+            }
+
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 val height = bottomSheet.height.toFloat()
                 val offset = height * slideOffset
@@ -148,6 +157,20 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         myMap.setPadding(0, 0, 0, (offset * maxMapsPaddingBottom).roundToInt())
     }
 
+    /**
+     * 先檢查當前狀態是否為收合，如是收合，則直接執行。否則先暫存並設定 收合狀態
+     */
+    private fun checkCollapsedStateBeforeDoSomething(
+        work: () -> Unit
+    ) {
+        if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_COLLAPSED) {
+            pendingActions.add(work)
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        } else {
+            work.invoke()
+        }
+    }
+
     override fun onMapReady(maps: GoogleMap) {
         myMap = maps.apply {
             googleMapUtil.doInitializeGoogleMap(this)
@@ -157,7 +180,7 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
                 marginLeft = 90.DP
             )
             setOnMapLoadedCallback(this@RestaurantDetailFragment)
-            setOnCameraIdleListener(this@RestaurantDetailFragment)
+            setOnCameraMoveListener(this@RestaurantDetailFragment)
         }
     }
 
@@ -170,7 +193,7 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         fetchRoute()
     }
 
-    override fun onCameraIdle() {
+    override fun onCameraMove() {
         if (viewModel.targetCameraPosition != myMap.cameraPosition)
             viewModel.targetCameraPosition = myMap.cameraPosition
     }
@@ -182,15 +205,14 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         lat: Double,
         lng: Double
     ) {
-        if (::myMap.isInitialized) {
-            googleMapUtil.moveCamera(
-                map = myMap,
-                latLng = LatLng(lat, lng),
-                zoomLevel = 15f
-            )
-            Handler(Looper.getMainLooper()).postDelayed({
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            }, 100)
+        checkCollapsedStateBeforeDoSomething {
+            if (::myMap.isInitialized) {
+                googleMapUtil.animateCamera(
+                    map = myMap,
+                    latLng = LatLng(lat, lng),
+                    zoomLevel = 15f
+                )
+            }
         }
     }
 
@@ -198,11 +220,13 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
      * 請求取得當前位置與目標地的路線
      */
     private fun fetchRoute() {
-        checkGPSAndGetCurrentLocation(
-            googleMapUtil = googleMapUtil,
-            onSuccess = { lat, lng -> viewModel.getRouteResult(args.placeId, lat, lng) },
-            onFailure = { viewModel.getRouteResult(args.placeId, Configs.DEFAULT_LATITUDE, Configs.DEFAULT_LONGITUDE) }
-        )
+        checkCollapsedStateBeforeDoSomething {
+            checkGPSAndGetCurrentLocation(
+                googleMapUtil = googleMapUtil,
+                onSuccess = { lat, lng -> viewModel.getRouteResult(args.placeId, lat, lng) },
+                onFailure = { viewModel.getRouteResult(args.placeId, Configs.DEFAULT_LATITUDE, Configs.DEFAULT_LONGITUDE) }
+            )
+        }
     }
 
     /**
