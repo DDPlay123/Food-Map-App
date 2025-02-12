@@ -6,4 +6,16 @@
         <attr name="circleImageStrokeWidth" format="dimension" />
         <attr name="circleImageCenterText" format="string" />
     </declare-styleable>
+    <!--  PagerIndicator  -->
+    <declare-styleable name="PagerIndicator">
+        <attr name="pagerIndicatorDotCount" format="integer" />
+        <attr name="pagerIndicatorFadingDotCount" format="integer" />
+        <attr name="pagerIndicatorDotRadius" format="dimension" />
+        <attr name="pagerIndicatorSelectedDotRadius" format="dimension" />
+        <attr name="pagerIndicatorDotColor" format="color" />
+        <attr name="pagerIndicatorSelectedDotColor" format="color" />
+        <attr name="pagerIndicatorDotSeparation" format="dimension" />
+        <attr name="pagerIndicatorSupportRTL" format="boolean" />
+        <attr name="pagerIndicatorVerticalSupport" format="boolean" />
+    </declare-styleable>
 </resources>

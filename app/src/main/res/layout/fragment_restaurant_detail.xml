@@ -26,6 +26,19 @@
         app:srcCompat="@drawable/vector_arrow_back" />
 
     <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/imgFavorite"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/bg_circle_icon"
+        android:padding="10dp"
+        android:tint="@color/primary"
+        app:layout_constraintBottom_toBottomOf="@+id/imgBack"
+        app:layout_constraintEnd_toStartOf="@+id/imgMyRoute"
+        app:layout_constraintTop_toTopOf="@+id/imgBack"
+        app:srcCompat="@drawable/vector_favorite_border" />
+
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/imgMyRoute"
         android:layout_width="50dp"
         android:layout_height="50dp"
@@ -65,12 +78,5 @@
             layout="@layout/layout_restaurant_detail" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guidelineBottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_end="240dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

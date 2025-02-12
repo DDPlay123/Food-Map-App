@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="primary">#F52C56</color>
+    <color name="success">#69A079</color>
     <color name="error">#ED4337</color>
 
     <color name="background_navigation_view">#F4F7F9</color>
