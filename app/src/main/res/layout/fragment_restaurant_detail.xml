@@ -61,7 +61,7 @@
         app:layout_constraintTop_toBottomOf="@+id/imgMyLocation">
 
         <include
-            android:id="@+id/layoutSelector"
+            android:id="@+id/layoutDetail"
             layout="@layout/layout_restaurant_detail" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

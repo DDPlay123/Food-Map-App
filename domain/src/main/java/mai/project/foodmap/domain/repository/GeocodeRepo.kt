@@ -38,8 +38,6 @@ interface GeocodeRepo {
     suspend fun getRoute(
         originLat: Double,
         originLng: Double,
-        targetPlaceId: String,
-        targetLat: Double,
-        targetLng: Double
+        targetPlaceId: String
     ): NetworkResult<RestaurantRouteResult>
 }

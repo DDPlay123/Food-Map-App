@@ -47,6 +47,7 @@ serialization = "1.7.3"
 okhttp = "4.12.0"
 coil = "2.7.0"
 lottie = "6.4.0"
+geolib-polyline = "2.5.6"
 
 ####################################################################################################
 [libraries]
@@ -133,6 +134,9 @@ coil-video = { group = "io.coil-kt", name = "coil-video", version.ref = "coil" }
 
 # Lottie (https://github.com/airbnb/lottie-android)
 lottie = { group = "com.airbnb.android", name = "lottie", version.ref = "lottie" }
+
+# geolib-polyline (https://github.com/utsmannn/geolib)
+geolib-polyline = { group = "io.github.utsmannn", name = "geolib-polyline", version.ref = "geolib-polyline" }
 
 ####################################################################################################
 [plugins]

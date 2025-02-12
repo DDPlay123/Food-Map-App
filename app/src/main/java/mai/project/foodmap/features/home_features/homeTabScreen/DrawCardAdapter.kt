@@ -75,16 +75,20 @@ class DrawCardAdapter(
                 imageType = ImageType.DEFAULT,
                 transformation = RoundedCornersTransformation(25f)
             )
+
             tvName.text = item.name
             tvRating.text = "${item.ratingStar}"
             rating.rating = item.ratingStar
             tvRatingTotal.text = String.format(Locale.getDefault(), "(%d)", item.ratingTotal)
             tvAddress.text = item.address
+
             if (item.isFavorite) {
                 imgFavorite.setImageResource(R.drawable.vector_favorite)
             } else {
                 imgFavorite.setImageResource(R.drawable.vector_favorite_border)
             }
+
+            // TODO 距離藥用當前位置計算
             tvDistance.text = String.format(
                 Locale.getDefault(),
                 if (item.distance < 1000) context.getString(R.string.format_number_meter) else context.getString(R.string.format_number_kilometer),

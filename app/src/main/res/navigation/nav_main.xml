@@ -159,6 +159,18 @@
         <argument
             android:name="placeId"
             app:argType="string" />
+        <!--    目標名稱    -->
+        <argument
+            android:name="name"
+            app:argType="string" />
+        <!--    目標緯度    -->
+        <argument
+            android:name="lat"
+            app:argType="float" />
+        <!--    目標經度    -->
+        <argument
+            android:name="lng"
+            app:argType="float" />
     </fragment>
 
     <!--  全域呼叫 載入 Dialog  -->

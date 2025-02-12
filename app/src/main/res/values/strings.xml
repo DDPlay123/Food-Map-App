@@ -75,6 +75,10 @@
 
     <string name="format_number_meter">Distance: %,.1f meters</string>
     <string name="format_number_kilometer">Distance: %,.1f kilometers</string>
+    <string name="format_day">%d days</string>
+    <string name="format_hour">%d hours</string>
+    <string name="format_minute">%d minutes</string>
+    <string name="format_second">%d seconds</string>
 
     <array name="theme_mode">
         <item>System Default</item>

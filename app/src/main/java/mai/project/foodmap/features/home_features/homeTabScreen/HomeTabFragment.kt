@@ -160,7 +160,10 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
         drawCardAdapter.onItemClick = { item ->
             navigate(
                 HomeTabFragmentDirections.actionHomeTabFragmentToRestaurantDetailFragment(
-                    placeId = item.placeId
+                    placeId = item.placeId,
+                    name = item.name,
+                    lat = item.lat.toFloat(),
+                    lng = item.lng.toFloat()
                 )
             )
         }

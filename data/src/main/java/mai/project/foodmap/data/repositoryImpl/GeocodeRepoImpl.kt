@@ -76,24 +76,22 @@ internal class GeocodeRepoImpl @Inject constructor(
     override suspend fun getRoute(
         originLat: Double,
         originLng: Double,
-        targetPlaceId: String,
-        targetLat: Double,
-        targetLng: Double
+        targetPlaceId: String
     ): NetworkResult<RestaurantRouteResult> {
         val result = handleAPIResponse(
             apiService.getRoutePolyline(
                 GetRoutePolylineReq(
                     userId = preferenceRepo.readUserId.firstOrNull().orEmpty(),
                     accessKey = preferenceRepo.readAccessKey.firstOrNull().orEmpty(),
-                    location = GetRoutePolylineReq.LocationInfo(
+                    origin = GetRoutePolylineReq.LocationInfo(
                         placeId = "",
                         lat = originLat,
                         lng = originLng
                     ),
-                    origin = GetRoutePolylineReq.LocationInfo(
+                    destination = GetRoutePolylineReq.LocationInfo(
                         placeId = targetPlaceId,
-                        lat = targetLat,
-                        lng = targetLng
+                        lat = 0.0,
+                        lng = 0.0
                     )
                 )
             )

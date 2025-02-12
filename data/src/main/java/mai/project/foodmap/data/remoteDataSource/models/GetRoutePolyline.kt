@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 internal data class GetRoutePolylineReq(
     override val accessKey: String,
     override val userId: String,
-    val location: LocationInfo,
+    val destination: LocationInfo,
     val origin: LocationInfo
 ) : BaseRequest() {
     @Serializable

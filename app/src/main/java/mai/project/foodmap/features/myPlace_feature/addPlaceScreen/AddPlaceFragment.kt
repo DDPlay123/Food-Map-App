@@ -140,7 +140,6 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
         imgBack.onClick { onBackPressed() }
 
         imgMyLocation.onClick {
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             checkGPSAndGetCurrentLocation(
                 googleMapUtil = googleMapUtil,
                 onSuccess = { lat, lng -> initLocation(lat, lng) },
@@ -214,7 +213,6 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
     }
 
     override fun onMapLoaded() {
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         checkGPSAndGetCurrentLocation(
             googleMapUtil = googleMapUtil,
             onSuccess = { lat, lng -> initLocation(lat, lng) },
@@ -234,11 +232,14 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
      */
     private fun initLocation(lat: Double, lng: Double) {
         if (::myMap.isInitialized) {
-            googleMapUtil.animateCamera(
+            googleMapUtil.moveCamera(
                 map = myMap,
                 latLng = LatLng(lat, lng),
                 zoomLevel = 15f
             )
+            Handler(Looper.getMainLooper()).postDelayed({
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            }, 100)
         }
     }
 

@@ -123,4 +123,5 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.bundles.coil)
     implementation(libs.lottie)
+    implementation(libs.geolib.polyline)
 }

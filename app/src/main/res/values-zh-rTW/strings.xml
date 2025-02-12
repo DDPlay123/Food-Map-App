@@ -75,6 +75,10 @@
 
     <string name="format_number_meter">距離 %,.1f 公尺</string>
     <string name="format_number_kilometer">距離 %,.1f 公里</string>
+    <string name="format_day">%d 天</string>
+    <string name="format_hour">%d 小時</string>
+    <string name="format_minute">%d 分鐘</string>
+    <string name="format_second">%d 秒鐘</string>
 
     <array name="theme_mode">
         <item>根據系統設定</item>

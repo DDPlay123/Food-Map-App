@@ -24,10 +24,13 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.pow
 
 /**
  * Google Map 相關工具
@@ -93,7 +96,7 @@ class GoogleMapUtil @Inject constructor(
         if (checkLocationPermission && checkGPS) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
-                    Timber.e(message = "取得經緯度成功")
+                    Timber.d(message = "取得經緯度成功")
                     onSuccess(it.latitude, it.longitude)
                 } ?: run {
                     Timber.e(message = "取得經緯度失敗，請求新的位置")
@@ -225,5 +228,85 @@ class GoogleMapUtil @Inject constructor(
         } catch (e: Exception) {
             Timber.e(message = "setCompass", t = e)
         }
+    }
+
+    /**
+     * 解碼 Google Map API 路線
+     */
+    fun decodePolyline(polyline: String): List<LatLng> {
+        var index = 0
+        var lat = 0
+        var lng = 0
+        val coordinates = mutableListOf<LatLng>()
+
+        while (index < polyline.length) {
+            // 解碼緯度差值
+            var shift = 0
+            var result = 0
+            var b: Int
+            do {
+                b = polyline[index++].code - 63
+                result = result or ((b and 0x1F) shl shift)
+                shift += 5
+            } while (b >= 0x20)
+            val deltaLat = if ((result and 1) != 0) (result shr 1).inv() else result shr 1
+            lat += deltaLat
+
+            // 解碼經度差值
+            shift = 0
+            result = 0
+            do {
+                b = polyline[index++].code - 63
+                result = result or ((b and 0x1F) shl shift)
+                shift += 5
+            } while (b >= 0x20)
+            val deltaLng = if ((result and 1) != 0) (result shr 1).inv() else result shr 1
+            lng += deltaLng
+
+            // 轉換為實際經緯度，並四捨五入到 5 位小數
+            val latitude = round(lat / 1e5)
+            val longitude = round(lng / 1e5)
+            // 如需過濾 (0, 0) 座標，可保留以下判斷：
+            if (latitude == 0.0 && longitude == 0.0) continue
+
+            coordinates.add(LatLng(latitude, longitude))
+        }
+
+        return coordinates
+    }
+
+    // 四捨五入方法
+    private fun round(value: Double, precision: Int = 5): Double {
+        val factor = 10.0.pow(precision.toDouble())
+        return (value * factor).toInt().toDouble() / factor
+    }
+
+    /**
+     * 新增資訊框在路徑上
+     *
+     * @param map [GoogleMap] 地圖
+     * @param routes 路徑
+     * @param title 標題
+     * @param content 內文
+     */
+    fun addInfoWindowOnPolyline(
+        map: GoogleMap,
+        routes: List<LatLng>,
+        title: String,
+        content: String
+    ): Marker? {
+        val pointsOnLine = routes.size
+        val infoLatLng = routes[(pointsOnLine / 2)]
+        val marker = map.addMarker(
+            MarkerOptions()
+                .position(infoLatLng)
+                .title(title)
+                .snippet(content)
+                .alpha(0f)
+                .icon(null)
+                .anchor(0f, 0f)
+        )
+        marker?.showInfoWindow()
+        return marker
     }
 }
