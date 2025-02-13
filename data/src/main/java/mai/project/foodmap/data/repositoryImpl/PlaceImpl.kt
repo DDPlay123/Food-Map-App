@@ -15,6 +15,7 @@ import mai.project.foodmap.data.remoteDataSource.models.SearchAutocompleteReq
 import mai.project.foodmap.data.remoteDataSource.models.SearchByDistanceReq
 import mai.project.foodmap.data.remoteDataSource.models.SearchByKeywordReq
 import mai.project.foodmap.data.utils.handleAPIResponse
+import mai.project.foodmap.data.utils.safeIoWorker
 import mai.project.foodmap.domain.models.RestaurantDetailResult
 import mai.project.foodmap.domain.models.RestaurantResult
 import mai.project.foodmap.domain.models.SearchPlaceResult
@@ -45,6 +46,12 @@ internal class PlaceImpl @Inject constructor(
                 )
             )
         )
+
+        result.data?.result?.placeList
+            ?.filter { it.isFavorite }
+            ?.map { it.placeId }
+            ?.forEach { preferenceRepo.addMyFavoritePlaceId(it) }
+
         return result.mapToRestaurantResultsWithDrawCardRes(preferenceRepo.readUserId.firstOrNull().orEmpty())
     }
 
@@ -58,6 +65,10 @@ internal class PlaceImpl @Inject constructor(
                 )
             )
         )
+
+        if (result.data?.result?.isFavorite == true) safeIoWorker {
+            preferenceRepo.addMyFavoritePlaceId(placeId)
+        }
 
         return result.mapToRestaurantDetailResult(preferenceRepo.readUserId.firstOrNull().orEmpty())
     }
@@ -81,6 +92,11 @@ internal class PlaceImpl @Inject constructor(
                 )
             )
         )
+
+        result.data?.result?.placeList
+            ?.filter { it.isFavorite }
+            ?.map { it.placeId }
+            ?.forEach { preferenceRepo.addMyFavoritePlaceId(it) }
 
         return result.mapToRestaurantResultsWithSearchByDistanceRes(preferenceRepo.readUserId.firstOrNull().orEmpty())
     }
@@ -106,6 +122,11 @@ internal class PlaceImpl @Inject constructor(
                 )
             )
         )
+
+        result.data?.result?.placeList
+            ?.filter { it.isFavorite }
+            ?.map { it.placeId }
+            ?.forEach { preferenceRepo.addMyFavoritePlaceId(it) }
 
         return result.mapToRestaurantResultsWithSearchByKeywordRes(preferenceRepo.readUserId.firstOrNull().orEmpty())
     }

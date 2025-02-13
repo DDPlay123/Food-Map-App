@@ -113,7 +113,11 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
             // 新增/移除收藏
             { pushOrPullMyFavoriteResult.collect { handleBasicResult(it, false) } },
             // 人氣餐廳資料列表
-            { drawCardList.collect(::handleDrawCardList) }
+            {
+                drawCardList.combine(myFavoritePlaceIdList) { list, placeIds ->
+                    list.map { it.copy(isFavorite = it.placeId in placeIds) }
+                }.collect(::handleDrawCardList)
+            }
         )
     }
 

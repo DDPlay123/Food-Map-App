@@ -1,6 +1,5 @@
 package mai.project.foodmap.data.mapper
 
-import mai.project.foodmap.data.localDataSource.entities.MySavedPlaceEntity
 import mai.project.foodmap.data.remoteDataSource.models.GetPlaceListRes
 import mai.project.foodmap.data.utils.mapResult
 import mai.project.foodmap.domain.models.MyPlaceResult
@@ -19,11 +18,4 @@ internal fun NetworkResult<GetPlaceListRes>.mapToMyPlaceResults(): NetworkResult
             )
         }
     }
-}
-
-internal fun NetworkResult<List<MyPlaceResult>>.mapToMySavedPlaceEntities(): List<MySavedPlaceEntity> {
-    val copyData = data
-    return copyData?.map {
-        MySavedPlaceEntity(index = it.placeId, result = it)
-    } ?: emptyList()
 }

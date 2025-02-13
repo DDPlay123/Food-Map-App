@@ -35,10 +35,3 @@ internal fun NetworkResult<GetFavoriteListRes>.mapToMyFavoriteResult(
         }
     }
 }
-
-internal fun NetworkResult<List<MyFavoriteResult>>.mapToMyFavoriteEntities(): List<MyFavoriteEntity> {
-    val copyData = data
-    return copyData?.map {
-        MyFavoriteEntity(index = it.placeId, result = it)
-    } ?: emptyList()
-}

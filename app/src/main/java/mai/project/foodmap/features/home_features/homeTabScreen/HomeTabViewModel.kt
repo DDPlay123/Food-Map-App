@@ -104,6 +104,15 @@ class HomeTabViewModel @Inject constructor(
         .catch { emit(emptyList()) }
         .flowOn(contextProvider.io)
         .stateIn(viewModelScope, WhileSubscribedOrRetained, emptyList())
+
+    /**
+     * 儲存的收藏清單 PlaceId
+     */
+    val myFavoritePlaceIdList: StateFlow<Set<String>> = preferenceRepo.readMyFavoritePlaceIds
+        .distinctUntilChanged()
+        .catch { emit(emptySet()) }
+        .flowOn(contextProvider.io)
+        .stateIn(viewModelScope, WhileSubscribedOrRetained, emptySet())
     // endregion
 
     // region Network State

@@ -2,8 +2,13 @@ package mai.project.foodmap.data.repositoryImpl
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import mai.project.foodmap.data.annotations.LanguageMode
 import mai.project.foodmap.data.annotations.ThemeMode
 import mai.project.foodmap.data.utils.DataStoreUtil.clearAll
@@ -11,6 +16,8 @@ import mai.project.foodmap.data.utils.DataStoreUtil.dataStore
 import mai.project.foodmap.data.utils.DataStoreUtil.getData
 import mai.project.foodmap.data.utils.DataStoreUtil.putData
 import mai.project.foodmap.domain.repository.PreferenceRepo
+import timber.log.Timber
+import java.io.IOException
 import javax.inject.Inject
 
 internal class PreferenceRepoImpl @Inject constructor(
@@ -95,6 +102,36 @@ internal class PreferenceRepoImpl @Inject constructor(
     override val readMyPlaceId: Flow<String>
         get() = dataStore.getData(PREF_MY_PLACE_ID, "")
 
+    override suspend fun writeMyFavoritePlaceIds(placeIds: Set<String>) {
+        dataStore.edit {
+            it[stringSetPreferencesKey(PREF_MY_FAVORITE_PLACE_IDS)] = placeIds
+        }
+    }
+
+    override suspend fun addMyFavoritePlaceId(placeId: String) {
+        dataStore.edit {
+            val currentSet = it[stringSetPreferencesKey(PREF_MY_FAVORITE_PLACE_IDS)] ?: emptySet()
+            it[stringSetPreferencesKey(PREF_MY_FAVORITE_PLACE_IDS)] = currentSet + placeId
+        }
+    }
+
+    override suspend fun removeMyFavoritePlaceId(placeId: String) {
+        dataStore.edit {
+            val currentSet = it[stringSetPreferencesKey(PREF_MY_FAVORITE_PLACE_IDS)] ?: emptySet()
+            it[stringSetPreferencesKey(PREF_MY_FAVORITE_PLACE_IDS)] = currentSet - placeId
+        }
+    }
+
+    override val readMyFavoritePlaceIds: Flow<Set<String>>
+        get() = dataStore.data.catch { exception ->
+            if (exception is IOException) {
+                Timber.e(message = "Error get Set<String> data", t = exception)
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map { it[stringSetPreferencesKey(PREF_MY_FAVORITE_PLACE_IDS)] ?: emptySet() }
+
     private companion object {
         const val PREF_FID = "PREF_FID"
         const val PREF_USER_ID = "PREF_USER_ID"
@@ -106,5 +143,6 @@ internal class PreferenceRepoImpl @Inject constructor(
         const val PREF_THEME_MODE = "PREF_THEME_MODE"
         const val PREF_LANGUAGE_MODE = "PREF_LANGUAGE_MODE"
         const val PREF_MY_PLACE_ID = "PREF_MY_PLACE_ID"
+        const val PREF_MY_FAVORITE_PLACE_IDS = "PREF_MY_FAVORITE_PLACE_IDS"
     }
 }

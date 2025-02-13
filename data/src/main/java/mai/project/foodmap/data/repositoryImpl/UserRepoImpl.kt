@@ -327,10 +327,10 @@ internal class UserRepoImpl @Inject constructor(
         )
 
         if (result is NetworkResult.Success) safeIoWorker {
-            myFavoriteDao.syncMyFavoriteList(
-                result.mapToMyFavoriteResult(preferenceRepo.readUserId.firstOrNull().orEmpty())
-                    .mapToMyFavoriteEntities()
-            )
+            val entities = result.mapToMyFavoriteResult(preferenceRepo.readUserId.firstOrNull().orEmpty())
+                .mapToMyFavoriteEntities()
+            preferenceRepo.writeMyFavoritePlaceIds(entities.map { it.result.placeId }.toSet())
+            myFavoriteDao.syncMyFavoriteList(entities)
         }
 
         return result.mapToEmptyNetworkResult()
@@ -353,6 +353,11 @@ internal class UserRepoImpl @Inject constructor(
                 )
             )
         )
+
+        if (result is NetworkResult.Success) safeIoWorker {
+            preferenceRepo.addMyFavoritePlaceId(placeId)
+        }
+
         return result.mapToEmptyNetworkResult()
     }
 
@@ -368,6 +373,7 @@ internal class UserRepoImpl @Inject constructor(
         )
 
         if (result is NetworkResult.Success) safeIoWorker {
+            preferenceRepo.removeMyFavoritePlaceId(placeId)
             myFavoriteDao.deleteMyFavorite(placeId)
         }
 

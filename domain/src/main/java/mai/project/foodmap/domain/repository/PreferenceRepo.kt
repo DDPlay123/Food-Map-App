@@ -70,4 +70,12 @@ interface PreferenceRepo {
      */
     suspend fun writeMyPlaceId(placeId: String)
     val readMyPlaceId: Flow<String>
+
+    /**
+     * 寫入/讀取 我的收藏清單 PlaceId
+     */
+    suspend fun writeMyFavoritePlaceIds(placeIds: Set<String>)
+    suspend fun addMyFavoritePlaceId(placeId: String)
+    suspend fun removeMyFavoritePlaceId(placeId: String)
+    val readMyFavoritePlaceIds: Flow<Set<String>>
 }
