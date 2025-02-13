@@ -114,8 +114,9 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
             { pushOrPullMyFavoriteResult.collect { handleBasicResult(it, false) } },
             // 人氣餐廳資料列表
             {
-                drawCardList.combine(myFavoritePlaceIdList) { list, placeIds ->
-                    list.map { it.copy(isFavorite = it.placeId in placeIds) }
+                combine(drawCardList, myFavoritePlaceIdList, myBlacklistPlaceIdList) { list, favoriteIds, blacklistIds ->
+                    list.map { it.copy(isFavorite = it.placeId in favoriteIds) }
+                        .filter { it.placeId !in blacklistIds }
                 }.collect(::handleDrawCardList)
             }
         )
@@ -312,10 +313,10 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
         lottieNoData.isVisible = list.isEmpty()
         drawCardAdapter.submitList(list, latLng) {
             if (viewModel.drawCardPosition != -1) {
-                val position = if (viewModel.drawCardPosition < list.size) viewModel.drawCardPosition else 0
-                rvPopular.post {
-                    smoothScrollToPositionWithOffset(position)
-                }
+                val position = if (viewModel.drawCardPosition < list.size)
+                    viewModel.drawCardPosition
+                else (list.size - 1).takeIf { it >= 0 } ?: 0
+                rvPopular.post { smoothScrollToPositionWithOffset(position) }
             }
         }
     }

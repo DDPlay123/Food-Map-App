@@ -63,10 +63,10 @@ enum class TermEnum(
                 SettingsLabelAdapter.Model(
                     title = context.getString(R.string.sentence_user_settings),
                     terms = listOf(
-//                        SettingsLabelTermAdapter.Model(
-//                            id = BLACK_LIST.name,
-//                            name = context.getString(BLACK_LIST.stringRes)
-//                        ),
+                        SettingsLabelTermAdapter.Model(
+                            id = BLACK_LIST.name,
+                            name = context.getString(BLACK_LIST.stringRes)
+                        ),
                         SettingsLabelTermAdapter.Model(
                             id = RESET_PASSWORD.name,
                             name = context.getString(RESET_PASSWORD.stringRes)

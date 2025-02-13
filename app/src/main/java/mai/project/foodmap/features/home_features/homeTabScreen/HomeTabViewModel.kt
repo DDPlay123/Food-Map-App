@@ -113,6 +113,15 @@ class HomeTabViewModel @Inject constructor(
         .catch { emit(emptySet()) }
         .flowOn(contextProvider.io)
         .stateIn(viewModelScope, WhileSubscribedOrRetained, emptySet())
+
+    /**
+     * 儲存的黑名單 PlaceId
+     */
+    val myBlacklistPlaceIdList: StateFlow<Set<String>> = preferenceRepo.readMyBlacklistPlaceIds
+        .distinctUntilChanged()
+        .catch { emit(emptySet()) }
+        .flowOn(contextProvider.io)
+        .stateIn(viewModelScope, WhileSubscribedOrRetained, emptySet())
     // endregion
 
     // region Network State

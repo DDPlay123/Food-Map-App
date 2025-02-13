@@ -69,6 +69,9 @@ internal class PlaceImpl @Inject constructor(
         if (result.data?.result?.isFavorite == true) safeIoWorker {
             preferenceRepo.addMyFavoritePlaceId(placeId)
         }
+        if (result.data?.result?.isBlackList == true) safeIoWorker {
+            preferenceRepo.addMyBlockedPlaceId(placeId)
+        }
 
         return result.mapToRestaurantDetailResult(preferenceRepo.readUserId.firstOrNull().orEmpty())
     }

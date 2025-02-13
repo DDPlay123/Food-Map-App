@@ -3,14 +3,14 @@ package mai.project.foodmap.data.remoteDataSource.models
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal data class PushBlockListReq(
+internal data class PushBlacklistReq(
     override val accessKey: String,
     override val userId: String,
     val placeIdList: List<String>
 ) : BaseRequest()
 
 @Serializable
-internal data class PushBlockListRes(
+internal data class PushBlacklistRes(
     override val status: Int,
     override val errMsg: String? = null,
     val result: Result? = null

@@ -13,4 +13,4 @@ internal const val MY_FAVORITE_RESTAURANT = "MY_FAVORITE_RESTAURANT"
 /**
  * 我的黑名單
  */
-internal const val MY_BLOCK_RESTAURANT = "MY_BLOCK_RESTAURANT"
+internal const val MY_BLOCKED_RESTAURANT = "MY_BLOCKED_RESTAURANT"

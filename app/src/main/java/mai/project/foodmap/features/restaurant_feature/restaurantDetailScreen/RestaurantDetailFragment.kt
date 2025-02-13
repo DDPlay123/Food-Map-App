@@ -145,9 +145,7 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
             addItemDecoration(
                 SpacesItemDecoration(
                     direction = Direction.VERTICAL,
-                    space = 20.DP,
-                    startSpace = 16.DP,
-                    endSpace = 26.DP
+                    space = 20.DP
                 )
             )
             adapter = googleReviewAdapter
@@ -184,8 +182,12 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
             { restaurantDetail.collect(::handleDetailResult) },
             // 收藏狀態
             { isFavorite.collect(::setupFavoriteState) },
+            // 黑名單狀態
+            { isBlocked.collect(::setupBlockedState) },
             // 新增/移除收藏
-            { pushOrPullMyFavoriteResult.collect { handleBasicResult(it, false) } }
+            { pushOrPullMyFavoriteResult.collect { handleBasicResult(it, false) } },
+            // 新增/移除黑名單
+            { pushOrPullMyBlackListResult.collect { handleBasicResult(it, false) } }
         )
     }
 
@@ -279,6 +281,12 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         layoutDetail.tvGoogleReview.onClick {
             viewModel.restaurantDetail.value.getPeekContent.data?.shareLink?.let {
                 requireActivity().openUrl(it)
+            }
+        }
+
+        layoutDetail.btnBlocked.onClick {
+            if (viewModel.restaurantDetail.value.getPeekContent.data != null) {
+                viewModel.pushOrPullMyBlackList(args.placeId, !viewModel.isBlocked.value)
             }
         }
     }
@@ -495,6 +503,7 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
             event = event,
             workOnSuccess = { data ->
                 viewModel.setIsFavorite(data?.isFavorite ?: false)
+                viewModel.setIsBlocked(data?.isBlackList ?: false)
                 data?.let(::setupDetailUI)
             }
         )
@@ -553,6 +562,9 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         tvPhone.text = data.phone
 
         googleReviewAdapter.submitList(data.reviews)
+
+        btnBlocked.isVisible = true
+        setupBlockedState(data.isBlackList)
     }
 
     /**
@@ -565,6 +577,21 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
             setImageResource(R.drawable.vector_favorite)
         } else {
             setImageResource(R.drawable.vector_favorite_border)
+        }
+    }
+
+    /**
+     * 設定是否為黑名單
+     */
+    private fun setupBlockedState(
+        isBlackList: Boolean
+    ) = with(binding.layoutDetail.btnBlocked) {
+        text = if (isBlackList) {
+            setBackgroundColor(getColorCompat(R.color.gray))
+            getString(R.string.sentence_remove_blacklist)
+        } else {
+            setBackgroundColor(getColorCompat(R.color.error))
+            getString(R.string.sentence_add_blacklist)
         }
     }
 

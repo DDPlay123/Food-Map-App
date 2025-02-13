@@ -82,8 +82,8 @@ interface PreferenceRepo {
     /**
      * 寫入/讀取 我的黑名單 PlaceId
      */
-    suspend fun writeMyBlockPlaceIds(placeIds: Set<String>)
-    suspend fun addMyBlockPlaceId(placeId: String)
-    suspend fun removeMyBlockPlaceId(placeId: String)
-    val readMyBlockPlaceIds: Flow<Set<String>>
+    suspend fun writeMyBlacklistPlaceIds(placeIds: Set<String>)
+    suspend fun addMyBlockedPlaceId(placeId: String)
+    suspend fun removeMyBlockedPlaceId(placeId: String)
+    val readMyBlacklistPlaceIds: Flow<Set<String>>
 }

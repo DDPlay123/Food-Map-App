@@ -37,5 +37,5 @@ internal object DatabaseModule {
 
     @Singleton
     @Provides
-    fun provideMyBlockDao(database: LocalDB) = database.myBlockDao()
+    fun provideMyBlacklistDao(database: LocalDB) = database.myBlacklistDao()
 }

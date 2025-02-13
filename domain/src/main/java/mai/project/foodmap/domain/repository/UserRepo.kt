@@ -124,18 +124,18 @@ interface UserRepo {
     /**
      * 讀取我的黑名單列表
      */
-    val getMyBlockList: Flow<List<RestaurantResult>>
+    val getMyBlacklist: Flow<List<RestaurantResult>>
 
     /**
      * 抓取黑名單
      */
-    suspend fun fetchMyBlockList(): NetworkResult<EmptyNetworkResult>
+    suspend fun fetchMyBlacklist(): NetworkResult<EmptyNetworkResult>
 
     /**
      * 新增/移除 黑名單
      */
-    suspend fun pushOrPullMyBlock(
+    suspend fun pushOrPullMyBlocked(
         placeId: String,
-        isBlock: Boolean
+        isBlocked: Boolean
     ): NetworkResult<EmptyNetworkResult>
 }

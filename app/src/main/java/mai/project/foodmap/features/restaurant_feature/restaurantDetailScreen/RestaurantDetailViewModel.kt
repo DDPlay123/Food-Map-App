@@ -42,6 +42,16 @@ class RestaurantDetailViewModel @Inject constructor(
     fun setIsFavorite(isFavorite: Boolean) {
         _isFavorite.update { isFavorite }
     }
+
+    /**
+     * 黑名單狀態
+     */
+    private val _isBlocked = MutableStateFlow(false)
+    val isBlocked = _isBlocked.asStateFlow()
+
+    fun setIsBlocked(isBlocked: Boolean) {
+        _isBlocked.update { isBlocked }
+    }
     // endregion State
 
     // region Network State
@@ -93,6 +103,22 @@ class RestaurantDetailViewModel @Inject constructor(
         safeApiCallFlow {
             userRepo.pushOrPullMyFavorite(placeId, isFavorite)
         }.collect { result -> _pushOrPullMyFavoriteResult.update { Event(result) } }
+    }
+
+    /**
+     * 新增/移除 黑名單
+     */
+    private val _pushOrPullMyBlackListResult = MutableStateFlow<Event<NetworkResult<EmptyNetworkResult>>>(Event(NetworkResult.Idle()))
+    val pushOrPullMyBlackListResult = _pushOrPullMyBlackListResult.asStateFlow()
+
+    fun pushOrPullMyBlackList(
+        placeId: String,
+        isBlocked: Boolean
+    ) = launchCoroutineIO {
+        setIsBlocked(isBlocked)
+        safeApiCallFlow {
+            userRepo.pushOrPullMyBlocked(placeId, isBlocked)
+        }.collect { result -> _pushOrPullMyBlackListResult.update { Event(result) } }
     }
     // endregion Network State
 }

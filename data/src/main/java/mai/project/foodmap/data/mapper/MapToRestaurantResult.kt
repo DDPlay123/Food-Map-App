@@ -2,7 +2,7 @@ package mai.project.foodmap.data.mapper
 
 import mai.project.foodmap.data.BuildConfig
 import mai.project.foodmap.data.remoteDataSource.models.DrawCardRes
-import mai.project.foodmap.data.remoteDataSource.models.GetBlockListRes
+import mai.project.foodmap.data.remoteDataSource.models.GetBlacklistRes
 import mai.project.foodmap.data.remoteDataSource.models.SearchByDistanceRes
 import mai.project.foodmap.data.remoteDataSource.models.SearchByKeywordRes
 import mai.project.foodmap.data.utils.mapResult
@@ -81,7 +81,7 @@ internal fun NetworkResult<SearchByKeywordRes>.mapToRestaurantResultsWithSearchB
     }
 }
 
-internal fun NetworkResult<GetBlockListRes>.mapToRestaurantResultsWithGetBlockListRes(
+internal fun NetworkResult<GetBlacklistRes>.mapToRestaurantResultsWithGetBlacklistRes(
     userId: String
 ): NetworkResult<List<RestaurantResult>> {
     return mapResult { data ->
