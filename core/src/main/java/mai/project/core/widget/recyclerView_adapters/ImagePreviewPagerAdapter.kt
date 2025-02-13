@@ -13,13 +13,27 @@ import mai.project.core.widget.DownToCloseImageView
  */
 class ImagePreviewPagerAdapter: ListAdapter<Any, ViewHolder>(DiffUtilCallback) {
 
-    var onClosed: (() -> Unit)? = null
+    var onClosed: ((Any) -> Unit)? = null
+
+    private var closedPositions = mutableListOf<Int>()
+
+    fun resetState() {
+        closedPositions.forEach {
+            notifyItemChanged(it)
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         ImagePreviewViewHolder.create(parent)
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        if (holder is ImagePreviewViewHolder) holder.bind(getItem(position), onClosed)
+        if (holder is ImagePreviewViewHolder) holder.bind(
+            item = getItem(position),
+            onClosed = {
+                closedPositions.add(position)
+                onClosed?.invoke(it)
+            }
+        )
     }
 
     private class ImagePreviewViewHolder(
@@ -28,10 +42,10 @@ class ImagePreviewPagerAdapter: ListAdapter<Any, ViewHolder>(DiffUtilCallback) {
 
         fun bind(
             item: Any,
-            onClosed: (() -> Unit)?
-        ) {
-            imageView.setImage(item)
-            imageView.onCloseListener = onClosed
+            onClosed: ((Any) -> Unit)?
+        ) = with(imageView) {
+            setImage(item)
+            onCloseListener = { onClosed?.invoke(item) }
         }
 
         companion object {
@@ -46,8 +60,6 @@ class ImagePreviewPagerAdapter: ListAdapter<Any, ViewHolder>(DiffUtilCallback) {
             }
         }
     }
-
-    private
 
     companion object {
         private val DiffUtilCallback = object : DiffUtil.ItemCallback<Any>() {

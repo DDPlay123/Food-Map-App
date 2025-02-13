@@ -1,5 +1,6 @@
 package mai.project.foodmap.features.restaurant_feature.restaurantDetailScreen
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
@@ -8,6 +9,7 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveListener
@@ -50,6 +52,7 @@ import mai.project.foodmap.domain.models.RestaurantRouteResult
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.features.dialogs_features.selector.SelectorCallback
 import mai.project.foodmap.features.dialogs_features.selector.SelectorModel
+import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -86,6 +89,18 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
     private val navigationModeItems: List<SelectorModel> by lazy {
         resources.getStringArray(R.array.navigation_mode).mapIndexed { index, s ->
             SelectorModel(id = index, content = s)
+        }
+    }
+
+    private val photoPreviewCallback by lazy {
+        object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                Timber.d(message = "圖片預覽滾動位置：$position")
+                if (position >= 0 && binding.vpPhotoPreview.isVisible) {
+                    binding.layoutDetail.vpPhotos.setCurrentItem(position, false)
+                }
+            }
         }
     }
 
@@ -135,6 +150,15 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         }
         polylineAnimator = null
         pointPolyline = null
+        vpPhotoPreview.unregisterOnPageChangeCallback(photoPreviewCallback)
+    }
+
+    override fun FragmentRestaurantDetailBinding.handleOnBackPressed() {
+        if (binding.vpPhotoPreview.isVisible) {
+            closePhotoPreview()
+        } else {
+            popBackStack()
+        }
     }
 
     override fun FragmentRestaurantDetailBinding.setObserver() = with(viewModel) {
@@ -147,7 +171,7 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
     }
 
     override fun FragmentRestaurantDetailBinding.setListener() {
-        imgBack.onClick { navigateUp() }
+        imgBack.onClick { onBackPressed() }
 
         imgFavorite.onClick {
             // TODO
@@ -192,14 +216,9 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
             }
         })
 
-        // TODO 改
-        photosAdapter.onItemClick = {
-            binding.vpPhotoPreview.isVisible = true
-        }
+        photosAdapter.onItemClick = { item -> openPhotoPreview(item) }
 
-        imagePreviewPagerAdapter.onClosed = {
-            binding.vpPhotoPreview.isVisible = false
-        }
+        imagePreviewPagerAdapter.onClosed = { closePhotoPreview() }
 
         layoutDetail.tvAddress.onClick {
             viewModel.restaurantDetail.value.getPeekContent.data?.let {
@@ -473,7 +492,6 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         piPhotos.isVisible = data.photos.isNotEmpty()
         photosAdapter.submitList(data.photos)
 
-        // TODO 改
         imagePreviewPagerAdapter.submitList(data.photos)
 
         tvName.text = data.name
@@ -514,6 +532,26 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         tvPhone.text = data.phone
 
         // TODO Google 評論
+    }
+
+    /**
+     * 顯示圖片預覽
+     */
+    private fun openPhotoPreview(item: String) = with(binding.vpPhotoPreview) {
+        imagePreviewPagerAdapter.resetState()
+        val index = imagePreviewPagerAdapter.currentList.indexOfFirst { it == item }.takeIf { it >= 0 } ?: 0
+        Timber.d(message = "設定圖片預覽滾動位置：$index")
+        registerOnPageChangeCallback(photoPreviewCallback)
+        setCurrentItem(index, false)
+        isVisible = true
+    }
+
+    /**
+     * 關閉圖片預覽
+     */
+    private fun closePhotoPreview() = with(binding.vpPhotoPreview) {
+        unregisterOnPageChangeCallback(photoPreviewCallback)
+        isVisible = false
     }
 
     companion object {

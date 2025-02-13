@@ -12,7 +12,6 @@ import androidx.appcompat.widget.AppCompatImageView
 import coil.dispose
 import mai.project.core.annotations.ImageType
 import mai.project.core.utils.ImageLoaderUtil
-import kotlin.math.abs
 import kotlin.math.sqrt
 
 /**
@@ -32,6 +31,10 @@ class DownToCloseImageView @JvmOverloads constructor(
     private var backgroundAlpha = 1.0f
     private val touchSlop: Int = ViewConfiguration.get(context).scaledTouchSlop
     private val transparencyMultiplier: Float = 0.8f // 可調整透明度變化速度
+
+    private var initialTouchX = 0f
+    private var initialTouchY = 0f
+    private var isDownDragActive = false
 
     init {
         setBackgroundColor(0xFF000000.toInt()) // 預設背景為黑色
@@ -72,54 +75,75 @@ class DownToCloseImageView @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
+                initialTouchX = event.rawX
+                initialTouchY = event.rawY
                 lastY = event.rawY
                 lastX = event.rawX
+                isDownDragActive = false
                 velocityTracker = VelocityTracker.obtain()
                 velocityTracker?.addMovement(event)
             }
 
             MotionEvent.ACTION_MOVE -> {
-                val deltaY = event.rawY - lastY
-                val deltaX = event.rawX - lastX
-                if (abs(deltaY) > touchSlop || abs(deltaX) > touchSlop) {
-                    imageView.translationY += deltaY
-                    imageView.translationX += deltaX
-                    lastY = event.rawY
-                    lastX = event.rawX
-                    velocityTracker?.addMovement(event)
-                    updateBackgroundOpacity() // 根據移動距離更新背景透明度
+                val currentX = event.rawX
+                val currentY = event.rawY
+                val totalDy = currentY - initialTouchY
+                val dx = currentX - lastX
+                val dy = currentY - lastY
+
+                // 檢查是否超過閾值
+                if (!isDownDragActive) {
+                    if (totalDy > touchSlop) {
+                        isDownDragActive = true
+                        // 啟動拖曳模式後，禁止父容器攔截後續事件
+                        parent.requestDisallowInterceptTouchEvent(true)
+                    } else {
+                        // 尚未觸發下拉，返回 false 讓父容器（例如 ViewPager2）處理事件
+                        return false
+                    }
                 }
+                // 已進入拖曳模式後，任意方向都由 Item 處理
+                imageView.translationX += dx
+                imageView.translationY += dy
+                lastX = currentX
+                lastY = currentY
+                velocityTracker?.addMovement(event)
+                updateBackgroundOpacity()
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                velocityTracker?.addMovement(event)
-                velocityTracker?.computeCurrentVelocity(1000)
-                val velocityY = velocityTracker?.yVelocity ?: 0f
-                velocityTracker?.recycle()
-                velocityTracker = null
+                if (isDownDragActive) {
+                    velocityTracker?.addMovement(event)
+                    velocityTracker?.computeCurrentVelocity(1000)
+                    val velocityY = velocityTracker?.yVelocity ?: 0f
+                    velocityTracker?.recycle()
+                    velocityTracker = null
 
-                if (imageView.translationY > closeThreshold || velocityY > 1000) {
-                    // 下拉條件滿足，執行關閉動畫
-                    imageView.animate().translationY(height.toFloat())
-                        .setInterpolator(AccelerateDecelerateInterpolator())
-                        .setDuration(300)
-                        .withEndAction {
-                            clearImage()
-                            onCloseListener?.invoke()  // 通知外層
-                        }
-                        .start()
-                } else {
-                    // 未滿足關閉條件，恢復初始位置與背景
-                    imageView.animate().translationY(0f)
-                        .translationX(0f)
-                        .setInterpolator(AccelerateDecelerateInterpolator())
-                        .setDuration(300)
-                        .withEndAction {
-                            backgroundAlpha = 1.0f
-                            updateBackgroundOpacity()
-                        }
-                        .start()
+                    if (imageView.translationY > closeThreshold || velocityY > 1000) {
+                        // 下拉條件滿足，執行關閉動畫
+                        imageView.animate().translationY(height.toFloat())
+                            .setInterpolator(AccelerateDecelerateInterpolator())
+                            .setDuration(300)
+                            .withEndAction {
+                                clearImage()
+                                onCloseListener?.invoke()
+                            }
+                            .start()
+                    } else {
+                        // 未滿足關閉條件，恢復原始位置與背景
+                        imageView.animate().translationX(0f)
+                            .translationY(0f)
+                            .setInterpolator(AccelerateDecelerateInterpolator())
+                            .setDuration(300)
+                            .withEndAction {
+                                backgroundAlpha = 1.0f
+                                updateBackgroundOpacity()
+                            }
+                            .start()
+                    }
                 }
+                // 每次觸控結束後重置拖曳狀態
+                isDownDragActive = false
             }
         }
         return true
@@ -131,6 +155,6 @@ class DownToCloseImageView @JvmOverloads constructor(
         ).coerceIn(0f, height.toFloat())
         backgroundAlpha = (1.0f - (distance / height).coerceIn(0f, 1f)) * transparencyMultiplier + 0.2f // 最低透明度為0.2
         val alphaInt = (backgroundAlpha * 255).toInt()
-        setBackgroundColor((alphaInt shl 24) or 0x000000) // 保持黑色但根據 alpha 變化
+        setBackgroundColor((alphaInt shl 24) or 0x000000)
     }
 }
