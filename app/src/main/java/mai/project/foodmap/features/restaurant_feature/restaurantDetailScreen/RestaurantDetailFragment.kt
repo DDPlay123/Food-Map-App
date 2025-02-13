@@ -1,6 +1,5 @@
 package mai.project.foodmap.features.restaurant_feature.restaurantDetailScreen
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
@@ -27,6 +26,7 @@ import com.utsman.geolib.polyline.polyline.PolylineAnimator
 import com.utsman.geolib.polyline.utils.createPolylineAnimatorBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import mai.project.core.Configs
+import mai.project.core.annotations.Direction
 import mai.project.core.annotations.NavigationMode
 import mai.project.core.extensions.DP
 import mai.project.core.extensions.getColorCompat
@@ -40,6 +40,7 @@ import mai.project.core.extensions.parcelable
 import mai.project.core.utils.Event
 import mai.project.core.utils.GoogleMapUtil
 import mai.project.core.widget.recyclerView_adapters.ImagePreviewPagerAdapter
+import mai.project.core.widget.recyclerView_decorations.SpacesItemDecoration
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
 import mai.project.foodmap.base.checkGPSAndGetCurrentLocation
@@ -85,6 +86,8 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
     private val photosAdapter by lazy { PhotosAdapter() }
 
     private val imagePreviewPagerAdapter by lazy { ImagePreviewPagerAdapter() }
+    
+    private val googleReviewAdapter by lazy { GoogleReviewAdapter() }
 
     private val navigationModeItems: List<SelectorModel> by lazy {
         resources.getStringArray(R.array.navigation_mode).mapIndexed { index, s ->
@@ -137,6 +140,18 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
             getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
             adapter = imagePreviewPagerAdapter
         }
+        
+        with(layoutDetail.rvReviews) {
+            addItemDecoration(
+                SpacesItemDecoration(
+                    direction = Direction.VERTICAL,
+                    space = 20.DP,
+                    startSpace = 16.DP,
+                    endSpace = 26.DP
+                )
+            )
+            adapter = googleReviewAdapter
+        }
 
         viewModel.getRestaurantDetail(args.placeId)
     }
@@ -166,7 +181,11 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
             // 當前位置與目標地的路線
             { routeResult.collect(::handleRouteResult) },
             // 餐廳詳細資訊
-            { restaurantDetail.collect(::handleDetailResult) }
+            { restaurantDetail.collect(::handleDetailResult) },
+            // 收藏狀態
+            { isFavorite.collect(::setupFavoriteState) },
+            // 新增/移除收藏
+            { pushOrPullMyFavoriteResult.collect { handleBasicResult(it, false) } }
         )
     }
 
@@ -174,7 +193,9 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         imgBack.onClick { onBackPressed() }
 
         imgFavorite.onClick {
-            // TODO
+            if (viewModel.restaurantDetail.value.getPeekContent.data != null) {
+                viewModel.pushOrPullMyFavorite(args.placeId, !viewModel.isFavorite.value)
+            }
         }
 
         imgMyRoute.onClick { fetchRoute() }
@@ -219,6 +240,8 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         photosAdapter.onItemClick = { item -> openPhotoPreview(item) }
 
         imagePreviewPagerAdapter.onClosed = { closePhotoPreview() }
+
+        googleReviewAdapter.onAvatarClick = { requireActivity().openUrl(it) }
 
         layoutDetail.tvAddress.onClick {
             viewModel.restaurantDetail.value.getPeekContent.data?.let {
@@ -471,6 +494,7 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         handleBasicResult(
             event = event,
             workOnSuccess = { data ->
+                viewModel.setIsFavorite(data?.isFavorite ?: false)
                 data?.let(::setupDetailUI)
             }
         )
@@ -482,11 +506,7 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
     private fun setupDetailUI(
         data: RestaurantDetailResult
     ) = with(binding.layoutDetail) {
-        if (data.isFavorite) {
-            binding.imgFavorite.setImageResource(R.drawable.vector_favorite)
-        } else {
-            binding.imgFavorite.setImageResource(R.drawable.vector_favorite_border)
-        }
+        setupFavoriteState(data.isFavorite)
 
         pbCircular.isVisible = false
         piPhotos.isVisible = data.photos.isNotEmpty()
@@ -501,6 +521,7 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
 
         tvOpenNow.isVisible = data.openNow != null
         tvOpenNow.text = if (data.openNow == true) getString(R.string.sentence_open_now) else getString(R.string.sentence_close_now)
+        tvOpenNow.setTextColor(if (data.openNow == true) getColorCompat(R.color.success) else getColorCompat(R.color.error))
 
         tvDineIn.isVisible = data.dineIn != null
         tvDineIn.setCompoundDrawablesRelativeWithIntrinsicBounds(
@@ -531,7 +552,20 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         tvPhone.isVisible = !data.phone.isNullOrEmpty()
         tvPhone.text = data.phone
 
-        // TODO Google 評論
+        googleReviewAdapter.submitList(data.reviews)
+    }
+
+    /**
+     * 設定收藏狀態
+     */
+    private fun setupFavoriteState(
+        isFavorite: Boolean
+    ) = with(binding.imgFavorite) {
+        if (isFavorite) {
+            setImageResource(R.drawable.vector_favorite)
+        } else {
+            setImageResource(R.drawable.vector_favorite_border)
+        }
     }
 
     /**

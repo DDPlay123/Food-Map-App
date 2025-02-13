@@ -337,7 +337,9 @@
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_constraintEnd_toEndOf="@+id/divider"
                     app:layout_constraintStart_toStartOf="@+id/divider"
-                    app:layout_constraintTop_toBottomOf="@+id/tvGoogleReview" />
+                    app:layout_constraintTop_toBottomOf="@+id/tvGoogleReview"
+                    tools:itemCount="1"
+                    tools:listitem="@layout/item_google_review" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -18,4 +18,11 @@
         <attr name="pagerIndicatorSupportRTL" format="boolean" />
         <attr name="pagerIndicatorVerticalSupport" format="boolean" />
     </declare-styleable>
+    <!--  ExpandableTextView  -->
+    <declare-styleable name="ExpandableTextView">
+        <attr name="expandableTextViewLimitedMaxLines" format="integer" />
+        <attr name="expandableTextViewOriginalText" format="string" />
+        <attr name="expandableTextViewExpandAction" format="string" />
+        <attr name="expandableTextViewExpandActionColor" format="string" />
+    </declare-styleable>
 </resources>

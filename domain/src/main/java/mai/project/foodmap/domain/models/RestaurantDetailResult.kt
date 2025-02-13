@@ -29,6 +29,6 @@ data class RestaurantDetailResult(
         val profilePhotoUrl: String,
         val rating: Int,
         val text: String,
-        val time: Int,
+        val time: String,
     )
 }

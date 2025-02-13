@@ -17,6 +17,7 @@
     <string name="word_website">Website</string>
     <string name="word_navigation">Navigation</string>
     <string name="word_phone_call">Call</string>
+    <string name="word_collapse">Collapse</string>
 
     <string name="sentence_unknown_eating">Don\'t know what to eat?</string>
     <string name="sentence_next_step">Next Step</string>
@@ -62,7 +63,7 @@
     <string name="sentence_open_now">Open now</string>
     <string name="sentence_close_now">Closed</string>
     <string name="sentence_google_comment_from_user">Top 5 reviews from Google</string>
-    <string name="sentence_read_more">Read more</string>
+    <string name="sentence_read_more">Read more\.\.\.</string>
 
     <string name="rule_username_empty">Username cannot be empty</string>
     <string name="rule_username_length">Username must be at least 4 characters</string>

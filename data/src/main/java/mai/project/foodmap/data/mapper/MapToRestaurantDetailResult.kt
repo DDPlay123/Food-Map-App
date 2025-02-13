@@ -39,7 +39,7 @@ internal fun NetworkResult<GetPlaceDetailRes>.mapToRestaurantDetailResult(
                         profilePhotoUrl = review.profilePhotoUrl,
                         rating = review.rating,
                         text = review.text,
-                        time = review.time
+                        time = review.relativeTimeDescription
                     )
                 } ?: emptyList(),
                 isFavorite = data?.result?.isFavorite ?: false,

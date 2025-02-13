@@ -17,6 +17,7 @@
     <string name="word_website">網站</string>
     <string name="word_navigation">導航</string>
     <string name="word_phone_call">致電</string>
+    <string name="word_collapse">收起</string>
 
     <string name="sentence_unknown_eating">不知道要吃甚麼嗎？</string>
     <string name="sentence_next_step">下一步</string>
@@ -62,7 +63,7 @@
     <string name="sentence_open_now">營業中</string>
     <string name="sentence_close_now">已打烊</string>
     <string name="sentence_google_comment_from_user">來自 Google 的前五評論</string>
-    <string name="sentence_read_more">閱讀更多</string>
+    <string name="sentence_read_more">閱讀更多\.\.\.</string>
 
     <string name="rule_username_empty">使用者名稱不能為空</string>
     <string name="rule_username_length">使用者名稱至少要 4 位數</string>
