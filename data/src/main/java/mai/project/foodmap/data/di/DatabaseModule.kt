@@ -8,7 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import mai.project.foodmap.data.localDataSource.LocalDB
-import mai.project.foodmap.data.localDataSource.LocalDB.Companion.MIGRATION_1_2
+import mai.project.foodmap.data.localDataSource.LocalDB.Companion.MIGRATION_2_3
 import javax.inject.Singleton
 
 @Module
@@ -24,7 +24,7 @@ internal object DatabaseModule {
         context,
         LocalDB::class.java,
         "local_db"
-    ).addMigrations(MIGRATION_1_2)
+    ).addMigrations(MIGRATION_2_3)
         .build()
 
     @Singleton
@@ -34,4 +34,8 @@ internal object DatabaseModule {
     @Singleton
     @Provides
     fun provideMyFavoriteDao(database: LocalDB) = database.myFavoriteDao()
+
+    @Singleton
+    @Provides
+    fun provideMyBlockDao(database: LocalDB) = database.myBlockDao()
 }

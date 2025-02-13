@@ -6,6 +6,8 @@ import mai.project.foodmap.data.remoteDataSource.models.AddFcmTokenReq
 import mai.project.foodmap.data.remoteDataSource.models.AddFcmTokenRes
 import mai.project.foodmap.data.remoteDataSource.models.DeleteAccountReq
 import mai.project.foodmap.data.remoteDataSource.models.DeleteAccountRes
+import mai.project.foodmap.data.remoteDataSource.models.GetBlockListReq
+import mai.project.foodmap.data.remoteDataSource.models.GetBlockListRes
 import mai.project.foodmap.data.remoteDataSource.models.GetFavoriteListReq
 import mai.project.foodmap.data.remoteDataSource.models.GetFavoriteListRes
 import mai.project.foodmap.data.remoteDataSource.models.GetLocationByAddressReq
@@ -24,10 +26,14 @@ import mai.project.foodmap.data.remoteDataSource.models.LogoutReq
 import mai.project.foodmap.data.remoteDataSource.models.LogoutRes
 import mai.project.foodmap.data.remoteDataSource.models.PlaceAutocompleteReq
 import mai.project.foodmap.data.remoteDataSource.models.PlaceAutocompleteRes
+import mai.project.foodmap.data.remoteDataSource.models.PullBlockListReq
+import mai.project.foodmap.data.remoteDataSource.models.PullBlockListRes
 import mai.project.foodmap.data.remoteDataSource.models.PullFavoriteListReq
 import mai.project.foodmap.data.remoteDataSource.models.PullFavoriteListRes
 import mai.project.foodmap.data.remoteDataSource.models.PullPlaceListReq
 import mai.project.foodmap.data.remoteDataSource.models.PullPlaceListRes
+import mai.project.foodmap.data.remoteDataSource.models.PushBlockListReq
+import mai.project.foodmap.data.remoteDataSource.models.PushBlockListRes
 import mai.project.foodmap.data.remoteDataSource.models.PushFavoriteListReq
 import mai.project.foodmap.data.remoteDataSource.models.PushFavoriteListRes
 import mai.project.foodmap.data.remoteDataSource.models.PushPlaceListReq
@@ -135,6 +141,24 @@ internal interface APIService {
     suspend fun getFavoriteList(
         @Body body: GetFavoriteListReq
     ): Response<GetFavoriteListRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/push_black_list")
+    suspend fun pushBlockList(
+        @Body body: PushBlockListReq
+    ): Response<PushBlockListRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/pull_black_list")
+    suspend fun pullBlockList(
+        @Body body: PullBlockListReq
+    ): Response<PullBlockListRes>
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/get_black_list")
+    suspend fun getBlockList(
+        @Body body: GetBlockListReq
+    ): Response<GetBlockListRes>
     // endregion user
 
     // region place

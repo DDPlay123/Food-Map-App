@@ -132,6 +132,36 @@ internal class PreferenceRepoImpl @Inject constructor(
             }
         }.map { it[stringSetPreferencesKey(PREF_MY_FAVORITE_PLACE_IDS)] ?: emptySet() }
 
+    override suspend fun writeMyBlockPlaceIds(placeIds: Set<String>) {
+        dataStore.edit {
+            it[stringSetPreferencesKey(PREF_MY_BLOCK_PLACE_IDS)] = placeIds
+        }
+    }
+
+    override suspend fun addMyBlockPlaceId(placeId: String) {
+        dataStore.edit {
+            val currentSet = it[stringSetPreferencesKey(PREF_MY_BLOCK_PLACE_IDS)] ?: emptySet()
+            it[stringSetPreferencesKey(PREF_MY_BLOCK_PLACE_IDS)] = currentSet + placeId
+        }
+    }
+
+    override suspend fun removeMyBlockPlaceId(placeId: String) {
+        dataStore.edit {
+            val currentSet = it[stringSetPreferencesKey(PREF_MY_BLOCK_PLACE_IDS)] ?: emptySet()
+            it[stringSetPreferencesKey(PREF_MY_BLOCK_PLACE_IDS)] = currentSet - placeId
+        }
+    }
+
+    override val readMyBlockPlaceIds: Flow<Set<String>>
+        get() = dataStore.data.catch { exception ->
+            if (exception is IOException) {
+                Timber.e(message = "Error get Set<String> data", t = exception)
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map { it[stringSetPreferencesKey(PREF_MY_BLOCK_PLACE_IDS)] ?: emptySet() }
+
     private companion object {
         const val PREF_FID = "PREF_FID"
         const val PREF_USER_ID = "PREF_USER_ID"
@@ -144,5 +174,6 @@ internal class PreferenceRepoImpl @Inject constructor(
         const val PREF_LANGUAGE_MODE = "PREF_LANGUAGE_MODE"
         const val PREF_MY_PLACE_ID = "PREF_MY_PLACE_ID"
         const val PREF_MY_FAVORITE_PLACE_IDS = "PREF_MY_FAVORITE_PLACE_IDS"
+        const val PREF_MY_BLOCK_PLACE_IDS = "PREF_MY_BLOCK_PLACE_IDS"
     }
 }

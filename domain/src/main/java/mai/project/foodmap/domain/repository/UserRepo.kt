@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import mai.project.foodmap.domain.models.EmptyNetworkResult
 import mai.project.foodmap.domain.models.MyFavoriteResult
 import mai.project.foodmap.domain.models.MyPlaceResult
+import mai.project.foodmap.domain.models.RestaurantResult
 import mai.project.foodmap.domain.state.NetworkResult
 import javax.inject.Singleton
 
@@ -118,5 +119,23 @@ interface UserRepo {
     suspend fun pushOrPullMyFavorite(
         placeId: String,
         isFavorite: Boolean
+    ): NetworkResult<EmptyNetworkResult>
+
+    /**
+     * 讀取我的黑名單列表
+     */
+    val getMyBlockList: Flow<List<RestaurantResult>>
+
+    /**
+     * 抓取黑名單
+     */
+    suspend fun fetchMyBlockList(): NetworkResult<EmptyNetworkResult>
+
+    /**
+     * 新增/移除 黑名單
+     */
+    suspend fun pushOrPullMyBlock(
+        placeId: String,
+        isBlock: Boolean
     ): NetworkResult<EmptyNetworkResult>
 }

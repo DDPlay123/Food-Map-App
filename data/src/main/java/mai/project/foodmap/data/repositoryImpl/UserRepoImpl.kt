@@ -5,25 +5,31 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import mai.project.foodmap.data.localDataSource.dao.MyBlockDao
 import mai.project.foodmap.data.localDataSource.dao.MyFavoriteDao
 import mai.project.foodmap.data.localDataSource.dao.MySavedPlaceDao
 import mai.project.foodmap.data.localDataSource.entities.MySavedPlaceEntity
 import mai.project.foodmap.data.mapper.mapToEmptyNetworkResult
+import mai.project.foodmap.data.mapper.mapToMyBlockEntities
 import mai.project.foodmap.data.mapper.mapToMyFavoriteEntities
 import mai.project.foodmap.data.mapper.mapToMyFavoriteResult
 import mai.project.foodmap.data.mapper.mapToMyPlaceResults
 import mai.project.foodmap.data.mapper.mapToMySavedPlaceEntities
+import mai.project.foodmap.data.mapper.mapToRestaurantResultsWithGetBlockListRes
 import mai.project.foodmap.data.remoteDataSource.APIService
 import mai.project.foodmap.data.remoteDataSource.models.AddFcmTokenReq
 import mai.project.foodmap.data.remoteDataSource.models.DeleteAccountReq
+import mai.project.foodmap.data.remoteDataSource.models.GetBlockListReq
 import mai.project.foodmap.data.remoteDataSource.models.GetFavoriteListReq
 import mai.project.foodmap.data.remoteDataSource.models.GetPlaceListReq
 import mai.project.foodmap.data.remoteDataSource.models.GetUserImageReq
 import mai.project.foodmap.data.remoteDataSource.models.LocationModel
 import mai.project.foodmap.data.remoteDataSource.models.LoginReq
 import mai.project.foodmap.data.remoteDataSource.models.LogoutReq
+import mai.project.foodmap.data.remoteDataSource.models.PullBlockListReq
 import mai.project.foodmap.data.remoteDataSource.models.PullFavoriteListReq
 import mai.project.foodmap.data.remoteDataSource.models.PullPlaceListReq
+import mai.project.foodmap.data.remoteDataSource.models.PushBlockListReq
 import mai.project.foodmap.data.remoteDataSource.models.PushFavoriteListReq
 import mai.project.foodmap.data.remoteDataSource.models.PushPlaceListReq
 import mai.project.foodmap.data.remoteDataSource.models.RegisterReq
@@ -35,6 +41,7 @@ import mai.project.foodmap.data.utils.safeIoWorker
 import mai.project.foodmap.domain.models.EmptyNetworkResult
 import mai.project.foodmap.domain.models.MyFavoriteResult
 import mai.project.foodmap.domain.models.MyPlaceResult
+import mai.project.foodmap.domain.models.RestaurantResult
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.repository.PreferenceRepo
 import mai.project.foodmap.domain.repository.UserRepo
@@ -46,7 +53,8 @@ internal class UserRepoImpl @Inject constructor(
     private val apiService: APIService,
     private val preferenceRepo: PreferenceRepo,
     private val mySavedPlaceDao: MySavedPlaceDao,
-    private val myFavoriteDao: MyFavoriteDao
+    private val myFavoriteDao: MyFavoriteDao,
+    private val myBlockDao: MyBlockDao
 ) : UserRepo {
 
     override suspend fun login(
@@ -343,6 +351,35 @@ internal class UserRepoImpl @Inject constructor(
         return if (isFavorite) pushMyFavorite(placeId) else pullMyFavorite(placeId)
     }
 
+    override val getMyBlockList: Flow<List<RestaurantResult>>
+        get() = myBlockDao.readMyBlockList().map {
+            it.map { entity -> entity.result }
+        }
+
+    override suspend fun fetchMyBlockList(): NetworkResult<EmptyNetworkResult> {
+        val result = handleAPIResponse(
+            apiService.getBlockList(
+                GetBlockListReq(
+                    userId = preferenceRepo.readUserId.firstOrNull().orEmpty(),
+                    accessKey = preferenceRepo.readAccessKey.firstOrNull().orEmpty()
+                )
+            )
+        )
+
+        if (result is NetworkResult.Success) safeIoWorker {
+            val entities = result.mapToRestaurantResultsWithGetBlockListRes(preferenceRepo.readUserId.firstOrNull().orEmpty())
+                .mapToMyBlockEntities()
+            preferenceRepo.writeMyBlockPlaceIds(entities.map { it.result.placeId }.toSet())
+            myBlockDao.syncMyBlockList(entities)
+        }
+
+        return result.mapToEmptyNetworkResult()
+    }
+
+    override suspend fun pushOrPullMyBlock(placeId: String, isBlock: Boolean): NetworkResult<EmptyNetworkResult> {
+        return if (isBlock) pushMyBlock(placeId) else pullMyBlock(placeId)
+    }
+
     private suspend fun pushMyFavorite(placeId: String): NetworkResult<EmptyNetworkResult> {
         val result = handleAPIResponse(
             apiService.pushFavoriteList(
@@ -375,6 +412,43 @@ internal class UserRepoImpl @Inject constructor(
         if (result is NetworkResult.Success) safeIoWorker {
             preferenceRepo.removeMyFavoritePlaceId(placeId)
             myFavoriteDao.deleteMyFavorite(placeId)
+        }
+
+        return result.mapToEmptyNetworkResult()
+    }
+
+    private suspend fun pushMyBlock(placeId: String): NetworkResult<EmptyNetworkResult> {
+        val result = handleAPIResponse(
+            apiService.pushBlockList(
+                PushBlockListReq(
+                    userId = preferenceRepo.readUserId.firstOrNull().orEmpty(),
+                    accessKey = preferenceRepo.readAccessKey.firstOrNull().orEmpty(),
+                    placeIdList = listOf(placeId)
+                )
+            )
+        )
+
+        if (result is NetworkResult.Success) safeIoWorker {
+            preferenceRepo.addMyBlockPlaceId(placeId)
+        }
+
+        return result.mapToEmptyNetworkResult()
+    }
+
+    private suspend fun pullMyBlock(placeId: String): NetworkResult<EmptyNetworkResult> {
+        val result = handleAPIResponse(
+            apiService.pullBlockList(
+                PullBlockListReq(
+                    userId = preferenceRepo.readUserId.firstOrNull().orEmpty(),
+                    accessKey = preferenceRepo.readAccessKey.firstOrNull().orEmpty(),
+                    placeIdList = listOf(placeId)
+                )
+            )
+        )
+
+        if (result is NetworkResult.Success) safeIoWorker {
+            preferenceRepo.removeMyBlockPlaceId(placeId)
+            myBlockDao.deleteMyBlock(placeId)
         }
 
         return result.mapToEmptyNetworkResult()
