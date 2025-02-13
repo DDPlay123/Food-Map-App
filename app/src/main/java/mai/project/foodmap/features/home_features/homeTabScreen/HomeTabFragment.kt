@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import mai.project.core.Configs
@@ -288,10 +289,24 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
      */
     private fun handleDrawCardList(
         list: List<RestaurantResult>
+    ) {
+        checkGPSAndGetCurrentLocation(
+            googleMapUtil = googleMapUtil,
+            onSuccess = { lat, lng -> refreshDrawCardList(list, LatLng(lat, lng)) },
+            onFailure = { refreshDrawCardList(list, null) }
+        )
+    }
+
+    /**
+     * 刷新人氣餐廳卡片列表
+     */
+    private fun refreshDrawCardList(
+        list: List<RestaurantResult>,
+        latLng: LatLng?
     ) = with(binding) {
         rlRv.isVisible = list.isNotEmpty()
         lottieNoData.isVisible = list.isEmpty()
-        drawCardAdapter.submitList(list) {
+        drawCardAdapter.submitList(list, latLng) {
             if (viewModel.drawCardPosition != -1) {
                 val position = if (viewModel.drawCardPosition < list.size) viewModel.drawCardPosition else 0
                 rvPopular.post {

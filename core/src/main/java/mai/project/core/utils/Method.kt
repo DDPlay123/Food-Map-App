@@ -3,7 +3,11 @@ package mai.project.core.utils
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
+import com.google.android.gms.maps.model.LatLng
 import java.io.ByteArrayOutputStream
+import kotlin.math.acos
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
  * 常用或通用的方法
@@ -34,5 +38,23 @@ object Method {
         val bytes = byteArrayOutputStream.toByteArray()
 
         return Base64.encodeToString(bytes, Base64.DEFAULT)
+    }
+
+    /**
+     * 計算兩點距離
+     */
+    fun calculateDistance(
+        start: LatLng,
+        end: LatLng
+    ): Double {
+        val earthRadius = 6371
+        val startLat = (Math.PI / 180) * start.latitude
+        val endLat = (Math.PI / 180) * end.latitude
+
+        val startLng = (Math.PI / 180) * start.longitude
+        val endLng = (Math.PI / 180) * end.longitude
+
+        // 計算結果原先是以公里為單位，乘以 1000 後即為公尺
+        return acos(sin(startLat) * sin(endLat) + cos(startLat) * cos(endLat) * cos(startLng - endLng)) * earthRadius * 1000
     }
 }
