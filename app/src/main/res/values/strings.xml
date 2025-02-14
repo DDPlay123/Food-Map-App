@@ -66,6 +66,7 @@
     <string name="sentence_read_more">Read more\.\.\.</string>
     <string name="sentence_add_blacklist">Add to blacklist</string>
     <string name="sentence_remove_blacklist">Remove from blacklist</string>
+    <string name="sentence_share_restaurant">Share restaurant</string>
 
     <string name="rule_username_empty">Username cannot be empty</string>
     <string name="rule_username_length">Username must be at least 4 characters</string>

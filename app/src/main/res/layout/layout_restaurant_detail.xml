@@ -135,7 +135,6 @@
                     android:id="@+id/tvOpenNow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:layout_marginEnd="26dp"
                     android:paddingVertical="10dp"
                     android:text="@string/sentence_not_provide"
@@ -207,7 +206,7 @@
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/vector_location_pin"
                     android:drawableEnd="@drawable/vector_directions"
-                    android:drawablePadding="8dp"
+                    android:drawablePadding="12dp"
                     android:drawableTint="@color/primary"
                     android:ellipsize="end"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
@@ -228,7 +227,7 @@
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/vector_access_time"
                     android:drawableEnd="@drawable/vector_keyboard_arrow_up"
-                    android:drawablePadding="8dp"
+                    android:drawablePadding="12dp"
                     android:drawableTint="@color/primary"
                     android:ellipsize="end"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
@@ -249,7 +248,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/vector_access_time"
-                    android:drawablePadding="8dp"
+                    android:drawablePadding="12dp"
                     android:drawableTint="@color/background_fragment_variant"
                     android:paddingHorizontal="26dp"
                     android:paddingVertical="10dp"
@@ -270,7 +269,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/vector_public"
-                    android:drawablePadding="8dp"
+                    android:drawablePadding="12dp"
                     android:drawableTint="@color/primary"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:paddingHorizontal="26dp"
@@ -288,12 +287,11 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/vector_call"
-                    android:drawablePadding="8dp"
+                    android:drawablePadding="12dp"
                     android:drawableTint="@color/primary"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:paddingHorizontal="26dp"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="20dp"
+                    android:paddingVertical="10dp"
                     android:text="@string/word_phone_call"
                     android:textColor="@color/text_hint"
                     android:textSize="@dimen/text_medium"
@@ -302,6 +300,25 @@
                     app:layout_constraintStart_toStartOf="@+id/tvName"
                     app:layout_constraintTop_toBottomOf="@+id/tvWebsite" />
 
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvShare"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vector_share"
+                    android:drawablePadding="12dp"
+                    android:drawableTint="@color/primary"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:paddingHorizontal="26dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="20dp"
+                    android:text="@string/sentence_share_restaurant"
+                    android:textColor="@color/text_hint"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintEnd_toEndOf="@+id/tvName"
+                    app:layout_constraintStart_toStartOf="@+id/tvName"
+                    app:layout_constraintTop_toBottomOf="@+id/tvPhone" />
+
                 <com.google.android.material.divider.MaterialDivider
                     android:id="@+id/divider"
                     android:layout_width="0dp"
@@ -309,7 +326,7 @@
                     app:dividerColor="@color/background_divider"
                     app:layout_constraintEnd_toEndOf="@+id/tvName"
                     app:layout_constraintStart_toStartOf="@+id/tvName"
-                    app:layout_constraintTop_toBottomOf="@+id/tvPhone" />
+                    app:layout_constraintTop_toBottomOf="@+id/tvShare" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvGoogleReview"

@@ -37,6 +37,7 @@ import mai.project.core.extensions.openPhoneCall
 import mai.project.core.extensions.openUrl
 import mai.project.core.extensions.openUrlWithBrowser
 import mai.project.core.extensions.parcelable
+import mai.project.core.extensions.shareLink
 import mai.project.core.utils.Event
 import mai.project.core.utils.GoogleMapUtil
 import mai.project.core.widget.recyclerView_adapters.ImagePreviewPagerAdapter
@@ -275,6 +276,12 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         layoutDetail.tvPhone.onClick {
             viewModel.restaurantDetail.value.getPeekContent.data?.phone?.let {
                 requireActivity().openPhoneCall(it)
+            }
+        }
+
+        layoutDetail.tvShare.onClick {
+            viewModel.restaurantDetail.value.getPeekContent.data?.shareLink?.let {
+                requireActivity().shareLink(getString(R.string.sentence_share_restaurant), it)
             }
         }
 

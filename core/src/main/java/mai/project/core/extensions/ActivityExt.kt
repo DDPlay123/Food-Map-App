@@ -163,3 +163,30 @@ fun Activity.openGoogleNavigation(
         FirebaseCrashlytics.getInstance().recordException(e)
     }
 }
+
+/**
+ * 分享連結
+ *
+ * @param title 分享的標題
+ * @param shareLink 分享連結
+ */
+fun Activity.shareLink(
+    title: String,
+    shareLink: String
+) {
+    try {
+        val share = Intent.createChooser(
+            Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TITLE, title)
+                putExtra(Intent.EXTRA_TEXT, shareLink)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                type = "text/plain"
+            }
+        , title)
+        startActivity(share)
+    } catch (e: Exception) {
+        Timber.e(message = "shareLink", t = e)
+        FirebaseCrashlytics.getInstance().recordException(e)
+    }
+}
