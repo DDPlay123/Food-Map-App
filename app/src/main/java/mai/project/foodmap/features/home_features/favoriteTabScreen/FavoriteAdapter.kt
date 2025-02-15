@@ -12,6 +12,7 @@ import mai.project.core.extensions.DP
 import mai.project.core.extensions.inflateBinding
 import mai.project.core.extensions.onClick
 import mai.project.core.widget.recyclerView_decorations.SpacesItemDecoration
+import mai.project.foodmap.R
 import mai.project.foodmap.databinding.ItemMyFavoriteBinding
 import mai.project.foodmap.domain.models.MyFavoriteResult
 import java.util.Locale
@@ -20,7 +21,11 @@ class FavoriteAdapter : ListAdapter<MyFavoriteResult, ViewHolder>(DiffUtilCallba
 
     var onItemClick: ((MyFavoriteResult) -> Unit)? = null
     var onPhotoClick: ((List<String>, String) -> Unit)? = null
-    var onAddressClick: ((MyFavoriteResult) -> Unit)? = null
+    var onFavoriteClick: ((MyFavoriteResult) -> Unit)? = null
+    var onNavigationClick: ((MyFavoriteResult) -> Unit)? = null
+    var onWebsiteClick: ((String) -> Unit)? = null
+    var onPhoneClick: ((String) -> Unit)? = null
+    var onShareClick: ((String) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         FavoriteViewHolder.from(parent)
@@ -30,7 +35,11 @@ class FavoriteAdapter : ListAdapter<MyFavoriteResult, ViewHolder>(DiffUtilCallba
             item = getItem(position),
             onItemClick = onItemClick,
             onPhotoClick = onPhotoClick,
-            onAddressClick = onAddressClick
+            onFavoriteClick = onFavoriteClick,
+            onNavigationClick = onNavigationClick,
+            onWebsiteClick = onWebsiteClick,
+            onPhoneClick = onPhoneClick,
+            onShareClick = onShareClick
         )
     }
 
@@ -41,7 +50,11 @@ class FavoriteAdapter : ListAdapter<MyFavoriteResult, ViewHolder>(DiffUtilCallba
                 item = getItem(position),
                 onItemClick = onItemClick,
                 onPhotoClick = onPhotoClick,
-                onAddressClick = onAddressClick
+                onFavoriteClick = onFavoriteClick,
+                onNavigationClick = onNavigationClick,
+                onWebsiteClick = onWebsiteClick,
+                onPhoneClick = onPhoneClick,
+                onShareClick = onShareClick
             )
         } else {
             for (payload in payloads) {
@@ -64,15 +77,23 @@ class FavoriteAdapter : ListAdapter<MyFavoriteResult, ViewHolder>(DiffUtilCallba
             item: MyFavoriteResult,
             onItemClick: ((MyFavoriteResult) -> Unit)?,
             onPhotoClick: ((List<String>, String) -> Unit)?,
-            onAddressClick: ((MyFavoriteResult) -> Unit)?
+            onFavoriteClick: ((MyFavoriteResult) -> Unit)?,
+            onNavigationClick: ((MyFavoriteResult) -> Unit)?,
+            onWebsiteClick: ((String) -> Unit)?,
+            onPhoneClick: ((String) -> Unit)?,
+            onShareClick: ((String) -> Unit)?
         ) = with(binding) {
             tvName.text = item.name
             tvRating.text = "${item.ratingStar}"
             rating.rating = item.ratingStar
             tvRatingTotal.text = String.format(Locale.getDefault(), "(%d)", item.ratingTotal)
             tvAddress.text = item.address
+            updateFavorite(item.isFavorite)
 
             rvPhotos.isVisible = item.photos.isNotEmpty()
+            chipWebsite.isVisible = item.website.isNotEmpty()
+            chipPhoneCall.isVisible = item.phone.isNotEmpty()
+            chipShare.isVisible = item.shareLink.isNotEmpty()
 
             if (rvPhotos.itemDecorationCount <= 0) {
                 rvPhotos.addItemDecoration(
@@ -94,13 +115,19 @@ class FavoriteAdapter : ListAdapter<MyFavoriteResult, ViewHolder>(DiffUtilCallba
             }
 
             clRoot.onClick { onItemClick?.invoke(item) }
-            tvAddress.onClick { onAddressClick?.invoke(item) }
-
-            // 收藏, 網站, 致電, 分享, Google Map
+            chipFavorite.onClick { onFavoriteClick?.invoke(item) }
+            chipNavigation.onClick { onNavigationClick?.invoke(item) }
+            chipWebsite.onClick { onWebsiteClick?.invoke(item.website) }
+            chipPhoneCall.onClick { onPhoneClick?.invoke(item.phone) }
+            chipShare.onClick { onShareClick?.invoke(item.shareLink) }
         }
 
-        fun updateFavorite(isFavorite: Boolean) = with(binding) {
-
+        fun updateFavorite(isFavorite: Boolean) = with(binding.chipFavorite) {
+            if (isFavorite) {
+                setChipIconResource(R.drawable.vector_favorite)
+            } else {
+                setChipIconResource(R.drawable.vector_favorite_border)
+            }
         }
 
         companion object {

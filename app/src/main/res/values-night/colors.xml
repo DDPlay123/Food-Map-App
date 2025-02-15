@@ -17,6 +17,8 @@
 
     <color name="stroke_avatar">#FFFFFF</color>
 
+    <color name="chip_background">#00796B</color>
+
     <color name="text_primary">#FFFFFF</color>
     <color name="text_snack_bar">#000000</color>
     <color name="text_hint">#CCCCCC</color>

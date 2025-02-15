@@ -92,12 +92,7 @@ class DrawCardAdapter : ListAdapter<RestaurantResult, ViewHolder>(DiffUtilCallba
             rating.rating = item.ratingStar
             tvRatingTotal.text = String.format(Locale.getDefault(), "(%d)", item.ratingTotal)
             tvAddress.text = item.address
-
-            if (item.isFavorite) {
-                imgFavorite.setImageResource(R.drawable.vector_favorite)
-            } else {
-                imgFavorite.setImageResource(R.drawable.vector_favorite_border)
-            }
+            updateFavorite(item.isFavorite)
 
             val distance = currentLatLng?.let {
                 Method.calculateDistance(

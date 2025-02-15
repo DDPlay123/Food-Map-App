@@ -70,4 +70,16 @@
         <item name="android:paddingEnd">12dp</item>
         <item name="android:textSize">@dimen/text_small_medium</item>
     </style>
+
+    <style name="primaryChip" parent="Widget.Material3.Chip.Assist">
+        <item name="chipBackgroundColor">@color/chip_background</item>
+        <item name="chipIconTint">@color/icon_primary</item>
+        <item name="chipStartPadding">8dp</item>
+        <item name="chipEndPadding">8dp</item>
+        <item name="chipMinTouchTargetSize">32dp</item>
+        <item name="chipCornerRadius">20dp</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="chipStrokeColor">@android:color/transparent</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
 </resources>
