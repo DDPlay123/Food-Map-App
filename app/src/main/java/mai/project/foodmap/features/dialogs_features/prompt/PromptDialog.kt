@@ -25,7 +25,7 @@ class PromptDialog : BaseDialog<DialogPromptBinding, Nothing>(
         tvCancel.text = args.cancelText
         tvCancel.isVisible = args.cancelText != null
         edInput.isVisible = args.enableInput
-        edInput.setHint(args.inputHint)
+        edInput.hint = args.inputHint
     }
 
     override fun onDismiss(dialog: DialogInterface) {

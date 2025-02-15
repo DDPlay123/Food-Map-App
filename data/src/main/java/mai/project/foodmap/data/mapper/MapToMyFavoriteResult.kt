@@ -30,7 +30,8 @@ internal fun NetworkResult<GetFavoriteListRes>.mapToMyFavoriteResult(
                 priceLevel = it.priceLevel,
                 lat = it.location.lat,
                 lng = it.location.lng,
-                shareLink = it.url
+                shareLink = it.url,
+                isFavorite = true
             )
         }
     }

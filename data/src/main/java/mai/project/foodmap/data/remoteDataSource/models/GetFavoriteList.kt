@@ -38,6 +38,7 @@ internal data class GetFavoriteListRes(
         val rating: Float,
         @SerialName("ratings_total")
         val ratingsTotal: Long,
+        @SerialName("price_level")
         val priceLevel: Int,
         val location: LocationModel,
         val url: String

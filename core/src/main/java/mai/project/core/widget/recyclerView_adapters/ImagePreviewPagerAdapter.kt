@@ -36,6 +36,11 @@ class ImagePreviewPagerAdapter: ListAdapter<Any, ViewHolder>(DiffUtilCallback) {
         )
     }
 
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(holder)
+        if (holder is ImagePreviewViewHolder) holder.release()
+    }
+
     private class ImagePreviewViewHolder(
         private val imageView: DownToCloseImageView
     ): ViewHolder(imageView) {
@@ -46,6 +51,10 @@ class ImagePreviewPagerAdapter: ListAdapter<Any, ViewHolder>(DiffUtilCallback) {
         ) = with(imageView) {
             setImage(item)
             onCloseListener = { onClosed?.invoke(item) }
+        }
+
+        fun release() = with(imageView) {
+            clearImage()
         }
 
         companion object {

@@ -8,7 +8,6 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveListener
@@ -40,8 +39,8 @@ import mai.project.core.extensions.parcelable
 import mai.project.core.extensions.shareLink
 import mai.project.core.utils.Event
 import mai.project.core.utils.GoogleMapUtil
-import mai.project.core.widget.recyclerView_adapters.ImagePreviewPagerAdapter
 import mai.project.core.widget.recyclerView_decorations.SpacesItemDecoration
+import mai.project.foodmap.MainActivity
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
 import mai.project.foodmap.base.checkGPSAndGetCurrentLocation
@@ -54,7 +53,6 @@ import mai.project.foodmap.domain.models.RestaurantRouteResult
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.features.dialogs_features.selector.SelectorCallback
 import mai.project.foodmap.features.dialogs_features.selector.SelectorModel
-import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -85,26 +83,15 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
     private var pointPolyline: PointPolyline? = null
 
     private val photosAdapter by lazy { PhotosAdapter() }
-
-    private val imagePreviewPagerAdapter by lazy { ImagePreviewPagerAdapter() }
     
     private val googleReviewAdapter by lazy { GoogleReviewAdapter() }
 
     private val navigationModeItems: List<SelectorModel> by lazy {
+        val typedArray = resources.obtainTypedArray(R.array.navigation_mode_icon)
+        val icons = (0 until typedArray.length()).map { typedArray.getResourceId(it, 0) }
+        typedArray.recycle()
         resources.getStringArray(R.array.navigation_mode).mapIndexed { index, s ->
-            SelectorModel(id = index, content = s)
-        }
-    }
-
-    private val photoPreviewCallback by lazy {
-        object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                Timber.d(message = "圖片預覽滾動位置：$position")
-                if (position >= 0 && binding.vpPhotoPreview.isVisible) {
-                    binding.layoutDetail.vpPhotos.setCurrentItem(position, false)
-                }
-            }
+            SelectorModel(id = index, content = s, iconResId = icons[index])
         }
     }
 
@@ -135,12 +122,6 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
             adapter = photosAdapter
             layoutDetail.piPhotos.attachToViewPager2(this)
         }
-
-        with(vpPhotoPreview) {
-            offscreenPageLimit = 3
-            getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
-            adapter = imagePreviewPagerAdapter
-        }
         
         with(layoutDetail.rvReviews) {
             addItemDecoration(
@@ -164,12 +145,12 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         }
         polylineAnimator = null
         pointPolyline = null
-        vpPhotoPreview.unregisterOnPageChangeCallback(photoPreviewCallback)
+        (activity as? MainActivity)?.setupPhotoPreviewSelectedAction(null)
     }
 
     override fun FragmentRestaurantDetailBinding.handleOnBackPressed() {
-        if (binding.vpPhotoPreview.isVisible) {
-            closePhotoPreview()
+        if ((activity as? MainActivity)?.photoPreviewVisible == true) {
+            (activity as? MainActivity)?.closePhotoPreview()
         } else {
             popBackStack()
         }
@@ -240,9 +221,20 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
             }
         })
 
-        photosAdapter.onItemClick = { item -> openPhotoPreview(item) }
+        photosAdapter.onItemClick = { item ->
+            viewModel.restaurantDetail.value.getPeekContent.data?.photos?.let { list ->
+                val index = list.indexOfFirst { it == item }.takeIf { it >= 0 } ?: 0
+                (activity as MainActivity).openPhotoPreview(list, index)
+            }
+        }
 
-        imagePreviewPagerAdapter.onClosed = { closePhotoPreview() }
+        (activity as? MainActivity)?.let {
+            it.setupPhotoPreviewSelectedAction { position ->
+                if (position >= 0 && it.photoPreviewVisible) {
+                    layoutDetail.vpPhotos.setCurrentItem(position, false)
+                }
+            }
+        }
 
         googleReviewAdapter.onAvatarClick = { requireActivity().openUrl(it) }
 
@@ -250,6 +242,7 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
             viewModel.restaurantDetail.value.getPeekContent.data?.let {
                 navigateSelectorDialog(
                     requestCode = REQUEST_CODE_NAVIGATION_MODE,
+                    title = getString(R.string.sentence_navigation_mode),
                     items = navigationModeItems
                 )
             }
@@ -525,10 +518,9 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         setupFavoriteState(data.isFavorite)
 
         pbCircular.isVisible = false
+        vpPhotos.isVisible = data.photos.isNotEmpty()
         piPhotos.isVisible = data.photos.isNotEmpty()
         photosAdapter.submitList(data.photos)
-
-        imagePreviewPagerAdapter.submitList(data.photos)
 
         tvName.text = data.name
         tvRating.text = "${data.ratingStar}"
@@ -600,26 +592,6 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
             setBackgroundColor(getColorCompat(R.color.error))
             getString(R.string.sentence_add_blacklist)
         }
-    }
-
-    /**
-     * 顯示圖片預覽
-     */
-    private fun openPhotoPreview(item: String) = with(binding.vpPhotoPreview) {
-        imagePreviewPagerAdapter.resetState()
-        val index = imagePreviewPagerAdapter.currentList.indexOfFirst { it == item }.takeIf { it >= 0 } ?: 0
-        Timber.d(message = "設定圖片預覽滾動位置：$index")
-        registerOnPageChangeCallback(photoPreviewCallback)
-        setCurrentItem(index, false)
-        isVisible = true
-    }
-
-    /**
-     * 關閉圖片預覽
-     */
-    private fun closePhotoPreview() = with(binding.vpPhotoPreview) {
-        unregisterOnPageChangeCallback(photoPreviewCallback)
-        isVisible = false
     }
 
     companion object {

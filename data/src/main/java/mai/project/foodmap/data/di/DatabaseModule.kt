@@ -8,7 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import mai.project.foodmap.data.localDataSource.LocalDB
-import mai.project.foodmap.data.localDataSource.LocalDB.Companion.MIGRATION_2_3
+import mai.project.foodmap.data.localDataSource.LocalDB.Companion.MIGRATION_3_4
 import javax.inject.Singleton
 
 @Module
@@ -24,7 +24,7 @@ internal object DatabaseModule {
         context,
         LocalDB::class.java,
         "local_db"
-    ).addMigrations(MIGRATION_2_3)
+    ).addMigrations(MIGRATION_3_4)
         .build()
 
     @Singleton

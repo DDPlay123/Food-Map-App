@@ -3,6 +3,7 @@ package mai.project.foodmap.features.dialogs_features.selector
 import android.content.DialogInterface
 import android.os.Bundle
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,6 +25,9 @@ class SelectorBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSelecto
     }
 
     override fun DialogBottomSheetSelectorBinding.initialize(savedInstanceState: Bundle?) {
+        tvTitle.isVisible = args.title.isNotEmpty()
+        tvTitle.text = args.title
+
         args.items.forEachIndexed { index, item ->
             // Menu群組ID, 項目ID, 項目順序, 項目名稱
             navigationView.menu.add(0, item.id, index, item.content).apply {

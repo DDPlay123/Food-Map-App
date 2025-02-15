@@ -11,6 +11,8 @@ import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,6 +25,7 @@ import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.launchWithoutRepeat
 import mai.project.core.extensions.showSnackBar
 import mai.project.core.utils.Event
+import mai.project.core.widget.recyclerView_adapters.ImagePreviewPagerAdapter
 import mai.project.foodmap.base.BaseActivity
 import mai.project.foodmap.databinding.ActivityMainBinding
 import mai.project.foodmap.domain.state.NetworkResult
@@ -51,6 +54,27 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
      * - 在背景啟動 App 的狀況下，會導航失敗，所以延後執行
      */
     private var pendingLoginNavigation: (() -> Unit)? = null
+
+    /**
+     * 顯示圖片預覽的 ViewPager2 Adapter
+     */
+    private val imagePreviewPagerAdapter by lazy { ImagePreviewPagerAdapter() }
+
+    /**
+     * 圖片預覽滑動到指定頁面時，要做的事情
+     */
+    private var photoPreviewSelectedAction: ((Int) -> Unit)? = null
+
+    /**
+     * 監聽圖片預覽滑動事件
+     */
+    private val photoPreviewCallback by lazy {
+        object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                photoPreviewSelectedAction?.invoke(position)
+            }
+        }
+    }
 
     /**
      * 顯示 SnackBar (主要是避免 SnackBar 被 BottomNavigationView 遮住)
@@ -90,6 +114,49 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
         binding.sideNavigation?.isVisible = visible
     }
 
+    /**
+     * 是否正在顯示圖片預覽
+     */
+    val photoPreviewVisible: Boolean
+        get() = binding.vpPhotoPreview.isVisible
+
+    /**
+     * 顯示圖片預覽
+     *
+     * @param list 圖片列表
+     * @param position 預設顯示位置
+     */
+    fun openPhotoPreview(
+        list: List<Any>,
+        position: Int = 0
+    ) = with(binding.vpPhotoPreview) {
+        imagePreviewPagerAdapter.resetState()
+        imagePreviewPagerAdapter.submitList(list) {
+            post {
+                setCurrentItem(position, false)
+                isVisible = true
+            }
+        }
+    }
+
+    /**
+     * 關閉圖片預覽
+     *
+     * @return 當前顯示位置
+     */
+    fun closePhotoPreview(): Int {
+        val position = binding.vpPhotoPreview.currentItem
+        binding.vpPhotoPreview.isVisible = false
+        return position
+    }
+
+    /**
+     * 設定圖片預覽滑動到指定頁面時，要做的事情
+     */
+    fun setupPhotoPreviewSelectedAction(action: ((Int) -> Unit)?) {
+        photoPreviewSelectedAction = action
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -98,6 +165,11 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
         doInitialization()
         setListener()
         setObserver()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.vpPhotoPreview.unregisterOnPageChangeCallback(photoPreviewCallback)
     }
 
     override fun onResume() {
@@ -114,13 +186,16 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
         onBackPressedDispatcher.addCallback(
             this, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    if (backPressedTime + 3000 > System.currentTimeMillis()) {
-                        finish()
-                    } else {
-                        showSnackBar(getString(R.string.sentence_again_to_exit))
-                    }
+                    when {
+                        photoPreviewVisible -> closePhotoPreview()
 
-                    backPressedTime = System.currentTimeMillis()
+                        backPressedTime + 3000 > System.currentTimeMillis() -> finish()
+
+                        else -> {
+                            showSnackBar(getString(R.string.sentence_again_to_exit))
+                            backPressedTime = System.currentTimeMillis()
+                        }
+                    }
                 }
             }
         )
@@ -129,12 +204,19 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
     /**
      * 初始化
      */
-    private fun doInitialization() {
+    private fun doInitialization() = with(binding) {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.navigationHost) as NavHostFragment
         navController = navHostFragment.navController
 
-        binding.bottomNavigation?.setupWithNavController(navController)
-        binding.sideNavigation?.setupWithNavController(navController)
+        bottomNavigation?.setupWithNavController(navController)
+        sideNavigation?.setupWithNavController(navController)
+
+        with(vpPhotoPreview) {
+            offscreenPageLimit = 3
+            getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+            (getChildAt(0) as RecyclerView).itemAnimator = null
+            adapter = imagePreviewPagerAdapter
+        }
     }
 
     /**
@@ -143,6 +225,10 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
     private fun setListener() = with(binding) {
         bottomNavigation?.setOnItemReselectedListener { /* 不做事 */ }
         sideNavigation?.setOnItemReselectedListener { /* 不做事 */ }
+
+        vpPhotoPreview.registerOnPageChangeCallback(photoPreviewCallback)
+
+        imagePreviewPagerAdapter.onClosed = { closePhotoPreview() }
     }
 
     /**

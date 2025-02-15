@@ -105,17 +105,13 @@ internal data class PlaceModel(
         val authorName: String,
         @SerialName("author_url")
         val authorUrl: String,
-        val language: String,
-        @SerialName("original_language")
-        val originalLanguage: String,
         @SerialName("profile_photo_url")
         val profilePhotoUrl: String,
         val rating: Int,
         @SerialName("relative_time_description")
         val relativeTimeDescription: String,
         val text: String,
-        val time: Int,
-        val translated: Boolean
+        val time: Int
     )
 }
 

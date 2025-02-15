@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/clRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPhotos"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:nestedScrollingEnabled="false"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="10dp"
+        android:text="@string/sentence_loading"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/text_medium_large"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rvPhotos"
+        tools:text="麻辣燙麻辣燙麻辣燙麻辣燙麻辣燙麻辣燙麻辣燙麻辣燙麻辣燙" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvRating"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/text_medium"
+        app:layout_constraintStart_toStartOf="@+id/tvName"
+        app:layout_constraintTop_toBottomOf="@+id/tvName"
+        tools:text="4.3" />
+
+    <androidx.appcompat.widget.AppCompatRatingBar
+        android:id="@+id/rating"
+        style="@style/Widget.AppCompat.RatingBar.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:isIndicator="true"
+        android:numStars="5"
+        app:layout_constraintBottom_toBottomOf="@id/tvRating"
+        app:layout_constraintStart_toEndOf="@id/tvRating"
+        app:layout_constraintTop_toTopOf="@id/tvRating"
+        tools:rating="4.3" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvRatingTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:gravity="center"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/text_medium"
+        app:layout_constraintBottom_toBottomOf="@+id/tvRating"
+        app:layout_constraintStart_toEndOf="@+id/rating"
+        app:layout_constraintTop_toTopOf="@+id/tvRating"
+        tools:text="(17)" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvAddress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/vector_location_pin"
+        android:drawableEnd="@drawable/vector_directions"
+        android:drawablePadding="12dp"
+        android:drawableTint="@color/primary"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="10dp"
+        android:text="@string/sentence_loading"
+        android:textColor="@color/text_hint"
+        android:textSize="@dimen/text_medium"
+        app:layout_constraintEnd_toEndOf="@+id/tvName"
+        app:layout_constraintStart_toStartOf="@+id/tvName"
+        app:layout_constraintTop_toBottomOf="@+id/tvRatingTotal"
+        tools:text="台灣台北市大安區忠孝東路三段1號" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

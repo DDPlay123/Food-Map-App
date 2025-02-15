@@ -92,11 +92,13 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
             when (model.id) {
                 TermEnum.THEMES_TOPIC.name -> navigateSelectorDialog(
                     requestCode = REQUEST_CODE_THEME_MODE,
+                    title = getString(R.string.sentence_themes_topic),
                     items = themeModeItems
                 )
 
                 TermEnum.DISPLAY_LANGUAGE.name -> navigateSelectorDialog(
                     requestCode = REQUEST_CODE_LANGUAGE_MODE,
+                    title = getString(R.string.sentence_display_language),
                     items = languageModeItems
                 )
 

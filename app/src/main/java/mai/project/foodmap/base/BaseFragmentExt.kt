@@ -78,15 +78,18 @@ fun <VB : ViewBinding, VM : BaseViewModel> BaseFragment<VB, VM>.navigatePromptDi
  * 開啟 Selector Dialog
  *
  * @param requestCode 請求碼
+ * @param title 標題
  * @param items 選項
  */
 fun <VB : ViewBinding, VM : BaseViewModel> BaseFragment<VB, VM>.navigateSelectorDialog(
     requestCode: String,
+    title: String,
     items: List<SelectorModel>
 ) {
     navigate(
         SelectorBottomSheetDialogDirections.actionGlobalToSelectorBottomSheetDialog(
             requestCode = requestCode,
+            title = title,
             items = items.toTypedArray()
         )
     )

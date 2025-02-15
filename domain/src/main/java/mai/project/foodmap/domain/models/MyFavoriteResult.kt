@@ -16,5 +16,6 @@ data class MyFavoriteResult(
     val priceLevel: Int,
     val lat: Double,
     val lng: Double,
-    val shareLink: String
+    val shareLink: String,
+    val isFavorite: Boolean
 )
