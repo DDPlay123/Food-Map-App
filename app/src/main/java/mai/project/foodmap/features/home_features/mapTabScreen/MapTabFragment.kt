@@ -8,6 +8,10 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
+import androidx.recyclerview.widget.LinearSnapHelper
+import androidx.recyclerview.widget.RecyclerView
 import coil.transform.CircleCropTransformation
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -24,22 +28,28 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import mai.project.core.Configs
+import mai.project.core.annotations.Direction
 import mai.project.core.extensions.DP
 import mai.project.core.extensions.getDrawableCompat
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.onClick
 import mai.project.core.extensions.parcelable
+import mai.project.core.extensions.screenWidth
 import mai.project.core.utils.Event
 import mai.project.core.utils.GoogleMapUtil
 import mai.project.core.utils.ImageLoaderUtil
+import mai.project.core.widget.recyclerView_decorations.ScaleItemDecoration
+import mai.project.core.widget.recyclerView_decorations.SpacesItemDecoration
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
 import mai.project.foodmap.base.checkGPSAndGetCurrentLocation
 import mai.project.foodmap.base.checkLocationPermission
 import mai.project.foodmap.base.handleBasicResult
+import mai.project.foodmap.base.navigateLoadingDialog
 import mai.project.foodmap.databinding.FragmentMapTabBinding
 import mai.project.foodmap.databinding.LayoutRestaurantMarkerBinding
 import mai.project.foodmap.domain.models.RestaurantResult
+import mai.project.foodmap.domain.models.RestaurantResult.Companion.normalize
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.features.home_features.mapTabScreen.dialog.ClustersCallback
 import mai.project.foodmap.features.home_features.mapTabScreen.utils.MyClusterRenderer
@@ -72,6 +82,10 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
 
     private var markerJob: Job? = null
 
+    private val mapsRestaurantAdapter by lazy { MapsRestaurantAdapter() }
+
+    private val snapHelper by lazy { LinearSnapHelper() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         locationPermissionLauncher = googleMapUtil.createLocationPermissionLauncher(
@@ -83,6 +97,26 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
 
     override fun FragmentMapTabBinding.initialize(savedInstanceState: Bundle?) {
         googleMapUtil.launchLocationPermission(locationPermissionLauncher)
+
+        with(rvRestaurants) {
+            addItemDecoration(
+                SpacesItemDecoration(
+                    direction = Direction.HORIZONTAL,
+                    space = 20.DP
+                )
+            )
+            addItemDecoration(
+                ScaleItemDecoration(
+                    maxScale = 1f,
+                    minScale = .8f
+                )
+            )
+            val offset = requireContext().screenWidth / 2
+            setPadding(offset, 0, offset, 0)
+            clipToPadding = false
+            snapHelper.attachToRecyclerView(this)
+            adapter = mapsRestaurantAdapter
+        }
 
         mapFragment = childFragmentManager.findFragmentById(R.id.mapHost) as SupportMapFragment
         mapFragment.getMapAsync(this@MapTabFragment)
@@ -124,8 +158,44 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
         }
 
         imgSearch.onClick {
-
+            if (::myMap.isInitialized) {
+                val target = myMap.cameraPosition.target
+                calculateDistanceAndFetchData(
+                    lat = target.latitude,
+                    lng = target.longitude
+                )
+            }
         }
+
+        mapsRestaurantAdapter.onItemClick = {
+            navigate(
+                MapTabFragmentDirections.actionMapTabFragmentToRestaurantDetailFragment(
+                    placeId = it.placeId,
+                    name = it.name,
+                    lat = it.lat.toFloat(),
+                    lng = it.lat.toFloat()
+                )
+            )
+        }
+
+        mapsRestaurantAdapter.onFavoriteClick = {
+            viewModel.pushOrPullMyFavorite(it.placeId, !it.isFavorite)
+        }
+
+        rvRestaurants.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    val layoutManager = recyclerView.layoutManager ?: return
+                    snapHelper.findSnapView(layoutManager)?.let {
+                        val position = layoutManager.getPosition(it)
+                        mapsRestaurantAdapter.currentList.getOrNull(position)?.let { item ->
+                            myMap.animateCamera(CameraUpdateFactory.newLatLng(LatLng(item.lat, item.lng)))
+                        }
+                    }
+                }
+            }
+        })
     }
 
     override fun FragmentMapTabBinding.setCallback() {
@@ -159,6 +229,15 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
         clusterManager.renderer = MyClusterRenderer(requireContext(), myMap, clusterManager)
         myMap.setOnCameraIdleListener(clusterManager)
         myMap.setOnMapLoadedCallback(this@MapTabFragment)
+
+        clusterManager.markerCollection.setOnMarkerClickListener { marker ->
+            maps.animateCamera(CameraUpdateFactory.newLatLng(marker.position))
+            val index = mapsRestaurantAdapter.currentList.indexOfFirst {
+                it.placeId == marker.snippet
+            }
+            if (index != -1) smoothScrollToPositionWithOffset(index)
+            true
+        }
 
         clusterManager.setOnClusterClickListener { cluster ->
             val currentZoom = myMap.cameraPosition.zoom
@@ -198,8 +277,12 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
      */
     private fun setObserver() = with(viewModel) {
         launchAndRepeatStarted(
+            // Loading
+            { isLoading.collect { navigateLoadingDialog(it, false) } },
             // 抓取附近地區的餐廳資訊
             { nearbyRestaurant.collect(::handleNearbyRestaurantResult) },
+            // 新增/移除收藏
+            { pushOrPullMyFavoriteResult.collect { handleBasicResult(it, false) } },
             // 餐廳列表
             {
                 combine(restaurantList, myFavoritePlaceIdList, myBlacklistPlaceIdList) { list, favoriteIds, blacklistIds ->
@@ -269,17 +352,49 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
     /**
      * 處理餐廳列表
      */
-    private fun handleRestaurantList(list: List<RestaurantResult>) {
-        // 新增 Markers
-        addMarkers(list)
+    private fun handleRestaurantList(list: List<RestaurantResult>) = with(binding) {
+        // 取得新舊列表
+        val oldNormalized = mapsRestaurantAdapter.currentList.map { it.normalize() }
+        val newNormalized = list.map { it.normalize() }
+        // 更新 RecyclerView
+        mapsRestaurantAdapter.submitList(list) {
+            if (oldNormalized != newNormalized) {
+                rvRestaurants.post { smoothScrollToPositionWithOffset(0) }
+            }
+        }
+        // 如果列表不一樣，更新 Marker
+        if ((::myMap.isInitialized && ::clusterManager.isInitialized) &&
+            (oldNormalized != newNormalized || clusterManager.algorithm.items.isEmpty())
+        ) {
+            addMarkers(list)
+        }
+    }
+
+    /**
+     * 平滑滾動 RecyclerView 並帶有偏移值
+     */
+    private fun smoothScrollToPositionWithOffset(
+        targetPosition: Int
+    ) {
+        val layoutManager = binding.rvRestaurants.layoutManager as LinearLayoutManager
+        val smoothScroller = object : LinearSmoothScroller(requireContext()) {
+            override fun calculateDtToFit(
+                viewStart: Int, viewEnd: Int, boxStart: Int, boxEnd: Int, snapPreference: Int
+            ): Int {
+                // 計算偏移值，讓 Item 對齊中心
+                val viewCenter = (viewStart + viewEnd) / 2
+                val boxCenter = (boxStart + boxEnd) / 2
+                return boxCenter - viewCenter
+            }
+        }
+        smoothScroller.targetPosition = targetPosition
+        layoutManager.startSmoothScroll(smoothScroller)
     }
 
     /**
      * 新增地圖 Marker
      */
     private fun addMarkers(list: List<RestaurantResult>) {
-        if (!::myMap.isInitialized || !::clusterManager.isInitialized) return
-
         // 清空資源
         myMap.clear()
         clusterManager.clearItems()
@@ -310,7 +425,7 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
                     val clusterItem = RestaurantClusterItem(
                         position = LatLng(item.lat, item.lng),
                         title = item.name,
-                        snippet = null,
+                        snippet = item.placeId,
                         zIndex = 0f,
                         marker = markerBitmap,
                         data = item

@@ -16,4 +16,8 @@ data class RestaurantResult(
     val lng: Double,
     val distance: Double,
     val isFavorite: Boolean
-) : Parcelable
+) : Parcelable {
+    companion object {
+        fun RestaurantResult.normalize() = copy(isFavorite = false)
+    }
+}
