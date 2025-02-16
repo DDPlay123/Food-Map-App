@@ -1,6 +1,6 @@
 [versions]
 # Plugin versions
-agp = "8.8.0"
+agp = "8.8.1"
 kotlin = "2.1.0"
 ksp = "2.1.0-1.0.29"
 googleServicesPlugins = "4.4.2"
@@ -16,12 +16,12 @@ activity = "1.10.0"
 splashscreen = "1.0.1"
 constraintlayout = "2.2.0"
 swiperefreshlayout = "1.1.0"
-navigation = "2.8.6"
+navigation = "2.8.7"
 room = "2.6.1"
 datastore = "1.1.2"
 security_crypto = "1.1.0-alpha06"
 lifecycle = "2.8.7"
-paging = "3.3.5"
+paging = "3.3.6"
 borwser = "1.8.0"
 
 ## Test Library
@@ -34,6 +34,7 @@ material = "1.12.0"
 dagger_hilt = "2.55"
 hilt_navigation = "1.2.0"
 hilt_compiler = "1.2.0"
+maps_utils = "5.1.1"
 playServicesMaps = "19.0.0"
 playServicesLocation = "21.3.0"
 
@@ -102,6 +103,9 @@ hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref
 hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "dagger_hilt" }
 hilt-navigation-fragment = { group = "androidx.hilt", name = "hilt-navigation-fragment", version.ref = "hilt_navigation" }
 hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hilt_compiler" }
+
+# Google Map Utils (https://github.com/googlemaps/android-maps-ktx)
+maps-utils = { group = "com.google.maps.android", name = "maps-utils-ktx", version.ref = "maps_utils" }
 
 # Google Map for Android (https://developers.google.com/maps/documentation/android-sdk/overview)
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
@@ -173,6 +177,7 @@ lifecycle = [
 ]
 
 googleMap = [
+    "maps-utils",
     "play-services-maps",
     "play-services-location"
 ]

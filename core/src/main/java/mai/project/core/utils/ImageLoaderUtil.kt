@@ -3,9 +3,11 @@ package mai.project.core.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.widget.ImageView
 import androidx.core.graphics.drawable.IconCompat
+import androidx.lifecycle.Lifecycle
 import coil.ImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
@@ -33,6 +35,7 @@ import timber.log.Timber
  *
  * @property preloadImage 預加載圖片。
  * @property loadImage 讀取圖片。
+ * @property asyncLoadDrawable 非同步讀取圖片，回傳 Drawable。
  * @property asyncLoadIcon 非同步讀取圖片並轉換為 Icon。
  * @property getBitmapImage 取得 Bitmap 圖片。
  */
@@ -92,16 +95,20 @@ object ImageLoaderUtil {
      * 預加載圖片。當 imageView 為 null 時，只預加載圖片；當非 null 時，設定大小與 imageView 一致。
      *
      * @param context [Context]
+     * @param lifecycle 仰賴的生命週期
      * @param imageView 圖片元件
      * @param url 圖片網址
      */
     fun preloadImage(
         context: Context,
+        lifecycle: Lifecycle,
         imageView: ImageView? = null,
-        url: String,
+        url: String
     ) {
         Timber.d("Preloading image URL: $url")
-        val request = ImageRequest.Builder(context).data(url)
+        val request = ImageRequest.Builder(context)
+            .data(url)
+            .lifecycle(lifecycle)
             .apply {
                 // 設定圖片大小與 imageView 一致
                 imageView?.let { size(ViewSizeResolver(it)) }
@@ -135,16 +142,53 @@ object ImageLoaderUtil {
     }
 
     /**
+     * 非同步讀取圖片，回傳 Drawable
+     *
+     * @param context [Context]
+     * @param lifecycle 仰賴的生命週期
+     * @param imageUrl 圖片網址
+     * @param onResult 回傳 Drawable
+     */
+    fun asyncLoadDrawable(
+        context: Context,
+        lifecycle: Lifecycle,
+        imageUrl: String?,
+        transformation: Transformation? = null,
+        onResult: (Drawable?) -> Unit
+    ) {
+        if (imageUrl.isNullOrEmpty()) {
+            onResult.invoke(null)
+        } else {
+            val request = ImageRequest.Builder(context)
+                .data(imageUrl)
+                .allowHardware(false) // 轉成 Bitmap 時必須關閉硬體加速
+                .lifecycle(lifecycle)
+                .target(
+                    onSuccess = { drawable ->
+                        onResult.invoke(drawable)
+                    },
+                    onError = {
+                        onResult.invoke(null)
+                    }
+                )
+            transformation?.let { request.transformations(it) }
+            imageLoader.enqueue(request.build())
+        }
+    }
+
+    /**
      * 非同步讀取圖片並轉換為 Icon
      *
      * - 主要用於取得 Notification 的 Icon
      *
      * @param context [Context]
+     * @param lifecycle 仰賴的生命週期
      * @param imageUrl 圖片網址
      * @param setIcon 設定 Icon
      */
     fun asyncLoadIcon(
         context: Context,
+        lifecycle: Lifecycle,
         imageUrl: String?,
         setIcon: (IconCompat?) -> Unit
     ) {
@@ -154,6 +198,7 @@ object ImageLoaderUtil {
             val request = ImageRequest.Builder(context)
                 .data(imageUrl)
                 .transformations(CircleCropTransformation())
+                .lifecycle(lifecycle)
                 .target { drawable ->
                     setIcon(IconCompat.createWithBitmap((drawable as BitmapDrawable).bitmap))
                 }
@@ -171,16 +216,22 @@ object ImageLoaderUtil {
      * 取得 Bitmap 圖片
      *
      * @param context [Context]
+     * @param lifecycle 仰賴的生命週期
      * @param resource 圖片資源
      * @param size 圖片大小
      */
     suspend fun getBitmapImage(
         context: Context,
+        lifecycle: Lifecycle,
         resource: Any,
         size: Int = 1000
     ): Bitmap? {
         return try {
-            val request = ImageRequest.Builder(context).data(resource).size(size).build()
+            val request = ImageRequest.Builder(context)
+                .data(resource)
+                .lifecycle(lifecycle)
+                .size(size)
+                .build()
             (imageLoader.execute(request).drawable as? BitmapDrawable)?.bitmap
         } catch (e: Exception) {
             Timber.e(message = "getBitmapImage", t = e)

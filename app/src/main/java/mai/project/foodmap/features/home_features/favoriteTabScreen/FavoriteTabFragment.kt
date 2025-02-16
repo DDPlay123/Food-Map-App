@@ -155,7 +155,6 @@ class FavoriteTabFragment : BaseFragment<FragmentFavoriteTabBinding, FavoriteTab
      */
     private fun handleFavoriteList(list: List<MyFavoriteResult>) = with(binding) {
         lottieNoData.isVisible = list.isEmpty()
-        swipeRefresh.isVisible = list.isNotEmpty()
         favoriteAdapter.submitList(list)
     }
 
