@@ -27,8 +27,10 @@ import com.utsman.geolib.polyline.point.PointPolyline
 import com.utsman.geolib.polyline.polyline.PolylineAnimator
 import com.utsman.geolib.polyline.utils.createPolylineAnimatorBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import mai.project.core.Configs
 import mai.project.core.annotations.Direction
@@ -233,48 +235,50 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
     }
 
     override fun onMapReady(maps: GoogleMap) {
-        myMap = maps.apply {
-            googleMapUtil.doInitializeGoogleMap(this, viewModel.themeMode.value)
-            googleMapUtil.setCompassLocation(
-                mapFragment = mapFragment,
-                marginTop = 45.DP,
-                marginLeft = 45.DP
-            )
-        }
-
-        clusterManager = ClusterManager<RestaurantClusterItem>(requireContext(), myMap)
-        clusterManager.renderer = MyClusterRenderer(requireContext(), myMap, clusterManager)
-        myMap.setOnCameraIdleListener(clusterManager)
-        myMap.setOnMapLoadedCallback(this@MapTabFragment)
-
-        clusterManager.markerCollection.setOnMarkerClickListener { marker ->
-            maps.animateCamera(CameraUpdateFactory.newLatLng(marker.position))
-            val index = mapsRestaurantAdapter.currentList.indexOfFirst {
-                it.placeId == marker.snippet
-            }
-            if (index != -1) smoothScrollToPositionWithOffset(index)
-            true
-        }
-
-        clusterManager.setOnClusterClickListener { cluster ->
-            val currentZoom = myMap.cameraPosition.zoom
-            val maxZoom = myMap.maxZoomLevel
-            if (currentZoom < maxZoom) {
-                // 如果還未縮放至最大，繼續放大
-                val builder = LatLngBounds.builder()
-                cluster.items.forEach { builder.include(it.position) }
-                val bounds = builder.build()
-                myMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 80))
-            } else {
-                // 已達最大縮放，但叢集仍然存在
-                navigate(
-                    MapTabFragmentDirections.actionMapTabFragmentToClustersDialog(
-                        requestCode = REQUEST_CODE_CLUSTERS_LIST,
-                        clusters = cluster.items.toTypedArray()
-                    )
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main.immediate) {
+            myMap = maps.apply {
+                googleMapUtil.doInitializeGoogleMap(this, viewModel.themeMode.first())
+                googleMapUtil.setCompassLocation(
+                    mapFragment = mapFragment,
+                    marginTop = 45.DP,
+                    marginLeft = 45.DP
                 )
             }
-            true
+
+            clusterManager = ClusterManager<RestaurantClusterItem>(requireContext(), myMap)
+            clusterManager.renderer = MyClusterRenderer(requireContext(), myMap, clusterManager)
+            myMap.setOnCameraIdleListener(clusterManager)
+            myMap.setOnMapLoadedCallback(this@MapTabFragment)
+
+            clusterManager.markerCollection.setOnMarkerClickListener { marker ->
+                maps.animateCamera(CameraUpdateFactory.newLatLng(marker.position))
+                val index = mapsRestaurantAdapter.currentList.indexOfFirst {
+                    it.placeId == marker.snippet
+                }
+                if (index != -1) smoothScrollToPositionWithOffset(index)
+                true
+            }
+
+            clusterManager.setOnClusterClickListener { cluster ->
+                val currentZoom = myMap.cameraPosition.zoom
+                val maxZoom = myMap.maxZoomLevel
+                if (currentZoom < maxZoom) {
+                    // 如果還未縮放至最大，繼續放大
+                    val builder = LatLngBounds.builder()
+                    cluster.items.forEach { builder.include(it.position) }
+                    val bounds = builder.build()
+                    myMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 80))
+                } else {
+                    // 已達最大縮放，但叢集仍然存在
+                    navigate(
+                        MapTabFragmentDirections.actionMapTabFragmentToClustersDialog(
+                            requestCode = REQUEST_CODE_CLUSTERS_LIST,
+                            clusters = cluster.items.toTypedArray()
+                        )
+                    )
+                }
+                true
+            }
         }
     }
 

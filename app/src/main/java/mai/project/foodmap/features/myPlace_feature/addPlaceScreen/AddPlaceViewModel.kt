@@ -5,14 +5,13 @@ import com.google.android.gms.maps.model.CameraPosition
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import mai.project.core.Configs
 import mai.project.core.utils.CoroutineContextProvider
@@ -66,11 +65,11 @@ class AddPlaceViewModel @Inject constructor(
     /**
      * 顯示模式
      */
-    val themeMode: StateFlow<Int> = preferenceRepo.readThemeMode
+    val themeMode: SharedFlow<Int> = preferenceRepo.readThemeMode
         .distinctUntilChanged()
         .catch { emit(ThemeMode.SYSTEM) }
         .flowOn(contextProvider.io)
-        .stateIn(viewModelScope, WhileSubscribedOrRetained, ThemeMode.SYSTEM)
+        .shareIn(viewModelScope, WhileSubscribedOrRetained, 0)
     // endregion Local State
 
     // region Network State
@@ -141,8 +140,4 @@ class AddPlaceViewModel @Inject constructor(
         }
     }
     // endregion Network State
-
-    init {
-        launchCoroutineIO { themeMode.collect() }
-    }
 }

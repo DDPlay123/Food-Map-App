@@ -6,6 +6,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -24,6 +25,9 @@ import com.utsman.geolib.polyline.point.PointPolyline
 import com.utsman.geolib.polyline.polyline.PolylineAnimator
 import com.utsman.geolib.polyline.utils.createPolylineAnimatorBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import mai.project.core.Configs
 import mai.project.core.annotations.Direction
 import mai.project.core.annotations.NavigationMode
@@ -332,15 +336,17 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
     }
 
     override fun onMapReady(maps: GoogleMap) {
-        myMap = maps.apply {
-            googleMapUtil.doInitializeGoogleMap(this, viewModel.themeMode.value)
-            googleMapUtil.setCompassLocation(
-                mapFragment = mapFragment,
-                marginTop = 45.DP,
-                marginLeft = 90.DP
-            )
-            setOnMapLoadedCallback(this@RestaurantDetailFragment)
-            setOnCameraMoveListener(this@RestaurantDetailFragment)
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main.immediate) {
+            myMap = maps.apply {
+                googleMapUtil.doInitializeGoogleMap(this, viewModel.themeMode.first())
+                googleMapUtil.setCompassLocation(
+                    mapFragment = mapFragment,
+                    marginTop = 45.DP,
+                    marginLeft = 90.DP
+                )
+                setOnMapLoadedCallback(this@RestaurantDetailFragment)
+                setOnCameraMoveListener(this@RestaurantDetailFragment)
+            }
         }
     }
 

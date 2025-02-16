@@ -8,6 +8,7 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener
@@ -18,8 +19,11 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import mai.project.core.Configs
 import mai.project.core.annotations.Direction
 import mai.project.core.extensions.DP
@@ -220,16 +224,18 @@ class AddPlaceFragment : BaseFragment<FragmentAddPlaceBinding, AddPlaceViewModel
     }
 
     override fun onMapReady(maps: GoogleMap) {
-        myMap = maps.apply {
-            googleMapUtil.doInitializeGoogleMap(this, viewModel.themeMode.value)
-            googleMapUtil.setCompassLocation(
-                mapFragment = mapFragment,
-                marginTop = 45.DP,
-                marginLeft = 90.DP
-            )
-            setOnMapLoadedCallback(this@AddPlaceFragment)
-            setOnCameraMoveListener(this@AddPlaceFragment)
-            setOnCameraIdleListener(this@AddPlaceFragment)
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main.immediate) {
+            myMap = maps.apply {
+                googleMapUtil.doInitializeGoogleMap(this, viewModel.themeMode.first())
+                googleMapUtil.setCompassLocation(
+                    mapFragment = mapFragment,
+                    marginTop = 45.DP,
+                    marginLeft = 90.DP
+                )
+                setOnMapLoadedCallback(this@AddPlaceFragment)
+                setOnCameraMoveListener(this@AddPlaceFragment)
+                setOnCameraIdleListener(this@AddPlaceFragment)
+            }
         }
     }
 
