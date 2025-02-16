@@ -22,7 +22,10 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.SphericalUtil
 import com.google.maps.android.clustering.ClusterManager
+import com.utsman.geolib.polyline.data.StackAnimationMode
 import com.utsman.geolib.polyline.point.PointPolyline
+import com.utsman.geolib.polyline.polyline.PolylineAnimator
+import com.utsman.geolib.polyline.utils.createPolylineAnimatorBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
@@ -30,6 +33,7 @@ import kotlinx.coroutines.launch
 import mai.project.core.Configs
 import mai.project.core.annotations.Direction
 import mai.project.core.extensions.DP
+import mai.project.core.extensions.getColorCompat
 import mai.project.core.extensions.getDrawableCompat
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.onClick
@@ -50,6 +54,7 @@ import mai.project.foodmap.databinding.FragmentMapTabBinding
 import mai.project.foodmap.databinding.LayoutRestaurantMarkerBinding
 import mai.project.foodmap.domain.models.RestaurantResult
 import mai.project.foodmap.domain.models.RestaurantResult.Companion.normalize
+import mai.project.foodmap.domain.models.RestaurantRouteResult
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.features.home_features.mapTabScreen.dialog.ClustersCallback
 import mai.project.foodmap.features.home_features.mapTabScreen.utils.MyClusterRenderer
@@ -77,6 +82,8 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
     private lateinit var myMap: GoogleMap
 
     private lateinit var clusterManager: ClusterManager<RestaurantClusterItem>
+
+    private var polylineAnimator: PolylineAnimator? = null
 
     private var pointPolyline: PointPolyline? = null
 
@@ -137,6 +144,8 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
             setOnCameraIdleListener(null)
         }
 
+        pointPolyline?.remove(viewModel.routePoints)
+        polylineAnimator = null
         pointPolyline = null
     }
 
@@ -154,7 +163,13 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
         }
 
         imgRoute.onClick {
-
+            viewModel.currentItem?.let { item ->
+                checkGPSAndGetCurrentLocation(
+                    googleMapUtil = googleMapUtil,
+                    onSuccess = { lat, lng -> viewModel.getRouteResult(item.placeId, lat, lng) },
+                    onFailure = { viewModel.getRouteResult(item.placeId, Configs.DEFAULT_LATITUDE, Configs.DEFAULT_LONGITUDE) }
+                )
+            }
         }
 
         imgSearch.onClick {
@@ -185,11 +200,13 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
         rvRestaurants.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
+                viewModel.currentItem = null
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     val layoutManager = recyclerView.layoutManager ?: return
                     snapHelper.findSnapView(layoutManager)?.let {
                         val position = layoutManager.getPosition(it)
                         mapsRestaurantAdapter.currentList.getOrNull(position)?.let { item ->
+                            viewModel.currentItem = item
                             myMap.animateCamera(CameraUpdateFactory.newLatLng(LatLng(item.lat, item.lng)))
                         }
                     }
@@ -281,6 +298,8 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
             { isLoading.collect { navigateLoadingDialog(it, false) } },
             // 抓取附近地區的餐廳資訊
             { nearbyRestaurant.collect(::handleNearbyRestaurantResult) },
+            // 當前位置與目標地的路線
+            { routeResult.collect(::handleRouteResult) },
             // 新增/移除收藏
             { pushOrPullMyFavoriteResult.collect { handleBasicResult(it, false) } },
             // 餐廳列表
@@ -398,6 +417,8 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
         // 清空資源
         myMap.clear()
         clusterManager.clearItems()
+        pointPolyline?.remove(viewModel.routePoints)
+        viewModel.currentItem = null
 
         // 設定執行工作
         markerJob?.cancel()
@@ -450,6 +471,61 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
         val canvas = Canvas(bitmap)
         view.draw(canvas)
         return bitmap
+    }
+
+    /**
+     * 處理當前位置與目標地的路線結果
+     */
+    private fun handleRouteResult(
+        event: Event<NetworkResult<RestaurantRouteResult>>
+    ) {
+        handleBasicResult(
+            event = event,
+            workOnSuccess = { data ->
+                data?.apply {
+                    pointPolyline?.remove(viewModel.routePoints)
+                    viewModel.routePoints = googleMapUtil.decodePolyline(polyline)
+                    polylineAnimator = null
+                    addDestinationPolyline()
+                    zoomMyLocationAndRoute()
+                }
+            }
+        )
+    }
+
+    /**
+     * 新增目標點的 Polyline
+     */
+    private fun addDestinationPolyline() {
+        if (polylineAnimator == null) {
+            val animatorBuilder = myMap.createPolylineAnimatorBuilder()
+                .withPrimaryPolyline {
+                    color(getColorCompat(R.color.primary))
+                    width(24f)
+                }
+                .withStackAnimationMode(StackAnimationMode.BlockStackAnimation)
+            polylineAnimator = animatorBuilder.createPolylineAnimator()
+        }
+        pointPolyline = polylineAnimator?.startAnimate(viewModel.routePoints) {
+            duration = 1500
+        }
+    }
+
+    /**
+     * 縮放當前位置與目標地
+     */
+    private fun zoomMyLocationAndRoute() {
+        val builder = LatLngBounds.Builder()
+        viewModel.routePoints.forEach { builder.include(it) }
+        val bounds = builder.build()
+        val metrics = resources.displayMetrics
+        val cu = CameraUpdateFactory.newLatLngBounds(
+            bounds,
+            (metrics.widthPixels * 2.2).toInt(),
+            metrics.heightPixels,
+            (metrics.widthPixels * 0.7).toInt()
+        )
+        myMap.animateCamera(cu)
     }
 
     companion object {

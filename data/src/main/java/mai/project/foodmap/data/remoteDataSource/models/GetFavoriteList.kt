@@ -35,9 +35,9 @@ internal data class GetFavoriteListRes(
         val delivery: Boolean,
         val website: String,
         val phone: String,
-        val rating: Float,
+        val rating: Float? = null,
         @SerialName("ratings_total")
-        val ratingsTotal: Long,
+        val ratingsTotal: Long? = null,
         @SerialName("price_level")
         val priceLevel: Int,
         val location: LocationModel,
