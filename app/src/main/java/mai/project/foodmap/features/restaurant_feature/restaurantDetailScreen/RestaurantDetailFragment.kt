@@ -431,7 +431,7 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
     private fun addDestinationMarker() {
         myMap.clear()
         val marker = MarkerOptions().apply {
-            position(LatLng(args.lat.toDouble(), args.lng.toDouble()))
+            position(viewModel.routePoints.last())
             title(args.name)
             icon(BitmapDescriptorFactory.fromResource(R.drawable.img_location))
         }
