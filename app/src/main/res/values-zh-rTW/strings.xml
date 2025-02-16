@@ -69,6 +69,7 @@
     <string name="sentence_remove_blacklist">移出黑名單</string>
     <string name="sentence_share_restaurant">分享餐廳</string>
     <string name="sentence_navigation_mode">導航模式</string>
+    <string name="sentence_restaurant_list">餐廳列表</string>
 
     <string name="rule_username_empty">使用者名稱不能為空</string>
     <string name="rule_username_length">使用者名稱至少要 4 位數</string>

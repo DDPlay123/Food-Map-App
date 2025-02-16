@@ -1,19 +1,29 @@
 package mai.project.foodmap.features.restaurant_feature.restaurantDetailScreen
 
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import mai.project.core.utils.CoroutineContextProvider
 import mai.project.core.utils.Event
+import mai.project.core.utils.WhileSubscribedOrRetained
 import mai.project.foodmap.base.BaseViewModel
+import mai.project.foodmap.data.annotations.ThemeMode
 import mai.project.foodmap.domain.models.EmptyNetworkResult
 import mai.project.foodmap.domain.models.RestaurantDetailResult
 import mai.project.foodmap.domain.models.RestaurantRouteResult
 import mai.project.foodmap.domain.repository.GeocodeRepo
 import mai.project.foodmap.domain.repository.PlaceRepo
+import mai.project.foodmap.domain.repository.PreferenceRepo
 import mai.project.foodmap.domain.repository.UserRepo
 import mai.project.foodmap.domain.state.NetworkResult
 import javax.inject.Inject
@@ -23,7 +33,8 @@ class RestaurantDetailViewModel @Inject constructor(
     override val contextProvider: CoroutineContextProvider,
     private val placeRepo: PlaceRepo,
     private val geocodeRepo: GeocodeRepo,
-    private val userRepo: UserRepo
+    private val userRepo: UserRepo,
+    preferenceRepo: PreferenceRepo
 ) : BaseViewModel(contextProvider) {
 
     // 地圖中心點位置
@@ -53,6 +64,17 @@ class RestaurantDetailViewModel @Inject constructor(
         _isBlocked.update { isBlocked }
     }
     // endregion State
+
+    // region Local State
+    /**
+     * 顯示模式
+     */
+    val themeMode: StateFlow<Int> = preferenceRepo.readThemeMode
+        .distinctUntilChanged()
+        .catch { emit(ThemeMode.SYSTEM) }
+        .flowOn(contextProvider.io)
+        .stateIn(viewModelScope, WhileSubscribedOrRetained, ThemeMode.SYSTEM)
+    // endregion Local State
 
     // region Network State
     /**
@@ -121,4 +143,8 @@ class RestaurantDetailViewModel @Inject constructor(
         }.collect { result -> _pushOrPullMyBlackListResult.update { Event(result) } }
     }
     // endregion Network State
+
+    init {
+        launchCoroutineIO { themeMode.collect() }
+    }
 }

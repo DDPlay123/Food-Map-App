@@ -29,7 +29,7 @@ class ProfilesTabViewModel @Inject constructor(
     private val userRepo: UserRepo
 ) : BaseViewModel(contextProvider) {
 
-    // region Preference State
+    // region Local State
     /**
      * 使用者大頭貼
      */
@@ -79,7 +79,7 @@ class ProfilesTabViewModel @Inject constructor(
     fun setLanguageMode(@LanguageMode mode: String) = launchCoroutineIO {
         preferenceRepo.writeLanguageMode(mode)
     }
-    // endregion Preference State
+    // endregion Local State
 
     // region Network State
     /**

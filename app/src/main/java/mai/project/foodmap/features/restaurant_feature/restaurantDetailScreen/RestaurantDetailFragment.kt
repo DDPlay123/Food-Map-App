@@ -333,7 +333,7 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
 
     override fun onMapReady(maps: GoogleMap) {
         myMap = maps.apply {
-            googleMapUtil.doInitializeGoogleMap(this)
+            googleMapUtil.doInitializeGoogleMap(this, viewModel.themeMode.value)
             googleMapUtil.setCompassLocation(
                 mapFragment = mapFragment,
                 marginTop = 45.DP,

@@ -28,7 +28,7 @@ class MyPlaceViewModel @Inject constructor(
     private val userRepo: UserRepo
 ) : BaseViewModel(contextProvider) {
 
-    // region Preference State
+    // region Local State
     /**
      * 當前選擇的定位點
      */
@@ -50,7 +50,7 @@ class MyPlaceViewModel @Inject constructor(
         .stateIn(viewModelScope, WhileSubscribedOrRetained, emptyList())
     // endregion
 
-    // region Network State
+    // region Local State
     /**
      * 抓取儲存的定位點
      */

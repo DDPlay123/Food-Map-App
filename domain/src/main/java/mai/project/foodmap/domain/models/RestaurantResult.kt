@@ -1,5 +1,9 @@
 package mai.project.foodmap.domain.models
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class RestaurantResult(
     val placeCount: Int,
     val placeId: String,
@@ -12,4 +16,4 @@ data class RestaurantResult(
     val lng: Double,
     val distance: Double,
     val isFavorite: Boolean
-)
+) : Parcelable

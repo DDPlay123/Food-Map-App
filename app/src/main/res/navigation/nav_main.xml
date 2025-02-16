@@ -87,7 +87,35 @@
         android:id="@+id/mapTabFragment"
         android:name="mai.project.foodmap.features.home_features.mapTabScreen.MapTabFragment"
         android:label="fragment_map_tab"
-        tools:layout="@layout/fragment_map_tab" />
+        tools:layout="@layout/fragment_map_tab" >
+        <action
+            android:id="@+id/action_mapTabFragment_to_clustersDialog"
+            app:destination="@id/clustersDialog" />
+        <action
+            android:id="@+id/action_mapTabFragment_to_restaurantDetailFragment"
+            app:destination="@id/restaurantDetailFragment"
+            app:enterAnim="@anim/slide_in_up"
+            app:exitAnim="@anim/slide_in_down"
+            app:popEnterAnim="@anim/slide_out_up"
+            app:popExitAnim="@anim/slide_out_down" />
+    </fragment>
+
+    <!--  查看叢集包圍的 Dialog  -->
+    <dialog
+        android:id="@+id/clustersDialog"
+        android:name="mai.project.foodmap.features.home_features.mapTabScreen.dialog.ClustersDialog"
+        android:label="dialog_clusters"
+        tools:layout="@layout/dialog_clusters" >
+        <!--    請求碼    -->
+        <argument
+            android:name="requestCode"
+            android:defaultValue=""
+            app:argType="string" />
+        <!--    餐廳資料    -->
+        <argument
+            android:name="clusters"
+            app:argType="mai.project.foodmap.features.home_features.mapTabScreen.utils.RestaurantClusterItem[]" />
+    </dialog>
 
     <!--  最愛  -->
     <fragment

@@ -258,7 +258,7 @@ object ImageLoaderUtil {
                 R.drawable.img_user
 
             else ->
-                if (isError) R.drawable.vector_image_not_supported else R.drawable.vector_image_search
+                if (isError) R.drawable.bg_image_placeholder else R.drawable.bg_image_placeholder
         }
     }
 }

@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
@@ -14,6 +15,7 @@ import mai.project.core.utils.CoroutineContextProvider
 import mai.project.core.utils.Event
 import mai.project.core.utils.WhileSubscribedOrRetained
 import mai.project.foodmap.base.BaseViewModel
+import mai.project.foodmap.data.annotations.ThemeMode
 import mai.project.foodmap.domain.models.RestaurantResult
 import mai.project.foodmap.domain.repository.PlaceRepo
 import mai.project.foodmap.domain.repository.PreferenceRepo
@@ -26,6 +28,9 @@ class MapTabViewModel @Inject constructor(
     private val placeRepo: PlaceRepo,
     preferenceRepo: PreferenceRepo
 ) : BaseViewModel(contextProvider) {
+
+    // 是否已經移動到我的位置
+    var isMoveCameraToMyLocation = false
 
     // region State
     /**
@@ -40,6 +45,15 @@ class MapTabViewModel @Inject constructor(
     // endregion State
 
     // region Local State
+    /**
+     * 顯示模式
+     */
+    val themeMode: StateFlow<Int> = preferenceRepo.readThemeMode
+        .distinctUntilChanged()
+        .catch { emit(ThemeMode.SYSTEM) }
+        .flowOn(contextProvider.io)
+        .stateIn(viewModelScope, WhileSubscribedOrRetained, ThemeMode.SYSTEM)
+
     /**
      * 儲存的收藏清單 PlaceId
      */
@@ -83,4 +97,8 @@ class MapTabViewModel @Inject constructor(
         }.collect { result -> _nearbyRestaurant.update { Event(result) } }
     }
     // endregion Network State
+
+    init {
+        launchCoroutineIO { themeMode.collect() }
+    }
 }

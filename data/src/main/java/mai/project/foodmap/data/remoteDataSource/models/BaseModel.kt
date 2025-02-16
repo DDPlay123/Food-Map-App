@@ -35,8 +35,8 @@ internal data class LocationModel(
  */
 @Serializable
 internal data class RatingModel(
-    val star: Float,
-    val total: Long
+    val star: Float? = null,
+    val total: Long? = null
 )
 
 /**
@@ -92,7 +92,7 @@ internal data class PlaceModel(
     val phone: String? = null,
     val rating: Float? = null,
     @SerialName("ratings_total")
-    val ratingsTotal: Long,
+    val ratingsTotal: Long? = null,
     val reviews: List<Review>? = emptyList(),
     @SerialName("price_level")
     val priceLevel: Int? = null,

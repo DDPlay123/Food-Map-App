@@ -30,7 +30,7 @@ class SharedViewModel @Inject constructor(
     private val userRepo: UserRepo,
 ) : BaseViewModel(contextProvider) {
 
-    // region Preference State
+    // region Local State
     /**
      * 是否登入
      */
@@ -58,7 +58,7 @@ class SharedViewModel @Inject constructor(
         .catch { emit(LanguageMode.SYSTEM) }
         .flowOn(contextProvider.io)
         .shareIn(viewModelScope, WhileSubscribedOrRetained, 0)
-    // endregion Preference State
+    // endregion Local State
 
     // region Public function
     /**

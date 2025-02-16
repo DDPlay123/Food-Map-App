@@ -21,8 +21,8 @@ internal fun NetworkResult<DrawCardRes>.mapToRestaurantResultsWithDrawCardRes(
                 photos = it.photos?.map { photoId ->
                     "${BuildConfig.BASE_URL}api/place/get_html_photo/$photoId?userId=$userId"
                 } ?: emptyList(),
-                ratingStar = it.rating.star,
-                ratingTotal = it.rating.total,
+                ratingStar = it.rating.star ?: 0f,
+                ratingTotal = it.rating.total ?: 0,
                 address = it.address,
                 lat = it.location.lat,
                 lng = it.location.lng,
@@ -45,8 +45,8 @@ internal fun NetworkResult<SearchByDistanceRes>.mapToRestaurantResultsWithSearch
                 photos = it.photos?.map { photoId ->
                     "${BuildConfig.BASE_URL}api/place/get_html_photo/$photoId?userId=$userId"
                 } ?: emptyList(),
-                ratingStar = it.rating.star,
-                ratingTotal = it.rating.total,
+                ratingStar = it.rating.star ?: 0f,
+                ratingTotal = it.rating.total ?: 0,
                 address = it.address,
                 lat = it.location.lat,
                 lng = it.location.lng,
@@ -69,8 +69,8 @@ internal fun NetworkResult<SearchByKeywordRes>.mapToRestaurantResultsWithSearchB
                 photos = it.photos?.map { photoId ->
                     "${BuildConfig.BASE_URL}api/place/get_html_photo/$photoId?userId=$userId"
                 } ?: emptyList(),
-                ratingStar = it.rating.star,
-                ratingTotal = it.rating.total,
+                ratingStar = it.rating.star ?: 0f,
+                ratingTotal = it.rating.total ?: 0,
                 address = it.address,
                 lat = it.location.lat,
                 lng = it.location.lng,
@@ -93,8 +93,8 @@ internal fun NetworkResult<GetBlacklistRes>.mapToRestaurantResultsWithGetBlackli
                 photos = it.photos?.map { photoId ->
                     "${BuildConfig.BASE_URL}api/place/get_html_photo/$photoId?userId=$userId"
                 } ?: emptyList(),
-                ratingStar = it.rating.star,
-                ratingTotal = it.rating.total,
+                ratingStar = it.rating.star ?: 0f,
+                ratingTotal = it.rating.total ?: 0,
                 address = it.address,
                 lat = it.location.lat,
                 lng = it.location.lng,

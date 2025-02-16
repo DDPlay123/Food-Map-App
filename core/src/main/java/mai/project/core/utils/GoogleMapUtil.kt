@@ -12,6 +12,7 @@ import android.widget.RelativeLayout
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.Dimension
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -24,6 +25,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapColorScheme
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -128,12 +130,23 @@ class GoogleMapUtil @Inject constructor(
      * @param map [GoogleMap] 地圖
      */
     @SuppressLint("MissingPermission")
-    fun doInitializeGoogleMap(map: GoogleMap) = with(map) {
+    fun doInitializeGoogleMap(
+        map: GoogleMap,
+        themeMode: Int
+    ) = with(map) {
         if (checkLocationPermission) isMyLocationEnabled = true
         uiSettings.setAllGesturesEnabled(true)
         uiSettings.isMyLocationButtonEnabled = false
         uiSettings.isMapToolbarEnabled = false
         uiSettings.isCompassEnabled = true
+
+        mapColorScheme = when (themeMode) {
+            AppCompatDelegate.MODE_NIGHT_YES -> MapColorScheme.DARK
+
+            AppCompatDelegate.MODE_NIGHT_NO -> MapColorScheme.LIGHT
+
+            else -> MapColorScheme.FOLLOW_SYSTEM
+        }
     }
 
     /**

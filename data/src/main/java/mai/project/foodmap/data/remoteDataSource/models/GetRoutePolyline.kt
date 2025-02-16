@@ -27,7 +27,7 @@ internal data class GetRoutePolylineRes(
 ) : BaseResponse() {
     @Serializable
     data class Result(
-        val distanceMeters: Int,
+        val distanceMeters: Int = 0,
         val duration: Int,
         val polyline: String
     )

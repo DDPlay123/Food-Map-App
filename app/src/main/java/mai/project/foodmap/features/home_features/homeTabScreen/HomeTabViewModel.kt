@@ -80,7 +80,7 @@ class HomeTabViewModel @Inject constructor(
     }
     // endregion State
 
-    // region Preference State
+    // region Local State
     /**
      * 當前選擇的定位點
      */
@@ -93,9 +93,7 @@ class HomeTabViewModel @Inject constructor(
     fun setMyPlaceId(placeId: String) = launchCoroutineIO {
         preferenceRepo.writeMyPlaceId(placeId)
     }
-    // endregion Preference State
 
-    // region Local State
     /**
      * 儲存的定位點列表資料
      */

@@ -3,7 +3,7 @@ package mai.project.foodmap.features.home_features.favoriteTabScreen
 import android.os.Bundle
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResultListener
-import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
+import androidx.fragment.app.viewModels
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
@@ -33,7 +33,7 @@ import mai.project.foodmap.features.dialogs_features.selector.SelectorModel
 class FavoriteTabFragment : BaseFragment<FragmentFavoriteTabBinding, FavoriteTabViewModel>(
     bindingInflater = FragmentFavoriteTabBinding::inflate
 ) {
-    override val viewModel by hiltNavGraphViewModels<FavoriteTabViewModel>(R.id.nav_main)
+    override val viewModel by viewModels<FavoriteTabViewModel>()
 
     override val isNavigationVisible: Boolean = true
 
@@ -72,7 +72,7 @@ class FavoriteTabFragment : BaseFragment<FragmentFavoriteTabBinding, FavoriteTab
             adapter = favoriteAdapter
         }
 
-        if (viewModel.myFavoriteList.value.isEmpty()) viewModel.fetchMyFavorites()
+        viewModel.fetchMyFavorites()
     }
 
     override fun FragmentFavoriteTabBinding.setObserver() = with(viewModel) {
@@ -80,7 +80,7 @@ class FavoriteTabFragment : BaseFragment<FragmentFavoriteTabBinding, FavoriteTab
             // Loading
             { isLoading.collect { navigateLoadingDialog(it, false) } },
             // 抓取儲存的收藏清單
-            { myFavoritesResult.collect { handleBasicResult(it, workOnSuccess = { getMyFavoritesByLocal() }) } },
+            { myFavoritesResult.collect(::handleBasicResult) },
             // 新增/ 移除 收藏
             { pushOrPullMyFavoriteResult.collect { handleBasicResult(it, needLoading = false) } },
             // 收藏清單

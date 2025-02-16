@@ -89,7 +89,10 @@ class FavoriteTabViewModel @Inject constructor(
     fun fetchMyFavorites() = launchCoroutineIO {
         safeApiCallFlow {
             userRepo.fetchMyFavoriteList()
-        }.collect { result -> _myFavoritesResult.update { Event(result) } }
+        }.collect { result ->
+            _myFavoritesResult.update { Event(result) }
+            getMyFavoritesByLocal()
+        }
     }
 
     /**

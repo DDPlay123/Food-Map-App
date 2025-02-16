@@ -27,7 +27,7 @@ internal fun NetworkResult<GetPlaceDetailRes>.mapToRestaurantDetailResult(
                 website = it.website,
                 phone = it.phone,
                 ratingStar = it.rating ?: 0f,
-                ratingTotal = it.ratingsTotal,
+                ratingTotal = it.ratingsTotal ?: 0,
                 priceLevel = it.priceLevel ?: 0,
                 lat = it.location.lat,
                 lng = it.location.lng,
