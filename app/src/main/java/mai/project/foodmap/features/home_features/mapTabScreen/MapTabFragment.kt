@@ -111,7 +111,7 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
             addItemDecoration(
                 SpacesItemDecoration(
                     direction = Direction.HORIZONTAL,
-                    space = 20.DP
+                    space = 10.DP
                 )
             )
             addItemDecoration(
@@ -284,11 +284,18 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
 
     override fun onMapLoaded() {
         setObserver()
-        checkGPSAndGetCurrentLocation(
-            googleMapUtil = googleMapUtil,
-            onSuccess = { lat, lng -> handleMapLoaded(lat, lng) },
-            onFailure = { handleMapLoaded(Configs.DEFAULT_LATITUDE, Configs.DEFAULT_LONGITUDE) }
-        )
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main.immediate) {
+            val myPlaceId = viewModel.myPlaceId.first()
+            viewModel.myPlaceList.first().find { it.placeId == myPlaceId }
+                ?.let { place -> handleMapLoaded(place.lat, place.lng) }
+                ?: run {
+                    checkGPSAndGetCurrentLocation(
+                        googleMapUtil = googleMapUtil,
+                        onSuccess = { lat, lng -> handleMapLoaded(lat, lng) },
+                        onFailure = { handleMapLoaded(Configs.DEFAULT_LATITUDE, Configs.DEFAULT_LONGITUDE) }
+                    )
+                }
+        }
     }
 
     /**

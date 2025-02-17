@@ -19,6 +19,7 @@ import mai.project.core.utils.WhileSubscribedOrRetained
 import mai.project.foodmap.base.BaseViewModel
 import mai.project.foodmap.data.annotations.ThemeMode
 import mai.project.foodmap.domain.models.EmptyNetworkResult
+import mai.project.foodmap.domain.models.MyPlaceResult
 import mai.project.foodmap.domain.models.RestaurantResult
 import mai.project.foodmap.domain.models.RestaurantRouteResult
 import mai.project.foodmap.domain.repository.GeocodeRepo
@@ -65,6 +66,24 @@ class MapTabViewModel @Inject constructor(
     val themeMode: SharedFlow<Int> = preferenceRepo.readThemeMode
         .distinctUntilChanged()
         .catch { emit(ThemeMode.SYSTEM) }
+        .flowOn(contextProvider.io)
+        .shareIn(viewModelScope, WhileSubscribedOrRetained, 0)
+
+    /**
+     * 當前選擇的定位點
+     */
+    val myPlaceId: SharedFlow<String> = preferenceRepo.readMyPlaceId
+        .distinctUntilChanged()
+        .catch { emit("") }
+        .flowOn(contextProvider.io)
+        .shareIn(viewModelScope, WhileSubscribedOrRetained, 0)
+
+    /**
+     * 儲存的定位點列表資料
+     */
+    val myPlaceList: SharedFlow<List<MyPlaceResult>> = userRepo.getMyPlaceList
+        .distinctUntilChanged()
+        .catch { emit(emptyList()) }
         .flowOn(contextProvider.io)
         .shareIn(viewModelScope, WhileSubscribedOrRetained, 0)
 

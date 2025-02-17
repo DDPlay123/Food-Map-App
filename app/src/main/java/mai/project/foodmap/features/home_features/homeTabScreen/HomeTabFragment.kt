@@ -296,6 +296,8 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
     private fun handleDrawCardList(
         list: List<RestaurantResult>
     ) {
+        // FIX 修正首次進入時，由於權限尚未允許，就先使用空陣列設定資料
+        if (!googleMapUtil.checkLocationPermission) return
         checkGPSAndGetCurrentLocation(
             googleMapUtil = googleMapUtil,
             onSuccess = { lat, lng -> refreshDrawCardList(list, LatLng(lat, lng)) },
