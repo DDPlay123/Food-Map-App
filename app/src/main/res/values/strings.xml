@@ -90,7 +90,7 @@
     <string name="format_minute">%d minutes</string>
     <string name="format_second">%d seconds</string>
     <string name="format_kilometer">%d km</string>
-    <string name="format_title_count">%s (%d/%d)</string>
+    <string name="format_title_count">%s\n(%d/%d)</string>
 
     <array name="navigation_mode">
         <item>Car</item>

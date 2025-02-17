@@ -95,6 +95,9 @@ class RestaurantListViewModel @Inject constructor(
         limit: Int = DEFAULT_LIMIT
     ) = launchCoroutineIO {
         val distance = searchDistance.value * 1000
+        if (skip == DEFAULT_SKIP) {
+            _restaurantList.update { emptyList() }
+        }
         safeApiCallFlow {
             if (keyword.isNotEmpty()) {
                 placeRepo.searchPlacesByKeyword(keyword, lat, lng, distance, skip, limit)
@@ -106,19 +109,8 @@ class RestaurantListViewModel @Inject constructor(
             when (result) {
                 is NetworkResult.Success -> {
                     result.data?.let { newList ->
-                        if (skip == DEFAULT_SKIP) {
-                            totalRestaurantCount = if (newList.isNotEmpty()) newList.first().placeCount else 0
-                            _restaurantList.update { newList }
-                        } else if (newList.isNotEmpty()) {
-                            totalRestaurantCount = newList.first().placeCount
-                            _restaurantList.update { it + newList }
-                        }
-                    }
-                }
-
-                is NetworkResult.Error -> {
-                    if (skip == DEFAULT_SKIP) {
-                        _restaurantList.update { emptyList() }
+                        totalRestaurantCount = if (newList.isNotEmpty()) newList.first().placeCount else 0
+                        _restaurantList.update { it + newList }
                     }
                 }
 

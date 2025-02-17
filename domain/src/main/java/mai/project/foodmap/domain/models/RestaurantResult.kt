@@ -18,6 +18,7 @@ data class RestaurantResult(
     val isFavorite: Boolean
 ) : Parcelable {
     companion object {
-        fun RestaurantResult.normalize() = copy(isFavorite = false)
+        fun RestaurantResult.ignoredIsFavorite() = copy(isFavorite = false)
+        fun RestaurantResult.ignoredPlaceCount() = copy(placeCount = 0)
     }
 }

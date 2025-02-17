@@ -14,6 +14,7 @@ import mai.project.core.utils.ImageLoaderUtil
 import mai.project.foodmap.R
 import mai.project.foodmap.databinding.ItemRestaurantListBinding
 import mai.project.foodmap.domain.models.RestaurantResult
+import mai.project.foodmap.domain.models.RestaurantResult.Companion.ignoredPlaceCount
 import java.util.Locale
 
 class RestaurantAdapter : ListAdapter<RestaurantResult, ViewHolder>(DiffUtilCallback) {
@@ -114,7 +115,7 @@ class RestaurantAdapter : ListAdapter<RestaurantResult, ViewHolder>(DiffUtilCall
             override fun areContentsTheSame(
                 oldItem: RestaurantResult,
                 newItem: RestaurantResult
-            ): Boolean = oldItem == newItem
+            ): Boolean = oldItem.ignoredPlaceCount() == newItem.ignoredPlaceCount()
 
             override fun getChangePayload(
                 oldItem: RestaurantResult,

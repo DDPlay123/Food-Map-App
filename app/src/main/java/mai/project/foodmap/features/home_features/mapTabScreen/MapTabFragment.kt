@@ -55,7 +55,7 @@ import mai.project.foodmap.base.navigateLoadingDialog
 import mai.project.foodmap.databinding.FragmentMapTabBinding
 import mai.project.foodmap.databinding.LayoutRestaurantMarkerBinding
 import mai.project.foodmap.domain.models.RestaurantResult
-import mai.project.foodmap.domain.models.RestaurantResult.Companion.normalize
+import mai.project.foodmap.domain.models.RestaurantResult.Companion.ignoredIsFavorite
 import mai.project.foodmap.domain.models.RestaurantRouteResult
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.features.home_features.mapTabScreen.dialog.ClustersCallback
@@ -384,8 +384,8 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
      */
     private fun handleRestaurantList(list: List<RestaurantResult>) = with(binding) {
         // 取得新舊列表
-        val oldNormalized = mapsRestaurantAdapter.currentList.map { it.normalize() }
-        val newNormalized = list.map { it.normalize() }
+        val oldNormalized = mapsRestaurantAdapter.currentList.map { it.ignoredIsFavorite() }
+        val newNormalized = list.map { it.ignoredIsFavorite() }
         // 更新 RecyclerView
         mapsRestaurantAdapter.submitList(list) {
             if (oldNormalized != newNormalized) {

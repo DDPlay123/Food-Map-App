@@ -20,6 +20,7 @@ import mai.project.foodmap.base.handleBasicResult
 import mai.project.foodmap.base.navigateLoadingDialog
 import mai.project.foodmap.databinding.FragmentRestaurantListBinding
 import mai.project.foodmap.domain.models.RestaurantResult
+import mai.project.foodmap.domain.state.NetworkResult
 
 @AndroidEntryPoint
 class RestaurantListFragment : BaseFragment<FragmentRestaurantListBinding, RestaurantListViewModel>(
@@ -98,7 +99,11 @@ class RestaurantListFragment : BaseFragment<FragmentRestaurantListBinding, Resta
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                // TODO
+                viewModel.searchRestaurants(
+                    keyword = args.keyword,
+                    lat = args.lat.toDouble(),
+                    lng = args.lng.toDouble()
+                )
             }
         })
 
@@ -109,7 +114,8 @@ class RestaurantListFragment : BaseFragment<FragmentRestaurantListBinding, Resta
                 fabTop.isVisible = firstItemPosition >= 1
 
                 // 檢查是否無法再向下滾動 (1 表示向下方向)
-                if (!recyclerView.canScrollVertically(1)) {
+                if (!recyclerView.canScrollVertically(1) &&
+                    viewModel.searchRestaurantsResult.value.getPeekContent !is NetworkResult.Loading) {
                     val currentCount = viewModel.restaurantList.value.size
                     if (currentCount < viewModel.totalRestaurantCount) {
                         viewModel.searchRestaurants(
