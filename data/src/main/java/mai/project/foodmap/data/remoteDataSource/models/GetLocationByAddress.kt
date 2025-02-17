@@ -17,6 +17,6 @@ internal data class GetLocationByAddressRes(
 ) : BaseResponse() {
     @Serializable
     data class Result(
-        val place: AutoComplete
+        val place: AutoCompleteModel
     )
 }

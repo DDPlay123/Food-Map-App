@@ -1,5 +1,6 @@
 package mai.project.foodmap.data.remoteDataSource.models
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -21,5 +22,15 @@ internal data class SearchAutocompleteRes(
     data class Result(
         val placeCount: Int,
         val placeList: List<AutoComplete>
+    )
+
+    @Serializable
+    data class AutoComplete(
+        @SerialName("place_id")
+        val placeId: String,
+        val name: String,
+        val address: String,
+        val description: String,
+        val isSearch: Boolean
     )
 }

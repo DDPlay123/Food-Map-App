@@ -8,7 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import mai.project.foodmap.data.localDataSource.LocalDB
-import mai.project.foodmap.data.localDataSource.LocalDB.Companion.MIGRATION_4_5
+import mai.project.foodmap.data.localDataSource.LocalDB.Companion.MIGRATION_5_6
 import javax.inject.Singleton
 
 @Module
@@ -24,7 +24,7 @@ internal object DatabaseModule {
         context,
         LocalDB::class.java,
         "local_db"
-    ).addMigrations(MIGRATION_4_5)
+    ).addMigrations(MIGRATION_5_6)
         .build()
 
     @Singleton
@@ -38,4 +38,8 @@ internal object DatabaseModule {
     @Singleton
     @Provides
     fun provideMyBlacklistDao(database: LocalDB) = database.myBlacklistDao()
+
+    @Singleton
+    @Provides
+    fun provideMySearchDao(database: LocalDB) = database.mySearchDao()
 }

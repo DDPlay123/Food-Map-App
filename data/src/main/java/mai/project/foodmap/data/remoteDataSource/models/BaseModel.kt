@@ -119,7 +119,7 @@ internal data class PlaceModel(
  * Place 自動填充資訊
  */
 @Serializable
-internal data class AutoComplete(
+internal data class AutoCompleteModel(
     @SerialName("place_id")
     val placeId: String,
     val name: String,

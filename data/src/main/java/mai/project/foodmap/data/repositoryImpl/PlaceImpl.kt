@@ -1,12 +1,16 @@
 package mai.project.foodmap.data.repositoryImpl
 
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import mai.project.foodmap.data.annotations.DrawCardMode
+import mai.project.foodmap.data.localDataSource.dao.MySearchDap
+import mai.project.foodmap.data.localDataSource.entities.MySearchEntity
 import mai.project.foodmap.data.mapper.mapToRestaurantDetailResult
 import mai.project.foodmap.data.mapper.mapToRestaurantResultsWithDrawCardRes
 import mai.project.foodmap.data.mapper.mapToRestaurantResultsWithSearchByDistanceRes
 import mai.project.foodmap.data.mapper.mapToRestaurantResultsWithSearchByKeywordRes
-import mai.project.foodmap.data.mapper.mapToSearchPlacesResultWithSearchAutocompleteRes
+import mai.project.foodmap.data.mapper.mapToSearchRestaurantResult
 import mai.project.foodmap.data.remoteDataSource.APIService
 import mai.project.foodmap.data.remoteDataSource.models.DrawCardReq
 import mai.project.foodmap.data.remoteDataSource.models.GetPlaceDetailReq
@@ -18,7 +22,7 @@ import mai.project.foodmap.data.utils.handleAPIResponse
 import mai.project.foodmap.data.utils.safeIoWorker
 import mai.project.foodmap.domain.models.RestaurantDetailResult
 import mai.project.foodmap.domain.models.RestaurantResult
-import mai.project.foodmap.domain.models.SearchPlaceResult
+import mai.project.foodmap.domain.models.SearchRestaurantResult
 import mai.project.foodmap.domain.repository.PlaceRepo
 import mai.project.foodmap.domain.repository.PreferenceRepo
 import mai.project.foodmap.domain.state.NetworkResult
@@ -26,7 +30,8 @@ import javax.inject.Inject
 
 internal class PlaceImpl @Inject constructor(
     private val apiService: APIService,
-    private val preferenceRepo: PreferenceRepo
+    private val preferenceRepo: PreferenceRepo,
+    private val mySearchDap: MySearchDap
 ) : PlaceRepo {
 
     override suspend fun getDrawCard(
@@ -139,7 +144,7 @@ internal class PlaceImpl @Inject constructor(
         lat: Double,
         lng: Double,
         distance: Int
-    ): NetworkResult<List<SearchPlaceResult>> {
+    ): NetworkResult<List<SearchRestaurantResult>> {
         val result = handleAPIResponse(
             apiService.searchAutocomplete(
                 SearchAutocompleteReq(
@@ -152,6 +157,46 @@ internal class PlaceImpl @Inject constructor(
             )
         )
 
-        return result.mapToSearchPlacesResultWithSearchAutocompleteRes()
+        return result.mapToSearchRestaurantResult()
+    }
+
+    /**
+     * 讀取我的搜尋紀錄
+     */
+    override val getMySearchRecord: Flow<List<SearchRestaurantResult>>
+        get() = mySearchDap.readMySearchList().map {
+            it.map { entity -> entity.result }
+        }
+
+    /**
+     * 新增搜尋紀錄
+     */
+    override suspend fun addNewSearchRecord(item: SearchRestaurantResult) {
+        safeIoWorker {
+            mySearchDap.insertMySearch(
+                MySearchEntity(
+                    index = item.placeId.ifEmpty { item.name },
+                    result = item
+                )
+            )
+        }
+    }
+
+    /**
+     * 刪除搜尋紀錄
+     */
+    override suspend fun deleteSearchRecord(item: SearchRestaurantResult) {
+        safeIoWorker {
+            mySearchDap.deleteMySearch(item.placeId.ifEmpty { item.name })
+        }
+    }
+
+    /**
+     * 刪除全部搜尋紀錄
+     */
+    override suspend fun deleteAllSearchRecord() {
+        safeIoWorker {
+            mySearchDap.deleteAllMySearch()
+        }
     }
 }

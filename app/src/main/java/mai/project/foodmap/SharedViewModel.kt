@@ -66,6 +66,7 @@ class SharedViewModel @Inject constructor(
      */
     suspend fun clearAllData() {
         preferenceRepo.clearAll()
+        userRepo.clearLocalDB()
     }
     // endregion Public function
 

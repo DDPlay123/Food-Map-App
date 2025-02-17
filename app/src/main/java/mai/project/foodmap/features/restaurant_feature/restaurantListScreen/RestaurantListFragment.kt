@@ -46,11 +46,13 @@ class RestaurantListFragment : BaseFragment<FragmentRestaurantListBinding, Resta
             adapter = restaurantAdapter
         }
 
-        viewModel.refreshRestaurants(
-            keyword = args.keyword,
-            lat = args.lat.toDouble(),
-            lng = args.lng.toDouble()
-        )
+        if (viewModel.restaurantList.value.isEmpty()) {
+            viewModel.refreshRestaurants(
+                keyword = args.keyword,
+                lat = args.lat.toDouble(),
+                lng = args.lng.toDouble()
+            )
+        }
     }
 
     override fun FragmentRestaurantListBinding.setObserver() = with(viewModel) {
@@ -63,6 +65,8 @@ class RestaurantListFragment : BaseFragment<FragmentRestaurantListBinding, Resta
             { searchDistance.collect(::handleSearchDistanceState) },
             // 搜尋餐廳資料
             { searchRestaurantsResult.collect(::handleBasicResult) },
+            // 新增/移除收藏
+            { pushOrPullMyFavoriteResult.collect { handleBasicResult(it, false) } },
             // 餐廳列表資料
             {
                 combine(restaurantList, myFavoritePlaceIdList, myBlacklistPlaceIdList) { list, favoriteIds, blacklistIds ->
@@ -88,6 +92,21 @@ class RestaurantListFragment : BaseFragment<FragmentRestaurantListBinding, Resta
         }
 
         fabTop.onClick { rvRestaurants.smoothScrollToPosition(0) }
+
+        restaurantAdapter.onItemClick = {
+            navigate(
+                RestaurantListFragmentDirections.actionRestaurantListFragmentToRestaurantDetailFragment(
+                    placeId = it.placeId,
+                    name = it.name,
+                    lat = it.lat.toFloat(),
+                    lng = it.lat.toFloat()
+                )
+            )
+        }
+
+        restaurantAdapter.onFavoriteClick = {
+            viewModel.pushOrPullMyFavorite(it.placeId, !it.isFavorite)
+        }
 
         sbDistance.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {

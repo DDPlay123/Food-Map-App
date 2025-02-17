@@ -22,6 +22,7 @@
     <string name="word_distance">Distance</string>
     <string name="word_nearby">Nearby</string>
     <string name="word_to_top">Scroll to top</string>
+    <string name="word_clear">Clear</string>
 
     <string name="sentence_unknown_eating">Don\'t know what to eat?</string>
     <string name="sentence_next_step">Next Step</string>
@@ -73,6 +74,10 @@
     <string name="sentence_share_restaurant">Share restaurant</string>
     <string name="sentence_navigation_mode">Navigation mode</string>
     <string name="sentence_restaurant_list">Restaurant list</string>
+    <string name="sentence_recent_search_record">Recent search history</string>
+    <string name="sentence_start_speak">Start speaking</string>
+    <string name="sentence_not_support_speech_recognizer">Device does not support voice recognition</string>
+    <string name="sentence_audio_permission_denied">Voice recognition permission denied</string>
 
     <string name="rule_username_empty">Username cannot be empty</string>
     <string name="rule_username_length">Username must be at least 4 characters</string>

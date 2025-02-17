@@ -80,6 +80,9 @@
             app:exitAnim="@anim/slide_in_down"
             app:popEnterAnim="@anim/slide_out_up"
             app:popExitAnim="@anim/slide_out_down" />
+        <action
+            android:id="@+id/action_homeTabFragment_to_searchBottomSheetDialog"
+            app:destination="@id/searchBottomSheetDialog" />
     </fragment>
 
     <!--  地圖  -->
@@ -172,6 +175,26 @@
             android:defaultValue=""
             app:argType="string" />
     </fragment>
+
+    <!--  搜尋餐廳 BottomSheetDialog  -->
+    <dialog
+        android:id="@+id/searchBottomSheetDialog"
+        android:name="mai.project.foodmap.features.restaurant_feature.searchDialog.SearchBottomSheetDialog"
+        android:label="dialog_bottom_sheet_search"
+        tools:layout="@layout/dialog_bottom_sheet_search">
+        <!--    預輸入關鍵字    -->
+        <argument
+            android:name="keyword"
+            android:defaultValue=""
+            app:argType="string" />
+        <action
+            android:id="@+id/action_searchBottomSheetDialog_to_restaurantListFragment"
+            app:destination="@id/restaurantListFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </dialog>
 
     <!--  餐廳列表  -->
     <fragment

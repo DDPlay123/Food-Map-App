@@ -12,6 +12,11 @@ import javax.inject.Singleton
 interface UserRepo {
 
     /**
+     * 清空本地資料
+     */
+    fun clearLocalDB()
+
+    /**
      * 登入帳號
      *
      * @param username 使用者名稱

@@ -19,6 +19,6 @@ internal data class PlaceAutocompleteRes(
     @Serializable
     data class Result(
         val placeCount: Int,
-        val placeList: List<AutoComplete>
+        val placeList: List<AutoCompleteModel>
     )
 }

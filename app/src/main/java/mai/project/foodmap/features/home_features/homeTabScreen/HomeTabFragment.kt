@@ -1,7 +1,14 @@
 package mai.project.foodmap.features.home_features.homeTabScreen
 
+import android.Manifest
+import android.app.Activity.RESULT_OK
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.speech.RecognizerIntent
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResultListener
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
@@ -10,6 +17,7 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import mai.project.core.Configs
@@ -18,12 +26,14 @@ import mai.project.core.extensions.DP
 import mai.project.core.extensions.displayToast
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.onClick
+import mai.project.core.extensions.openAppSettings
 import mai.project.core.extensions.parcelable
 import mai.project.core.extensions.screenWidth
 import mai.project.core.utils.Event
 import mai.project.core.utils.GoogleMapUtil
 import mai.project.core.widget.recyclerView_decorations.ScaleItemDecoration
 import mai.project.core.widget.recyclerView_decorations.SpacesItemDecoration
+import mai.project.foodmap.MainActivity
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
 import mai.project.foodmap.base.checkGPS
@@ -41,6 +51,7 @@ import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.utils.handleResult
 import mai.project.foodmap.features.myPlace_feature.myPlaceDialog.MyPlaceCallback
 import timber.log.Timber
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -61,6 +72,37 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
     private val drawCardAdapter by lazy { DrawCardAdapter() }
 
     private val snapHelper by lazy { LinearSnapHelper() }
+
+    private val audioPermission = Manifest.permission.RECORD_AUDIO
+
+    private val audioPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            startSpeechRecognition()
+        } else {
+            with((activity as? MainActivity)) {
+                this?.showSnackBar(
+                    message = getString(R.string.sentence_audio_permission_denied),
+                    actionText = getString(R.string.word_confirm)
+                ) { openAppSettings() }
+            }
+        }
+    }
+
+    private val speechRecognizerLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.let { text ->
+                navigate(
+                    HomeTabFragmentDirections.actionHomeTabFragmentToSearchBottomSheetDialog(
+                        keyword = text
+                    )
+                )
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -134,11 +176,17 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
         }
 
         clTextSearch.onClick {
-            // TODO 文字搜尋
+            navigate(
+                HomeTabFragmentDirections.actionHomeTabFragmentToSearchBottomSheetDialog()
+            )
         }
 
         imgVoiceSearch.onClick {
-            // TODO 語音搜尋
+            if (ContextCompat.checkSelfPermission(requireContext(), audioPermission) == PackageManager.PERMISSION_GRANTED) {
+                audioPermissionLauncher.launch(audioPermission)
+            } else {
+                startSpeechRecognition()
+            }
         }
 
         tvPopular.onClick(anim = true) {
@@ -210,6 +258,24 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
             bundle.getString(REQUEST_CODE_ADD_PLACE)?.let {
                 if (checkLocationPermissionAndGPS(googleMapUtil))
                     viewModel.fetchMyPlaceList()
+            }
+        }
+    }
+
+    /**
+     * 開始語音辨識
+     */
+    private fun startSpeechRecognition() {
+        with(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)) {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.sentence_start_speak))
+            runCatching {
+                speechRecognizerLauncher.launch(this)
+            }.onFailure {
+                Timber.e(message = "無法使用語音辨識", t = it)
+                FirebaseCrashlytics.getInstance().recordException(it)
+                displayToast(message = getString(R.string.sentence_not_support_speech_recognizer))
             }
         }
     }

@@ -5,6 +5,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import mai.project.foodmap.data.localDataSource.LocalDB
 import mai.project.foodmap.data.localDataSource.dao.MyBlacklistDao
 import mai.project.foodmap.data.localDataSource.dao.MyFavoriteDao
 import mai.project.foodmap.data.localDataSource.dao.MySavedPlaceDao
@@ -54,8 +55,13 @@ internal class UserRepoImpl @Inject constructor(
     private val preferenceRepo: PreferenceRepo,
     private val mySavedPlaceDao: MySavedPlaceDao,
     private val myFavoriteDao: MyFavoriteDao,
-    private val myBlacklistDao: MyBlacklistDao
+    private val myBlacklistDao: MyBlacklistDao,
+    private val localDB: LocalDB
 ) : UserRepo {
+
+    override fun clearLocalDB() {
+        localDB.clearAllTables()
+    }
 
     override suspend fun login(
         username: String,
@@ -140,6 +146,7 @@ internal class UserRepoImpl @Inject constructor(
 
         // 清空系統資料
         preferenceRepo.clearAll()
+        clearLocalDB()
 
         return result.mapToEmptyNetworkResult()
     }
@@ -159,6 +166,7 @@ internal class UserRepoImpl @Inject constructor(
             preferenceRepo.writeAccount("")
             preferenceRepo.writePassword("")
             preferenceRepo.clearAll()
+            clearLocalDB()
         }
 
         return result.mapToEmptyNetworkResult()

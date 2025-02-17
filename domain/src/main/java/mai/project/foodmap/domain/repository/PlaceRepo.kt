@@ -1,8 +1,10 @@
 package mai.project.foodmap.domain.repository
 
+import kotlinx.coroutines.flow.Flow
 import mai.project.foodmap.domain.models.RestaurantDetailResult
 import mai.project.foodmap.domain.models.RestaurantResult
 import mai.project.foodmap.domain.models.SearchPlaceResult
+import mai.project.foodmap.domain.models.SearchRestaurantResult
 import mai.project.foodmap.domain.state.NetworkResult
 import javax.inject.Singleton
 
@@ -56,5 +58,29 @@ interface PlaceRepo {
         lat: Double,
         lng: Double,
         distance: Int
-    ): NetworkResult<List<SearchPlaceResult>>
+    ): NetworkResult<List<SearchRestaurantResult>>
+
+    /**
+     * 讀取我的搜尋紀錄
+     */
+    val getMySearchRecord: Flow<List<SearchRestaurantResult>>
+
+    /**
+     * 新增搜尋紀錄
+     */
+    suspend fun addNewSearchRecord(
+        item: SearchRestaurantResult
+    )
+
+    /**
+     * 刪除搜尋紀錄
+     */
+    suspend fun deleteSearchRecord(
+        item: SearchRestaurantResult
+    )
+
+    /**
+     * 刪除全部搜尋紀錄
+     */
+    suspend fun deleteAllSearchRecord()
 }

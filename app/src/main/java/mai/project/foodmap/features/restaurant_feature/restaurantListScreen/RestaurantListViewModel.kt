@@ -15,9 +15,11 @@ import mai.project.core.utils.CoroutineContextProvider
 import mai.project.core.utils.Event
 import mai.project.core.utils.WhileSubscribedOrRetained
 import mai.project.foodmap.base.BaseViewModel
+import mai.project.foodmap.domain.models.EmptyNetworkResult
 import mai.project.foodmap.domain.models.RestaurantResult
 import mai.project.foodmap.domain.repository.PlaceRepo
 import mai.project.foodmap.domain.repository.PreferenceRepo
+import mai.project.foodmap.domain.repository.UserRepo
 import mai.project.foodmap.domain.state.NetworkResult
 import javax.inject.Inject
 
@@ -25,6 +27,7 @@ import javax.inject.Inject
 class RestaurantListViewModel @Inject constructor(
     override val contextProvider: CoroutineContextProvider,
     private val placeRepo: PlaceRepo,
+    private val userRepo: UserRepo,
     preferenceRepo: PreferenceRepo
 ) : BaseViewModel(contextProvider) {
 
@@ -150,6 +153,21 @@ class RestaurantListViewModel @Inject constructor(
                 else -> Unit
             }
         }
+    }
+
+    /**
+     * 新增/移除 收藏
+     */
+    private val _pushOrPullMyFavoriteResult = MutableStateFlow<Event<NetworkResult<EmptyNetworkResult>>>(Event(NetworkResult.Idle()))
+    val pushOrPullMyFavoriteResult = _pushOrPullMyFavoriteResult.asStateFlow()
+
+    fun pushOrPullMyFavorite(
+        placeId: String,
+        isFavorite: Boolean
+    ) = launchCoroutineIO {
+        safeApiCallFlow {
+            userRepo.pushOrPullMyFavorite(placeId, isFavorite)
+        }.collect { result -> _pushOrPullMyFavoriteResult.update { Event(result) } }
     }
     // endregion Network State
 

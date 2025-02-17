@@ -22,6 +22,7 @@
     <string name="word_distance">距離</string>
     <string name="word_nearby">附近</string>
     <string name="word_to_top">至頂</string>
+    <string name="word_clear">清除</string>
 
     <string name="sentence_unknown_eating">不知道要吃甚麼嗎？</string>
     <string name="sentence_next_step">下一步</string>
@@ -73,6 +74,10 @@
     <string name="sentence_share_restaurant">分享餐廳</string>
     <string name="sentence_navigation_mode">導航模式</string>
     <string name="sentence_restaurant_list">餐廳列表</string>
+    <string name="sentence_recent_search_record">最近搜尋紀錄</string>
+    <string name="sentence_start_speak">開始說話</string>
+    <string name="sentence_not_support_speech_recognizer">設備不支援語音辨識</string>
+    <string name="sentence_audio_permission_denied">語音辨識權限被拒絕</string>
 
     <string name="rule_username_empty">使用者名稱不能為空</string>
     <string name="rule_username_length">使用者名稱至少要 4 位數</string>
