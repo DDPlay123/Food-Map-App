@@ -1,5 +1,6 @@
 package mai.project.foodmap.data.remoteDataSource.models
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -17,6 +18,22 @@ internal data class GetBlacklistRes(
     @Serializable
     data class Result(
         val placeCount: Int,
-        val placeList: List<PlaceListModel>
+        val placeList: List<PlaceList>
+    )
+
+    @Serializable
+    data class PlaceList(
+        @SerialName("place_id")
+        val placeId: String,
+        val updateTime: String,
+        val status: String,
+        val name: String,
+        val photos: List<String>? = emptyList(),
+        val rating: RatingModel,
+        val address: String,
+        val location: LocationModel,
+        val types: List<String>,
+        @SerialName("opening_hours")
+        val openingHours: OpeningHoursModel? = null
     )
 }

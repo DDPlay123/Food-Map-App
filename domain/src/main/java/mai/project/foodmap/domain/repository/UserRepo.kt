@@ -2,9 +2,9 @@ package mai.project.foodmap.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 import mai.project.foodmap.domain.models.EmptyNetworkResult
+import mai.project.foodmap.domain.models.MyBlacklistResult
 import mai.project.foodmap.domain.models.MyFavoriteResult
 import mai.project.foodmap.domain.models.MyPlaceResult
-import mai.project.foodmap.domain.models.RestaurantResult
 import mai.project.foodmap.domain.state.NetworkResult
 import javax.inject.Singleton
 
@@ -124,7 +124,7 @@ interface UserRepo {
     /**
      * 讀取我的黑名單列表
      */
-    val getMyBlacklist: Flow<List<RestaurantResult>>
+    val getMyBlacklist: Flow<List<MyBlacklistResult>>
 
     /**
      * 抓取黑名單

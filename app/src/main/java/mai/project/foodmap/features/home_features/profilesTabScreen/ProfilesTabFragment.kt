@@ -27,7 +27,6 @@ import mai.project.foodmap.features.dialogs_features.selector.SelectorCallback
 import mai.project.foodmap.features.dialogs_features.selector.SelectorModel
 import mai.project.foodmap.features.home_features.profilesTabScreen.adapter.PersonalDataAdapter
 import mai.project.foodmap.features.home_features.profilesTabScreen.adapter.SettingsLabelAdapter
-import mai.project.foodmap.features.restaurant_feature.restaurantListScreen.ListType
 
 @AndroidEntryPoint
 class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTabViewModel>(
@@ -105,9 +104,7 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
 
                 TermEnum.BLACK_LIST.name -> {
                     navigate(
-                        ProfilesTabFragmentDirections.actionProfilesTabFragmentToRestaurantListFragment(
-                            type = ListType.BlackList
-                        )
+                        ProfilesTabFragmentDirections.actionProfilesTabFragmentToBlacklistFragment()
                     )
                 }
 

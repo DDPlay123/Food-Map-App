@@ -40,7 +40,6 @@ import mai.project.foodmap.domain.models.RestaurantResult
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.utils.handleResult
 import mai.project.foodmap.features.myPlace_feature.myPlaceDialog.MyPlaceCallback
-import mai.project.foodmap.features.restaurant_feature.restaurantListScreen.ListType
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -155,10 +154,8 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
         cardMore.onClick {
             navigate(
                 HomeTabFragmentDirections.actionHomeTabFragmentToRestaurantListFragment(
-                    type = ListType.DistanceSearch(
-                        lat = viewModel.currentLat,
-                        lng = viewModel.currentLng
-                    )
+                    lat = viewModel.currentLat.toFloat(),
+                    lng = viewModel.currentLng.toFloat()
                 )
             )
         }

@@ -11,11 +11,11 @@ import mai.project.foodmap.data.localDataSource.dao.MySavedPlaceDao
 import mai.project.foodmap.data.localDataSource.entities.MySavedPlaceEntity
 import mai.project.foodmap.data.mapper.mapToEmptyNetworkResult
 import mai.project.foodmap.data.mapper.mapToMyBlacklistEntities
+import mai.project.foodmap.data.mapper.mapToMyBlacklistResult
 import mai.project.foodmap.data.mapper.mapToMyFavoriteEntities
 import mai.project.foodmap.data.mapper.mapToMyFavoriteResult
 import mai.project.foodmap.data.mapper.mapToMyPlaceResults
 import mai.project.foodmap.data.mapper.mapToMySavedPlaceEntities
-import mai.project.foodmap.data.mapper.mapToRestaurantResultsWithGetBlacklistRes
 import mai.project.foodmap.data.remoteDataSource.APIService
 import mai.project.foodmap.data.remoteDataSource.models.AddFcmTokenReq
 import mai.project.foodmap.data.remoteDataSource.models.DeleteAccountReq
@@ -39,9 +39,9 @@ import mai.project.foodmap.data.utils.AES
 import mai.project.foodmap.data.utils.handleAPIResponse
 import mai.project.foodmap.data.utils.safeIoWorker
 import mai.project.foodmap.domain.models.EmptyNetworkResult
+import mai.project.foodmap.domain.models.MyBlacklistResult
 import mai.project.foodmap.domain.models.MyFavoriteResult
 import mai.project.foodmap.domain.models.MyPlaceResult
-import mai.project.foodmap.domain.models.RestaurantResult
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.repository.PreferenceRepo
 import mai.project.foodmap.domain.repository.UserRepo
@@ -351,7 +351,7 @@ internal class UserRepoImpl @Inject constructor(
         return if (isFavorite) pushMyFavorite(placeId) else pullMyFavorite(placeId)
     }
 
-    override val getMyBlacklist: Flow<List<RestaurantResult>>
+    override val getMyBlacklist: Flow<List<MyBlacklistResult>>
         get() = myBlacklistDao.readMyBlackList().map {
             it.map { entity -> entity.result }
         }
@@ -367,7 +367,7 @@ internal class UserRepoImpl @Inject constructor(
         )
 
         if (result is NetworkResult.Success) safeIoWorker {
-            val entities = result.mapToRestaurantResultsWithGetBlacklistRes(preferenceRepo.readUserId.firstOrNull().orEmpty())
+            val entities = result.mapToMyBlacklistResult(preferenceRepo.readUserId.firstOrNull().orEmpty())
                 .mapToMyBlacklistEntities()
             preferenceRepo.writeMyBlacklistPlaceIds(entities.map { it.result.placeId }.toSet())
             myBlacklistDao.syncMyBlacklist(entities)

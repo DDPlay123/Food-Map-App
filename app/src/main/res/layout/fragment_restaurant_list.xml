@@ -31,11 +31,9 @@
         android:background="@drawable/bg_circle_icon"
         android:padding="10dp"
         android:tint="@color/icon_primary"
-        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/vector_tune"
-        tools:visibility="visible" />
+        app:srcCompat="@drawable/vector_tune" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvTitle"

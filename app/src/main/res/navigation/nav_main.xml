@@ -139,8 +139,8 @@
         android:label="fragment_profiles_tab"
         tools:layout="@layout/fragment_profiles_tab">
         <action
-            android:id="@+id/action_profilesTabFragment_to_restaurantListFragment"
-            app:destination="@id/restaurantListFragment"
+            android:id="@+id/action_profilesTabFragment_to_blacklistFragment"
+            app:destination="@id/blacklistFragment"
             app:enterAnim="@anim/slide_in_up"
             app:exitAnim="@anim/slide_in_down"
             app:popEnterAnim="@anim/slide_out_up"
@@ -181,8 +181,17 @@
         tools:layout="@layout/fragment_restaurant_list">
         <!--    關鍵字    -->
         <argument
-            android:name="type"
-            app:argType="mai.project.foodmap.features.restaurant_feature.restaurantListScreen.ListType" />
+            android:name="keyword"
+            android:defaultValue=""
+            app:argType="string" />
+        <!--    目標緯度    -->
+        <argument
+            android:name="lat"
+            app:argType="float" />
+        <!--    目標經度    -->
+        <argument
+            android:name="lng"
+            app:argType="float" />
         <action
             android:id="@+id/action_restaurantListFragment_to_restaurantDetailFragment"
             app:destination="@id/restaurantDetailFragment"
@@ -214,6 +223,21 @@
         <argument
             android:name="lng"
             app:argType="float" />
+    </fragment>
+
+    <!--  黑名單列表  -->
+    <fragment
+        android:id="@+id/blacklistFragment"
+        android:name="mai.project.foodmap.features.restaurant_feature.blacklistScreen.BlacklistFragment"
+        android:label="fragment_blacklist"
+        tools:layout="@layout/fragment_blacklist">
+        <action
+            android:id="@+id/action_blacklistFragment_to_restaurantDetailFragment"
+            app:destination="@id/restaurantDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <!--  全域呼叫 載入 Dialog  -->

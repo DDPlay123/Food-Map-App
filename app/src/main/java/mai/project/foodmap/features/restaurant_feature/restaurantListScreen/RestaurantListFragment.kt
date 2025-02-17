@@ -1,7 +1,6 @@
 package mai.project.foodmap.features.restaurant_feature.restaurantListScreen
 
 import android.os.Bundle
-import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
@@ -21,12 +20,7 @@ class RestaurantListFragment : BaseFragment<FragmentRestaurantListBinding, Resta
     private val args by navArgs<RestaurantListFragmentArgs>()
 
     override fun FragmentRestaurantListBinding.initialize(savedInstanceState: Bundle?) {
-        tvTitle.text = when (args.type) {
-            is ListType.BlackList -> getString(R.string.sentence_black_list)
-            is ListType.KeywordSearch -> (args.type as ListType.KeywordSearch).keyword
-            is ListType.DistanceSearch -> getString(R.string.sentence_near_restaurant)
-        }
-        imgDistance.isInvisible = args.type is ListType.BlackList
+        tvTitle.text = args.keyword.ifEmpty { getString(R.string.sentence_near_restaurant) }
     }
 
     override fun FragmentRestaurantListBinding.setObserver() = with(viewModel) {
