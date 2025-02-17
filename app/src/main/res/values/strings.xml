@@ -21,6 +21,7 @@
     <string name="word_share">Share</string>
     <string name="word_distance">Distance</string>
     <string name="word_nearby">Nearby</string>
+    <string name="word_to_top">Scroll to top</string>
 
     <string name="sentence_unknown_eating">Don\'t know what to eat?</string>
     <string name="sentence_next_step">Next Step</string>
@@ -89,6 +90,7 @@
     <string name="format_minute">%d minutes</string>
     <string name="format_second">%d seconds</string>
     <string name="format_kilometer">%d km</string>
+    <string name="format_title_count">%s (%d/%d)</string>
 
     <array name="navigation_mode">
         <item>Car</item>

@@ -56,7 +56,7 @@
         android:id="@+id/viewBodyBg"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:background="@color/background_fragment_variant"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -91,8 +91,11 @@
             android:id="@+id/rvRestaurants"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:itemCount="1" />
+            android:clipToPadding="false"
+            android:paddingBottom="10dp"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="@integer/restaurant_list_grid"
+            tools:listitem="@layout/item_restaurant_list" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
@@ -143,5 +146,19 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="40dp"
+        android:backgroundTint="@color/primary"
+        android:contentDescription="@string/word_to_top"
+        android:src="@drawable/vector_arrow_upward"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@android:color/white"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

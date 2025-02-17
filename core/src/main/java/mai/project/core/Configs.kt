@@ -41,4 +41,14 @@ object Configs {
      * 預設的 經度
      */
     const val DEFAULT_LONGITUDE = 121.56537596752182
+
+    /**
+     * 搜尋的最大距離 (公里)
+     */
+    const val MAX_SEARCH_DISTANCE = 30
+
+    /**
+     * 搜尋的最小距離 (公里)
+     */
+    const val MIN_SEARCH_DISTANCE = 1
 }

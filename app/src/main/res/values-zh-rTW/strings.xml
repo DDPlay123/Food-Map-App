@@ -21,6 +21,7 @@
     <string name="word_share">分享</string>
     <string name="word_distance">距離</string>
     <string name="word_nearby">附近</string>
+    <string name="word_to_top">至頂</string>
 
     <string name="sentence_unknown_eating">不知道要吃甚麼嗎？</string>
     <string name="sentence_next_step">下一步</string>
@@ -89,6 +90,7 @@
     <string name="format_minute">%d 分鐘</string>
     <string name="format_second">%d 秒鐘</string>
     <string name="format_kilometer">%d 公里</string>
+    <string name="format_title_count">%s (%d/%d)</string>
 
     <array name="navigation_mode">
         <item>汽車</item>
