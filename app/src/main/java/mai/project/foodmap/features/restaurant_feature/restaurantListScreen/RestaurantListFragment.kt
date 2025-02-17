@@ -46,7 +46,7 @@ class RestaurantListFragment : BaseFragment<FragmentRestaurantListBinding, Resta
             adapter = restaurantAdapter
         }
 
-        viewModel.searchRestaurants(
+        viewModel.refreshRestaurants(
             keyword = args.keyword,
             lat = args.lat.toDouble(),
             lng = args.lng.toDouble()
@@ -79,7 +79,7 @@ class RestaurantListFragment : BaseFragment<FragmentRestaurantListBinding, Resta
         imgDistance.onClick(safe = false) { viewModel.toggleShowDistanceController() }
 
         swipeRefresh.setOnRefreshListener {
-            viewModel.searchRestaurants(
+            viewModel.refreshRestaurants(
                 keyword = args.keyword,
                 lat = args.lat.toDouble(),
                 lng = args.lng.toDouble()
@@ -99,11 +99,20 @@ class RestaurantListFragment : BaseFragment<FragmentRestaurantListBinding, Resta
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                viewModel.searchRestaurants(
-                    keyword = args.keyword,
-                    lat = args.lat.toDouble(),
-                    lng = args.lng.toDouble()
-                )
+                val newDistance = seekBar?.progress?.plus(Configs.MIN_SEARCH_DISTANCE) ?: Configs.MIN_SEARCH_DISTANCE
+                if (newDistance > viewModel.mDistance / 1000) {
+                    viewModel.increaseDistanceAndLoadRestaurants(
+                        keyword = args.keyword,
+                        lat = args.lat.toDouble(),
+                        lng = args.lng.toDouble()
+                    )
+                } else {
+                    viewModel.refreshRestaurants(
+                        keyword = args.keyword,
+                        lat = args.lat.toDouble(),
+                        lng = args.lng.toDouble()
+                    )
+                }
             }
         })
 
@@ -118,7 +127,7 @@ class RestaurantListFragment : BaseFragment<FragmentRestaurantListBinding, Resta
                     viewModel.searchRestaurantsResult.value.getPeekContent !is NetworkResult.Loading) {
                     val currentCount = viewModel.restaurantList.value.size
                     if (currentCount < viewModel.totalRestaurantCount) {
-                        viewModel.searchRestaurants(
+                        viewModel.loadNextRestaurants(
                             keyword = args.keyword,
                             lat = args.lat.toDouble(),
                             lng = args.lng.toDouble(),
@@ -148,8 +157,7 @@ class RestaurantListFragment : BaseFragment<FragmentRestaurantListBinding, Resta
         tvTitle.text = getString(
             R.string.format_title_count,
             args.keyword.ifEmpty { getString(R.string.sentence_near_restaurant) },
-            list.size,
-            if (list.isEmpty()) 0 else list.first().placeCount
+            list.size, viewModel.totalRestaurantCount
         )
         lottieNoData.isVisible = list.isEmpty()
         restaurantAdapter.submitList(list)

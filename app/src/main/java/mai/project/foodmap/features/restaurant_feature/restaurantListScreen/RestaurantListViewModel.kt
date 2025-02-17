@@ -28,6 +28,12 @@ class RestaurantListViewModel @Inject constructor(
     preferenceRepo: PreferenceRepo
 ) : BaseViewModel(contextProvider) {
 
+    var mSkip = DEFAULT_SKIP
+        private set
+
+    var mDistance = Configs.MIN_SEARCH_DISTANCE
+        private set
+
     var totalRestaurantCount = 0
         private set
 
@@ -55,7 +61,7 @@ class RestaurantListViewModel @Inject constructor(
     /**
      * 當前的餐廳列表資料
      */
-    private val _restaurantList = MutableStateFlow<List<RestaurantResult>>(emptyList())
+    private val _restaurantList = MutableStateFlow<Set<RestaurantResult>>(emptySet())
     val restaurantList = _restaurantList.asStateFlow()
 
     // endregion State
@@ -87,22 +93,49 @@ class RestaurantListViewModel @Inject constructor(
     private val _searchRestaurantsResult = MutableStateFlow<Event<NetworkResult<List<RestaurantResult>>>>(Event(NetworkResult.Idle()))
     val searchRestaurantsResult = _searchRestaurantsResult.asStateFlow()
 
-    fun searchRestaurants(
+    fun refreshRestaurants(
+        keyword: String,
+        lat: Double,
+        lng: Double
+    ) {
+        searchRestaurants(true, keyword, lat, lng)
+    }
+
+    fun loadNextRestaurants(
+        keyword: String,
+        lat: Double,
+        lng: Double,
+        skip: Int
+    ) {
+        searchRestaurants(false, keyword, lat, lng, skip)
+    }
+
+    fun increaseDistanceAndLoadRestaurants(
+        keyword: String,
+        lat: Double,
+        lng: Double
+    ) {
+        searchRestaurants(false, keyword, lat, lng, mSkip)
+    }
+
+    private fun searchRestaurants(
+        isFirst: Boolean,
         keyword: String,
         lat: Double,
         lng: Double,
         skip: Int = DEFAULT_SKIP,
         limit: Int = DEFAULT_LIMIT
     ) = launchCoroutineIO {
-        val distance = searchDistance.value * 1000
-        if (skip == DEFAULT_SKIP) {
-            _restaurantList.update { emptyList() }
-        }
+        mSkip = skip
+        mDistance = searchDistance.value * 1000
+
+        if (isFirst) _restaurantList.update { emptySet() }
+
         safeApiCallFlow {
             if (keyword.isNotEmpty()) {
-                placeRepo.searchPlacesByKeyword(keyword, lat, lng, distance, skip, limit)
+                placeRepo.searchPlacesByKeyword(keyword, lat, lng, mDistance, skip, limit)
             } else {
-                placeRepo.searchPlacesByDistance(lat, lng, distance, skip, limit)
+                placeRepo.searchPlacesByDistance(lat, lng, mDistance, skip, limit)
             }
         }.collect { result ->
             _searchRestaurantsResult.update { Event(result) }
