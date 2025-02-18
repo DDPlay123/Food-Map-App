@@ -355,4 +355,22 @@
             app:argType="mai.project.foodmap.features.dialogs_features.selector.SelectorModel[]" />
     </dialog>
 
+    <!--  全域呼叫 WebView Dialog  -->
+    <action
+        android:id="@+id/action_global_to_webViewDialog"
+        app:destination="@id/webViewDialog"
+        app:launchSingleTop="true" />
+
+    <!--  Dialog：WebView Dialog  -->
+    <dialog
+        android:id="@+id/webViewDialog"
+        android:name="mai.project.foodmap.features.dialogs_features.webView.WebViewDialog"
+        android:label="dialog_web_view"
+        tools:layout="@layout/dialog_web_view" >
+        <!--    路徑    -->
+        <argument
+            android:name="path"
+            app:argType="string" />
+    </dialog>
+
 </navigation>
