@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.navigation.safeArgs)
     alias(libs.plugins.google.services)
     alias(libs.plugins.mapsPlatform)
@@ -54,13 +55,7 @@ android {
      */
     buildTypes {
         debug {
-            isMinifyEnabled = true
-            isShrinkResources = true
             signingConfig = signingConfigs.getByName("debug")
-
-            configure<CrashlyticsExtension> {
-                mappingFileUploadEnabled = false
-            }
         }
 
         release {

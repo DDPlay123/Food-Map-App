@@ -7,7 +7,8 @@ import mai.project.foodmap.data.annotations.StatusCode
 /**
  * 基底 Request
  */
-internal abstract class BaseRequest {
+@Serializable
+internal sealed class BaseRequest {
     abstract val accessKey: String
     abstract val userId: String
 }
@@ -15,7 +16,8 @@ internal abstract class BaseRequest {
 /**
  * 基底 Response
  */
-internal abstract class BaseResponse {
+@Serializable
+internal sealed class BaseResponse {
     @StatusCode
     abstract val status: Int
     abstract val errMsg: String?
