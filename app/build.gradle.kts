@@ -28,7 +28,7 @@ android {
      */
     defaultConfig {
         applicationId = "mai.project.foodmap"
-        versionCode = 1
+        versionCode = 2
         versionName = "1.0.0"
 
         buildConfigField("String", "GOOGLE_API_KEY", localProperties.getProperty("GOOGLE_API_KEY"))
