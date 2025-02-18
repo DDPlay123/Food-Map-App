@@ -386,7 +386,7 @@ class PagerIndicator @JvmOverloads constructor(
     /**
      * 檢查是否支援 RTL。
      */
-    private fun isRtl() = ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL
+    private fun isRtl() = layoutDirection == LAYOUT_DIRECTION_RTL
 
     /**
      * 獲取 RTL 位置。
