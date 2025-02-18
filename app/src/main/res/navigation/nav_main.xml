@@ -228,11 +228,16 @@
             android:name="keyword"
             android:defaultValue=""
             app:argType="string" />
-        <!--    目標緯度    -->
+        <!--    搜尋距離    -->
+        <argument
+            android:name="distance"
+            android:defaultValue="1"
+            app:argType="integer" />
+        <!--    當前緯度    -->
         <argument
             android:name="lat"
             app:argType="float" />
-        <!--    目標經度    -->
+        <!--    當前經度    -->
         <argument
             android:name="lng"
             app:argType="float" />

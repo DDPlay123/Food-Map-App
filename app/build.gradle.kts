@@ -42,11 +42,17 @@ android {
      */
     signingConfigs {
         getByName("debug") {
-
+            storeFile = file(localProperties.getProperty("DEBUG_STORE_FILE"))
+            storePassword = localProperties.getProperty("STORE_PASSWORD") as String
+            keyAlias = localProperties.getProperty("KEY_ALIAS") as String
+            keyPassword = localProperties.getProperty("KEY_PASSWORD") as String
         }
 
         create("release") {
-
+            storeFile = file(localProperties.getProperty("RELEASE_STORE_FILE"))
+            storePassword = localProperties.getProperty("STORE_PASSWORD") as String
+            keyAlias = localProperties.getProperty("KEY_ALIAS") as String
+            keyPassword = localProperties.getProperty("KEY_PASSWORD") as String
         }
     }
 

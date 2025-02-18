@@ -66,3 +66,7 @@
 
 -keepattributes SourceFile,LineNumberTable        # Keep file names and line numbers.
 -keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.
+
+-keep class mai.project.foodmap.features.home_features.mapTabScreen.utils.RestaurantClusterItem { *; }
+-keep class mai.project.foodmap.features.dialogs_features.selector.SelectorModel { *; }
+

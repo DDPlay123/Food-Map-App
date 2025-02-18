@@ -34,6 +34,7 @@ class RestaurantListFragment : BaseFragment<FragmentRestaurantListBinding, Resta
 
     override fun FragmentRestaurantListBinding.initialize(savedInstanceState: Bundle?) {
         sbDistance.max = Configs.MAX_SEARCH_DISTANCE - Configs.MIN_SEARCH_DISTANCE
+        viewModel.setSearchDistance(args.distance)
 
         with(rvRestaurants) {
             addItemDecoration(
