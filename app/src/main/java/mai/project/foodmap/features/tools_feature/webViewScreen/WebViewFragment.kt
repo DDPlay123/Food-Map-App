@@ -1,4 +1,4 @@
-package mai.project.foodmap.features.home_features.profilesTabScreen
+package mai.project.foodmap.features.tools_feature.webViewScreen
 
 import android.os.Bundle
 import androidx.navigation.fragment.navArgs

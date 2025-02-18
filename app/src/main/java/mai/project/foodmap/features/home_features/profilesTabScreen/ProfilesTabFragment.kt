@@ -1,6 +1,9 @@
 package mai.project.foodmap.features.home_features.profilesTabScreen
 
+import android.content.Intent
 import android.os.Bundle
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ConcatAdapter
@@ -43,6 +46,22 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
     private val settingsLabelAdapter by lazy { SettingsLabelAdapter() }
 
     private val concatAdapter by lazy { ConcatAdapter(personalDataAdapter, settingsLabelAdapter) }
+
+    private val pickSingleMediaLauncher =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { data ->
+            data?.let { uri ->
+                // 保留媒體檔案存取權
+                val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                requireContext().contentResolver.takePersistableUriPermission(uri, flag)
+                navigate(
+                    ProfilesTabFragmentDirections.actionProfilesTabFragmentToImageCropFragment(
+                        requestCode = REQUEST_CODE_CROP_IMAGE,
+                        imagePath = uri.toString(),
+                        isCircle = true
+                    )
+                )
+            }
+        }
 
     private val themeModeItems: List<SelectorModel> by lazy {
         resources.getStringArray(R.array.theme_mode).mapIndexed { index, s ->
@@ -91,7 +110,9 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
 
     override fun FragmentProfilesTabBinding.setListener() {
         personalDataAdapter.onImageClick = {
-            // TODO 切換照片
+            pickSingleMediaLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
         }
 
         settingsLabelAdapter.onItemClick = { model ->
@@ -154,6 +175,11 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
     }
 
     override fun FragmentProfilesTabBinding.setCallback() {
+        setFragmentResultListener(REQUEST_CODE_CROP_IMAGE) { _, bundle ->
+            bundle.getString(REQUEST_CODE_CROP_IMAGE)?.let { base64 ->
+                viewModel.setUserImage(base64)
+            }
+        }
         setFragmentResultListener(REQUEST_CODE_LOGOUT_HINT) { _, bundle ->
             bundle.parcelable<PromptCallback>(PromptCallback.ARG_CONFIRM)?.let {
                 viewModel.logout()
@@ -230,6 +256,11 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
     }
 
     companion object {
+        /**
+         * 裁切圖片 Fragment
+         */
+        private const val REQUEST_CODE_CROP_IMAGE = "REQUEST_CODE_CROP_IMAGE"
+
         /**
          * 提示是否要登出 Dialog
          */

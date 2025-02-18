@@ -28,8 +28,9 @@ object Method {
     /**
      * 將 bitmap 轉換成 base64 字串
      */
-    fun encodeImage(bitmap: Bitmap): String? {
-        val previewWidth = 150
+    fun encodeImage(bitmap: Bitmap?): String? {
+        if (bitmap == null) return null
+        val previewWidth = 512
         val previewHeight = bitmap.height * previewWidth / bitmap.height
         val previewBitmap = Bitmap.createScaledBitmap(bitmap, previewWidth, previewHeight, false)
 

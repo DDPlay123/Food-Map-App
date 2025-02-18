@@ -124,4 +124,5 @@ dependencies {
     implementation(libs.bundles.coil)
     implementation(libs.lottie)
     implementation(libs.geolib.polyline)
+    implementation(libs.image.crop)
 }

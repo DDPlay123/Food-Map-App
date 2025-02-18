@@ -155,18 +155,13 @@
             app:exitAnim="@anim/slide_in_down"
             app:popEnterAnim="@anim/slide_out_up"
             app:popExitAnim="@anim/slide_out_down" />
-    </fragment>
-
-    <!--  WebView  -->
-    <fragment
-        android:id="@+id/webViewFragment"
-        android:name="mai.project.foodmap.features.home_features.profilesTabScreen.WebViewFragment"
-        android:label="fragment_web_view"
-        tools:layout="@layout/fragment_web_view">
-        <!--    路徑    -->
-        <argument
-            android:name="path"
-            app:argType="string" />
+        <action
+            android:id="@+id/action_profilesTabFragment_to_imageCropFragment"
+            app:destination="@id/imageCropFragment"
+            app:enterAnim="@anim/slide_in_up"
+            app:exitAnim="@anim/slide_in_down"
+            app:popEnterAnim="@anim/slide_out_up"
+            app:popExitAnim="@anim/slide_out_down" />
     </fragment>
 
     <!--  選取定位點 BottomSheetDialog  -->
@@ -279,6 +274,39 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <!--  WebView  -->
+    <fragment
+        android:id="@+id/webViewFragment"
+        android:name="mai.project.foodmap.features.tools_feature.webViewScreen.WebViewFragment"
+        android:label="fragment_web_view"
+        tools:layout="@layout/fragment_web_view">
+        <!--    路徑    -->
+        <argument
+            android:name="path"
+            app:argType="string" />
+    </fragment>
+
+    <!--  圖片裁切  -->
+    <fragment
+        android:id="@+id/imageCropFragment"
+        android:name="mai.project.foodmap.features.tools_feature.imageCropScreen.ImageCropFragment"
+        android:label="fragment_image_crop"
+        tools:layout="@layout/fragment_image_crop">
+        <!--    請求碼    -->
+        <argument
+            android:name="requestCode"
+            android:defaultValue=""
+            app:argType="string" />
+        <!--    圖片路徑    -->
+        <argument
+            android:name="imagePath"
+            app:argType="string" />
+        <!--    是否需要圓形    -->
+        <argument
+            android:name="isCircle"
+            app:argType="boolean" />
     </fragment>
 
     <!--  全域呼叫 載入 Dialog  -->

@@ -80,6 +80,7 @@
     <string name="sentence_audio_permission_denied">語音辨識權限被拒絕</string>
     <string name="sentence_not_found_search">找不到搜尋結果</string>
     <string name="sentence_notification_permission_denied">尚未開啟通知權限</string>
+    <string name="sentence_crop_image_failed">裁切失敗</string>
 
     <string name="rule_username_empty">使用者名稱不能為空</string>
     <string name="rule_username_length">使用者名稱至少要 4 位數</string>
