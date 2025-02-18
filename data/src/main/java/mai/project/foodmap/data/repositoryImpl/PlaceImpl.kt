@@ -176,7 +176,7 @@ internal class PlaceImpl @Inject constructor(
             mySearchDap.insertMySearch(
                 MySearchEntity(
                     index = item.placeId.ifEmpty { item.name },
-                    result = item
+                    result = item.copy(isSearch = false)
                 )
             )
         }

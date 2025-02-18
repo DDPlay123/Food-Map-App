@@ -103,9 +103,7 @@ class FavoriteTabFragment : BaseFragment<FragmentFavoriteTabBinding, FavoriteTab
             navigate(
                 FavoriteTabFragmentDirections.actionFavoriteTabFragmentToRestaurantDetailFragment(
                     placeId = it.placeId,
-                    name = it.name,
-                    lat = it.lat.toFloat(),
-                    lng = it.lng.toFloat()
+                    name = it.name
                 )
             )
         }

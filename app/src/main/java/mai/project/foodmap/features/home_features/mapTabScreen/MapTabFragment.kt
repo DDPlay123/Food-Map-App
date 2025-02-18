@@ -188,9 +188,7 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
             navigate(
                 MapTabFragmentDirections.actionMapTabFragmentToRestaurantDetailFragment(
                     placeId = it.placeId,
-                    name = it.name,
-                    lat = it.lat.toFloat(),
-                    lng = it.lat.toFloat()
+                    name = it.name
                 )
             )
         }
@@ -225,9 +223,7 @@ class MapTabFragment : BaseFragment<FragmentMapTabBinding, MapTabViewModel>(
                 navigate(
                     MapTabFragmentDirections.actionMapTabFragmentToRestaurantDetailFragment(
                         placeId = callback.item.data.placeId,
-                        name = callback.item.data.name,
-                        lat = callback.item.data.lat.toFloat(),
-                        lng = callback.item.data.lat.toFloat()
+                        name = callback.item.data.name
                     )
                 )
             }

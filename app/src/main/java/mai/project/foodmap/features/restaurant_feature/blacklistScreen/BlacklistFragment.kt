@@ -61,9 +61,7 @@ class BlacklistFragment : BaseFragment<FragmentBlacklistBinding, BlacklistViewMo
             navigate(
                 BlacklistFragmentDirections.actionBlacklistFragmentToRestaurantDetailFragment(
                     placeId = it.placeId,
-                    name = it.name,
-                    lat = it.lat.toFloat(),
-                    lng = it.lng.toFloat()
+                    name = it.name
                 )
             )
         }

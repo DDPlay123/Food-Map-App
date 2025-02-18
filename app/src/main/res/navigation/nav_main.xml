@@ -194,6 +194,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_searchBottomSheetDialog_to_restaurantDetailFragment"
+            app:destination="@id/restaurantDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </dialog>
 
     <!--  餐廳列表  -->
@@ -238,14 +245,6 @@
         <argument
             android:name="name"
             app:argType="string" />
-        <!--    目標緯度    -->
-        <argument
-            android:name="lat"
-            app:argType="float" />
-        <!--    目標經度    -->
-        <argument
-            android:name="lng"
-            app:argType="float" />
     </fragment>
 
     <!--  黑名單列表  -->

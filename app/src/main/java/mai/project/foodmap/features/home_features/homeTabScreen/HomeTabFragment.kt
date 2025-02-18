@@ -212,9 +212,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
             navigate(
                 HomeTabFragmentDirections.actionHomeTabFragmentToRestaurantDetailFragment(
                     placeId = item.placeId,
-                    name = item.name,
-                    lat = item.lat.toFloat(),
-                    lng = item.lng.toFloat()
+                    name = item.name
                 )
             )
         }
