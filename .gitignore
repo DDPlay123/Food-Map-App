@@ -13,6 +13,7 @@
 .externalNativeBuild
 .cxx
 *.apk
+*.aab
 output.json
 .DS_Store
 /app_client/production/release

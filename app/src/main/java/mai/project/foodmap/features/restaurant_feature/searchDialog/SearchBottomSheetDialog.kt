@@ -168,6 +168,8 @@ class SearchBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSearchBin
     }
 
     override fun DialogBottomSheetSearchBinding.initialize(savedInstanceState: Bundle?) {
+        sbDistance.max = Configs.MAX_SEARCH_DISTANCE - Configs.MIN_SEARCH_DISTANCE
+
         with(rvResults) {
             addItemDecoration(
                 SpacesItemDecoration(
@@ -255,7 +257,8 @@ class SearchBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSearchBin
                 SearchBottomSheetDialogDirections.actionSearchBottomSheetDialogToRestaurantListFragment(
                     lat = viewModel.searchLatLng.latitude.toFloat(),
                     lng = viewModel.searchLatLng.longitude.toFloat(),
-                    keyword = it.name
+                    keyword = it.name,
+                    distance = viewModel.searchDistance.value
                 )
             )
         }
@@ -280,6 +283,7 @@ class SearchBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSearchBin
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                handleSearchFlow(edSearch.text?.trim().toString())
             }
         })
     }
