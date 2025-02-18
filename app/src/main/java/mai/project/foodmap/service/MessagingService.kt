@@ -5,8 +5,12 @@ import android.content.Intent
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
+import mai.project.core.utils.notification.NotificationType
+import mai.project.core.utils.notification.NotificationUtil
 import mai.project.foodmap.MainActivity
+import mai.project.foodmap.R
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * Firebase Messaging Service
@@ -38,6 +42,12 @@ import timber.log.Timber
  */
 @AndroidEntryPoint
 class MessagingService : FirebaseMessagingService() {
+
+    /**
+     * 通知工具
+     */
+    @Inject
+    lateinit var notificationUtil: NotificationUtil
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
@@ -80,6 +90,16 @@ class MessagingService : FirebaseMessagingService() {
         notification: RemoteMessage.Notification,
         pendingIntent: PendingIntent
     ) {
-        // TODO 顯示通知
+        val type = NotificationType.entries
+            .find { it.channelId == notification.channelId }
+            ?: NotificationType.DEFAULT
+
+        notificationUtil.sendNormalNotification(
+            title = notification.title ?: getString(R.string.app_name),
+            message = notification.body ?: "Not found",
+            pendingIntent = pendingIntent,
+            type = type,
+            sendId = notificationUtil.lastSendId + 1
+        )
     }
 }
