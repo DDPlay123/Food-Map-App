@@ -79,6 +79,7 @@
     <string name="sentence_not_support_speech_recognizer">Device does not support voice recognition</string>
     <string name="sentence_audio_permission_denied">Voice recognition permission denied</string>
     <string name="sentence_not_found_search">No search results found</string>
+    <string name="sentence_notification_permission_denied">Notification permission is not enabled</string>
 
     <string name="rule_username_empty">Username cannot be empty</string>
     <string name="rule_username_length">Username must be at least 4 characters</string>

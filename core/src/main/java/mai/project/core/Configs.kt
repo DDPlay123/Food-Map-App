@@ -6,6 +6,11 @@ package mai.project.core
 object Configs {
 
     /**
+     * 權限請求碼
+     */
+    const val REQUEST_CODE_PERMISSION = 9999
+
+    /**
      * 使用者名稱 最小長度
      */
     const val USERNAME_LENGTH_MIN = 4

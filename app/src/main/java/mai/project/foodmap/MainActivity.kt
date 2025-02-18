@@ -1,5 +1,8 @@
 package mai.project.foodmap
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
@@ -18,11 +21,13 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mai.project.core.Configs
 import mai.project.core.extensions.displayToast
 import mai.project.core.extensions.getColorCompat
 import mai.project.core.extensions.isScreenLocked
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.launchWithoutRepeat
+import mai.project.core.extensions.openAppSettings
 import mai.project.core.extensions.showSnackBar
 import mai.project.core.utils.Event
 import mai.project.core.widget.recyclerView_adapters.ImagePreviewPagerAdapter
@@ -177,6 +182,28 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
         pendingLoginNavigation?.invoke()
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != Configs.REQUEST_CODE_PERMISSION) return
+        for ((index, result) in grantResults.withIndex()) {
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                val message = when (permissions[index]) {
+                    Manifest.permission.POST_NOTIFICATIONS -> getString(R.string.sentence_notification_permission_denied)
+
+                    else -> continue
+                }
+                showSnackBar(
+                    message = message,
+                    actionText = getString(R.string.word_confirm)
+                ) { openAppSettings() }
+            }
+        }
+    }
+
     /**
      * 設定返回鍵事件
      *
@@ -216,6 +243,10 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
             getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
             (getChildAt(0) as RecyclerView).itemAnimator = null
             adapter = imagePreviewPagerAdapter
+        }
+
+        if (Build.VERSION.SDK_INT >= 33) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), Configs.REQUEST_CODE_PERMISSION)
         }
     }
 
