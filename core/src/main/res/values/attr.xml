@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--  CircleImageView  -->
+    <declare-styleable name="CircleImageView">
+        <attr name="circleImageStrokeColor" format="color" />
+        <attr name="circleImageStrokeWidth" format="dimension" />
+        <attr name="circleImageCenterText" format="string" />
+    </declare-styleable>
+    <!--  PagerIndicator  -->
+    <declare-styleable name="PagerIndicator">
+        <attr name="pagerIndicatorDotCount" format="integer" />
+        <attr name="pagerIndicatorFadingDotCount" format="integer" />
+        <attr name="pagerIndicatorDotRadius" format="dimension" />
+        <attr name="pagerIndicatorSelectedDotRadius" format="dimension" />
+        <attr name="pagerIndicatorDotColor" format="color" />
+        <attr name="pagerIndicatorSelectedDotColor" format="color" />
+        <attr name="pagerIndicatorDotSeparation" format="dimension" />
+        <attr name="pagerIndicatorSupportRTL" format="boolean" />
+        <attr name="pagerIndicatorVerticalSupport" format="boolean" />
+    </declare-styleable>
+    <!--  ExpandableTextView  -->
+    <declare-styleable name="ExpandableTextView">
+        <attr name="expandableTextViewLimitedMaxLines" format="integer" />
+        <attr name="expandableTextViewOriginalText" format="string" />
+        <attr name="expandableTextViewExpandAction" format="string" />
+        <attr name="expandableTextViewExpandActionColor" format="string" />
+    </declare-styleable>
+</resources>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/clRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:foreground="?attr/selectableItemBackgroundBorderless">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvAddress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/vector_location_pin"
+        android:drawableEnd="@drawable/vector_reverse_arrow_outward"
+        android:drawablePadding="12dp"
+        android:drawableTint="@color/icon_gray"
+        android:paddingHorizontal="26dp"
+        android:paddingVertical="16dp"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/text_medium"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="488dp"
+        tools:text="台北市大安區民輝里\n106台灣台北市大安區忠孝東路三段1號" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="60dp"
+    app:layout_behavior="@string/bottom_sheet_behavior">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clRoot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_bottom_sheet_layout">
+
+        <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+            android:id="@+id/dragHandle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/background_drag_handle" />
+
+        <mai.project.core.widget.MNestedScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dragHandle">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ProgressBar
+                    android:id="@+id/pbCircular"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_centerInParent="true"
+                    android:indeterminateTint="@color/primary"
+                    app:layout_constraintBottom_toBottomOf="@+id/vpPhotos"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toEndOf="@+id/vpPhotos"
+                    app:layout_constraintStart_toStartOf="@+id/vpPhotos"
+                    app:layout_constraintTop_toTopOf="@+id/vpPhotos"
+                    app:layout_constraintWidth_max="100dp"
+                    app:layout_constraintWidth_percent=".25" />
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/vpPhotos"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:clipToPadding="false"
+                    android:orientation="horizontal"
+                    android:padding="10dp"
+                    app:layout_constraintDimensionRatio="16:9"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHeight_max="500dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintWidth_max="488dp" />
+
+                <mai.project.core.widget.PagerIndicator
+                    android:id="@+id/piPhotos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/vpPhotos"
+                    app:layout_constraintEnd_toEndOf="@+id/vpPhotos"
+                    app:layout_constraintStart_toStartOf="@+id/vpPhotos" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="3"
+                    android:paddingHorizontal="26dp"
+                    android:paddingVertical="16dp"
+                    android:text="@string/sentence_loading"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_medium_large"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/vpPhotos"
+                    app:layout_constraintWidth_max="488dp"
+                    tools:text="麻辣燙麻辣燙麻辣燙麻辣燙麻辣燙麻辣燙麻辣燙麻辣燙麻辣燙" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvRating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="26dp"
+                    android:gravity="center"
+                    android:text="0.0"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constraintBottom_toBottomOf="@id/tvOpenNow"
+                    app:layout_constraintStart_toStartOf="@+id/tvName"
+                    app:layout_constraintTop_toTopOf="@id/tvOpenNow"
+                    tools:text="4.3" />
+
+                <androidx.appcompat.widget.AppCompatRatingBar
+                    android:id="@+id/rating"
+                    style="@style/Widget.AppCompat.RatingBar.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:isIndicator="true"
+                    android:numStars="5"
+                    app:layout_constraintBottom_toBottomOf="@id/tvOpenNow"
+                    app:layout_constraintStart_toEndOf="@id/tvRating"
+                    app:layout_constraintTop_toTopOf="@id/tvOpenNow"
+                    tools:rating="4.3" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvRatingTotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:gravity="center"
+                    android:text="(0)"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constraintBottom_toBottomOf="@+id/tvOpenNow"
+                    app:layout_constraintStart_toEndOf="@+id/rating"
+                    app:layout_constraintTop_toTopOf="@+id/tvOpenNow"
+                    tools:text="(17)" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvOpenNow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="26dp"
+                    android:paddingVertical="10dp"
+                    android:text="@string/sentence_not_provide"
+                    android:textColor="@color/error"
+                    android:textSize="@dimen/text_medium"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="@+id/tvName"
+                    app:layout_constraintTop_toBottomOf="@+id/tvName"
+                    tools:visibility="visible" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvDineIn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vector_close"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@color/primary"
+                    android:paddingVertical="10dp"
+                    android:paddingStart="26dp"
+                    android:paddingEnd="0dp"
+                    android:text="@string/word_dine_in"
+                    android:textColor="@color/text_hint"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constraintStart_toStartOf="@+id/tvName"
+                    app:layout_constraintTop_toBottomOf="@+id/tvOpenNow" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvTakeout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vector_close"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@color/primary"
+                    android:paddingVertical="10dp"
+                    android:paddingStart="26dp"
+                    android:paddingEnd="0dp"
+                    android:text="@string/word_take_out"
+                    android:textColor="@color/text_hint"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constraintStart_toEndOf="@+id/tvDineIn"
+                    app:layout_constraintTop_toBottomOf="@+id/tvOpenNow" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvDelivery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vector_close"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@color/primary"
+                    android:paddingVertical="10dp"
+                    android:paddingStart="26dp"
+                    android:paddingEnd="0dp"
+                    android:text="@string/word_order_delivery"
+                    android:textColor="@color/text_hint"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constraintStart_toEndOf="@+id/tvTakeout"
+                    app:layout_constraintTop_toBottomOf="@+id/tvOpenNow" />
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/brService"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="tvDineIn,tvTakeout,tvDelivery" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvAddress"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vector_location_pin"
+                    android:drawableEnd="@drawable/vector_directions"
+                    android:drawablePadding="12dp"
+                    android:drawableTint="@color/primary"
+                    android:ellipsize="end"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:maxLines="3"
+                    android:paddingHorizontal="26dp"
+                    android:paddingVertical="10dp"
+                    android:text="@string/sentence_loading"
+                    android:textColor="@color/text_hint"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constraintEnd_toEndOf="@+id/tvName"
+                    app:layout_constraintStart_toStartOf="@+id/tvName"
+                    app:layout_constraintTop_toBottomOf="@+id/brService"
+                    tools:text="台灣台北市大安區忠孝東路三段1號" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvWorkday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vector_access_time"
+                    android:drawableEnd="@drawable/vector_keyboard_arrow_up"
+                    android:drawablePadding="12dp"
+                    android:drawableTint="@color/primary"
+                    android:ellipsize="end"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:maxLines="3"
+                    android:paddingHorizontal="26dp"
+                    android:paddingVertical="10dp"
+                    android:text="@string/sentence_workday"
+                    android:textColor="@color/text_hint"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintEnd_toEndOf="@+id/tvName"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintStart_toStartOf="@+id/tvName"
+                    app:layout_constraintTop_toBottomOf="@+id/tvAddress" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvWorkdayList"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vector_access_time"
+                    android:drawablePadding="12dp"
+                    android:drawableTint="@color/background_fragment_variant"
+                    android:paddingHorizontal="26dp"
+                    android:paddingVertical="10dp"
+                    android:textColor="@color/text_hint"
+                    android:textSize="@dimen/text_medium"
+                    android:visibility="gone"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintEnd_toEndOf="@+id/tvName"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintStart_toStartOf="@+id/tvName"
+                    app:layout_constraintTop_toBottomOf="@+id/tvWorkday"
+                    app:lineHeight="24sp"
+                    tools:text="星期一\n星期二"
+                    tools:visibility="visible" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvWebsite"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vector_public"
+                    android:drawablePadding="12dp"
+                    android:drawableTint="@color/primary"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:paddingHorizontal="26dp"
+                    android:paddingVertical="10dp"
+                    android:text="@string/word_website"
+                    android:textColor="@color/text_hint"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintEnd_toEndOf="@+id/tvName"
+                    app:layout_constraintStart_toStartOf="@+id/tvName"
+                    app:layout_constraintTop_toBottomOf="@+id/tvWorkdayList" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvPhone"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vector_call"
+                    android:drawablePadding="12dp"
+                    android:drawableTint="@color/primary"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:paddingHorizontal="26dp"
+                    android:paddingVertical="10dp"
+                    android:text="@string/word_phone_call"
+                    android:textColor="@color/text_hint"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintEnd_toEndOf="@+id/tvName"
+                    app:layout_constraintStart_toStartOf="@+id/tvName"
+                    app:layout_constraintTop_toBottomOf="@+id/tvWebsite" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvShare"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vector_share"
+                    android:drawablePadding="12dp"
+                    android:drawableTint="@color/primary"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:paddingHorizontal="26dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="20dp"
+                    android:text="@string/sentence_share_restaurant"
+                    android:textColor="@color/text_hint"
+                    android:textSize="@dimen/text_medium"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintEnd_toEndOf="@+id/tvName"
+                    app:layout_constraintStart_toStartOf="@+id/tvName"
+                    app:layout_constraintTop_toBottomOf="@+id/tvPhone" />
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:id="@+id/divider"
+                    android:layout_width="0dp"
+                    android:layout_height="2dp"
+                    app:dividerColor="@color/background_divider"
+                    app:layout_constraintEnd_toEndOf="@+id/tvName"
+                    app:layout_constraintStart_toStartOf="@+id/tvName"
+                    app:layout_constraintTop_toBottomOf="@+id/tvShare" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvGoogleReview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:drawableEnd="@drawable/vector_arrow_outward"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@color/icon_primary"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:paddingHorizontal="26dp"
+                    android:paddingTop="20dp"
+                    android:paddingBottom="10dp"
+                    android:text="@string/sentence_google_comment_from_user"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_medium"
+                    android:textStyle="bold"
+                    app:layout_constrainedWidth="true"
+                    app:layout_constraintEnd_toEndOf="@+id/divider"
+                    app:layout_constraintStart_toStartOf="@+id/divider"
+                    app:layout_constraintTop_toBottomOf="@+id/divider" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvReviews"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:nestedScrollingEnabled="false"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintEnd_toEndOf="@+id/divider"
+                    app:layout_constraintStart_toStartOf="@+id/divider"
+                    app:layout_constraintTop_toBottomOf="@+id/tvGoogleReview"
+                    tools:itemCount="1"
+                    tools:listitem="@layout/item_google_review" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBlocked"
+                    style="@style/primaryButton"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:layout_margin="26dp"
+                    android:backgroundTint="@color/error"
+                    android:text="@string/sentence_add_blacklist"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/divider"
+                    app:layout_constraintStart_toStartOf="@id/divider"
+                    app:layout_constraintTop_toBottomOf="@+id/rvReviews"
+                    app:layout_constraintVertical_bias="0"
+                    tools:visibility="visible" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </mai.project.core.widget.MNestedScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</RelativeLayout>

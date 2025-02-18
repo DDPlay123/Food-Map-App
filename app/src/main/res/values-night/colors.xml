@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background_navigation_view">#222222</color>
+    <color name="background_fragment">#000000</color>
+    <color name="background_fragment_variant">#27282A</color>
+    <color name="background_fragment_label">#222222</color>
+    <color name="background_snack_bar">#FCFCFC</color>
+    <color name="background_dialog">#444444</color>
+    <color name="background_edittext">#4B4A4A</color>
+    <color name="background_edittext_stroke">#666666</color>
+    <color name="background_divider">#888888</color>
+    <color name="background_drag_handle">#FFFFFF</color>
+
+    <color name="icon_primary">#FFFFFF</color>
+    <color name="icon_navigation_view_selected">@color/primary</color>
+    <color name="icon_navigation_view_unselected">#FFFFFF</color>
+
+    <color name="stroke_avatar">#FFFFFF</color>
+
+    <color name="chip_background">#00796B</color>
+
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_snack_bar">#000000</color>
+    <color name="text_hint">#CCCCCC</color>
+    <color name="text_button">@color/primary</color>
+</resources>
