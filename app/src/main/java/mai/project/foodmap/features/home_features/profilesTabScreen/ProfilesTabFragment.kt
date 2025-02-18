@@ -19,7 +19,6 @@ import mai.project.foodmap.base.handleBasicResult
 import mai.project.foodmap.base.navigateLoadingDialog
 import mai.project.foodmap.base.navigatePromptDialog
 import mai.project.foodmap.base.navigateSelectorDialog
-import mai.project.foodmap.base.navigateWebViewDialog
 import mai.project.foodmap.data.annotations.LanguageMode
 import mai.project.foodmap.data.annotations.ThemeMode
 import mai.project.foodmap.databinding.FragmentProfilesTabBinding
@@ -128,13 +127,13 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
                 TermEnum.TERMS_OF_SERVICE.name -> {
                     val inputStream = resources.openRawResource(R.raw.terms_of_service)
                     val htmlString = inputStream.bufferedReader().use { it.readText() }
-                    navigateWebViewDialog(htmlString)
+                    navigate(ProfilesTabFragmentDirections.actionProfilesTabFragmentToWebViewFragment(htmlString))
                 }
 
                 TermEnum.PRIVACY_POLICY.name -> {
                     val inputStream = resources.openRawResource(R.raw.privacy_policy)
                     val htmlString = inputStream.bufferedReader().use { it.readText() }
-                    navigateWebViewDialog(htmlString)
+                    navigate(ProfilesTabFragmentDirections.actionProfilesTabFragmentToWebViewFragment(htmlString))
                 }
 
                 TermEnum.LOGOUT.name -> navigatePromptDialog(

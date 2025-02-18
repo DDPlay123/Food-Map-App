@@ -14,7 +14,6 @@ import mai.project.foodmap.features.dialogs_features.loading.LoadingDialogDirect
 import mai.project.foodmap.features.dialogs_features.prompt.PromptDialogDirections
 import mai.project.foodmap.features.dialogs_features.selector.SelectorBottomSheetDialogDirections
 import mai.project.foodmap.features.dialogs_features.selector.SelectorModel
-import mai.project.foodmap.features.dialogs_features.webView.WebViewDialogDirections
 
 /**
  * 開啟/關閉 Loading Dialog
@@ -92,21 +91,6 @@ fun <VB : ViewBinding, VM : BaseViewModel> BaseFragment<VB, VM>.navigateSelector
             requestCode = requestCode,
             title = title,
             items = items.toTypedArray()
-        )
-    )
-}
-
-/**
- * 開啟 WebView Dialog
- *
- * @param path 路徑
- */
-fun <VB : ViewBinding, VM : BaseViewModel> BaseFragment<VB, VM>.navigateWebViewDialog(
-    path: String
-) {
-    navigate(
-        WebViewDialogDirections.actionGlobalToWebViewDialog(
-            path = path
         )
     )
 }

@@ -148,6 +148,25 @@
             app:exitAnim="@anim/slide_in_down"
             app:popEnterAnim="@anim/slide_out_up"
             app:popExitAnim="@anim/slide_out_down" />
+        <action
+            android:id="@+id/action_profilesTabFragment_to_webViewFragment"
+            app:destination="@id/webViewFragment"
+            app:enterAnim="@anim/slide_in_up"
+            app:exitAnim="@anim/slide_in_down"
+            app:popEnterAnim="@anim/slide_out_up"
+            app:popExitAnim="@anim/slide_out_down" />
+    </fragment>
+
+    <!--  WebView  -->
+    <fragment
+        android:id="@+id/webViewFragment"
+        android:name="mai.project.foodmap.features.home_features.profilesTabScreen.WebViewFragment"
+        android:label="fragment_web_view"
+        tools:layout="@layout/fragment_web_view">
+        <!--    路徑    -->
+        <argument
+            android:name="path"
+            app:argType="string" />
     </fragment>
 
     <!--  選取定位點 BottomSheetDialog  -->
@@ -353,24 +372,6 @@
         <argument
             android:name="items"
             app:argType="mai.project.foodmap.features.dialogs_features.selector.SelectorModel[]" />
-    </dialog>
-
-    <!--  全域呼叫 WebView Dialog  -->
-    <action
-        android:id="@+id/action_global_to_webViewDialog"
-        app:destination="@id/webViewDialog"
-        app:launchSingleTop="true" />
-
-    <!--  Dialog：WebView Dialog  -->
-    <dialog
-        android:id="@+id/webViewDialog"
-        android:name="mai.project.foodmap.features.dialogs_features.webView.WebViewDialog"
-        android:label="dialog_web_view"
-        tools:layout="@layout/dialog_web_view" >
-        <!--    路徑    -->
-        <argument
-            android:name="path"
-            app:argType="string" />
     </dialog>
 
 </navigation>
