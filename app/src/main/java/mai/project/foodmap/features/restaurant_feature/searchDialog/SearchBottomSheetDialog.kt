@@ -1,13 +1,20 @@
 package mai.project.foodmap.features.restaurant_feature.searchDialog
 
+import android.Manifest
+import android.app.Activity.RESULT_OK
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import android.os.Bundle
+import android.speech.RecognizerIntent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.SeekBar
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -16,6 +23,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.debounce
@@ -30,15 +38,19 @@ import mai.project.core.extensions.getColorCompat
 import mai.project.core.extensions.getDrawableCompat
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.onClick
+import mai.project.core.extensions.openAppSettings
 import mai.project.core.utils.Event
 import mai.project.core.utils.GoogleMapUtil
 import mai.project.core.widget.recyclerView_decorations.DividerItemDecoration
 import mai.project.core.widget.recyclerView_decorations.SpacesItemDecoration
+import mai.project.foodmap.MainActivity
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseBottomSheetDialog
 import mai.project.foodmap.databinding.DialogBottomSheetSearchBinding
 import mai.project.foodmap.domain.models.SearchRestaurantResult
 import mai.project.foodmap.domain.state.NetworkResult
+import timber.log.Timber
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -53,6 +65,33 @@ class SearchBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSearchBin
     lateinit var googleMapUtil: GoogleMapUtil
 
     private val searchAdapter by lazy { SearchAdapter() }
+
+    private val audioPermission = Manifest.permission.RECORD_AUDIO
+
+    private val audioPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            startSpeechRecognition()
+        } else {
+            with((activity as? MainActivity)) {
+                this?.showSnackBar(
+                    message = getString(R.string.sentence_audio_permission_denied),
+                    actionText = getString(R.string.word_confirm)
+                ) { openAppSettings() }
+            }
+        }
+    }
+
+    private val speechRecognizerLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.let { text ->
+                binding.edSearch.setText(text)
+            }
+        }
+    }
 
     private val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
@@ -200,6 +239,14 @@ class SearchBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSearchBin
     override fun DialogBottomSheetSearchBinding.setListener() {
         tvClear.onClick(anim = true) { viewModel.clearAllSearchRecord() }
 
+        imgVoiceSearch.onClick {
+            if (ContextCompat.checkSelfPermission(requireContext(), audioPermission) == PackageManager.PERMISSION_GRANTED) {
+                audioPermissionLauncher.launch(audioPermission)
+            } else {
+                startSpeechRecognition()
+            }
+        }
+
         edSearch.doAfterTextChanged { viewModel.setSearchKeyword(it?.trim().toString()) }
 
         searchAdapter.onKeywordItemClick = {
@@ -235,6 +282,24 @@ class SearchBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSearchBin
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
             }
         })
+    }
+
+    /**
+     * 開始語音辨識
+     */
+    private fun startSpeechRecognition() {
+        with(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)) {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.sentence_start_speak))
+            runCatching {
+                speechRecognizerLauncher.launch(this)
+            }.onFailure {
+                Timber.e(message = "無法使用語音辨識", t = it)
+                FirebaseCrashlytics.getInstance().recordException(it)
+                displayToast(message = getString(R.string.sentence_not_support_speech_recognizer))
+            }
+        }
     }
 
     /**

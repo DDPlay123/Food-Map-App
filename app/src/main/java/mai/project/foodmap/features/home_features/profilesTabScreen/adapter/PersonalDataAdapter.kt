@@ -5,15 +5,18 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import mai.project.core.annotations.ImageType
 import mai.project.core.extensions.inflateBinding
+import mai.project.core.extensions.onClick
 import mai.project.core.utils.ImageLoaderUtil
 import mai.project.core.utils.Method
 import mai.project.foodmap.databinding.ItemPersonalDataBinding
 
-class PersonalDataAdapter: RecyclerView.Adapter<ViewHolder>() {
+class PersonalDataAdapter : RecyclerView.Adapter<ViewHolder>() {
 
     private data class Model(val userImage: String, val username: String)
 
     private var item: Model = Model(userImage = "", username = "")
+
+    var onImageClick: (() -> Unit)? = null
 
     fun submitModel(userImage: String, username: String) {
         this.item = Model(userImage = userImage, username = username)
@@ -26,7 +29,7 @@ class PersonalDataAdapter: RecyclerView.Adapter<ViewHolder>() {
     override fun getItemCount(): Int = 1
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        if (holder is PersonalDataViewHolder) holder.bind(item)
+        if (holder is PersonalDataViewHolder) holder.bind(item, onImageClick)
     }
 
     private class PersonalDataViewHolder(
@@ -34,7 +37,8 @@ class PersonalDataAdapter: RecyclerView.Adapter<ViewHolder>() {
     ) : ViewHolder(binding.root) {
 
         fun bind(
-            item: Model
+            item: Model,
+            onImageClick: (() -> Unit)?
         ) = with(binding) {
             ImageLoaderUtil.loadImage(
                 imageView = imgAvatar,
@@ -42,6 +46,8 @@ class PersonalDataAdapter: RecyclerView.Adapter<ViewHolder>() {
                 imageType = ImageType.PERSON
             )
             tvUsername.text = item.username.ifEmpty { "Not Found User..." }
+
+            imgAvatar.onClick { onImageClick?.invoke() }
         }
 
         companion object {

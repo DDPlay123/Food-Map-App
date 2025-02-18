@@ -83,11 +83,17 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
             // 修改密碼狀態
             { resetPasswordResult.collect { handleBasicResult(it, workOnSuccess = { displayToast(getString(R.string.sentence_reset_password_success)) }) } },
             // 刪除帳號狀態
-            { deleteAccountResult.collect(::handleBasicResult) }
+            { deleteAccountResult.collect(::handleBasicResult) },
+            // 設定大頭貼
+            { setUserImageResult.collect(::handleBasicResult) }
         )
     }
 
     override fun FragmentProfilesTabBinding.setListener() {
+        personalDataAdapter.onImageClick = {
+            // TODO 切換照片
+        }
+
         settingsLabelAdapter.onItemClick = { model ->
             when (model.id) {
                 TermEnum.THEMES_TOPIC.name -> navigateSelectorDialog(

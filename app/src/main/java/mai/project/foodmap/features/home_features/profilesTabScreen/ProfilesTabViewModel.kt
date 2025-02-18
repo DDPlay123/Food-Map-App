@@ -114,5 +114,16 @@ class ProfilesTabViewModel @Inject constructor(
         safeApiCallFlow { userRepo.deleteAccount() }
             .collect { result -> _deleteAccountResult.update { Event(result) } }
     }
+
+    /**
+     * 設定大頭貼
+     */
+    private val _setUserImageResult = MutableStateFlow<Event<NetworkResult<EmptyNetworkResult>>>(Event(NetworkResult.Idle()))
+    val setUserImageResult = _setUserImageResult.asStateFlow()
+
+    fun setUserImage(userImage: String) = launchCoroutineIO {
+        safeApiCallFlow { userRepo.setUserImage(userImage) }
+            .collect { result -> _setUserImageResult.update { Event(result) } }
+    }
     // endregion Network State
 }
