@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <integer-array name="navigation_mode_icon">
-        <item>@drawable/vector_drive_car</item>
-        <item>@drawable/vector_bike</item>
-        <item>@drawable/vector_two_wheeler</item>
-        <item>@drawable/vector_walk</item>
-    </integer-array>
-</resources>
