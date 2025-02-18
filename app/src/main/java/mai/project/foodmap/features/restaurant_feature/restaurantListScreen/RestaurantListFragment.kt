@@ -97,9 +97,7 @@ class RestaurantListFragment : BaseFragment<FragmentRestaurantListBinding, Resta
             navigate(
                 RestaurantListFragmentDirections.actionRestaurantListFragmentToRestaurantDetailFragment(
                     placeId = it.placeId,
-                    name = it.name,
-                    lat = it.lat.toFloat(),
-                    lng = it.lat.toFloat()
+                    name = it.name
                 )
             )
         }

@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
@@ -159,7 +158,7 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
                 combine(drawCardList, myFavoritePlaceIdList, myBlacklistPlaceIdList) { list, favoriteIds, blacklistIds ->
                     list.map { it.copy(isFavorite = it.placeId in favoriteIds) }
                         .filter { it.placeId !in blacklistIds }
-                }.collect(::handleDrawCardList)
+                }.collect(::refreshDrawCardList)
             }
         )
     }
@@ -355,30 +354,14 @@ class HomeTabFragment : BaseFragment<FragmentHomeTabBinding, HomeTabViewModel>(
     }
 
     /**
-     * 處理人氣餐廳卡片列表
-     */
-    private fun handleDrawCardList(
-        list: List<RestaurantResult>
-    ) {
-        // FIX 修正首次進入時，由於權限尚未允許，就先使用空陣列設定資料
-        if (!googleMapUtil.checkLocationPermission) return
-        checkGPSAndGetCurrentLocation(
-            googleMapUtil = googleMapUtil,
-            onSuccess = { lat, lng -> refreshDrawCardList(list, LatLng(lat, lng)) },
-            onFailure = { refreshDrawCardList(list, null) }
-        )
-    }
-
-    /**
      * 刷新人氣餐廳卡片列表
      */
     private fun refreshDrawCardList(
-        list: List<RestaurantResult>,
-        latLng: LatLng?
+        list: List<RestaurantResult>
     ) = with(binding) {
         rlRv.isVisible = list.isNotEmpty()
         lottieNoData.isVisible = list.isEmpty()
-        drawCardAdapter.submitList(list, latLng) {
+        drawCardAdapter.submitList(list) {
             if (viewModel.drawCardPosition != -1) {
                 val position = if (viewModel.drawCardPosition < list.size)
                     viewModel.drawCardPosition

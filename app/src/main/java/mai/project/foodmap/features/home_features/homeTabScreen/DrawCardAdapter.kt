@@ -7,12 +7,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import coil.transform.RoundedCornersTransformation
-import com.google.android.gms.maps.model.LatLng
 import mai.project.core.annotations.ImageType
 import mai.project.core.extensions.inflateBinding
 import mai.project.core.extensions.onClick
 import mai.project.core.utils.ImageLoaderUtil
-import mai.project.core.utils.Method
 import mai.project.foodmap.R
 import mai.project.foodmap.databinding.ItemDrawCardBinding
 import mai.project.foodmap.domain.models.RestaurantResult
@@ -20,20 +18,9 @@ import java.util.Locale
 
 class DrawCardAdapter : ListAdapter<RestaurantResult, ViewHolder>(DiffUtilCallback) {
 
-    private var currentLatLng: LatLng? = null
-
     var onItemClick: ((RestaurantResult) -> Unit)? = null
 
     var onFavoriteClick: ((RestaurantResult) -> Unit)? = null
-
-    fun submitList(
-        list: List<RestaurantResult>,
-        currentLatLng: LatLng?,
-        commitCallback: Runnable
-    ) {
-        this.currentLatLng = currentLatLng
-        submitList(list.toMutableList(), commitCallback)
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         DrawCardViewModel.from(parent)
@@ -42,7 +29,6 @@ class DrawCardAdapter : ListAdapter<RestaurantResult, ViewHolder>(DiffUtilCallba
         if (holder is DrawCardViewModel) holder.bind(
             item = getItem(position),
             onItemClick = onItemClick,
-            currentLatLng = currentLatLng,
             onFavoriteClick = onFavoriteClick
         )
     }
@@ -52,7 +38,6 @@ class DrawCardAdapter : ListAdapter<RestaurantResult, ViewHolder>(DiffUtilCallba
         if (payloads.isEmpty() && holder is DrawCardViewModel) {
             holder.bind(
                 item = getItem(position),
-                currentLatLng = currentLatLng,
                 onItemClick = onItemClick,
                 onFavoriteClick = onFavoriteClick
             )
@@ -75,7 +60,6 @@ class DrawCardAdapter : ListAdapter<RestaurantResult, ViewHolder>(DiffUtilCallba
 
         fun bind(
             item: RestaurantResult,
-            currentLatLng: LatLng?,
             onItemClick: ((RestaurantResult) -> Unit)?,
             onFavoriteClick: ((RestaurantResult) -> Unit)?
         ) = with(binding) {
@@ -94,17 +78,10 @@ class DrawCardAdapter : ListAdapter<RestaurantResult, ViewHolder>(DiffUtilCallba
             tvAddress.text = item.address
             updateFavorite(item.isFavorite)
 
-            // TODO 改
-            val distance = currentLatLng?.let {
-                Method.calculateDistance(
-                    start = it,
-                    end = LatLng(item.lat, item.lng)
-                )
-            } ?: item.distance
             tvDistance.text = String.format(
                 Locale.getDefault(),
-                if (distance < 1000) context.getString(R.string.format_number_meter) else context.getString(R.string.format_number_kilometer),
-                if (distance < 1000) distance else distance / 1000
+                if (item.distance < 1000) context.getString(R.string.format_number_meter) else context.getString(R.string.format_number_kilometer),
+                if (item.distance < 1000) item.distance else item.distance / 1000
             )
 
             root.onClick { onItemClick?.invoke(item) }
