@@ -1,9 +1,12 @@
 # 美食地圖 App
 
+<img src="./photos/icon.png" alt="App Icon" width="100" />
+
 美食地圖是一款便捷的 Android 應用程式，讓你輕鬆查詢鄰近餐廳資訊，並提供最佳路線與高評價餐廳推薦，協助你在茫然中找到理想的用餐地點。
+
 是基於 Google Maps API 實作的台灣美食地圖APP。
 
-後端的Server為 [kkldream/Food-Map-Server](https://github.com/kkldream/Food-Map-Server)
+後端的 Server 專案為 [kkldream/Food-Map-Server](https://github.com/kkldream/Food-Map-Server)
 
 ## 主要功能
 
@@ -18,6 +21,15 @@
 
 - **自定義查詢範圍**  
   根據使用者設定的距離範圍，靈活調整查詢結果，滿足不同需求。
+
+## App 截圖
+
+|info|Preview|info|Preview|
+|--|--|--|--|
+|應用程式初始化面|<img src="./photos/introduct_page.png" width="200">|應用程式首頁|<img src="./photos/home_page.png" width="200">|
+|附近餐廳列表|<img src="./photos/list_page.png" width="200">|餐廳導航路線|<img src="./photos/navigation_page.png" width="200">|
+|餐廳詳細資訊|<img src="./photos/detail_page.png" width="200">|附近餐廳地圖|<img src="./photos/maps_page.png" width="200">|
+|收藏的餐廳|<img src="./photos/favorite_page.png" width="200">|個人設定|<img src="./photos/settings_page.png" width="200">|
 
 ## 架構設計
 
