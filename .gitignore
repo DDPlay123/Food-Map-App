@@ -16,10 +16,7 @@
 *.aab
 output.json
 .DS_Store
-/app_client/production/release
-/app_client/production/debug
-/app_designer/production/release
-/app_designer/production/debug
+/app/release
 
 # IntelliJ
 *.iml

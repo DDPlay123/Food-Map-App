@@ -173,12 +173,10 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
         if (isOpen) {
             @Suppress("DEPRECATION")
             activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, windowInsets ->
-                    val insets = windowInsets.getInsets(WindowInsetsCompat.Type.ime())
-                    view.setPadding(0, 0, 0, insets.bottom)
-                    WindowInsetsCompat.CONSUMED
-                }
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.ime())
+                view.setPadding(0, 0, 0, insets.bottom)
+                WindowInsetsCompat.CONSUMED
             }
         } else {
             activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)

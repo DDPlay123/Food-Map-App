@@ -1,9 +1,13 @@
 package mai.project.core.utils
 
+import android.app.Activity
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
+import androidx.core.app.ActivityCompat
 import com.google.android.gms.maps.model.LatLng
+import mai.project.core.Configs
 import java.io.ByteArrayOutputStream
 import kotlin.math.acos
 import kotlin.math.cos
@@ -13,6 +17,26 @@ import kotlin.math.sin
  * 常用或通用的方法
  */
 object Method {
+
+    /**
+     * 請求權限
+     */
+    fun requestPermission(
+        activity: Activity,
+        vararg permissions: String
+    ): Boolean {
+        val hasPermissions = permissions.all {
+            activity.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED
+        }
+        return when {
+            !hasPermissions -> {
+                activity.requestPermissions(permissions, Configs.REQUEST_CODE_PERMISSION)
+                false
+            }
+
+            else -> true
+        }
+    }
 
     /**
      * 將 base64 字串轉換成 bitmap
