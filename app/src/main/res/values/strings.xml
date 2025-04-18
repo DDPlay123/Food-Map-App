@@ -80,6 +80,7 @@
     <string name="sentence_audio_permission_denied">Voice recognition permission denied</string>
     <string name="sentence_not_found_search">No search results found</string>
     <string name="sentence_notification_permission_denied">Notification permission is not enabled</string>
+    <string name="sentence_storage_permission_denied">File read/write permission has not been enabled yet</string>
     <string name="sentence_crop_image_failed">Crop failed</string>
 
     <string name="rule_username_empty">Username cannot be empty</string>

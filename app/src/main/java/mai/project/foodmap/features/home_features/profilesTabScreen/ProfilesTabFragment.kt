@@ -1,6 +1,8 @@
 package mai.project.foodmap.features.home_features.profilesTabScreen
 
+import android.Manifest
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,6 +17,7 @@ import mai.project.core.extensions.DP
 import mai.project.core.extensions.displayToast
 import mai.project.core.extensions.launchAndRepeatStarted
 import mai.project.core.extensions.parcelable
+import mai.project.core.utils.Method
 import mai.project.core.widget.recyclerView_decorations.SpacesItemDecoration
 import mai.project.foodmap.R
 import mai.project.foodmap.base.BaseFragment
@@ -109,7 +112,15 @@ class ProfilesTabFragment : BaseFragment<FragmentProfilesTabBinding, ProfilesTab
     }
 
     override fun FragmentProfilesTabBinding.setListener() {
-        personalDataAdapter.onImageClick = {
+        personalDataAdapter.onImageClick = tag@{
+            if (
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU &&
+                !Method.requestPermission(
+                    requireActivity(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+            ) return@tag
             pickSingleMediaLauncher.launch(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
             )

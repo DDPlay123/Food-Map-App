@@ -30,6 +30,7 @@ import mai.project.core.extensions.launchWithoutRepeat
 import mai.project.core.extensions.openAppSettings
 import mai.project.core.extensions.showSnackBar
 import mai.project.core.utils.Event
+import mai.project.core.utils.Method
 import mai.project.core.widget.recyclerView_adapters.ImagePreviewPagerAdapter
 import mai.project.foodmap.base.BaseActivity
 import mai.project.foodmap.databinding.ActivityMainBinding
@@ -194,6 +195,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
                 val message = when (permissions[index]) {
                     Manifest.permission.POST_NOTIFICATIONS -> getString(R.string.sentence_notification_permission_denied)
 
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE -> getString(R.string.sentence_storage_permission_denied)
+
                     else -> continue
                 }
                 showSnackBar(
@@ -246,7 +250,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
         }
 
         if (Build.VERSION.SDK_INT >= 33) {
-            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), Configs.REQUEST_CODE_PERMISSION)
+            Method.requestPermission(this@MainActivity, Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 
