@@ -15,6 +15,7 @@ import android.widget.FrameLayout
 import android.widget.SeekBar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -252,7 +253,7 @@ class SearchBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSearchBin
             // 搜尋的結果
             { searchRestaurantsResult.collect(::handleSearchRestaurantsResult) },
             // 列表資料
-            { restaurantList.collect(searchAdapter::submitList) }
+            { restaurantList.collect(::handleRestaurantList) }
         )
     }
 
@@ -366,5 +367,16 @@ class SearchBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSearchBin
             },
             workOnError = { viewModel.getSearchRecords() }
         )
+    }
+
+    /**
+     * 處理餐廳的列表資料
+     */
+    private fun handleRestaurantList(
+        list: List<SearchRestaurantResult>
+    ) = with(binding) {
+        searchAdapter.submitList(list)
+        val showGroupHistory = list.isNotEmpty() && !list.first().isSearch
+        groupHistory.isVisible = showGroupHistory
     }
 }
