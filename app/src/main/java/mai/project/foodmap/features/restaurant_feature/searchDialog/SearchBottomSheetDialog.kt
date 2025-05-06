@@ -2,6 +2,7 @@ package mai.project.foodmap.features.restaurant_feature.searchDialog
 
 import android.Manifest
 import android.app.Activity.RESULT_OK
+import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Canvas
@@ -9,7 +10,6 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.os.Bundle
 import android.speech.RecognizerIntent
-import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.SeekBar
@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -167,6 +168,33 @@ class SearchBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSearchBin
         }
     }
 
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        // 使用 super 拿到底層的 BottomSheetDialog
+        val dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
+
+        // 當 dialog 顯示時，設定行為
+        dialog.setOnShowListener {
+            // 1. 找到底部 sheet container
+            val bottomSheet = dialog
+                .findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
+                ?: return@setOnShowListener
+
+            // 2. 把 container 高度改成全螢幕
+            bottomSheet.layoutParams = bottomSheet.layoutParams.apply {
+                height = ViewGroup.LayoutParams.MATCH_PARENT
+            }
+
+            // 3. 取得 Behavior，設為展開並跳過半折疊
+            BottomSheetBehavior.from(bottomSheet).apply {
+                skipCollapsed = true
+                isFitToContents = true
+                state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
+
+        return dialog
+    }
+
     override fun DialogBottomSheetSearchBinding.initialize(savedInstanceState: Bundle?) {
         sbDistance.max = Configs.MAX_SEARCH_DISTANCE - Configs.MIN_SEARCH_DISTANCE
 
@@ -212,16 +240,6 @@ class SearchBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSearchBin
                         }
                     )
                 }
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        // 完全展開
-        dialog?.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)?.let {
-            val behavior: BottomSheetBehavior<*> = BottomSheetBehavior.from<View>(it)
-            behavior.skipCollapsed = true
-            it.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
         }
     }
 

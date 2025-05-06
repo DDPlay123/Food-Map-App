@@ -1,20 +1,15 @@
 package mai.project.foodmap.base
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.viewbinding.ViewBinding
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import mai.project.core.extensions.displayToast
 import mai.project.core.utils.Event
-import mai.project.foodmap.R
 import mai.project.foodmap.domain.state.NetworkResult
 import mai.project.foodmap.domain.utils.handleResult
 import timber.log.Timber
@@ -64,20 +59,6 @@ abstract class BaseBottomSheetDialog<VB : ViewBinding, VM : BaseViewModel>(
         }
     }
     // endregion public function
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme).apply {
-            // 完全展開 BottomSheet
-            setOnShowListener { dialog ->
-                val bottomSheetDialog = dialog as BottomSheetDialog
-                bottomSheetDialog.findViewById<FrameLayout>(
-                    com.google.android.material.R.id.design_bottom_sheet
-                )?.also { fl ->
-                    BottomSheetBehavior.from(fl).state = BottomSheetBehavior.STATE_EXPANDED
-                }
-            }
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
