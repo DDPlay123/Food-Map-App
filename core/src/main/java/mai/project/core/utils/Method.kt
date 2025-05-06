@@ -5,13 +5,13 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
-import androidx.core.app.ActivityCompat
 import com.google.android.gms.maps.model.LatLng
 import mai.project.core.Configs
 import java.io.ByteArrayOutputStream
 import kotlin.math.acos
 import kotlin.math.cos
 import kotlin.math.sin
+import androidx.core.graphics.scale
 
 /**
  * 常用或通用的方法
@@ -56,7 +56,7 @@ object Method {
         if (bitmap == null) return null
         val previewWidth = 512
         val previewHeight = bitmap.height * previewWidth / bitmap.height
-        val previewBitmap = Bitmap.createScaledBitmap(bitmap, previewWidth, previewHeight, false)
+        val previewBitmap = bitmap.scale(previewWidth, previewHeight, false)
 
         val byteArrayOutputStream = ByteArrayOutputStream()
         previewBitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream)

@@ -2,7 +2,6 @@ package mai.project.core.extensions
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
@@ -59,7 +58,7 @@ fun Activity.openAppSettings() {
             startActivity(this)
         }
     } catch (e: Exception) {
-        Timber.e(message = "openAppSettings() 發生錯誤", t = e)
+        Timber.e(t = e, message = "openAppSettings() 發生錯誤")
         FirebaseCrashlytics.getInstance().recordException(e)
     }
 }
@@ -74,7 +73,7 @@ fun Activity.openGpsSettings() {
             startActivity(this)
         }
     } catch (e: Exception) {
-        Timber.e(message = "openGpsSettings() 發生錯誤", t = e)
+        Timber.e(t = e, message = "openGpsSettings() 發生錯誤")
         FirebaseCrashlytics.getInstance().recordException(e)
     }
 }
@@ -89,7 +88,7 @@ fun Activity.openPhoneCall(phone: String) {
             startActivity(this)
         }
     } catch (e: Exception) {
-        Timber.e(message = "openPhoneCall() 發生錯誤", t = e)
+        Timber.e(t = e, message = "openPhoneCall() 發生錯誤")
         FirebaseCrashlytics.getInstance().recordException(e)
     }
 }
@@ -109,12 +108,12 @@ fun Activity.openUrlWithBrowser(url: String) {
         CustomTabsIntent.Builder().apply {
             setShowTitle(true)
             build().also {
-                it.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://$packageName"))
+                it.intent.putExtra(Intent.EXTRA_REFERRER, "android-app://$packageName".toUri())
                 it.launchUrl(this@openUrlWithBrowser, formattedUrl.toUri())
             }
         }
     } catch (e: Exception) {
-        Timber.e(message = "openUrlWithBrowser() 發生錯誤", t = e)
+        Timber.e(t = e, message = "openUrlWithBrowser() 發生錯誤")
         FirebaseCrashlytics.getInstance().recordException(e)
         openUrl(formattedUrl)
     }
@@ -137,7 +136,7 @@ fun Activity.openUrl(url: String) {
         }
         startActivity(intent)
     } catch (e: Exception) {
-        Timber.e(message = "openUrl() 發生錯誤", t = e)
+        Timber.e(t = e, message = "openUrl() 發生錯誤")
         FirebaseCrashlytics.getInstance().recordException(e)
     }
 }
@@ -159,7 +158,7 @@ fun Activity.openGoogleNavigation(
             startActivity(this)
         }
     } catch (e: Exception) {
-        Timber.e(message = "openGoogleNavigation() 發生錯誤", t = e)
+        Timber.e(t = e, message = "openGoogleNavigation() 發生錯誤")
         FirebaseCrashlytics.getInstance().recordException(e)
     }
 }
@@ -186,7 +185,7 @@ fun Activity.shareLink(
         , title)
         startActivity(share)
     } catch (e: Exception) {
-        Timber.e(message = "shareLink", t = e)
+        Timber.e(t = e, message = "shareLink")
         FirebaseCrashlytics.getInstance().recordException(e)
     }
 }

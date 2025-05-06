@@ -116,7 +116,7 @@ class GoogleMapUtil @Inject constructor(
                     fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
                 }
             }.addOnFailureListener {
-                Timber.e(message = "取得經緯度失敗", t = it)
+                Timber.e(t = it, message = "取得經緯度失敗")
                 onFailure()
             }
         } else {
@@ -239,7 +239,7 @@ class GoogleMapUtil @Inject constructor(
                 compassView.layoutParams = layoutParams
             }
         } catch (e: Exception) {
-            Timber.e(message = "setCompass", t = e)
+            Timber.e(t = e, message = "setCompass")
         }
     }
 

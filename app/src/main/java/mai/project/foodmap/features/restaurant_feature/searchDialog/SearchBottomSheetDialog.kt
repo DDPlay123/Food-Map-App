@@ -2,6 +2,7 @@ package mai.project.foodmap.features.restaurant_feature.searchDialog
 
 import android.Manifest
 import android.app.Activity.RESULT_OK
+import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Canvas
@@ -9,12 +10,12 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.os.Bundle
 import android.speech.RecognizerIntent
-import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.SeekBar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -23,6 +24,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -167,6 +169,33 @@ class SearchBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSearchBin
         }
     }
 
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        // 使用 super 拿到底層的 BottomSheetDialog
+        val dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
+
+        // 當 dialog 顯示時，設定行為
+        dialog.setOnShowListener {
+            // 1. 找到底部 sheet container
+            val bottomSheet = dialog
+                .findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
+                ?: return@setOnShowListener
+
+            // 2. 把 container 高度改成全螢幕
+            bottomSheet.layoutParams = bottomSheet.layoutParams.apply {
+                height = ViewGroup.LayoutParams.MATCH_PARENT
+            }
+
+            // 3. 取得 Behavior，設為展開並跳過半折疊
+            BottomSheetBehavior.from(bottomSheet).apply {
+                skipCollapsed = true
+                isFitToContents = true
+                state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
+
+        return dialog
+    }
+
     override fun DialogBottomSheetSearchBinding.initialize(savedInstanceState: Bundle?) {
         sbDistance.max = Configs.MAX_SEARCH_DISTANCE - Configs.MIN_SEARCH_DISTANCE
 
@@ -215,16 +244,6 @@ class SearchBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSearchBin
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        // 完全展開
-        dialog?.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)?.let {
-            val behavior: BottomSheetBehavior<*> = BottomSheetBehavior.from<View>(it)
-            behavior.skipCollapsed = true
-            it.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
-        }
-    }
-
     override fun DialogBottomSheetSearchBinding.setObserver() = with(viewModel) {
         launchAndRepeatStarted(
             // 搜尋的距離
@@ -234,7 +253,7 @@ class SearchBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSearchBin
             // 搜尋的結果
             { searchRestaurantsResult.collect(::handleSearchRestaurantsResult) },
             // 列表資料
-            { restaurantList.collect(searchAdapter::submitList) }
+            { restaurantList.collect(::handleRestaurantList) }
         )
     }
 
@@ -299,7 +318,7 @@ class SearchBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSearchBin
             runCatching {
                 speechRecognizerLauncher.launch(this)
             }.onFailure {
-                Timber.e(message = "無法使用語音辨識", t = it)
+                Timber.e(t = it, message = "無法使用語音辨識")
                 FirebaseCrashlytics.getInstance().recordException(it)
                 displayToast(message = getString(R.string.sentence_not_support_speech_recognizer))
             }
@@ -348,5 +367,16 @@ class SearchBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSearchBin
             },
             workOnError = { viewModel.getSearchRecords() }
         )
+    }
+
+    /**
+     * 處理餐廳的列表資料
+     */
+    private fun handleRestaurantList(
+        list: List<SearchRestaurantResult>
+    ) = with(binding) {
+        searchAdapter.submitList(list)
+        val showGroupHistory = list.isNotEmpty() && !list.first().isSearch
+        groupHistory.isVisible = showGroupHistory
     }
 }

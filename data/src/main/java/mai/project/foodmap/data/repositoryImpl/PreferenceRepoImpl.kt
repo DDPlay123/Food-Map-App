@@ -125,7 +125,7 @@ internal class PreferenceRepoImpl @Inject constructor(
     override val readMyFavoritePlaceIds: Flow<Set<String>>
         get() = dataStore.data.catch { exception ->
             if (exception is IOException) {
-                Timber.e(message = "Error get Set<String> data", t = exception)
+                Timber.e(t = exception, message = "Error get Set<String> data")
                 emit(emptyPreferences())
             } else {
                 throw exception
@@ -155,7 +155,7 @@ internal class PreferenceRepoImpl @Inject constructor(
     override val readMyBlacklistPlaceIds: Flow<Set<String>>
         get() = dataStore.data.catch { exception ->
             if (exception is IOException) {
-                Timber.e(message = "Error get Set<String> data", t = exception)
+                Timber.e(t = exception, message = "Error get Set<String> data")
                 emit(emptyPreferences())
             } else {
                 throw exception

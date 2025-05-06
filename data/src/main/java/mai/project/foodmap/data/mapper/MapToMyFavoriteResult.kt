@@ -1,7 +1,6 @@
 package mai.project.foodmap.data.mapper
 
 import mai.project.foodmap.data.BuildConfig
-import mai.project.foodmap.data.localDataSource.entities.MyFavoriteEntity
 import mai.project.foodmap.data.remoteDataSource.models.GetFavoriteListRes
 import mai.project.foodmap.data.utils.mapResult
 import mai.project.foodmap.domain.models.MyFavoriteResult

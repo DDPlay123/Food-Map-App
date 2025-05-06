@@ -39,9 +39,9 @@ internal object AES {
             val cipherText = encrypt(key, IV_BYTES, message.toByteArray(charset(CHARSET)))
             // NO_WRAP is important as was getting \n at the end
             return Base64.encodeToString(cipherText, Base64.NO_WRAP)
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             null
-        } catch (e: GeneralSecurityException) {
+        } catch (_: GeneralSecurityException) {
             null
         }
     }
@@ -58,9 +58,9 @@ internal object AES {
             val ivSpec = IvParameterSpec(iv)
             cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec)
             return cipher.doFinal(message)
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             null
-        } catch (e: GeneralSecurityException) {
+        } catch (_: GeneralSecurityException) {
             null
         }
     }
@@ -96,9 +96,9 @@ internal object AES {
             val decodedCipherText = Base64.decode(base64EncodedCipherText, Base64.NO_WRAP)
             val decryptedBytes = decrypt(key, IV_BYTES, decodedCipherText)
             decryptedBytes?.let { String(it, charset(CHARSET)) }
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             null
-        } catch (e: GeneralSecurityException) {
+        } catch (_: GeneralSecurityException) {
             null
         }
     }
@@ -115,9 +115,9 @@ internal object AES {
             val ivSpec = IvParameterSpec(iv)
             cipher.init(Cipher.DECRYPT_MODE, key, ivSpec)
             cipher.doFinal(decodedCipherText)
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             null
-        } catch (e: GeneralSecurityException) {
+        } catch (_: GeneralSecurityException) {
             null
         }
     }

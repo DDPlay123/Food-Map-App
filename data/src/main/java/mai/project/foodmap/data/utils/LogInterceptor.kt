@@ -65,7 +65,7 @@ internal class LogInterceptor : Interceptor {
                 try {
                     charset = contentType.charset(utf8) ?: utf8
                 } catch (e: UnsupportedCharsetException) {
-                    Timber.e(message = "interceptResponseBody", t = e)
+                    Timber.e(t = e, message = "interceptResponseBody")
                 }
             }
             buffer?.clone()?.readString(charset) ?: ""

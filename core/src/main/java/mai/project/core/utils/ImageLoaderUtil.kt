@@ -234,7 +234,7 @@ object ImageLoaderUtil {
                 .build()
             (imageLoader.execute(request).drawable as? BitmapDrawable)?.bitmap
         } catch (e: Exception) {
-            Timber.e(message = "getBitmapImage", t = e)
+            Timber.e(t = e, message = "getBitmapImage")
             FirebaseCrashlytics.getInstance().recordException(e)
             null
         }

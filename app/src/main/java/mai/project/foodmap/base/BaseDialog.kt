@@ -1,7 +1,6 @@
 package mai.project.foodmap.base
 
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +10,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.viewbinding.ViewBinding
 import timber.log.Timber
+import androidx.core.graphics.drawable.toDrawable
 
 /**
  * 基礎 Dialog ，用於繼承
@@ -43,7 +43,7 @@ abstract class BaseDialog<VB : ViewBinding, VM : BaseViewModel>(
         Timber.d(message = "${this::class.simpleName} onCreateView")
         _binding = bindingInflater.invoke(inflater)
         // 設定背景透明
-        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog?.window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         return binding.root
     }
 

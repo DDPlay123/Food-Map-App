@@ -65,7 +65,7 @@ internal object DataStoreUtil {
     inline fun <reified T> DataStore<Preferences>.getData(key: String, default: T): Flow<T> {
         return data.catch { exception ->
             if (exception is IOException) {
-                Timber.e(message = "Error get data", t = exception)
+                Timber.e(t = exception, message = "Error get data")
                 emit(emptyPreferences())
             } else {
                 throw exception
