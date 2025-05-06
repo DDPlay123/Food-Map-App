@@ -508,8 +508,8 @@ class RestaurantDetailFragment : BaseFragment<FragmentRestaurantDetailBinding, R
         handleBasicResult(
             event = event,
             workOnSuccess = { data ->
-                viewModel.setIsFavorite(data?.isFavorite ?: false)
-                viewModel.setIsBlocked(data?.isBlackList ?: false)
+                viewModel.setIsFavorite(data?.isFavorite == true)
+                viewModel.setIsBlocked(data?.isBlackList == true)
                 data?.let(::setupDetailUI)
             }
         )

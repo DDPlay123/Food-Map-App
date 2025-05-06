@@ -19,7 +19,7 @@ val View.showKeyboard: Boolean
             val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             this.requestFocus()
             imm.showSoftInput(this, 0)
-        } catch (ignored: RuntimeException) {
+        } catch (_: RuntimeException) {
             false
         }
     }
@@ -32,7 +32,7 @@ val View.hideKeyboard: Boolean
         return try {
             val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             return imm.hideSoftInputFromWindow(windowToken, 0)
-        } catch (ignored: RuntimeException) {
+        } catch (_: RuntimeException) {
             false
         }
     }

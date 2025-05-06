@@ -364,7 +364,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, SharedViewModel>(
         try {
             navController.navigate(directions, navOptions)
         } catch (e: Exception) {
-            Timber.e(message = "safeNavigate", t = e)
+            Timber.e(t = e, message = "safeNavigate")
             FirebaseCrashlytics.getInstance().recordException(e)
         }
     }

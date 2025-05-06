@@ -19,7 +19,7 @@ internal suspend fun safeIoWorker(
         try {
             work()
         } catch (e: Exception) {
-            Timber.e(message = "IO operate failed", t = e)
+            Timber.e(t = e, message = "IO operate failed")
             FirebaseCrashlytics.getInstance().recordException(e)
         }
     }
@@ -86,7 +86,7 @@ internal fun <T> handleAPIResponse(
             }
         }
     } catch (e: Exception) {
-        Timber.e(message = "API response failed", t = e)
+        Timber.e(t = e, message = "API response failed")
         NetworkResult.Error(e.message ?: "Unknown Error")
     }
 }

@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import mai.project.core.R
 import kotlin.math.abs
+import androidx.core.content.withStyledAttributes
 
 /**
  * 帶有展開收合功能的 TextView
@@ -102,18 +103,18 @@ class ExpandableTextView @JvmOverloads constructor(
 
     init {
         ellipsize = END
-        val a = context.obtainStyledAttributes(attrs, R.styleable.ExpandableTextView)
-        expandAction = a.getString(R.styleable.ExpandableTextView_expandableTextViewExpandAction) ?: expandAction
-        expandActionColor = a.getColor(R.styleable.ExpandableTextView_expandableTextViewExpandActionColor, expandActionColor)
-        originalText = a.getString(R.styleable.ExpandableTextView_expandableTextViewOriginalText) ?: originalText
-        limitedMaxLines = a.getInt(R.styleable.ExpandableTextView_expandableTextViewLimitedMaxLines, limitedMaxLines)
-        check(maxLines == -1 || limitedMaxLines <= maxLines) {
-            """
+        context.withStyledAttributes(attrs, R.styleable.ExpandableTextView) {
+            expandAction = getString(R.styleable.ExpandableTextView_expandableTextViewExpandAction) ?: expandAction
+            expandActionColor = getColor(R.styleable.ExpandableTextView_expandableTextViewExpandActionColor, expandActionColor)
+            originalText = getString(R.styleable.ExpandableTextView_expandableTextViewOriginalText) ?: originalText
+            limitedMaxLines = getInt(R.styleable.ExpandableTextView_expandableTextViewLimitedMaxLines, limitedMaxLines)
+            check(maxLines == -1 || limitedMaxLines <= maxLines) {
+                """
                 maxLines ($maxLines) must be greater than or equal to limitedMaxLines ($limitedMaxLines). 
                 maxLines can be -1 if there is no upper limit for lineCount.
             """.trimIndent()
+            }
         }
-        a.recycle()
         setOnClickListener { toggle() }
     }
 

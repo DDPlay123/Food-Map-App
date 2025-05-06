@@ -42,8 +42,8 @@ internal fun NetworkResult<GetPlaceDetailRes>.mapToRestaurantDetailResult(
                         time = review.relativeTimeDescription
                     )
                 } ?: emptyList(),
-                isFavorite = data?.result?.isFavorite ?: false,
-                isBlackList = data?.result?.isBlackList ?: false
+                isFavorite = data?.result?.isFavorite == true,
+                isBlackList = data?.result?.isBlackList == true
             )
         }
     }

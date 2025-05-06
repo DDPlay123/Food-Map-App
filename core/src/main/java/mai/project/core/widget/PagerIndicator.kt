@@ -2,22 +2,20 @@ package mai.project.core.widget
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import androidx.annotation.ColorInt
 import androidx.annotation.Dimension
-import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
 import mai.project.core.R
 import mai.project.core.extensions.DP
-import mai.project.core.extensions.getColorCompat
 import kotlin.math.abs
+import androidx.core.graphics.toColorInt
 
 /**
  * 可應用於 ViewPager 或 RecyclerView 的指示器。
@@ -70,10 +68,10 @@ class PagerIndicator @JvmOverloads constructor(
 
     // 繪製指示器點點的畫筆
     @ColorInt
-    private var dotColor: Int = Color.parseColor("#C4C4C4")
+    private var dotColor: Int = "#C4C4C4".toColorInt()
 
     @ColorInt
-    private var selectedDotColor: Int = Color.parseColor("#F52C56")
+    private var selectedDotColor: Int = "#F52C56".toColorInt()
     private var selectedDotPaint: Paint
     private var dotPaint: Paint
 

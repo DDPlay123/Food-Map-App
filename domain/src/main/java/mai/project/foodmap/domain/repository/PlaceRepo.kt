@@ -3,7 +3,6 @@ package mai.project.foodmap.domain.repository
 import kotlinx.coroutines.flow.Flow
 import mai.project.foodmap.domain.models.RestaurantDetailResult
 import mai.project.foodmap.domain.models.RestaurantResult
-import mai.project.foodmap.domain.models.SearchPlaceResult
 import mai.project.foodmap.domain.models.SearchRestaurantResult
 import mai.project.foodmap.domain.state.NetworkResult
 import javax.inject.Singleton

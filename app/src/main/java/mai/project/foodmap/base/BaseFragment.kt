@@ -3,7 +3,6 @@ package mai.project.foodmap.base
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -232,7 +231,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
         try {
             activity?.onBackPressedDispatcher?.onBackPressed()
         } catch (e: Exception) {
-            Timber.e(message = "onBackPressed()", t = e)
+            Timber.e(t = e, message = "onBackPressed()")
             errorCallback?.invoke(e)
         }
     }
@@ -257,7 +256,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
         try {
             navController.navigate(resId, args, navOptions, navigatorExtras)
         } catch (e: Exception) {
-            Timber.e(message = "navigate()", t = e)
+            Timber.e(t = e, message = "navigate()")
             errorCallback?.invoke(e)
         }
     }
@@ -278,7 +277,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
         try {
             navController.navigate(directions, navOptions)
         } catch (e: Exception) {
-            Timber.e(message = "navigate()", t = e)
+            Timber.e(t = e, message = "navigate()")
             errorCallback?.invoke(e)
         }
     }
@@ -299,7 +298,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
         try {
             navController.navigate(directions, navigatorExtras)
         } catch (e: Exception) {
-            Timber.e(message = "navigate()", t = e)
+            Timber.e(t = e, message = "navigate()")
             errorCallback?.invoke(e)
         }
     }
@@ -322,7 +321,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
         try {
             navController.navigate(deepLink, navOptions, navigatorExtras)
         } catch (e: Exception) {
-            Timber.e(message = "navigate()", t = e)
+            Timber.e(t = e, message = "navigate()")
             errorCallback?.invoke(e)
         }
     }
@@ -345,7 +344,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
         try {
             navController.navigate(request, navOptions, navigatorExtras)
         } catch (e: Exception) {
-            Timber.e(message = "navigate()", t = e)
+            Timber.e(t = e, message = "navigate()")
             errorCallback?.invoke(e)
         }
     }
@@ -362,7 +361,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
         try {
             navController.popBackStack()
         } catch (e: Exception) {
-            Timber.e(message = "popBackStack()", t = e)
+            Timber.e(t = e, message = "popBackStack()")
             errorCallback?.invoke(e)
         }
     }
@@ -385,7 +384,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
         try {
             navController.popBackStack(destinationId, inclusive, saveState)
         } catch (e: Exception) {
-            Timber.e(message = "popBackStack()", t = e)
+            Timber.e(t = e, message = "popBackStack()")
             errorCallback?.invoke(e)
         }
     }
@@ -408,7 +407,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
         try {
             navController.popBackStack(route, inclusive, saveState)
         } catch (e: Exception) {
-            Timber.e(message = "popBackStack()", t = e)
+            Timber.e(t = e, message = "popBackStack()")
             errorCallback?.invoke(e)
         }
     }
@@ -425,7 +424,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(
         try {
             navController.navigateUp()
         } catch (e: Exception) {
-            Timber.e(message = "navigate()", t = e)
+            Timber.e(t = e, message = "navigate()")
             errorCallback?.invoke(e)
         }
     }

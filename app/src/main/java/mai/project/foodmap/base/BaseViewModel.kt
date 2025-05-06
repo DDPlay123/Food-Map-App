@@ -44,7 +44,7 @@ abstract class BaseViewModel(
                 GlobalEvent.setAccessKeyIllegal(this is NetworkResult.AccessKeyIllegal)
             }
         } catch (e: Exception) {
-            Timber.e(message = "API call failed", t = e)
+            Timber.e(t = e, message = "API call failed")
             FirebaseCrashlytics.getInstance().recordException(
                 Exception("API call failed on ViewModel", e)
             )
@@ -69,7 +69,7 @@ abstract class BaseViewModel(
         if (isLoading) {
             try {
                 withTimeout(timeoutMillis) { delay(timeoutMillis) }
-            } catch (e: TimeoutCancellationException) {
+            } catch (_: TimeoutCancellationException) {
                 _isLoading.value = false
             }
         }

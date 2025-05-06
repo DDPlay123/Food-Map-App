@@ -317,7 +317,7 @@ class SearchBottomSheetDialog : BaseBottomSheetDialog<DialogBottomSheetSearchBin
             runCatching {
                 speechRecognizerLauncher.launch(this)
             }.onFailure {
-                Timber.e(message = "無法使用語音辨識", t = it)
+                Timber.e(t = it, message = "無法使用語音辨識")
                 FirebaseCrashlytics.getInstance().recordException(it)
                 displayToast(message = getString(R.string.sentence_not_support_speech_recognizer))
             }
