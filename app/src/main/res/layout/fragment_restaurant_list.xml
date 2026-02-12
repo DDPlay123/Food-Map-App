@@ -105,6 +105,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:background="@drawable/bg_distance_controller"
+        android:clickable="true"
+        android:focusable="true"
         android:paddingHorizontal="20dp"
         android:paddingVertical="20dp"
         android:visibility="gone"

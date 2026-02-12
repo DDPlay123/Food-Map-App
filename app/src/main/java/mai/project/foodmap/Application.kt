@@ -10,6 +10,7 @@ import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import mai.project.core.utils.ImageLoaderUtil
+import mai.project.core.utils.TimberDebugTree
 import mai.project.core.utils.notification.NotificationType
 import mai.project.core.utils.notification.NotificationUtil
 import mai.project.foodmap.domain.repository.PreferenceRepo
@@ -55,7 +56,7 @@ class Application : Application(), ImageLoaderFactory {
     private fun setupDebugMode() {
         if (BuildConfig.DEBUG) {
             // 設定 Timber
-            Timber.plant(tagTree)
+            Timber.plant(TimberDebugTree())
         }
     }
 
@@ -77,31 +78,5 @@ class Application : Application(), ImageLoaderFactory {
                 forEach(::createNotificationChannel)
             }
         }
-    }
-
-    companion object {
-        /**
-         * Timber 的 TagTree
-         */
-        private val tagTree: Timber.Tree
-            get() {
-                return object : Timber.DebugTree() {
-                    override fun createStackElementTag(element: StackTraceElement): String =
-                        "[${element.fileName}:${element.lineNumber}:${element.methodName}]"
-
-                    override fun log(priority: Int, message: String?, vararg args: Any?) {
-                        var adjustedMessage = message
-                        message?.let { msg ->
-                            val maxLength = 1000 // 最大長度
-
-                            // 超過最大長度，就截斷
-                            if (msg.length > maxLength) {
-                                adjustedMessage = msg.substring(0, maxLength) + "…"
-                            }
-                        }
-                        super.log(priority, adjustedMessage, *args)
-                    }
-                }
-            }
     }
 }

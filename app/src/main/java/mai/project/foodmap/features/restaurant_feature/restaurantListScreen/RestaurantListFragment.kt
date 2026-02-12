@@ -71,7 +71,7 @@ class RestaurantListFragment : BaseFragment<FragmentRestaurantListBinding, Resta
             // 餐廳列表資料
             {
                 combine(restaurantList, myFavoritePlaceIdList, myBlacklistPlaceIdList) { list, favoriteIds, blacklistIds ->
-                    list.map { it.copy(isFavorite = it.placeId in favoriteIds) }
+                    list.distinct().map { it.copy(isFavorite = it.placeId in favoriteIds) }
                         .filter { it.placeId !in blacklistIds }
                 }.collect(::handleRestaurantList)
             }
