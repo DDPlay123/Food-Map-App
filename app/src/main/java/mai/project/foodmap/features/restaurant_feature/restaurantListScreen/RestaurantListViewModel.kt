@@ -101,7 +101,7 @@ class RestaurantListViewModel @Inject constructor(
         lat: Double,
         lng: Double
     ) {
-        searchRestaurants(true, keyword, lat, lng)
+        searchRestaurants(keyword, lat, lng)
     }
 
     fun loadNextRestaurants(
@@ -110,7 +110,7 @@ class RestaurantListViewModel @Inject constructor(
         lng: Double,
         skip: Int
     ) {
-        searchRestaurants(false, keyword, lat, lng, skip)
+        searchRestaurants(keyword, lat, lng, skip)
     }
 
     fun increaseDistanceAndLoadRestaurants(
@@ -118,11 +118,10 @@ class RestaurantListViewModel @Inject constructor(
         lat: Double,
         lng: Double
     ) {
-        searchRestaurants(false, keyword, lat, lng, mSkip)
+        searchRestaurants(keyword, lat, lng, mSkip)
     }
 
     private fun searchRestaurants(
-        isFirst: Boolean,
         keyword: String,
         lat: Double,
         lng: Double,
@@ -132,7 +131,7 @@ class RestaurantListViewModel @Inject constructor(
         mSkip = skip
         mDistance = searchDistance.value * 1000
 
-        if (isFirst) _restaurantList.update { emptySet() }
+        if (skip == 0) _restaurantList.update { emptySet() }
 
         safeApiCallFlow {
             if (keyword.isNotEmpty()) {
