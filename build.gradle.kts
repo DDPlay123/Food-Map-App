@@ -23,10 +23,10 @@ subprojects {
 
     afterEvaluate {
         extensions.findByType<com.android.build.gradle.BaseExtension>()?.apply {
-            compileSdkVersion(35)
+            compileSdkVersion(36)
             defaultConfig {
                 minSdk = 24
-                targetSdk = 35
+                targetSdk = 36
             }
 
             // 設定 Java 編譯版本
