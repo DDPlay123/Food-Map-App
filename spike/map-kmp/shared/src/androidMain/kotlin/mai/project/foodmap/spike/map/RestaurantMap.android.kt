@@ -18,6 +18,7 @@ import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.clustering.Clustering
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -39,6 +40,8 @@ private fun GeoPoint.toLatLng() = LatLng(latitude, longitude)
 private fun boundsOf(points: List<LatLng>): LatLngBounds =
     LatLngBounds.builder().apply { points.forEach(::include) }.build()
 
+// maps-compose 的群集 API（Clustering）仍標示為實驗性；正式 App 遷移時需留意版本升級的變動
+@OptIn(MapsComposeExperimentalApi::class)
 @Composable
 actual fun RestaurantMap(
     markers: List<RestaurantMarker>,

@@ -115,6 +115,22 @@ open MapSpike.xcodeproj
 
 選擇模擬器或實機執行。建置時會自動呼叫 `./gradlew :shared:embedAndSignAppleFrameworkForXcode` 編譯 Kotlin。
 
+### 目前的驗證狀態
+
+| 項目 | 狀態 |
+|---|---|
+| Android 建置（`:androidApp:assembleDebug`） | ✅ 通過，無警告 |
+| Polyline 解碼測試（`:shared:testAndroidHostTest`） | ✅ 4 項通過 |
+| iOS 的 Kotlin 程式碼（`compileKotlinIosArm64`、`compileKotlinIosSimulatorArm64`） | ✅ 在 Linux 上以 klib 交叉編譯通過 |
+| iOS framework 連結、Swift 程式碼編譯、實際執行 | ⏳ 需要 Mac |
+| Android 在手機上實際執行 | ⏳ 需要 Maps API 金鑰與裝置 |
+
+在 Linux 或 Windows 上，也能先確認 iOS 的 Kotlin 程式碼可以編譯：
+
+```bash
+./gradlew :shared:compileKotlinIosSimulatorArm64 -Pkotlin.native.enableKlibsCrossCompilation=true
+```
+
 ### iOS 驗證清單
 
 | 項目 | 怎麼確認 |
