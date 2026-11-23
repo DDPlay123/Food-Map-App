@@ -48,6 +48,80 @@ cd spike/crypto-compat
 - 含有「落單 surrogate」的字串（不成對的 UTF-16 代理字元），JVM 和 iOS 轉成 UTF-8 時的替代字元不同。一般鍵盤輸入不會產生這種字串，所以不納入測試。
 - 解密時，`android.util.Base64` 能接受缺少 `=` padding 的輸入，Kotlin 的 `Base64` 預設不接受。解密只用在 App 自己產生的資料，一定有 padding，所以不影響實際使用。
 
-## map：地圖驗證（P0-02 ～ P0-06）
+## map-kmp：地圖驗證（P0-02 ～ P0-06）
 
-尚未建立。需要先能在雲端安裝 Android SDK，iOS 部分需要 Mac。
+確認 Google Maps 在 Compose Multiplatform 的 iOS 上能做到現有地圖頁的所有功能。Google 沒有提供 Compose Multiplatform 版的 Google Maps，所以兩個平台各自用原生 SDK 實作，對外是同一個 `RestaurantMap` Composable。
+
+### 結構
+
+專案結構採用 AGP 9 之後的 KMP 標準：
+
+| 模組 | 內容 |
+|---|---|
+| `shared` | 共用程式碼與 UI。`commonMain` 放資料模型、Polyline 解碼、示範畫面 `App()` 與 `expect fun RestaurantMap` |
+| `shared/androidMain` | 用 Google 官方的 [maps-compose](https://github.com/googlemaps/android-maps-compose) 與群集實作 |
+| `shared/iosMain` | 定義 `NativeMapView` 介面，用 `UIKitView` 嵌入 Swift 實作的地圖 |
+| `androidApp` | Android 進入點，只套用 `com.android.application` |
+| `iosApp` | iOS 進入點（Swift）。`GoogleMapView.swift` 以 `GMSMapView` + `GMUClusterManager` 實作 `NativeMapView` |
+
+iOS 的地圖由 Swift 實作，再透過介面交給 Kotlin，**Kotlin 不直接綁定 Google Maps iOS SDK**（不用 cinterop）。Google Maps SDK 只要在 Xcode 用 Swift Package Manager 加入，Kotlin 的建置流程不受影響。
+
+### 驗證的行為（照搬正式 App 的 MapTabFragment）
+
+- 自訂外觀的餐廳 Marker（店名 + 評分，選取時以品牌色填滿）
+- 群集：點群集時，還能放大就縮放到群集範圍；已達最大縮放（例如 6 家座標相同的「美食街」）則列出清單
+- 點 Marker：鏡頭移過去，下方橫向列表同步捲到該店
+- 橫向列表滑動停止時，鏡頭移到該店
+- 「路線」：解碼 Encoded Polyline（與後端格式相同）並畫出
+- 深色模式地圖樣式（兩個平台共用同一份 JSON）
+- 地圖上疊加 Compose 元件（列表、按鈕、BottomSheet）時的手勢是否互相干擾
+
+### Android
+
+在 `spike/map-kmp/local.properties` 加入 Maps API 金鑰：
+
+```properties
+sdk.dir=/path/to/Android/sdk
+MAPS_API_KEY=你的金鑰
+```
+
+沒有設定 `MAPS_API_KEY` 時，會改讀環境變數 `GOOGLE_API_KEY`。spike 的套件名稱是 `mai.project.foodmap.spike.map`，不會覆蓋手機上的正式 App。如果金鑰限制了套件名稱，需要把這個名稱加進允許清單，或改用一把開發用金鑰。
+
+```bash
+cd spike/map-kmp
+./gradlew :androidApp:installDebug
+```
+
+### iOS（需要 Mac + Xcode）
+
+```bash
+brew install xcodegen
+```
+
+```bash
+cd spike/map-kmp/iosApp
+cp Secrets.xcconfig.example Secrets.xcconfig
+```
+
+在 `Secrets.xcconfig` 填入 iOS 用的 Maps API 金鑰，然後：
+
+```bash
+xcodegen generate
+```
+
+```bash
+open MapSpike.xcodeproj
+```
+
+選擇模擬器或實機執行。建置時會自動呼叫 `./gradlew :shared:embedAndSignAppleFrameworkForXcode` 編譯 Kotlin。
+
+### iOS 驗證清單
+
+| 項目 | 怎麼確認 |
+|---|---|
+| P0-04 地圖顯示 | 地圖正常載入，能拖曳、縮放、旋轉 |
+| P0-05 自訂 Marker | Marker 顯示店名與評分；點選後變成品牌色 |
+| P0-04 群集 | 縮小時出現群集數字；點群集會放大；在 101 附近的「美食街」放到最大後再點，會跳出 6 家餐廳的清單 |
+| P0-04 路線 | 點「路線」後，畫出台北 101 → 市政府站的路線，鏡頭縮放到整條路線 |
+| P0-06 手勢 | 橫向列表可以左右滑，不會帶動地圖；列表停下時地圖移到該店；BottomSheet 可以下拉關閉 |
+| 深色模式 | 切換系統深色模式後，地圖樣式跟著改變 |

@@ -5,3 +5,8 @@ local.properties
 *.xcuserstate
 xcuserdata/
 DerivedData/
+
+# iOS：由 XcodeGen 產生，或含有金鑰
+*.xcodeproj/
+Secrets.xcconfig
+map-kmp/iosApp/iosApp/Info.plist
